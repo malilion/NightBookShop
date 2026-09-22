@@ -48,6 +48,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   });
   await page.getByRole("button", { name: /先替她拉開椅子/ }).click();
   await until(page, "茶罐：桂花烏龍");
+  await expect(page.locator(".shelf-jar .tea-prop-3d")).toHaveCount(8);
   await prepareLeaves(page, info.project.name === "mobile");
   await pour(page, "kettle", 68, info.project.name === "mobile");
   await flush(page);

@@ -48,3 +48,7 @@ Vue 的 TeaFilm 將 `pour` / `complete` 對應到 `pour-remotion-v1` / `complete
 - [Remotion 授權](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md)
 
 Remotion 套件鎖定 4.0.526，實際依賴以本目錄 package-lock.json 為準；它使用自訂授權，個人可免費製作商業影片，公司使用依其適用條件判斷。
+
+## 共用 3D 器物
+
+`tea-set.js` 同時提供遊戲茶具的正交投影素材。新增不同釉色、弧面紙標、陶瓷微凹凸、金屬細紋與乾茶葉；兩個 Remotion composition 已同步更新。修改器物後先跑 `npm run render:tea-props`，再重新渲染兩段影片，避免遊戲和影片材質不同。詳見 [3D 茶具文件](../docs/TEA_PROPS.md)。

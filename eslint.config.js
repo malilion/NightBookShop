@@ -40,6 +40,7 @@ export default ts.config(
     files: [
       "scripts/tea-film/*.js",
       "scripts/render-tea-films.mjs",
+      "scripts/render-tea-props.mjs",
       "video/src/*.js",
     ],
     languageOptions: { globals: { window: "readonly", document: "readonly" } },

@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <body style="margin: 0">
+    <div id="stage"></div>
+    <script type="module">
+      import { createTeaSet } from "/video/src/tea-set.js";
+      import { teas } from "/src/data/catalog.ts";
+      window.teaCatalog = teas;
+      const scenes = new Map();
+      window.renderProp = (spec) => {
+        let set = scenes.get(spec.kind);
+        if (!set) {
+          set = createTeaSet(
+            document.getElementById("stage"),
+            spec.width * 4,
+            spec.height * 4,
+          );
+          scenes.set(spec.kind, set);
+        }
+        return set.renderProp(spec.kind, spec);
+      };
+    </script>
+  </body>
+</html>

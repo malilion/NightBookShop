@@ -9,6 +9,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
   camera.lookAt(0, 0.7, 0);
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
+    alpha: true,
     preserveDrawingBuffer: true,
   });
   renderer.setSize(W, H);
@@ -22,23 +23,67 @@ export function createTeaSet(container, W = 1280, H = 720) {
   const environment = new RoomEnvironment();
   const environmentMap = pmrem.fromScene(environment, 0.055);
   scene.environment = environmentMap.texture;
-  scene.environmentIntensity = 0.2;
+  scene.environmentIntensity = 0.55;
   environment.dispose();
   pmrem.dispose();
+  // Seeded micro-surface: kiln speckles, glaze pooling and brushed metal grain.
+  function surfaceTexture(brushed = false) {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+    const image = ctx.createImageData(256, 256);
+    let seed = 19283;
+    for (let y = 0; y < 256; y++)
+      for (let x = 0; x < 256; x++) {
+        seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+        const n = seed / 4294967296;
+        const value = brushed
+          ? 128 + Math.sin(y * 2.2) * 18 + n * 24
+          : 110 + n * 65;
+        const i = (y * 256 + x) * 4;
+        image.data[i] = image.data[i + 1] = image.data[i + 2] = value;
+        image.data[i + 3] = 255;
+      }
+    ctx.putImageData(image, 0, 0);
+    const t = new THREE.CanvasTexture(canvas);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(brushed ? 3 : 2, brushed ? 5 : 2);
+    return t;
+  }
+  const ceramicGrain = surfaceTexture(),
+    metalGrain = surfaceTexture(true);
   const material = (color, metalness = 0, roughness = 0.5) =>
     new THREE.MeshStandardMaterial({ color, metalness, roughness });
-  const navy = new THREE.MeshPhysicalMaterial({
-      color: "#203b43",
-      metalness: 0.12,
-      roughness: 0.29,
-      clearcoat: 0.65,
-      clearcoatRoughness: 0.34,
+  const ceramic = (color) =>
+    new THREE.MeshPhysicalMaterial({
+      color,
+      roughness: 0.23,
+      metalness: 0,
+      clearcoat: 1,
+      clearcoatRoughness: 0.18,
+      bumpMap: ceramicGrain,
+      bumpScale: 0.006,
+      envMapIntensity: 0.75,
+    });
+  const navy = ceramic("#153a40"),
+    brass = new THREE.MeshStandardMaterial({
+      color: "#bfa276",
+      metalness: 0.85,
+      roughness: 0.3,
+      bumpMap: metalGrain,
+      bumpScale: 0.003,
     }),
-    brass = material("#cba46a", 0.78, 0.31),
-    cream = material("#e5d0a5", 0.02, 0.35),
-    copper = material("#965b3e", 0.85, 0.3),
-    green = material("#385442", 0.03, 0.8),
-    black = material("#111927", 0.2, 0.45);
+    cream = ceramic("#eee4cb"),
+    copper = new THREE.MeshStandardMaterial({
+      color: "#b5764f",
+      metalness: 0.94,
+      roughness: 0.32,
+      bumpMap: metalGrain,
+      bumpScale: 0.008,
+    }),
+    green = material("#394734", 0, 0.95),
+    black = material("#201c18", 0.02, 0.6),
+    jarGlaze = ceramic("#234d47");
   function mesh(geometry, mat, pos = [0, 0, 0], parent = scene) {
     const m = new THREE.Mesh(geometry, mat);
     m.position.set(...pos);
@@ -215,7 +260,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
   const emblem = mesh(
     new THREE.TorusGeometry(0.145, 0.019, 8, 36, Math.PI * 1.5),
     brass,
-    [0, 0.45, 0.735],
+    [0, 0.45, 0.815],
     pot,
   );
   emblem.rotation.z = -0.7;
@@ -224,7 +269,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
     [-0.25, 0.37],
     [0.18, 0.3],
   ])
-    ball([0.014, 0.014, 0.012], brass, [x, y, 0.73], pot);
+    ball([0.014, 0.014, 0.012], brass, [x, y, 0.785], pot);
   const lid = new THREE.Group();
   scene.add(lid);
   lid.position.set(0.8, 0.08, -0.9);
@@ -323,35 +368,123 @@ export function createTeaSet(container, W = 1280, H = 720) {
       [0.3, 0.1],
       [0, 0.1],
     ],
-    cream,
+    jarGlaze,
     jar,
   );
   ring(0.35, 0.025, brass, [0, 0.67, 0], jar);
+  const jarLid = new THREE.Group();
+  scene.add(jarLid);
+  jarLid.position.set(-2.5, 0.09, 1.3);
   lathe(
     [
       [0, 0],
-      [0.38, 0],
-      [0.38, 0.06],
-      [0, 0.06],
+      [0.37, 0],
+      [0.39, 0.025],
+      [0.39, 0.07],
+      [0.36, 0.09],
+      [0, 0.09],
     ],
     wood,
-    scene,
-    [-2.5, 0.09, 1.3],
+    jarLid,
   );
-  for (let i = 0; i < 16; i++) {
+  ring(0.385, 0.011, brass, [0, 0.035, 0], jarLid);
+  const jarCap = jarLid.clone();
+  jarCap.position.set(0, 0.705, 0);
+  jar.add(jarCap);
+  jarCap.visible = false;
+  const labelCanvas = document.createElement("canvas");
+  labelCanvas.width = 384;
+  labelCanvas.height = 384;
+  const labelTexture = new THREE.CanvasTexture(labelCanvas);
+  labelTexture.colorSpace = THREE.SRGBColorSpace;
+  const labelMesh = mesh(
+    new THREE.CylinderGeometry(0.372, 0.372, 0.39, 48, 1, true, -0.7, 1.4),
+    new THREE.MeshStandardMaterial({
+      map: labelTexture,
+      roughness: 0.92,
+      side: THREE.DoubleSide,
+    }),
+    [0, 0.34, 0],
+    jar,
+  );
+  function jarLabel(label, color) {
+    const c = labelCanvas.getContext("2d");
+    c.fillStyle = "#e1d0aa";
+    c.fillRect(0, 0, 384, 384);
+    c.strokeStyle = color;
+    c.lineWidth = 5;
+    c.strokeRect(18, 18, 348, 348);
+    c.fillStyle = "#645033";
+    c.font = "24px serif";
+    c.textAlign = "center";
+    c.fillText("夜 行 書 店", 192, 68);
+    c.fillStyle = "#302c24";
+    c.font = "44px serif";
+    c.fillText(label, 192, 218, 328);
+    c.fillStyle = color;
+    c.beginPath();
+    c.arc(192, 124, 18, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = "#766245";
+    c.font = "20px serif";
+    c.fillText("藏 茶", 192, 310);
+    labelTexture.needsUpdate = true;
+  }
+  jarLabel("桂花烏龍", "#8d6936");
+  const leafBed = mesh(
+    new THREE.CircleGeometry(0.265, 48),
+    material("#3f3827", 0, 1),
+    [0, 0.555, 0],
+    jar,
+  );
+  leafBed.rotation.x = -Math.PI / 2;
+  for (let i = 0; i < 55; i++) {
     const a = i * 2.4;
     const leaf = ball(
-      [0.07, 0.025, 0.025],
-      green,
-      [Math.cos(a) * 0.24, 0.59 + Math.sin(i) * 0.02, Math.sin(a) * 0.23],
+      [0.07, 0.006, 0.018],
+      material(i % 3 === 0 ? "#6b5631" : "#353c25", 0, 0.95),
+      [
+        Math.cos(a) * (0.04 + (i % 9) * 0.025),
+        0.57 + Math.sin(i) * 0.012,
+        Math.sin(a) * (0.04 + (i % 8) * 0.026),
+      ],
       jar,
     );
     leaf.rotation.y = a;
   }
   const spoon = new THREE.Group();
   scene.add(spoon);
-  ball([0.16, 0.022, 0.23], brass, [0, 0, 0], spoon);
-  box([0.07, 0.045, 0.8], brass, [0, 0.03, 0.55], spoon);
+  const spoonBowl = lathe(
+    [
+      [0, 0],
+      [0.09, 0],
+      [0.15, 0.014],
+      [0.165, 0.035],
+      [0.15, 0.04],
+      [0.09, 0.018],
+      [0, 0.014],
+    ],
+    brass,
+    spoon,
+  );
+  spoonBowl.scale.z = 1.45;
+  ball([0.042, 0.023, 0.44], brass, [0, 0.025, 0.54], spoon);
+  const spoonLeaves = new THREE.Group();
+  spoon.add(spoonLeaves);
+  for (let i = 0; i < 12; i++) {
+    const leaf = ball(
+      [0.07, 0.006, 0.018],
+      material(i % 3 === 0 ? "#75603a" : "#3b422b", 0, 0.95),
+      [
+        Math.sin(i * 2.4) * (0.02 + (i % 4) * 0.02),
+        0.032 + (i % 3) * 0.008,
+        Math.cos(i * 2.4) * (0.02 + (i % 5) * 0.02),
+      ],
+      spoonLeaves,
+    );
+    leaf.rotation.y = i * 2.4;
+  }
+  spoonLeaves.visible = false;
   spoon.rotation.y = -0.55;
   const fallingLeaves = [];
   for (let i = 0; i < 12; i++) {
@@ -532,7 +665,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
   );
   const ambient = new THREE.HemisphereLight("#becde7", "#39241a", 0.85);
   scene.add(ambient);
-  const key = new THREE.DirectionalLight("#ffd8ac", 2.2);
+  const key = new THREE.DirectionalLight("#ffead2", 1.8);
   key.position.set(-3, 7, 4);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
@@ -715,8 +848,90 @@ export function createTeaSet(container, W = 1280, H = 720) {
     candleLight.intensity = 11 * flicker;
     renderer.render(scene, camera);
   }
+  function renderProp(
+    kind,
+    {
+      color = "#c8994e",
+      label = "桂花烏龍",
+      glaze = "#234d47",
+      state = "empty",
+    } = {},
+  ) {
+    setFrame("complete", 0);
+    const objects = { jar, jarLid, kettle, pot, potLid: lid, cup, spoon };
+    const object = objects[kind];
+    if (!object) throw new Error(`Unknown prop ${kind}`);
+    scene.children.forEach((child) => {
+      child.visible = Boolean(child === object || child.isLight);
+    });
+    scene.background = null;
+    renderer.setClearColor(0x000000, 0);
+    object.position.set(0, 0, 0);
+    object.rotation.set(0, 0, 0);
+    object.scale.set(1, 1, 1);
+    jarGlaze.color.set(glaze);
+    jarLabel(label, glaze);
+    jarCap.visible = kind === "jar" && state === "closed";
+    labelMesh.visible = true;
+    teaMat.color.set(color);
+    teaMat.roughness = 0.18;
+    teaMat.metalness = 0.08;
+    teaSurface.visible = kind === "pot" && state === "full";
+    teaSurface.position.y = 0.72;
+    floatingLeaves.forEach((l) => {
+      l.visible = kind === "pot" && state !== "empty";
+      l.position.y = state === "full" ? 0.733 : 0.18;
+    });
+    cupLiquid.visible = kind === "cup" && state === "full";
+    cupLiquid.position.y = 0.47;
+    cupRipples.forEach((r) => {
+      r.visible = false;
+    });
+    if (kind === "jar") object.scale.y = 1.5;
+    if (kind === "spoon") object.rotation.y = Math.PI / 2;
+    spoonLeaves.visible = kind === "spoon" && state === "full";
+    object.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(object);
+    const center = bounds.getCenter(new THREE.Vector3());
+    const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 50);
+    cam.position.copy(center).add(new THREE.Vector3(0, 4.5, 8));
+    cam.lookAt(center);
+    cam.updateMatrixWorld();
+    const corners = [];
+    for (const x of [bounds.min.x, bounds.max.x])
+      for (const y of [bounds.min.y, bounds.max.y])
+        for (const z of [bounds.min.z, bounds.max.z])
+          corners.push(
+            new THREE.Vector3(x, y, z).applyMatrix4(cam.matrixWorldInverse),
+          );
+    const extentX = Math.max(...corners.map((p) => Math.abs(p.x))) * 1.035;
+    const extentY = Math.max(...corners.map((p) => Math.abs(p.y))) * 1.035;
+    const aspect = W / H,
+      extent = Math.max(extentY, extentX / aspect);
+    cam.left = -extent * aspect;
+    cam.right = extent * aspect;
+    cam.top = extent;
+    cam.bottom = -extent;
+    cam.updateProjectionMatrix();
+    renderer.render(scene, cam);
+    // Metadata uses the exact projection, so the interactive stream follows the rendered lip.
+    const point =
+      kind === "kettle"
+        ? new THREE.Vector3(1.38, 1.36, 0)
+        : kind === "pot"
+          ? new THREE.Vector3(1.21, 0.85, 0)
+          : null;
+    if (point) {
+      point.applyMatrix4(object.matrixWorld).project(cam);
+    }
+    return {
+      image: renderer.domElement.toDataURL("image/png"),
+      spout: point ? { x: (point.x + 1) / 2, y: (1 - point.y) / 2 } : null,
+    };
+  }
   return {
     setFrame,
+    renderProp,
     dispose() {
       const geometries = new Set(),
         materials = new Set(),

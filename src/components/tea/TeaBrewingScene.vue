@@ -437,6 +437,15 @@ onBeforeUnmount(() => {
           @wheel="wheel"
         >
           <defs>
+            <filter
+              id="prop-contact-shadow"
+              x="-40%"
+              y="-100%"
+              width="180%"
+              height="300%"
+            >
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
             <radialGradient id="jar-glaze" cx="25%" cy="25%" r="90%">
               <stop stop-color="#4c6059" />
               <stop offset=".5" stop-color="#273d39" />
@@ -546,7 +555,7 @@ onBeforeUnmount(() => {
               :aria-disabled="phase > 1"
               :data-tea="id"
               class="tea-draggable shelf-jar"
-              :opacity="heldJar === id ? 0.3 : phase > 1 ? 0.6 : 1"
+              :opacity="heldJar === id ? 0.3 : phase > 1 ? 0.82 : 1"
               @pointerdown="down($event, 'jar:' + id)"
               @keydown="key($event, 'jar:' + id)"
             >

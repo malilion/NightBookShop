@@ -1,5 +1,8 @@
 <script setup lang="ts">
-withDefaults(
+import { computed, ref, watch } from "vue";
+import { teas } from "../../data/catalog";
+import props3d from "../../data/teaPropAssets.json";
+const props = withDefaults(
   defineProps<{
     kind: string;
     color?: string;
@@ -10,9 +13,72 @@ withDefaults(
   }>(),
   { color: "#c8994e", label: "", open: false, loaded: false, fill: 0 },
 );
+const failed = ref(false);
+const contact = computed(
+  () =>
+    (
+      ({
+        jar: [0, 54, 37, 9],
+        kettle: [-7, 55, 48, 11],
+        pot: [-9, 50, 59, 12],
+        cup: [0, 41, 54, 10],
+        spoon: [0, 10, 48, 4],
+        jarLid: [0, 9, 34, 4],
+        potLid: [0, 14, 36, 6],
+      }) as Record<string, number[]>
+    )[props.kind],
+);
+const teaId = computed(
+  () =>
+    Object.entries(teas).find(([, tea]) => tea.color === props.color)?.[0] ||
+    "osmanthus",
+);
+const assetId = computed(() => {
+  if (props.kind === "jar")
+    return `jar-${teaId.value}-${props.open ? "open" : "closed"}`;
+  if (props.kind === "cup")
+    return props.fill > 0 ? `cup-${teaId.value}` : "cup";
+  if (props.kind === "pot")
+    return props.fill > 0
+      ? `pot-${teaId.value}`
+      : props.loaded
+        ? "pot-leaves"
+        : "pot";
+  if (props.kind === "spoon") return props.loaded ? "spoon-full" : "spoon";
+  return props.kind;
+});
+const asset = computed(() => props3d[assetId.value as keyof typeof props3d]);
+watch(assetId, () => {
+  failed.value = false;
+});
 </script>
 <template>
-  <g v-if="kind === 'jar'">
+  <g
+    v-if="asset && !failed"
+    class="tea-prop-3d"
+    :data-prop-asset="assetId"
+    pointer-events="none"
+  >
+    <ellipse
+      v-if="contact"
+      :cx="contact[0]"
+      :cy="contact[1]"
+      :rx="contact[2]"
+      :ry="contact[3]"
+      fill="#050b0e"
+      opacity=".45"
+      filter="url(#prop-contact-shadow)"
+    />
+    <image
+      :href="asset.file"
+      :x="asset.x"
+      :y="asset.y"
+      :width="asset.width"
+      :height="asset.height"
+      @error="failed = true"
+    />
+  </g>
+  <g v-else-if="kind === 'jar'">
     <ellipse cx="0" cy="54" rx="39" ry="10" fill="#080d14" opacity=".45" />
     <path
       d="M-34-36 Q0-48 34-36 L37 40 Q37 55 0 55 Q-37 55-37 40Z"

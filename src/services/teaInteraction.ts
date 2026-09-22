@@ -1,3 +1,4 @@
+import props3d from "../data/teaPropAssets.json" with { type: "json" };
 import type { TeaDraft } from "../types/game";
 export interface Point {
   x: number;
@@ -39,7 +40,7 @@ export function spout(
   kind: "kettle" | "pot",
 ): Point {
   const angle = (tilt * Math.PI) / 180;
-  const local = kind === "kettle" ? { x: 77, y: -33 } : { x: 81, y: -13 };
+  const local = props3d[kind].spout;
   return {
     x: position.x + local.x * Math.cos(angle) - local.y * Math.sin(angle),
     y: position.y + local.x * Math.sin(angle) + local.y * Math.cos(angle),

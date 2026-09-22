@@ -1,0 +1,326 @@
+{
+  "jar-osmanthus-open": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-osmanthus-open.webp"
+  },
+  "jar-osmanthus-closed": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-osmanthus-closed.webp"
+  },
+  "cup-osmanthus": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-osmanthus.webp"
+  },
+  "pot-osmanthus": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-osmanthus.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "jar-puer-open": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-puer-open.webp"
+  },
+  "jar-puer-closed": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-puer-closed.webp"
+  },
+  "cup-puer": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-puer.webp"
+  },
+  "pot-puer": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-puer.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "jar-mint-open": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-mint-open.webp"
+  },
+  "jar-mint-closed": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-mint-closed.webp"
+  },
+  "cup-mint": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-mint.webp"
+  },
+  "pot-mint": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-mint.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "jar-jasmine-open": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-jasmine-open.webp"
+  },
+  "jar-jasmine-closed": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-jasmine-closed.webp"
+  },
+  "cup-jasmine": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-jasmine.webp"
+  },
+  "pot-jasmine": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-jasmine.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "jar-black-open": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-black-open.webp"
+  },
+  "jar-black-closed": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-black-closed.webp"
+  },
+  "cup-black": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-black.webp"
+  },
+  "pot-black": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-black.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "jar-chamomile-open": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-chamomile-open.webp"
+  },
+  "jar-chamomile-closed": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-chamomile-closed.webp"
+  },
+  "cup-chamomile": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-chamomile.webp"
+  },
+  "pot-chamomile": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-chamomile.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "jar-lavender-open": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-lavender-open.webp"
+  },
+  "jar-lavender-closed": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-lavender-closed.webp"
+  },
+  "cup-lavender": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-lavender.webp"
+  },
+  "pot-lavender": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-lavender.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "jar-hojicha-open": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-hojicha-open.webp"
+  },
+  "jar-hojicha-closed": {
+    "x": -44,
+    "y": -61,
+    "width": 88,
+    "height": 124,
+    "file": "/images/tea-props/jar-hojicha-closed.webp"
+  },
+  "cup-hojicha": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-hojicha.webp"
+  },
+  "pot-hojicha": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-hojicha.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "jarLid": {
+    "x": -39,
+    "y": -15,
+    "width": 78,
+    "height": 30,
+    "file": "/images/tea-props/jarLid.webp"
+  },
+  "kettle": {
+    "x": -60,
+    "y": -105,
+    "width": 150,
+    "height": 170,
+    "file": "/images/tea-props/kettle.webp",
+    "spout": {
+      "x": 84.08085674776427,
+      "y": -42.37816898358011
+    }
+  },
+  "potLid": {
+    "x": -45,
+    "y": -29,
+    "width": 90,
+    "height": 49,
+    "file": "/images/tea-props/potLid.webp"
+  },
+  "spoon": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon.webp"
+  },
+  "cup": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup.webp"
+  },
+  "pot": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "pot-leaves": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-leaves.webp",
+    "spout": {
+      "x": 88.12576241606752,
+      "y": -23.966601315919398
+    }
+  },
+  "spoon-full": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon-full.webp"
+  }
+}
