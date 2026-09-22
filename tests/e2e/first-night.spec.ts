@@ -66,8 +66,34 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     fullPage: true,
     animations: "disabled",
   });
-  await context.setOffline(false);
   await steepAndServe(page, info.project.name === "mobile");
+  const completion = page.getByRole("dialog", {
+    name: "把這一杯，放到她面前。",
+  });
+  await expect(completion).toBeVisible();
+  const film = completion.locator("video");
+  await expect(film).toHaveJSProperty("videoWidth", 1280);
+  await expect(film).toHaveJSProperty("loop", false);
+  await completion.getByRole("button", { name: "暫停動畫" }).click();
+  const pausedAt = await film.evaluate(
+    (v) => (v as HTMLVideoElement).currentTime,
+  );
+  await page.waitForTimeout(250);
+  expect(await film.evaluate((v) => (v as HTMLVideoElement).currentTime)).toBe(
+    pausedAt,
+  );
+  await flush(page);
+  await page.reload();
+  await page.getByRole("button", { name: "將茶遞給她", exact: true }).click();
+  await expect
+    .poll(() => film.evaluate((v) => (v as HTMLVideoElement).currentTime))
+    .toBeGreaterThan(0.2);
+  await page.screenshot({
+    path: `output/tea-completion-${info.project.name}.png`,
+    animations: "disabled",
+  });
+  await expect(completion).not.toBeVisible({ timeout: 12000 });
+  await context.setOffline(false);
   await until(page, "聽她說，那一晚");
   await page.getByRole("button", { name: /聽她說，那一晚/ }).click();
   await until(page, "查看不同的墨跡");
@@ -257,6 +283,10 @@ test("tea is playable without films, keyboard spills stop, and mistakes can be r
   // A spill does not block refilling or handing the cup back to the story.
   await pour(page, "kettle", 68);
   await steepAndServe(page);
+  await expect(
+    page.getByText("影片暫時無法播放，仍可繼續故事。"),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "略過動畫，繼續故事" }).click();
   await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
 });
 
@@ -297,4 +327,20 @@ test("tea pauses under the menu and can be restarted after a mistake", async ({
   for (const field of ["water", "leaves", "seconds", "spilled", "cup"])
     await expect(board).toHaveAttribute(`data-${field}`, "0");
   await expect(board).toHaveAttribute("data-step", "select");
+  await prepareLeaves(page);
+  await pour(page, "kettle", 68);
+  await drag(page, l.lid, l.pot);
+  await pour(page, "pot", 28);
+  await page.getByRole("button", { name: "將茶遞給她", exact: true }).click();
+  const completion = page.getByRole("dialog", {
+    name: "把這一杯，放到她面前。",
+  });
+  await expect(completion.locator("video")).toHaveCount(0);
+  await expect(completion.getByText("靜態製茶畫面")).toBeVisible();
+  await expect(
+    completion.getByRole("button", { name: "繼續故事", exact: true }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
 });

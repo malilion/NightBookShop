@@ -18,7 +18,8 @@
     "render:tea": "node scripts/render-tea-films.mjs",
     "video:studio": "npm --prefix video run studio",
     "video:render": "node video/scripts/render-pour.mjs",
-    "video:typecheck": "npm --prefix video run typecheck"
+    "video:typecheck": "npm --prefix video run typecheck",
+    "video:render:complete": "node video/scripts/render-pour.mjs --clip=complete"
   },
   "dependencies": {
     "@phosphor-icons/vue": "^2.2.1",

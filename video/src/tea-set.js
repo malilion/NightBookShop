@@ -294,6 +294,20 @@ export function createTeaSet(container, W = 1280, H = 720) {
     cup,
   );
   cupLiquid.rotation.x = -Math.PI / 2;
+  const cupRipples = Array.from({ length: 3 }, () =>
+    ring(
+      0.12,
+      0.0025,
+      new THREE.MeshBasicMaterial({
+        color: "#ffe6af",
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+      }),
+      [0, 0.506, 0],
+      cup,
+    ),
+  );
   const jar = new THREE.Group();
   scene.add(jar);
   jar.position.set(-1.8, 0.08, 1.25);
@@ -567,6 +581,11 @@ export function createTeaSet(container, W = 1280, H = 720) {
     teaMat.color.set(
       tea === "puer" ? "#68381c" : tea === "mint" ? "#a3a94c" : "#b87721",
     );
+    camera.position.set(4.6, 5.2, 7.6);
+    camera.lookAt(0, 0.7, 0);
+    cup.position.set(1.9, 0.085, 1);
+    lid.position.set(0.8, 0.08, -0.9);
+    cupRipples.forEach((r) => (r.visible = false));
     kettle.position.set(-2.3, 0.08, -0.45);
     kettle.rotation.set(0, 0, 0);
     pot.position.set(0, 0.09, 0.1);
@@ -653,7 +672,21 @@ export function createTeaSet(container, W = 1280, H = 720) {
         pot.rotation.z = -0.75 * q;
       }
     }
-    if (clip === "complete") teaSurface.position.y = 0.28;
+    if (clip === "complete") {
+      teaSurface.position.y = 0.28;
+      lid.position.set(0, 0.88, 0.1);
+      const slide = ease(clamp(t / 0.5)),
+        approach = ease(t);
+      cup.position.set(1.9 - 0.55 * slide, 0.085, 1 + 0.32 * slide);
+      camera.position.lerp(new THREE.Vector3(3.65, 3.15, 5.0), approach);
+      camera.lookAt(0.85 * approach, 0.7, 0.6 * approach);
+      cupRipples.forEach((r, i) => {
+        const phase = (t * 2.5 + i / 3) % 1;
+        r.visible = true;
+        r.scale.setScalar(0.3 + phase * 2.3);
+        r.material.opacity = (1 - phase) * (1 - ease(t)) * 0.34;
+      });
+    }
     for (let i = 0; i < ripples.length; i++) {
       const r = ripples[i],
         p = (t * 4 + i / 3) % 1;
@@ -665,11 +698,11 @@ export function createTeaSet(container, W = 1280, H = 720) {
     for (let i = 0; i < steam.length; i++) {
       const s = steam[i],
         p = (t + i / steam.length) % 1;
-      const x = clip === "complete" || clip === "serve" ? 1.9 : 0,
-        z = clip === "complete" || clip === "serve" ? 1 : 0.1;
+      const x = clip === "complete" || clip === "serve" ? cup.position.x : 0,
+        z = clip === "complete" || clip === "serve" ? cup.position.z : 0.1;
       s.position.set(
         x + Math.sin(p * 6 + i) * 0.12,
-        0.98 + p * 1.35,
+        (clip === "complete" ? 0.62 : 0.98) + p * 1.35,
         z + Math.cos(p * 7 + i) * 0.07,
       );
       s.scale.set(0.12 + p * 0.32, 0.3 + p * 0.65, 1);

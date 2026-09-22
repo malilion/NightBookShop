@@ -16,6 +16,8 @@ const root = path.resolve(
   "../..",
 );
 const out = path.join(root, "output/remotion");
+const clip = process.argv.includes("--clip=complete") ? "complete" : "pour";
+const compositionId = clip === "complete" ? "TeaComplete" : "TeaPour";
 const preview = process.argv.includes("--preview");
 const publish = process.argv.includes("--publish");
 const teaArg =
@@ -38,10 +40,10 @@ const browser = await openBrowser("chrome", {
   chromiumOptions: { gl: "angle" },
 });
 try {
-  const inputProps = { tea: teaArg };
+  const inputProps = { tea: teaArg, clip };
   const composition = await selectComposition({
     serveUrl,
-    id: "TeaPour",
+    id: compositionId,
     inputProps,
     puppeteerInstance: browser,
   });
@@ -55,14 +57,14 @@ try {
     await renderStill({
       ...common,
       frame,
-      output: path.join(out, `pour-${teaArg}-${frame}.png`),
+      output: path.join(out, `${clip}-${teaArg}-${frame}.png`),
       imageFormat: "png",
     });
   }
   if (preview) {
     console.log("Preview frames: 0, 90, 179");
   } else {
-    const base = path.join(out, `pour-${teaArg}`);
+    const base = path.join(out, `${clip}-${teaArg}`);
     let reported = -1;
     await renderMedia({
       ...common,
@@ -97,7 +99,7 @@ try {
       "1",
       `${base}.webm`,
     ]);
-    await sharp(path.join(out, `pour-${teaArg}-0.png`))
+    await sharp(path.join(out, `${clip}-${teaArg}-0.png`))
       .webp({ quality: 88 })
       .toFile(`${base}-poster.webp`);
     const files = [];
@@ -135,7 +137,7 @@ try {
       `${base}-validation.json`,
       JSON.stringify(
         {
-          composition: "TeaPour",
+          composition: compositionId,
           remotion: "4.0.526",
           tea: teaArg,
           frames: 180,
@@ -151,13 +153,13 @@ try {
       for (const ext of ["mp4", "webm"])
         await copyFile(
           `${base}.${ext}`,
-          path.join(dest, `pour-remotion-v1.${ext}`),
+          path.join(dest, `${clip}-remotion-v1.${ext}`),
         );
       await copyFile(
         `${base}-poster.webp`,
-        path.join(dest, "pour-remotion-v1-poster.webp"),
+        path.join(dest, `${clip}-remotion-v1-poster.webp`),
       );
-      console.log("Validated sample published as pour-remotion-v1");
+      console.log(`Validated sample published as ${clip}-remotion-v1`);
     }
   }
 } finally {

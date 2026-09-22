@@ -1951,3 +1951,16 @@ button:active:not(:disabled),
 
 .tea-board.compact .jar-caption { font-size:20px; }
 .tea-table-heading .quiet-button { white-space: nowrap; flex-shrink: 0; }
+
+.tea-completion { width: min(960px, calc(100vw - 32px)); max-width: 960px; max-height: calc(100dvh - 32px); padding: 24px; overflow: auto; }
+.tea-completion::backdrop { background: #070d17dc; backdrop-filter: blur(5px); }
+.tea-completion-heading { padding: 0 4px 18px; }
+.tea-completion-heading h2 { margin: 8px 0 0; color: var(--gold-light, #e9d3ac); font-size: clamp(20px, 3vw, 30px); }
+.tea-completion .tea-film { margin: 0; }
+.tea-completion-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 18px; }
+.tea-completion-footer p { color: #cbbc9c; margin: 0; }
+@media (max-width: 600px) {
+  .tea-completion { padding: 14px; }
+  .tea-completion-footer { flex-direction: column; align-items: stretch; }
+  .tea-completion-footer .ornate-button { width: 100%; }
+}

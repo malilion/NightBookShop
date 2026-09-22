@@ -16,7 +16,7 @@ import {
   type Point,
 } from "../../services/teaInteraction";
 import TeaObject from "./TeaObject.vue";
-import TeaFilm from "./TeaFilm.vue";
+import TeaCompletion from "./TeaCompletion.vue";
 const game = useGameStore(),
   settings = useSettingsStore();
 const draft = reactive({ ...game.tea });
@@ -29,7 +29,8 @@ const board = ref<SVGSVGElement>(),
 const layout = computed(() => tableLayout(compact.value));
 const selected = computed(() => teas[draft.teaId]);
 const ids = Object.keys(teas) as TeaId[];
-const showFilm = ref(false);
+const showCompletion = ref(false);
+let resultDelivered = false;
 const phase = computed(
   () =>
     ({
@@ -326,6 +327,12 @@ function finish() {
   if (!readyToServe.value) return;
   draft.step = "serve";
   flush();
+  showCompletion.value = true;
+}
+function completeTea() {
+  if (resultDelivered) return;
+  resultDelivered = true;
+  showCompletion.value = false;
   game.finishTea();
 }
 function restart() {
@@ -885,14 +892,12 @@ onBeforeUnmount(() => {
             茶葉太多時，把空茶匙放進壺裡取回一匙，再放回茶罐。水不足可以分次補；壺口未對準或太滿會灑水。離開分頁會停下操作與沙漏，隨時可重新整理茶席。
           </p>
         </details>
-        <details
-          v-if="readyToServe"
-          @toggle="showFilm = ($event.target as HTMLDetailsElement).open"
-        >
-          <summary>看一會兒茶席動畫</summary>
-          <TeaFilm v-if="showFilm" clip="complete" />
-        </details>
       </aside>
     </div>
+    <TeaCompletion
+      v-if="showCompletion"
+      :tea-name="selected.name"
+      @done="completeTea"
+    />
   </section>
 </template>

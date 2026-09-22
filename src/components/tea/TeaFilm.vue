@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
-const props = defineProps<{
-  clip: "idle" | "scoop" | "pour" | "steep" | "serve" | "complete";
-  progress?: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    clip: "idle" | "scoop" | "pour" | "steep" | "serve" | "complete";
+    progress?: number;
+    loop?: boolean;
+  }>(),
+  { loop: undefined, progress: undefined },
+);
 const emit = defineEmits<{ ended: [] }>();
 const settings = useSettingsStore();
 const video = ref<HTMLVideoElement>();
@@ -17,9 +21,13 @@ let objectUrl = "";
 const staticMode = computed(
   () => settings.values.reducedMotion || failed.value,
 );
-const loop = computed(() => ["idle", "steep", "complete"].includes(props.clip));
+const looping = computed(
+  () => props.loop ?? ["idle", "steep", "complete"].includes(props.clip),
+);
 const asset = computed(() =>
-  props.clip === "pour" ? "pour-remotion-v1" : props.clip,
+  ["pour", "complete"].includes(props.clip)
+    ? `${props.clip}-remotion-v1`
+    : props.clip,
 );
 const poster = computed(() => `/video/tea/${asset.value}-poster.webp`);
 let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -63,7 +71,7 @@ async function toggle() {
 }
 watch(() => props.progress, seek);
 watch(
-  [() => props.clip, () => settings.values.reducedMotion],
+  [() => asset.value, () => settings.values.reducedMotion],
   async ([clip, reduced]) => {
     request?.abort();
     const controller = new AbortController();
@@ -87,12 +95,9 @@ watch(
       : ["mp4"];
     for (const extension of formats) {
       try {
-        const response = await fetch(
-          `/video/tea/${clip === "pour" ? "pour-remotion-v1" : clip}.${extension}`,
-          {
-            signal: controller.signal,
-          },
-        );
+        const response = await fetch(`/video/tea/${clip}.${extension}`, {
+          signal: controller.signal,
+        });
         if (!response.ok) throw new Error("Film unavailable");
         const blob = await response.blob();
         if (controller.signal.aborted) return;
@@ -122,7 +127,7 @@ onBeforeUnmount(() => {
       :key="clip"
       :src="source || undefined"
       :poster="poster"
-      :loop="loop"
+      :loop="looping"
       muted
       playsinline
       preload="auto"
@@ -134,7 +139,9 @@ onBeforeUnmount(() => {
     <div class="film-caption">
       <span>{{
         failed
-          ? "影片暫時無法播放，仍可繼續製茶。"
+          ? clip === "complete"
+            ? "影片暫時無法播放，仍可繼續故事。"
+            : "影片暫時無法播放，仍可繼續製茶。"
           : settings.values.reducedMotion
             ? "靜態製茶畫面"
             : "櫃台上的一盞茶"

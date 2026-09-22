@@ -2,7 +2,16 @@
 
 2026-09-22，本機 Node 26.7.0，正式 Vite build 與 Playwright Chromium。
 
-## 可拖曳茶席增量驗證（目前版本）
+## 茶完成動畫增量驗證（目前版本）
+
+- Remotion `TeaComplete` 實際輸出 180 格、1280×720／30 fps／6 秒；H.264 約 1.33 MiB、VP9 約 0.57 MiB，兩者經 ffprobe 格式檢查及 ffmpeg 全片解碼通過。`output/remotion/complete-osmanthus-validation.json` 保留原始報告。
+- 已目視檢查第 0、179 格與遊戲內桌機／手機演出截圖。杯碟滑近、漣漪漸弱、蒸氣與鏡頭緩慢推進；畫面不含手部或音效，八種茶共用暖色茶湯鏡頭。
+- `video:typecheck`、根目錄 lint、typecheck／build 及 19 項單元測試通過。
+- 完整 E2E 單次 10 項全部通過（約 2.8 分鐘）。桌機與 Chromium 手機模擬皆實際播放 720p 完成影片，確認不循環、暫停時間不再增加、離線播放、動畫中重整後可重新奉茶，以及自然播完回到對話和完整章末結局。
+- 缺片仍可略過回到故事；減少動態顯示海報與繼續按鈕，Esc 關閉完成演出時不另外打開遊戲選單。結束／略過共用一次性結果回傳。
+- `output/tea-completion-desktop.png`、`output/tea-completion-mobile.png` 為演出截圖。PWA 預快取新增兩種影片格式與海報，約 5.94 MiB；遊戲畫面 JS 約 15.60 KB gzip。尚未 iOS Safari 實機驗證。
+
+## 可拖曳茶席增量驗證（先前版本）
 
 - `npm run lint`、`npm run build` 通過；TypeScript、Ink 編譯與 PWA 產物正常。
 - `npm test`：4 個檔案、19 項通過。新增兩種壺在 16–75 度的接水範圍、灑水／滿水、壺內存量守恆、八種茶的計分與舊 draft 預設值。原型及 `jinglan-chapter-1` 原編譯故事皆驗證讀檔與完整結局。

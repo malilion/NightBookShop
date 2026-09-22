@@ -8,7 +8,13 @@ import {
 } from "remotion";
 import { createTeaSet } from "./tea-set.js";
 export type Tea = "osmanthus" | "puer" | "mint";
-export function PourFilm({ tea = "osmanthus" }: { tea?: Tea }) {
+export function PourFilm({
+  tea = "osmanthus",
+  clip = "pour",
+}: {
+  tea?: Tea;
+  clip?: "pour" | "complete";
+}) {
   const frame = useCurrentFrame();
   const { width, height, durationInFrames } = useVideoConfig();
   const mount = useRef<HTMLDivElement>(null);
@@ -23,9 +29,9 @@ export function PourFilm({ tea = "osmanthus" }: { tea?: Tea }) {
     };
   }, [width, height]);
   useLayoutEffect(() => {
-    scene.current?.setFrame("pour", frame / (durationInFrames - 1), tea);
+    scene.current?.setFrame(clip, frame / (durationInFrames - 1), tea);
     continueRender(handle);
-  }, [frame, durationInFrames, tea, handle]);
+  }, [frame, durationInFrames, tea, clip, handle]);
   return (
     <AbsoluteFill style={{ background: "#171c29" }}>
       <div ref={mount} style={{ width, height }} />
