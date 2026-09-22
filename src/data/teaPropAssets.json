@@ -322,5 +322,41 @@
     "width": 132,
     "height": 48,
     "file": "/images/tea-props/spoon-full.webp"
+  },
+  "pot-water": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-water.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "pot-liquor": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-liquor.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "cup-water": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-water.webp"
+  },
+  "cup-liquor": {
+    "x": -61,
+    "y": -34,
+    "width": 122,
+    "height": 89,
+    "file": "/images/tea-props/cup-liquor.webp"
   }
 }

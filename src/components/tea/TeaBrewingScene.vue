@@ -2,7 +2,7 @@
 import { computed, reactive, ref, onMounted, onBeforeUnmount } from "vue";
 import { useGameStore } from "../../stores/gameStore";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { teas, teaLiquorColors } from "../../data/catalog";
+import { teas } from "../../data/catalog";
 import { newTea, type TeaId } from "../../types/game";
 import { scoreTea } from "../../services/teaScoring";
 import {
@@ -15,6 +15,7 @@ import {
   pourAnchor,
   type Point,
 } from "../../services/teaInteraction";
+import { teaInfusion } from "../../services/teaInfusion";
 import TeaObject from "./TeaObject.vue";
 import TeaCompletion from "./TeaCompletion.vue";
 const game = useGameStore(),
@@ -84,6 +85,7 @@ const readyToServe = computed(
     draft.cupWater > 0 &&
     ["serving", "serve"].includes(draft.step),
 );
+const infusion = computed(() => teaInfusion(draft));
 const quality = computed(() => scoreTea(draft).quality);
 const hint = computed(() =>
   held.value
@@ -422,6 +424,7 @@ onBeforeUnmount(() => {
           :data-water="draft.water"
           :data-leaves="draft.leaves"
           :data-seconds="draft.seconds"
+          :data-liquor-color="infusion.color"
           :data-cup="draft.cupWater"
           :data-spilled="draft.spilled"
           :data-step="draft.step"
@@ -688,6 +691,8 @@ onBeforeUnmount(() => {
             <rect x="-92" y="-49" width="186" height="110" fill="transparent" />
             <TeaObject
               kind="pot"
+              :liquor-color="infusion.color"
+              :liquor-strength="infusion.strength"
               :fill="potRemaining"
               :loaded="draft.leaves > 0"
               :color="selected.color"
@@ -699,6 +704,8 @@ onBeforeUnmount(() => {
           >
             <TeaObject
               kind="cup"
+              :liquor-color="infusion.color"
+              :liquor-strength="infusion.strength"
               :fill="draft.cupWater"
               :color="selected.color"
             />
@@ -781,11 +788,7 @@ onBeforeUnmount(() => {
             <path
               :d="`M${tip.x} ${tip.y} Q${tip.x + 4} ${tip.y + 45} ${aligned ? target.x : tip.x + 14} ${aligned ? target.y - 27 : Math.min(layout.height - 60, tip.y + 190)}`"
               fill="none"
-              :stroke="
-                held === 'pot'
-                  ? teaLiquorColors[draft.teaId || 'osmanthus']
-                  : 'url(#water-flow)'
-              "
+              :stroke="held === 'pot' ? infusion.color : 'url(#water-flow)'"
               :stroke-width="2 + tilt / 25"
               stroke-linecap="round"
               opacity=".7"
@@ -868,6 +871,17 @@ onBeforeUnmount(() => {
             <dt>浸泡</dt>
             <dd>{{ Math.floor(draft.seconds) }} / {{ selected.seconds }} 秒</dd>
           </div>
+          <div v-if="draft.water > 0" class="tea-liquor-status">
+            <dt>茶湯</dt>
+            <dd>
+              <span
+                class="liquor-swatch"
+                :style="{ backgroundColor: infusion.color }"
+                aria-hidden="true"
+              ></span
+              >{{ infusion.label }}
+            </dd>
+          </div>
           <div v-if="draft.spilled > 1">
             <dt>灑出的水</dt>
             <dd>{{ Math.round(draft.spilled) }}%</dd>
@@ -926,6 +940,7 @@ onBeforeUnmount(() => {
     <TeaCompletion
       v-if="showCompletion"
       :tea-name="selected.name"
+      :liquor-color="infusion.color"
       @done="completeTea"
     />
   </section>

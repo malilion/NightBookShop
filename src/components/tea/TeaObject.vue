@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { teas } from "../../data/catalog";
+import LiquorTint from "./LiquorTint.vue";
 import props3d from "../../data/teaPropAssets.json";
 const props = withDefaults(
   defineProps<{
@@ -10,8 +11,18 @@ const props = withDefaults(
     open?: boolean;
     loaded?: boolean;
     fill?: number;
+    liquorColor?: string;
+    liquorStrength?: number;
   }>(),
-  { color: "#c8994e", label: "", open: false, loaded: false, fill: 0 },
+  {
+    color: "#c8994e",
+    label: "",
+    open: false,
+    loaded: false,
+    fill: 0,
+    liquorStrength: 1,
+    liquorColor: undefined,
+  },
 );
 const failed = ref(false);
 const contact = computed(
@@ -33,7 +44,12 @@ const teaId = computed(
     Object.entries(teas).find(([, tea]) => tea.color === props.color)?.[0] ||
     "osmanthus",
 );
+const liquid = computed(
+  () =>
+    props.fill > 0 && props.liquorColor && ["pot", "cup"].includes(props.kind),
+);
 const assetId = computed(() => {
+  if (liquid.value) return `${props.kind}-water`;
   if (props.kind === "jar")
     return `jar-${teaId.value}-${props.open ? "open" : "closed"}`;
   if (props.kind === "cup")
@@ -47,6 +63,9 @@ const assetId = computed(() => {
   if (props.kind === "spoon") return props.loaded ? "spoon-full" : "spoon";
   return props.kind;
 });
+const liquorAsset = computed(
+  () => props3d[`${props.kind}-liquor` as keyof typeof props3d],
+);
 const asset = computed(() => props3d[assetId.value as keyof typeof props3d]);
 watch(assetId, () => {
   failed.value = false;
@@ -77,6 +96,20 @@ watch(assetId, () => {
       :height="asset.height"
       @error="failed = true"
     />
+    <LiquorTint
+      v-if="liquid && liquorAsset"
+      :color="liquorColor!"
+      :opacity="liquorStrength"
+    >
+      <image
+        :href="liquorAsset.file"
+        :x="liquorAsset.x"
+        :y="liquorAsset.y"
+        :width="liquorAsset.width"
+        :height="liquorAsset.height"
+        @error="failed = true"
+      />
+    </LiquorTint>
   </g>
   <g v-else-if="kind === 'jar'">
     <ellipse cx="0" cy="54" rx="39" ry="10" fill="#080d14" opacity=".45" />
@@ -243,7 +276,7 @@ watch(assetId, () => {
       :cy="-24 - fill * 0.08"
       :rx="35 + fill * 0.035"
       :ry="8 + fill * 0.025"
-      :fill="color"
+      :fill="liquorColor || color"
       opacity=".88"
     />
     <g v-if="loaded" fill="#625f38">
@@ -306,7 +339,7 @@ watch(assetId, () => {
       cy="-16"
       :rx="24 + fill * 0.09"
       :ry="5 + fill * 0.045"
-      :fill="color"
+      :fill="liquorColor || color"
     />
   </g>
   <g v-else-if="kind === 'hourglass'">

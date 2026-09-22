@@ -58,16 +58,16 @@ export function hammeredTexture() {
   return texture;
 }
 
-export function teaTexture() {
+export function teaTexture(neutral = false) {
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 256;
   const ctx = canvas.getContext("2d");
   // Optical depth: the deeper centre absorbs more light than the shallow rim.
   const gradient = ctx.createRadialGradient(121, 126, 10, 128, 128, 130);
-  gradient.addColorStop(0, "#72532a");
-  gradient.addColorStop(0.72, "#ae8343");
-  gradient.addColorStop(0.94, "#e1b86d");
-  gradient.addColorStop(1, "#745129");
+  gradient.addColorStop(0, neutral ? "#9d9d9d" : "#72532a");
+  gradient.addColorStop(0.72, neutral ? "#c8c8c8" : "#ae8343");
+  gradient.addColorStop(0.94, neutral ? "#f2f2f2" : "#e1b86d");
+  gradient.addColorStop(1, neutral ? "#aaaaaa" : "#745129");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 256, 256);
   const texture = new THREE.CanvasTexture(canvas);

@@ -160,6 +160,16 @@ try {
         path.join(dest, `${clip}-remotion-v1-poster.webp`),
       );
       console.log(`Validated sample published as ${clip}-remotion-v1`);
+      if (clip === "complete") {
+        execFileSync(
+          process.execPath,
+          [path.join(root, "scripts/render-tea-liquor.mjs")],
+          {
+            cwd: root,
+            stdio: "inherit",
+          },
+        );
+      }
     }
   }
 } finally {

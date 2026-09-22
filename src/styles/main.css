@@ -1964,3 +1964,6 @@ button:active:not(:disabled),
   .tea-completion-footer { flex-direction: column; align-items: stretch; }
   .tea-completion-footer .ornate-button { width: 100%; }
 }
+
+.liquor-swatch { display: inline-block; width: .75em; height: .75em; margin-inline-end: .55em; border-radius: 50%; border: 1px solid #d9bd7b80; }
+.film-liquor-layer { position: absolute; top: 0; left: 0; width: 100%; height: auto; aspect-ratio: 16 / 9; pointer-events: none; }

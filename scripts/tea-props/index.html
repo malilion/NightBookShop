@@ -12,6 +12,14 @@
         ]),
       );
       const scenes = new Map();
+      window.renderLiquorFrame = (t) => {
+        if (!scenes.has("film"))
+          scenes.set(
+            "film",
+            createTeaSet(document.getElementById("stage"), 1280, 720),
+          );
+        return scenes.get("film").renderLiquorFrame(t);
+      };
       window.renderProp = (spec) => {
         let set = scenes.get(spec.kind);
         if (!set) {

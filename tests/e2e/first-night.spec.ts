@@ -51,6 +51,10 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   await expect(page.locator(".shelf-jar .tea-prop-3d")).toHaveCount(8);
   await prepareLeaves(page, info.project.name === "mobile");
   await pour(page, "kettle", 68, info.project.name === "mobile");
+  await expect(page.locator(".tea-board")).toHaveAttribute(
+    "data-liquor-color",
+    "#dae1d8",
+  );
   await flush(page);
   const water = await page.locator(".tea-board").getAttribute("data-water");
   await page.evaluate(() =>
@@ -72,6 +76,19 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     name: "把這一杯，放到她面前。",
   });
   await expect(completion).toBeVisible();
+  const brewedColor = await page
+    .locator(".tea-board")
+    .getAttribute("data-liquor-color");
+  expect(brewedColor).not.toBe("#dae1d8");
+  await expect(
+    page.locator('[data-tool="pot"] [data-liquor-color]'),
+  ).toHaveAttribute("data-liquor-color", brewedColor!);
+  await expect(
+    page.locator('[data-prop-asset="cup-water"] [data-liquor-color]'),
+  ).toHaveAttribute("data-liquor-color", brewedColor!);
+  await expect(
+    completion.locator(".film-liquor-layer [data-liquor-color]"),
+  ).toHaveAttribute("data-liquor-color", brewedColor!);
   const film = completion.locator("video");
   await expect(film).toHaveJSProperty("videoWidth", 1280);
   await expect(film).toHaveJSProperty("loop", false);
@@ -83,6 +100,22 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   expect(await film.evaluate((v) => (v as HTMLVideoElement).currentTime)).toBe(
     pausedAt,
   );
+  const mask = completion.locator(".film-liquor-layer");
+  const pausedFrame = await mask.getAttribute("data-frame");
+  await page.waitForTimeout(150);
+  await expect(mask).toHaveAttribute("data-frame", pausedFrame!);
+  await film.evaluate((v) => {
+    (v as HTMLVideoElement).currentTime = 3;
+  });
+  await expect
+    .poll(async () =>
+      Math.abs(Number(await mask.getAttribute("data-frame")) - 90),
+    )
+    .toBeLessThanOrEqual(1);
+  await page.screenshot({
+    path: `output/tea-completion-mid-${info.project.name}.png`,
+    animations: "disabled",
+  });
   await flush(page);
   await page.reload();
   await page.getByRole("button", { name: "將茶遞給她", exact: true }).click();
@@ -344,4 +377,50 @@ test("tea pauses under the menu and can be restarted after a mistake", async ({
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
+});
+
+test("infusion changes with time and survives a paused offline reload", async ({
+  page,
+  context,
+}, info) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  await until(page, "翻開今晚的第一頁");
+  await page.getByRole("button", { name: /翻開今晚的第一頁/ }).click();
+  await until(page, "先替她拉開椅子");
+  await page.getByRole("button", { name: /先替她拉開椅子/ }).click();
+  await until(page, "茶罐：桂花烏龍");
+  await prepareLeaves(page, info.project.name === "mobile", 1);
+  await pour(page, "kettle", 68, info.project.name === "mobile");
+  const { layout } = await geometry(page);
+  await drag(page, layout.lid, layout.pot, info.project.name === "mobile");
+  const board = page.locator(".tea-board");
+  await expect
+    .poll(async () => Number(await board.getAttribute("data-seconds")))
+    .toBeGreaterThan(9);
+  await page.getByRole("button", { name: "沙漏：開始或暫停浸泡" }).click();
+  const before = await board.getAttribute("data-liquor-color");
+  const seconds = await board.getAttribute("data-seconds");
+  await page.waitForTimeout(300);
+  await expect(board).toHaveAttribute("data-liquor-color", before!);
+  await flush(page);
+  await page.evaluate(() =>
+    navigator.serviceWorker.ready.then(() => undefined),
+  );
+  await context.setOffline(true);
+  await page.reload();
+  await expect(board).toHaveAttribute("data-seconds", seconds!);
+  await expect(board).toHaveAttribute("data-liquor-color", before!);
+  await page.getByRole("button", { name: "沙漏：開始或暫停浸泡" }).click();
+  await expect
+    .poll(async () => Number(await board.getAttribute("data-seconds")))
+    .toBeGreaterThan(Number(seconds) + 10);
+  await page.getByRole("button", { name: "沙漏：開始或暫停浸泡" }).click();
+  expect(await board.getAttribute("data-liquor-color")).not.toBe(before);
+  await page.screenshot({
+    path: `output/tea-infusion-${info.project.name}.png`,
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "重新整理茶席" }).click();
+  await expect(board).toHaveAttribute("data-liquor-color", "#dae1d8");
 });

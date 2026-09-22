@@ -2,7 +2,7 @@
 import { onMounted, ref } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import TeaFilm from "./TeaFilm.vue";
-defineProps<{ teaName: string }>();
+defineProps<{ teaName: string; liquorColor: string }>();
 const emit = defineEmits<{ done: [] }>();
 const settings = useSettingsStore();
 const dialog = ref<HTMLDialogElement>();
@@ -27,7 +27,12 @@ onMounted(() => dialog.value?.showModal());
       <p class="subtle">{{ teaName }} · 茶已備好</p>
       <h2 id="tea-completion-title">把這一杯，放到她面前。</h2>
     </header>
-    <TeaFilm clip="complete" :loop="false" @ended="finish" />
+    <TeaFilm
+      clip="complete"
+      :loop="false"
+      :liquor-color="liquorColor"
+      @ended="finish"
+    />
     <footer class="tea-completion-footer">
       <p>熱氣慢慢升起，故事還有時間。</p>
       <button class="ornate-button" autofocus @click="finish">

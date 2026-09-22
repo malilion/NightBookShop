@@ -83,6 +83,10 @@ try {
       await render(kind, kind);
     await render("pot-leaves", "pot", { state: "leaves" });
     await render("spoon-full", "spoon", { state: "full" });
+    for (const kind of ["pot", "cup"]) {
+      await render(`${kind}-water`, kind, { state: "water" });
+      await render(`${kind}-liquor`, kind, { state: "full", liquidOnly: true });
+    }
     await writeFile(
       "src/data/teaPropAssets.json",
       JSON.stringify(manifest, null, 2) + "\n",

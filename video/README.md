@@ -52,3 +52,9 @@ Remotion 套件鎖定 4.0.526，實際依賴以本目錄 package-lock.json 為�
 ## 共用 3D 器物
 
 `tea-set.js` 同時提供遊戲茶具的正交投影素材。新增不同釉色、弧面紙標、陶瓷微凹凸、金屬細紋與乾茶葉；兩個 Remotion composition 已同步更新。修改器物後先跑 `npm run render:tea-props`，再重新渲染兩段影片，避免遊戲和影片材質不同。詳見 [3D 茶具文件](../docs/TEA_PROPS.md)。
+
+## 單杯完成動畫與即時湯色
+
+TeaComplete 現在是獨立單杯特寫，只有杯碟、柔和深色背景和蒸氣，六秒內由中景緩慢靠近。原茶桌／水壺仍用在 TeaPour。兩段以同一套材質製作。
+
+遊戲依茶種與浸泡時間替液面上色。完成演出另以同一個 `setFrame` 產生 180 格液面遮罩，裁切後合成 WebP 圖集，透過 SVG 濾鏡和影片影格 callback 同步；杯身、杯碟與背景不染色。`video:render:complete -- --publish` 會自動執行 `render:tea-liquor` 更新圖集與投影位置。修改鏡頭後必須重新產生影片、圖集與 metadata；減少動態使用同一段的第 0 格。

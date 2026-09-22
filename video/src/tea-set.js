@@ -9,6 +9,7 @@ import {
 } from "./tea-surfaces.js";
 export function createTeaSet(container, W = 1280, H = 720) {
   const scene = new THREE.Scene();
+  const soloFog = new THREE.Fog("#171c29", 4, 10);
   scene.background = new THREE.Color("#171c29");
   const camera = new THREE.PerspectiveCamera(35, W / H, 0.1, 80);
   camera.position.set(4.6, 5.2, 7.6);
@@ -175,6 +176,12 @@ export function createTeaSet(container, W = 1280, H = 720) {
     roughness: 0.58,
   });
   box([16, 0.24, 12], wood, [0, -0.15, 0]);
+  const soloFloor = box(
+    [30, 0.035, 30],
+    material("#172329", 0, 0.94),
+    [0, 0.015, 0],
+  );
+  soloFloor.visible = false;
   const mat = material("#283841", 0, 0.9);
   box([4.9, 0.055, 3.1], mat, [-0.05, 0.015, 0.15]);
   // Brass edging on the navy linen runner.
@@ -413,9 +420,11 @@ export function createTeaSet(container, W = 1280, H = 720) {
     cup,
   );
   cupHandle.scale.x = 0.9;
+  const neutralTeaMap = teaTexture(true);
+  const brewedTeaMap = teaTexture();
   const teaMat = new THREE.MeshPhysicalMaterial({
     color: "#d0a354",
-    map: teaTexture(),
+    map: brewedTeaMap,
     metalness: 0,
     roughness: 0.12,
     ior: 1.333,
@@ -837,7 +846,14 @@ export function createTeaSet(container, W = 1280, H = 720) {
   const clamp = (t) => Math.max(0, Math.min(1, t));
   function setFrame(clip, t, tea = "osmanthus") {
     t = clamp(t);
+    scene.children.forEach((child) => {
+      child.visible = true;
+    });
+    soloFloor.visible = false;
+    scene.fog = clip === "complete" ? soloFog : null;
     const isFull = ["steep", "serve", "complete"].includes(clip);
+    teaMat.map = brewedTeaMap;
+    teaMat.opacity = 0.88;
     teaMat.roughness = 0.12;
     teaMat.metalness = 0;
     teaMat.color.set(
@@ -942,9 +958,10 @@ export function createTeaSet(container, W = 1280, H = 720) {
       lid.position.set(0, 0.88, 0.1);
       const slide = ease(clamp(t / 0.5)),
         approach = ease(t);
-      cup.position.set(1.9 - 0.55 * slide, 0.085, 1 + 0.32 * slide);
-      camera.position.lerp(new THREE.Vector3(3.65, 3.15, 5.0), approach);
-      camera.lookAt(0.85 * approach, 0.7, 0.6 * approach);
+      cup.position.set(0, 0.085, 0.08 + 0.14 * slide);
+      camera.position.set(1.15, 1.7, 3.3);
+      camera.position.lerp(new THREE.Vector3(0.85, 1.32, 2.85), approach);
+      camera.lookAt(0, 0.5, 0.15);
       cupRipples.forEach((r, i) => {
         const phase = (t * 2.5 + i / 3) % 1;
         r.visible = true;
@@ -970,9 +987,25 @@ export function createTeaSet(container, W = 1280, H = 720) {
         (clip === "complete" ? 0.62 : 0.98) + p * 1.35,
         z + Math.cos(p * 7 + i) * 0.07,
       );
-      s.scale.set(0.12 + p * 0.32, 0.3 + p * 0.65, 1);
-      s.material.opacity = Math.sin(p * Math.PI) * 0.42;
+      s.scale.set(
+        clip === "complete" ? 0.06 + p * 0.2 : 0.12 + p * 0.32,
+        0.3 + p * 0.65,
+        1,
+      );
+      s.material.opacity =
+        Math.sin(p * Math.PI) * (clip === "complete" ? 0.18 : 0.42);
       s.visible = isFull || clip === "pour";
+    }
+    if (clip === "complete") {
+      // The finished brew gets its own shot: a single cup, saucer and rising steam.
+      scene.children.forEach((child) => {
+        child.visible = Boolean(
+          child === cup ||
+          child === soloFloor ||
+          child.isLight ||
+          steam.includes(child),
+        );
+      });
     }
     const flicker =
       1 + 0.07 * Math.sin(t * Math.PI * 8) + 0.025 * Math.cos(t * Math.PI * 16);
@@ -987,9 +1020,11 @@ export function createTeaSet(container, W = 1280, H = 720) {
       label = "桂花烏龍",
       glaze = "#234d47",
       state = "empty",
+      liquidOnly = false,
     } = {},
   ) {
     setFrame("complete", 0);
+    const filled = state === "full" || state === "water";
     const objects = { jar, jarLid, kettle, pot, potLid: lid, cup, spoon };
     const object = objects[kind];
     if (!object) throw new Error(`Unknown prop ${kind}`);
@@ -997,6 +1032,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
       child.visible = Boolean(child === object || child.isLight);
     });
     scene.background = null;
+    scene.fog = null;
     renderer.setClearColor(0x000000, 0);
     object.position.set(0, 0, 0);
     object.rotation.set(0, 0, 0);
@@ -1006,20 +1042,21 @@ export function createTeaSet(container, W = 1280, H = 720) {
     jarCap.visible = kind === "jar" && state === "closed";
     labelMesh.visible = true;
     teaMat.color.set(color);
+    if (state === "water") {
+      teaMat.map = neutralTeaMap;
+      teaMat.color.set("#dae1d8");
+      teaMat.opacity = 0.2;
+    }
     teaMat.roughness = 0.12;
     teaMat.metalness = 0;
-    teaSurface.visible = kind === "pot" && state === "full";
+    teaSurface.visible = kind === "pot" && filled;
     teaSurface.position.y = 0.72;
     floatingLeaves.forEach((l) => {
       l.visible = kind === "pot" && state !== "empty";
-      l.position.y = state === "full" ? 0.723 : 0.18;
-      l.scale.set(
-        state === "full" ? 1 : 0.65,
-        state === "full" ? 1 : 2,
-        state === "full" ? 1 : 0.65,
-      );
+      l.position.y = filled ? 0.723 : 0.18;
+      l.scale.set(filled ? 1 : 0.65, filled ? 1 : 2, filled ? 1 : 0.65);
     });
-    cupLiquid.visible = kind === "cup" && state === "full";
+    cupLiquid.visible = kind === "cup" && filled;
     cupLiquid.position.y = 0.47;
     cupRipples.forEach((r) => {
       r.visible = false;
@@ -1062,13 +1099,75 @@ export function createTeaSet(container, W = 1280, H = 720) {
       point.applyMatrix4(object.matrixWorld).project(cam);
     }
     return {
-      image: renderer.domElement.toDataURL("image/png"),
+      image: liquidOnly
+        ? renderLiquorOnly(cam)
+        : renderer.domElement.toDataURL("image/png"),
       spout: point ? { x: (point.x + 1) / 2, y: (1 - point.y) / 2 } : null,
     };
+  }
+  function renderLiquorOnly(viewCamera) {
+    const background = scene.background;
+    const clearColor = renderer.getClearColor(new THREE.Color()),
+      clearAlpha = renderer.getClearAlpha();
+    const states = new Map(),
+      sprites = [];
+    const color = teaMat.color.clone(),
+      map = teaMat.map,
+      opacity = teaMat.opacity;
+    scene.traverse((object) => {
+      if (object.isSprite) {
+        sprites.push([object, object.visible]);
+        object.visible = false;
+      }
+      for (const material of Array.isArray(object.material)
+        ? object.material
+        : [object.material]) {
+        if (
+          !material ||
+          material === teaMat ||
+          material === meniscusMat ||
+          cupRipples.some((ripple) => ripple.material === material) ||
+          states.has(material)
+        )
+          continue;
+        states.set(material, [
+          material.colorWrite,
+          material.depthWrite,
+          material.transparent,
+        ]);
+        material.colorWrite = false;
+        material.depthWrite = true;
+        material.transparent = false;
+      }
+    });
+    scene.background = null;
+    renderer.setClearColor(0x000000, 0);
+    teaMat.map = neutralTeaMap;
+    teaMat.color.set("#ffffff");
+    teaMat.opacity = 1;
+    try {
+      renderer.render(scene, viewCamera);
+      return renderer.domElement.toDataURL("image/png");
+    } finally {
+      scene.background = background;
+      renderer.setClearColor(clearColor, clearAlpha);
+      teaMat.color.copy(color);
+      teaMat.map = map;
+      teaMat.opacity = opacity;
+      for (const [material, state] of states) {
+        [material.colorWrite, material.depthWrite, material.transparent] =
+          state;
+      }
+      for (const [sprite, visible] of sprites) sprite.visible = visible;
+    }
   }
   return {
     setFrame,
     renderProp,
+    renderLiquorFrame(t) {
+      setFrame("complete", t);
+      return renderLiquorOnly(camera);
+    },
     dispose() {
       const geometries = new Set(),
         materials = new Set(),
@@ -1087,6 +1186,8 @@ export function createTeaSet(container, W = 1280, H = 720) {
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
+      neutralTeaMap.dispose();
+      brewedTeaMap.dispose();
       environmentMap.dispose();
       renderer.dispose();
       renderer.domElement.remove();
