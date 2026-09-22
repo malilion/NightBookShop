@@ -1,5 +1,6 @@
 // Deterministic, editable tea-film set. No external models, stock footage, or audio.
 import * as THREE from "three";
+import { createTeaLeaves } from "./tea-leaves.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 export function createTeaSet(container, W = 1280, H = 720) {
   const scene = new THREE.Scene();
@@ -81,7 +82,6 @@ export function createTeaSet(container, W = 1280, H = 720) {
       bumpMap: metalGrain,
       bumpScale: 0.008,
     }),
-    green = material("#394734", 0, 0.95),
     black = material("#201c18", 0.02, 0.6),
     jarGlaze = ceramic("#234d47");
   function mesh(geometry, mat, pos = [0, 0, 0], parent = scene) {
@@ -438,19 +438,15 @@ export function createTeaSet(container, W = 1280, H = 720) {
     jar,
   );
   leafBed.rotation.x = -Math.PI / 2;
-  for (let i = 0; i < 55; i++) {
-    const a = i * 2.4;
-    const leaf = ball(
-      [0.07, 0.006, 0.018],
-      material(i % 3 === 0 ? "#6b5631" : "#353c25", 0, 0.95),
-      [
-        Math.cos(a) * (0.04 + (i % 9) * 0.025),
-        0.57 + Math.sin(i) * 0.012,
-        Math.sin(a) * (0.04 + (i % 8) * 0.026),
-      ],
-      jar,
-    );
-    leaf.rotation.y = a;
+  const { leaf: teaLeaf, noise: leafNoise } = createTeaLeaves();
+  for (let i = 0; i < 90; i++) {
+    const a = leafNoise(i + 201) * Math.PI * 2;
+    const r = Math.sqrt(leafNoise(i + 312)) * 0.215;
+    teaLeaf(i, false, jar, [
+      Math.cos(a) * r,
+      0.565 + leafNoise(i + 99) * 0.035,
+      Math.sin(a) * r,
+    ]);
   }
   const spoon = new THREE.Group();
   scene.add(spoon);
@@ -471,30 +467,22 @@ export function createTeaSet(container, W = 1280, H = 720) {
   ball([0.042, 0.023, 0.44], brass, [0, 0.025, 0.54], spoon);
   const spoonLeaves = new THREE.Group();
   spoon.add(spoonLeaves);
-  for (let i = 0; i < 12; i++) {
-    const leaf = ball(
-      [0.07, 0.006, 0.018],
-      material(i % 3 === 0 ? "#75603a" : "#3b422b", 0, 0.95),
-      [
-        Math.sin(i * 2.4) * (0.02 + (i % 4) * 0.02),
-        0.032 + (i % 3) * 0.008,
-        Math.cos(i * 2.4) * (0.02 + (i % 5) * 0.02),
-      ],
-      spoonLeaves,
-    );
-    leaf.rotation.y = i * 2.4;
+  for (let i = 0; i < 18; i++) {
+    teaLeaf(i + 100, false, spoonLeaves, [
+      (leafNoise(i + 24) - 0.5) * 0.16,
+      0.025 + leafNoise(i + 64) * 0.023,
+      (leafNoise(i + 82) - 0.5) * 0.23,
+    ]);
   }
   spoonLeaves.visible = false;
   spoon.rotation.y = -0.55;
   const fallingLeaves = [];
   for (let i = 0; i < 12; i++) {
-    const leaf = ball([0.065, 0.025, 0.02], green, [0, 0, 0]);
-    fallingLeaves.push(leaf);
+    fallingLeaves.push(teaLeaf(i + 100, false, scene));
   }
   const floatingLeaves = [];
-  for (let i = 0; i < 9; i++) {
-    const leaf = ball([0.07, 0.012, 0.023], green, [0, 0, 0], pot);
-    floatingLeaves.push(leaf);
+  for (let i = 0; i < 13; i++) {
+    floatingLeaves.push(teaLeaf(i + 30, true, pot));
   }
   const streamMat = new THREE.MeshPhysicalMaterial({
     color: "#d3e5df",
@@ -734,15 +722,18 @@ export function createTeaSet(container, W = 1280, H = 720) {
     teaSurface.position.y = isFull ? 0.78 : 0.22 + 0.56 * t;
     for (let i = 0; i < floatingLeaves.length; i++) {
       const l = floatingLeaves[i],
-        a = i * 2.4 + t * Math.PI * (clip === "steep" ? 2 : 0.1);
+        a =
+          leafNoise(i + 52) * Math.PI * 2 + t * (clip === "steep" ? 0.7 : 0.12),
+        radius = Math.sqrt(leafNoise(i + 92)) * 0.34;
       l.visible = clip !== "idle" && clip !== "scoop";
       l.position.set(
-        Math.cos(a) * 0.29,
-        teaSurface.position.y + 0.008,
-        Math.sin(a) * 0.27,
+        Math.cos(a) * radius,
+        teaSurface.position.y + 0.003 + (i % 3) * 0.001,
+        Math.sin(a) * radius,
       );
-      l.rotation.y = a;
-      l.scale.set(clip === "steep" ? 0.09 + 0.05 * t : 0.075, 0.014, 0.025);
+      l.rotation.y = leafNoise(i + 71) * Math.PI * 2 + t * 0.18;
+      const opened = clip === "steep" ? 0.8 + 0.2 * t : 1;
+      l.scale.set(opened, 1, opened);
     }
     if (clip === "scoop") {
       const p = ease(clamp(t / 0.42));
@@ -880,7 +871,12 @@ export function createTeaSet(container, W = 1280, H = 720) {
     teaSurface.position.y = 0.72;
     floatingLeaves.forEach((l) => {
       l.visible = kind === "pot" && state !== "empty";
-      l.position.y = state === "full" ? 0.733 : 0.18;
+      l.position.y = state === "full" ? 0.723 : 0.18;
+      l.scale.set(
+        state === "full" ? 1 : 0.65,
+        state === "full" ? 1 : 2,
+        state === "full" ? 1 : 0.65,
+      );
     });
     cupLiquid.visible = kind === "cup" && state === "full";
     cupLiquid.position.y = 0.47;

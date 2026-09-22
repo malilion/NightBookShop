@@ -101,10 +101,9 @@ watch(assetId, () => {
       stroke-width="3"
     />
     <g v-if="open"
-      ><ellipse cy="-35" rx="27" ry="6" :fill="color" opacity=".8" /><path
-        d="M-18-35l9-3m9 5l8-4m7 2l5-3"
-        stroke="#21291e"
-        stroke-width="4"
+      ><ellipse cy="-35" rx="27" ry="6" fill="#343324" /><path
+        d="M-23-36q7-5 12-1l-5 2-3-1Z M-7-33l5-6 3 1-1 3Z M5-37q9-3 15 1l-8 2-2-1Z M-15-32l8-2-2 3Z M10-31l4-4 7 1-6 4Z"
+        fill="#706342"
     /></g>
     <path
       v-else
@@ -158,10 +157,16 @@ watch(assetId, () => {
       stroke="#d9b77d"
     />
     <path d="M-16-6L56-2Q64 2 56 7L-18 1" fill="url(#brass)" stroke="#bc9c68" />
-    <g v-if="loaded" :fill="color"
-      ><ellipse cx="-35" cy="-8" rx="12" ry="5" /><path
-        d="M-48-10l7-6 4 8 7-9 9 9-11 5Z"
-    /></g>
+    <g v-if="loaded" fill="#554d31">
+      <path
+        d="M-49-10q8-6 15-1l-4 3-4-2Z M-36-14l7-1-2 7-4 2Z M-29-8q7-7 12-4l-4 4-5-1Z M-42-4l9-4 6 3-8 3Z"
+      />
+      <path
+        d="M-46-10l8 1m4-4 1 5m8-3 5-1"
+        stroke="#9a895b"
+        stroke-width=".6"
+      />
+    </g>
   </g>
   <g v-else-if="kind === 'kettle'">
     <path
@@ -241,13 +246,12 @@ watch(assetId, () => {
       :fill="color"
       opacity=".88"
     />
-    <g v-if="loaded" fill="#89996e"
-      ><ellipse cx="-13" cy="-29" rx="6" ry="2" /><ellipse
-        cx="9"
-        cy="-24"
-        rx="5"
-        ry="2"
-    /></g>
+    <g v-if="loaded" fill="#625f38">
+      <path
+        d="M-23-30q9-7 20 1l-5 2-5-1-4 1Z M2-24q6-7 17-4l-4 3-6 1-2 2Z M-4-34l4-3 9 2-6 2Z"
+      />
+      <path d="M-21-30l15 1m10 4 12-3" stroke="#a39865" stroke-width=".6" />
+    </g>
     <path
       d="M-22-10Q-31 9-19 27"
       fill="none"
