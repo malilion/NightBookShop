@@ -181,3 +181,15 @@ export const letterPieces = [
     back: "「請原諒我」是多年後用深色墨水補寫的。",
   },
 ] as const;
+
+// Brewed liquor is independent of the label / jar accent colour.
+export const teaLiquorColors: Record<TeaId, string> = {
+  osmanthus: "#d7a958",
+  puer: "#9b532b",
+  mint: "#b9b773",
+  jasmine: "#d1c278",
+  black: "#bd792e",
+  chamomile: "#e0bf69",
+  lavender: "#b77a37",
+  hojicha: "#ac7239",
+};

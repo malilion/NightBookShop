@@ -4,8 +4,13 @@
     <div id="stage"></div>
     <script type="module">
       import { createTeaSet } from "/video/src/tea-set.js";
-      import { teas } from "/src/data/catalog.ts";
-      window.teaCatalog = teas;
+      import { teas, teaLiquorColors } from "/src/data/catalog.ts";
+      window.teaCatalog = Object.fromEntries(
+        Object.entries(teas).map(([id, tea]) => [
+          id,
+          { ...tea, color: teaLiquorColors[id] },
+        ]),
+      );
       const scenes = new Map();
       window.renderProp = (spec) => {
         let set = scenes.get(spec.kind);

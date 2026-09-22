@@ -2,7 +2,7 @@
 import { computed, reactive, ref, onMounted, onBeforeUnmount } from "vue";
 import { useGameStore } from "../../stores/gameStore";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { teas } from "../../data/catalog";
+import { teas, teaLiquorColors } from "../../data/catalog";
 import { newTea, type TeaId } from "../../types/game";
 import { scoreTea } from "../../services/teaScoring";
 import {
@@ -437,6 +437,13 @@ onBeforeUnmount(() => {
           @wheel="wheel"
         >
           <defs>
+            <linearGradient id="water-flow" x1="0" y1="0" x2="1" y2="1">
+              <stop stop-color="#7c999e" stop-opacity=".35" />
+              <stop offset=".4" stop-color="#edf4ee" stop-opacity=".78" />
+              <stop offset=".65" stop-color="#b6cfd0" stop-opacity=".42" />
+              <stop offset="1" stop-color="#e3eee1" stop-opacity=".68" />
+            </linearGradient>
+
             <filter
               id="prop-contact-shadow"
               x="-40%"
@@ -774,9 +781,22 @@ onBeforeUnmount(() => {
             <path
               :d="`M${tip.x} ${tip.y} Q${tip.x + 4} ${tip.y + 45} ${aligned ? target.x : tip.x + 14} ${aligned ? target.y - 27 : Math.min(layout.height - 60, tip.y + 190)}`"
               fill="none"
-              :stroke="held === 'pot' ? selected.color : '#dbe8df'"
+              :stroke="
+                held === 'pot'
+                  ? teaLiquorColors[draft.teaId || 'osmanthus']
+                  : 'url(#water-flow)'
+              "
               :stroke-width="2 + tilt / 25"
-              opacity=".8"
+              stroke-linecap="round"
+              opacity=".7"
+            />
+            <path
+              :d="`M${tip.x} ${tip.y} Q${tip.x + 4} ${tip.y + 45} ${aligned ? target.x : tip.x + 14} ${aligned ? target.y - 27 : Math.min(layout.height - 60, tip.y + 190)}`"
+              fill="none"
+              stroke="#f0f6e9"
+              stroke-width=".85"
+              stroke-linecap="round"
+              opacity=".6"
             />
             <ellipse
               v-if="aligned"

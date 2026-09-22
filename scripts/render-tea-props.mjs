@@ -22,6 +22,7 @@ const glazes = {
   lavender: "#655978",
   hojicha: "#534536",
 };
+const preview = process.argv.includes("--preview");
 const server = await createServer({
   configFile: false,
   optimizeDeps: { entries: ["scripts/tea-props/index.html"] },
@@ -38,7 +39,7 @@ try {
   await page.goto("http://127.0.0.1:4176/scripts/tea-props/");
   await page.waitForFunction(() => window.renderProp && window.teaCatalog);
   const catalog = await page.evaluate(() => window.teaCatalog);
-  const dest = "public/images/tea-props";
+  const dest = preview ? "output/tea-props-preview" : "public/images/tea-props";
   await mkdir(dest, { recursive: true });
   const manifest = {};
   async function render(id, kind, props = {}) {
@@ -58,21 +59,35 @@ try {
       };
     console.log(id);
   }
-  for (const [id, tea] of Object.entries(catalog)) {
-    const props = { color: tea.color, label: tea.name, glaze: glazes[id] };
-    for (const state of ["open", "closed"])
-      await render(`jar-${id}-${state}`, "jar", { ...props, state });
-    await render(`cup-${id}`, "cup", { ...props, state: "full" });
-    await render(`pot-${id}`, "pot", { ...props, state: "full" });
+  if (preview) {
+    const tea = catalog.osmanthus;
+    const props = {
+      color: tea.color,
+      label: tea.name,
+      glaze: glazes.osmanthus,
+    };
+    await render("kettle", "kettle");
+    await render("pot", "pot", { ...props, state: "full" });
+    await render("cup", "cup", { ...props, state: "full" });
+    await render("jar", "jar", { ...props, state: "open" });
+    await render("spoon", "spoon", { state: "full" });
+  } else {
+    for (const [id, tea] of Object.entries(catalog)) {
+      const props = { color: tea.color, label: tea.name, glaze: glazes[id] };
+      for (const state of ["open", "closed"])
+        await render(`jar-${id}-${state}`, "jar", { ...props, state });
+      await render(`cup-${id}`, "cup", { ...props, state: "full" });
+      await render(`pot-${id}`, "pot", { ...props, state: "full" });
+    }
+    for (const kind of ["jarLid", "kettle", "potLid", "spoon", "cup", "pot"])
+      await render(kind, kind);
+    await render("pot-leaves", "pot", { state: "leaves" });
+    await render("spoon-full", "spoon", { state: "full" });
+    await writeFile(
+      "src/data/teaPropAssets.json",
+      JSON.stringify(manifest, null, 2) + "\n",
+    );
   }
-  for (const kind of ["jarLid", "kettle", "potLid", "spoon", "cup", "pot"])
-    await render(kind, kind);
-  await render("pot-leaves", "pot", { state: "leaves" });
-  await render("spoon-full", "spoon", { state: "full" });
-  await writeFile(
-    "src/data/teaPropAssets.json",
-    JSON.stringify(manifest, null, 2) + "\n",
-  );
 } finally {
   await browser.close();
   await server.close();

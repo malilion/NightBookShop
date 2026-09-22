@@ -1,7 +1,12 @@
 // Deterministic, editable tea-film set. No external models, stock footage, or audio.
 import * as THREE from "three";
 import { createTeaLeaves } from "./tea-leaves.js";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import {
+  studioEnvironment,
+  hammeredTexture,
+  teaTexture,
+  glazeTexture,
+} from "./tea-surfaces.js";
 export function createTeaSet(container, W = 1280, H = 720) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color("#171c29");
@@ -18,15 +23,11 @@ export function createTeaSet(container, W = 1280, H = 720) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.02;
+  renderer.toneMappingExposure = 0.95;
   container.append(renderer.domElement);
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  const environment = new RoomEnvironment();
-  const environmentMap = pmrem.fromScene(environment, 0.055);
+  const environmentMap = studioEnvironment(renderer);
   scene.environment = environmentMap.texture;
-  scene.environmentIntensity = 0.55;
-  environment.dispose();
-  pmrem.dispose();
+  scene.environmentIntensity = 0.75;
   // Seeded micro-surface: kiln speckles, glaze pooling and brushed metal grain.
   function surfaceTexture(brushed = false) {
     const canvas = document.createElement("canvas");
@@ -55,32 +56,34 @@ export function createTeaSet(container, W = 1280, H = 720) {
     metalGrain = surfaceTexture(true);
   const material = (color, metalness = 0, roughness = 0.5) =>
     new THREE.MeshStandardMaterial({ color, metalness, roughness });
+  const glazeColor = glazeTexture();
   const ceramic = (color) =>
     new THREE.MeshPhysicalMaterial({
       color,
-      roughness: 0.23,
+      map: glazeColor,
+      roughness: 0.34,
       metalness: 0,
-      clearcoat: 1,
-      clearcoatRoughness: 0.18,
+      clearcoat: 0.55,
+      clearcoatRoughness: 0.27,
       bumpMap: ceramicGrain,
-      bumpScale: 0.006,
+      bumpScale: 0.002,
       envMapIntensity: 0.75,
     });
-  const navy = ceramic("#153a40"),
+  const navy = ceramic("#244740"),
     brass = new THREE.MeshStandardMaterial({
-      color: "#bfa276",
+      color: "#9d8054",
       metalness: 0.85,
-      roughness: 0.3,
+      roughness: 0.42,
       bumpMap: metalGrain,
       bumpScale: 0.003,
     }),
-    cream = ceramic("#eee4cb"),
+    cream = ceramic("#e6dfcf"),
     copper = new THREE.MeshStandardMaterial({
-      color: "#b5764f",
+      color: "#a46d45",
       metalness: 0.94,
-      roughness: 0.32,
-      bumpMap: metalGrain,
-      bumpScale: 0.008,
+      roughness: 0.39,
+      bumpMap: hammeredTexture(),
+      bumpScale: 0.012,
     }),
     black = material("#201c18", 0.02, 0.6),
     jarGlaze = ceramic("#234d47");
@@ -93,15 +96,17 @@ export function createTeaSet(container, W = 1280, H = 720) {
     return m;
   }
   function lathe(points, mat, parent, pos = [0, 0, 0]) {
-    return mesh(
-      new THREE.LatheGeometry(
-        points.map((p) => new THREE.Vector2(...p)),
-        72,
-      ),
-      mat,
-      pos,
-      parent,
-    );
+    let profile = points.map((p) => new THREE.Vector2(...p));
+    for (let pass = 0; pass < 2; pass++) {
+      const rounded = [profile[0]];
+      for (let i = 0; i < profile.length - 1; i++) {
+        rounded.push(profile[i].clone().lerp(profile[i + 1], 0.2));
+        rounded.push(profile[i].clone().lerp(profile[i + 1], 0.8));
+      }
+      rounded.push(profile.at(-1));
+      profile = rounded;
+    }
+    return mesh(new THREE.LatheGeometry(profile, 96), mat, pos, parent);
   }
   function ring(radius, tube, mat, pos, parent = scene) {
     const m = mesh(
@@ -180,38 +185,122 @@ export function createTeaSet(container, W = 1280, H = 720) {
   kettle.position.set(-2.3, 0.08, -0.45);
   lathe(
     [
-      [0, 0],
-      [0.45, 0],
-      [0.7, 0.18],
-      [0.77, 0.5],
-      [0.71, 0.9],
-      [0.46, 1.12],
-      [0.44, 1.16],
-      [0, 1.16],
+      [0, 0.035],
+      [0.48, 0.035],
+      [0.66, 0.07],
+      [0.77, 0.18],
+      [0.8, 0.36],
+      [0.77, 0.56],
+      [0.68, 0.75],
+      [0.51, 0.88],
+      [0.39, 0.91],
+      [0.375, 0.96],
+      [0.34, 0.96],
+      [0.34, 0.88],
+      [0, 0.88],
     ],
     copper,
     kettle,
   );
-  ring(0.455, 0.024, brass, [0, 1.17, 0], kettle);
-  ball([0.16, 0.09, 0.16], black, [0, 1.28, 0], kettle);
+  ring(0.57, 0.018, black, [0, 0.055, 0], kettle);
+  ring(0.375, 0.012, brass, [0, 0.958, 0], kettle);
+  lathe(
+    [
+      [0, 0.96],
+      [0.37, 0.96],
+      [0.355, 1.0],
+      [0.22, 1.045],
+      [0, 1.055],
+    ],
+    copper,
+    kettle,
+  );
+  const walnut = new THREE.MeshStandardMaterial({
+    color: "#856045",
+    map: wood.map,
+    roughness: 0.47,
+    bumpMap: ceramicGrain,
+    bumpScale: 0.002,
+  });
+  lathe(
+    [
+      [0, 0],
+      [0.065, 0],
+      [0.11, 0.065],
+      [0.1, 0.13],
+      [0.06, 0.15],
+      [0, 0.15],
+    ],
+    walnut,
+    kettle,
+    [0, 1.055, 0],
+  );
+  // Tapered, hollow gooseneck; the endpoint remains the pouring origin.
+  const kettleSpoutPoints = [
+    [0.63, 0.26, 0],
+    [0.88, 0.36, 0],
+    [1.06, 0.76, 0],
+    [1.2, 1.16, 0],
+    [1.38, 1.36, 0],
+  ];
+  const spoutCurve = new THREE.CatmullRomCurve3(
+    kettleSpoutPoints.map((p) => new THREE.Vector3(...p)),
+  );
+  const spoutGeometry = new THREE.TubeGeometry(spoutCurve, 64, 1, 24, false);
+  const spoutPositions = spoutGeometry.attributes.position;
+  for (let i = 0; i <= 64; i++) {
+    const centre = spoutCurve.getPointAt(i / 64),
+      radius = 0.12 - 0.074 * Math.pow(i / 64, 0.65);
+    for (let j = 0; j <= 24; j++) {
+      const index = i * 25 + j;
+      const vertex = new THREE.Vector3().fromBufferAttribute(
+        spoutPositions,
+        index,
+      );
+      vertex.sub(centre).multiplyScalar(radius).add(centre);
+      spoutPositions.setXYZ(index, vertex.x, vertex.y, vertex.z);
+    }
+  }
+  spoutGeometry.computeVertexNormals();
+  mesh(spoutGeometry, copper, [0, 0, 0], kettle);
+  const spoutLip = ring(0.046, 0.006, brass, [1.38, 1.36, 0], kettle);
+  const spoutDirection = spoutCurve.getTangent(1);
+  spoutLip.quaternion.setFromUnitVectors(
+    new THREE.Vector3(0, 0, 1),
+    spoutDirection,
+  );
+  const spoutHole = mesh(
+    new THREE.CircleGeometry(0.04, 32),
+    black,
+    [1.378, 1.357, 0],
+    kettle,
+  );
+  spoutHole.quaternion.copy(spoutLip.quaternion);
+  for (const side of [-1, 1]) {
+    tube(
+      [
+        [side * 0.63, 0.68, 0],
+        [side * 0.73, 1.05, 0],
+        [side * 0.62, 1.52, 0],
+        [side * 0.4, 1.7, 0],
+      ],
+      0.045,
+      brass,
+      kettle,
+    );
+    ball([0.08, 0.08, 0.04], brass, [side * 0.63, 0.7, 0.035], kettle);
+  }
   tube(
     [
-      [0.62, 0.35, 0],
-      [0.9, 0.58, 0],
-      [1.04, 1.08, 0],
-      [1.38, 1.36, 0],
+      [-0.42, 1.69, 0],
+      [-0.22, 1.8, 0],
+      [0.22, 1.8, 0],
+      [0.42, 1.69, 0],
     ],
-    0.085,
-    brass,
+    0.084,
+    walnut,
     kettle,
   );
-  const handle = mesh(
-    new THREE.TorusGeometry(0.65, 0.07, 12, 48, Math.PI),
-    black,
-    [0, 1.22, 0],
-    kettle,
-  );
-  handle.rotation.z = 0;
   const pot = new THREE.Group();
   scene.add(pot);
   pot.position.set(0, 0.09, 0.1);
@@ -235,8 +324,8 @@ export function createTeaSet(container, W = 1280, H = 720) {
     navy,
     pot,
   );
-  ring(0.49, 0.025, brass, [0, 0.9, 0], pot);
-  ring(0.46, 0.022, brass, [0, 0.085, 0], pot);
+  ring(0.49, 0.012, brass, [0, 0.9, 0], pot);
+  ring(0.46, 0.01, brass, [0, 0.085, 0], pot);
   tube(
     [
       [0.65, 0.32, 0],
@@ -250,8 +339,8 @@ export function createTeaSet(container, W = 1280, H = 720) {
   );
   ring(0.09, 0.017, brass, [1.21, 0.85, 0], pot);
   const potHandle = mesh(
-    new THREE.TorusGeometry(0.35, 0.055, 10, 48),
-    brass,
+    new THREE.TorusGeometry(0.35, 0.05, 16, 64),
+    navy,
     [-0.75, 0.47, 0],
     pot,
   );
@@ -285,7 +374,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
     lid,
   );
   ball([0.09, 0.09, 0.09], brass, [0, 0.29, 0], lid);
-  ring(0.49, 0.019, brass, [0, 0.08, 0], lid);
+  ring(0.49, 0.01, brass, [0, 0.08, 0], lid);
   const cup = new THREE.Group();
   scene.add(cup);
   cup.position.set(1.9, 0.085, 1.0);
@@ -316,15 +405,27 @@ export function createTeaSet(container, W = 1280, H = 720) {
     cream,
     cup,
   );
-  ring(0.397, 0.016, brass, [0, 0.556, 0], cup);
+  ring(0.397, 0.007, brass, [0, 0.556, 0], cup);
   const cupHandle = mesh(
-    new THREE.TorusGeometry(0.15, 0.033, 8, 36),
-    brass,
+    new THREE.TorusGeometry(0.15, 0.028, 16, 48),
+    cream,
     [0.42, 0.35, 0],
     cup,
   );
   cupHandle.scale.x = 0.9;
-  const teaMat = material("#b27326", 0.22, 0.18);
+  const teaMat = new THREE.MeshPhysicalMaterial({
+    color: "#d0a354",
+    map: teaTexture(),
+    metalness: 0,
+    roughness: 0.12,
+    ior: 1.333,
+    clearcoat: 1,
+    clearcoatRoughness: 0.08,
+    transparent: true,
+    opacity: 0.88,
+    depthWrite: false,
+    envMapIntensity: 0.55,
+  });
   const teaSurface = mesh(
     new THREE.CircleGeometry(0.45, 64),
     teaMat,
@@ -339,6 +440,43 @@ export function createTeaSet(container, W = 1280, H = 720) {
     cup,
   );
   cupLiquid.rotation.x = -Math.PI / 2;
+  // A narrow curved meniscus catches light where liquid meets the vessel wall.
+  const meniscusMat = new THREE.MeshPhysicalMaterial({
+    color: "#d2b774",
+    roughness: 0.09,
+    ior: 1.333,
+    transparent: true,
+    opacity: 0.38,
+    depthWrite: false,
+    metalness: 0,
+  });
+  for (const [surface, radius] of [
+    [teaSurface, 0.445],
+    [cupLiquid, 0.336],
+  ]) {
+    const meniscus = mesh(
+      new THREE.TorusGeometry(radius, 0.003, 8, 96),
+      meniscusMat,
+      [0, 0, 0.002],
+      surface,
+    );
+    meniscus.castShadow = false;
+    for (let i = 0; i < 5; i++) {
+      const angle = 0.65 + i * 0.037;
+      const bubble = mesh(
+        new THREE.TorusGeometry(0.004 + (i % 2) * 0.002, 0.001, 6, 12),
+        meniscusMat,
+        [
+          Math.cos(angle) * (radius - 0.01),
+          Math.sin(angle) * (radius - 0.01),
+          0.003,
+        ],
+        surface,
+      );
+      bubble.castShadow = false;
+    }
+  }
+
   const cupRipples = Array.from({ length: 3 }, () =>
     ring(
       0.12,
@@ -371,7 +509,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
     jarGlaze,
     jar,
   );
-  ring(0.35, 0.025, brass, [0, 0.67, 0], jar);
+  ring(0.35, 0.012, brass, [0, 0.67, 0], jar);
   const jarLid = new THREE.Group();
   scene.add(jarLid);
   jarLid.position.set(-2.5, 0.09, 1.3);
@@ -485,12 +623,15 @@ export function createTeaSet(container, W = 1280, H = 720) {
     floatingLeaves.push(teaLeaf(i + 30, true, pot));
   }
   const streamMat = new THREE.MeshPhysicalMaterial({
-    color: "#d3e5df",
+    color: "#d7e5e2",
     transparent: true,
-    opacity: 0.62,
-    metalness: 0.03,
-    roughness: 0.09,
-    clearcoat: 1,
+    opacity: 0.75,
+    transmission: 0.55,
+    thickness: 0.08,
+    ior: 1.333,
+    metalness: 0,
+    roughness: 0.04,
+    clearcoat: 0.5,
     depthWrite: false,
   });
   const stream = new THREE.Group();
@@ -651,9 +792,9 @@ export function createTeaSet(container, W = 1280, H = 720) {
     new THREE.MeshBasicMaterial({ color: "#ecdfb9" }),
     [-1.1, 4.5, -3.8],
   );
-  const ambient = new THREE.HemisphereLight("#becde7", "#39241a", 0.85);
+  const ambient = new THREE.HemisphereLight("#d4dcd8", "#40362a", 1.05);
   scene.add(ambient);
-  const key = new THREE.DirectionalLight("#ffead2", 1.8);
+  const key = new THREE.DirectionalLight("#ffead2", 2.0);
   key.position.set(-3, 7, 4);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
@@ -665,7 +806,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
   key.shadow.normalBias = 0.025;
   key.shadow.radius = 3;
   scene.add(key);
-  const fill = new THREE.DirectionalLight("#839fbe", 0.8);
+  const fill = new THREE.DirectionalLight("#aabdc9", 0.65);
   fill.position.set(1, 5, -5);
   scene.add(fill);
   const steam = [];
@@ -697,8 +838,8 @@ export function createTeaSet(container, W = 1280, H = 720) {
   function setFrame(clip, t, tea = "osmanthus") {
     t = clamp(t);
     const isFull = ["steep", "serve", "complete"].includes(clip);
-    teaMat.roughness = 0.13;
-    teaMat.metalness = 0.15;
+    teaMat.roughness = 0.12;
+    teaMat.metalness = 0;
     teaMat.color.set(
       tea === "puer" ? "#68381c" : tea === "mint" ? "#a3a94c" : "#b87721",
     );
@@ -865,8 +1006,8 @@ export function createTeaSet(container, W = 1280, H = 720) {
     jarCap.visible = kind === "jar" && state === "closed";
     labelMesh.visible = true;
     teaMat.color.set(color);
-    teaMat.roughness = 0.18;
-    teaMat.metalness = 0.08;
+    teaMat.roughness = 0.12;
+    teaMat.metalness = 0;
     teaSurface.visible = kind === "pot" && state === "full";
     teaSurface.position.y = 0.72;
     floatingLeaves.forEach((l) => {

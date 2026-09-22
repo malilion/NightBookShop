@@ -34,6 +34,16 @@ export function createTeaLeaves() {
       ctx.moveTo(x, 64);
       ctx.quadraticCurveTo(x + 13, 64 + side * 20, x + 34, 64 + side * 59);
       ctx.stroke();
+      ctx.globalAlpha = 0.22;
+      for (let branch = 1; branch < 4; branch++) {
+        const bx = x + branch * 7,
+          by = 64 + side * branch * 12;
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(bx + 13, by + side * 8);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 0.5;
     }
   }
   const texture = new THREE.CanvasTexture(canvas);
@@ -58,12 +68,12 @@ export function createTeaLeaves() {
   function leaf(seed, wet, parent, position = [0, 0, 0]) {
     const length = (wet ? 0.2 : 0.095) * (0.7 + noise(seed) * 0.9);
     const width = length * (wet ? 0.36 : 0.27 + noise(seed + 2) * 0.14);
-    const fold = wet ? 0.006 : 0.014;
+    const fold = wet ? 0.005 : 0.011 + noise(seed + 6) * 0.016;
     const positions = [],
       uvs = [],
       indices = [];
-    const rows = 14,
-      columns = 4;
+    const rows = 24,
+      columns = 6;
     for (let row = 0; row <= rows; row++) {
       const u = row / rows;
       const outline = Math.pow(Math.sin(Math.PI * u), 0.8);
@@ -76,7 +86,8 @@ export function createTeaLeaves() {
         positions.push(
           (u - 0.5) * length,
           Math.sin(u * Math.PI) * fold * (0.24 + across * across) +
-            across * Math.sin(u * 5 + seed) * fold * 0.4,
+            across * Math.sin(u * 5 + seed) * fold * 0.4 * outline +
+            Math.sin(u * 24 + seed) * Math.abs(across) * outline * 0.0015,
           across * width * 0.5 * outline * edge * notch +
             Math.sin(u * Math.PI) * length * 0.06,
         );
