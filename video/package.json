@@ -1,0 +1,25 @@
+{
+  "name": "night-bookshop-films",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.tsx --port=3001 --no-open",
+    "typecheck": "tsc --noEmit",
+    "render:pour": "node scripts/render-pour.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.526",
+    "@remotion/cli": "4.0.526",
+    "@remotion/renderer": "4.0.526",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.526",
+    "three": "0.186.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/three": "0.186.0",
+    "typescript": "7.0.2"
+  }
+}
