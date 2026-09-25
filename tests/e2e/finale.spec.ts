@@ -92,6 +92,12 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await page.reload();
   await expect(page.locator(".memory-evidence-hidden-room .memory-object-seen")).toHaveCount(3);
   await page.getByRole("button", { name: "帶著看到的線索回到櫃台" }).click();
+  await advanceUntil(page, '.scene-art img[src*="memory-child-home.webp"]');
+  await expect(page.locator(".scene-art")).toHaveCount(1);
+  await expect(page.locator(".scene-art")).toHaveCSS("opacity", "1");
+  await expect.poll(() => page.locator('.scene-art img[src*="memory-child-home.webp"]').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+  if (touch) await expect(page.locator('.scene-art source[srcset*="memory-child-home-mobile.webp"]')).toHaveCount(1);
+  await page.screenshot({ path: `output/finale-child-home-${info.project.name}.png`, animations: "disabled" });
   await inspectMemoryObjects(page, "child-home", ["父親的信", "母親便條", "兒時外套"]);
   await page.getByRole("button", { name: "從兒時外套裡收起第一片信紙" }).click();
   await advanceUntil(page, '.scene-art img[src*="memory-child-bookshop.webp"]');

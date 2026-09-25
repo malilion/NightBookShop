@@ -62,6 +62,8 @@ const chapterImages: Record<PlayableChapterId, readonly string[]> = {
   lincheng: [
     assets.memories.hiddenRoom,
     assets.mobileMemories.hiddenRoom,
+    assets.memories.childHome,
+    assets.mobileMemories.childHome,
     assets.memories.childBookshop,
     assets.mobileMemories.childBookshop,
   ],

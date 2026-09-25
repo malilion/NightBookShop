@@ -36,6 +36,7 @@ export const assets = {
     lastBus: "/images/memory-last-bus.webp",
     emptyShop: "/images/memory-empty-shop.webp",
     bookshopDoor: "/images/memory-bookshop-door.webp",
+    childHome: "/images/memory-child-home.webp",
     childBookshop: "/images/memory-child-bookshop.webp",
   },
   mobileMemories: {
@@ -62,6 +63,7 @@ export const assets = {
     lastBus: "/images/memory-last-bus-mobile.webp",
     emptyShop: "/images/memory-empty-shop-mobile.webp",
     bookshopDoor: "/images/memory-bookshop-door-mobile.webp",
+    childHome: "/images/memory-child-home-mobile.webp",
     childBookshop: "/images/memory-child-bookshop-mobile.webp",
   },
   mobileScenes: {

@@ -147,3 +147,25 @@ test("fifth-night memories load from the chapter pack offline", async ({ page, c
   await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("第五夜");
   await context.setOffline(false);
 });
+
+test("finale childhood home loads from the chapter pack offline", async ({ page, context }) => {
+  await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today", "haiming-light"]);
+  await page.goto("/#/chapters");
+  await page.getByRole("button", { name: "翻開終章" }).click();
+  await expectImagesCached(page, [
+    ...["hidden-room", "child-home", "child-bookshop"].flatMap((scene) => [
+      `/images/memory-${scene}.webp`,
+      `/images/memory-${scene}-mobile.webp`,
+    ]),
+  ]);
+  await context.setOffline(true);
+  const response = await page.evaluate(async () => {
+    const image = await fetch("/images/memory-child-home-mobile.webp");
+    return { ok: image.ok, bytes: (await image.blob()).size };
+  });
+  expect(response.ok).toBe(true);
+  expect(response.bytes).toBeGreaterThan(0);
+  await page.reload();
+  await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("終章");
+  await context.setOffline(false);
+});

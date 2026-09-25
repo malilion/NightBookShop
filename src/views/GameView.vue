@@ -71,6 +71,7 @@ const background = computed(() => {
     if (frame.section === "last-bus") return assets.memories.lastBus;
     if (frame.section === "empty-shop") return assets.memories.emptyShop;
     if (frame.section === "bookshop-door") return assets.memories.bookshopDoor;
+    if (frame.section === "child-home") return assets.memories.childHome;
     if (frame.section === "hidden-envelope") return assets.memories.childBookshop;
   }
   return assets.scenes[frame.scene];
@@ -103,6 +104,7 @@ const mobileBackground = computed(() => {
     if (frame.section === "last-bus") return assets.mobileMemories.lastBus;
     if (frame.section === "empty-shop") return assets.mobileMemories.emptyShop;
     if (frame.section === "bookshop-door") return assets.mobileMemories.bookshopDoor;
+    if (frame.section === "child-home") return assets.mobileMemories.childHome;
     if (frame.section === "hidden-envelope") return assets.mobileMemories.childBookshop;
   }
   return background.value;
