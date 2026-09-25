@@ -1,0 +1,47 @@
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { gzipSync } from "node:zlib";
+
+const dist = new URL("../dist/", import.meta.url);
+const sw = readFileSync(new URL("sw.js", dist), "utf8");
+const precached = [...new Set([...sw.matchAll(/\{url:"([^"]+)",revision:(?:"[^"]+"|null)\}/g)].map((match) => match[1]))];
+if (precached.length < 30) throw new Error("無法讀取 PWA 預快取清單。請檢查 Workbox 輸出格式。");
+
+const size = (url) => statSync(new URL(url, dist)).size;
+const precacheBytes = precached.reduce((sum, url) => sum + size(url), 0);
+const imageBytes = size("images/rain-street.webp");
+const jsBytes = readdirSync(new URL("assets/", dist))
+  .filter((file) => file.endsWith(".js"))
+  .reduce((sum, file) => sum + gzipSync(readFileSync(new URL(`assets/${file}`, dist))).length, 0);
+
+const mustPrecache = [
+  "index.html",
+  "story/compiled/main.json",
+  "images/rain-street.webp",
+  "images/counter.webp",
+  "images/jinglan-room.webp",
+  "images/jinglan-room-mobile.webp",
+  "images/memory-school.webp",
+  "images/memory-school-mobile.webp",
+  "images/memory-hospital.webp",
+  "images/memory-hospital-mobile.webp",
+  "images/memory-platform.webp",
+  "images/memory-platform-mobile.webp",
+  "images/characters/jinglan.webp",
+];
+for (const url of mustPrecache) {
+  if (!precached.includes(url)) throw new Error(`第一夜離線資源未預快取：${url}`);
+}
+if (!precached.some((url) => url.startsWith("audio/"))) throw new Error("音效未預快取。");
+if (precached.some((url) => url.startsWith("video/tea/") && /\.(mp4|webm)$/.test(url)))
+  throw new Error("完整製茶影片不應進入安裝預快取。");
+if (precached.some((url) => url.startsWith("images/memory-white-room")))
+  throw new Error("後期章節圖片應在章節啟動時下載。");
+
+const budget = (label, bytes, limit) => {
+  console.log(`${label}: ${(bytes / 1024).toFixed(1)} KiB / ${(limit / 1024).toFixed(1)} KiB`);
+  if (bytes > limit) throw new Error(`${label} 超過 PRD 預算。`);
+};
+budget("全部遊戲 JS gzip（初次載入的保守上限）", jsBytes, 300 * 1024);
+budget("首頁必要圖片", imageBytes, 1.5 * 1024 * 1024);
+budget("PWA 安裝預快取（單章首批資源的保守上限）", precacheBytes, 8 * 1024 * 1024);
+console.log(`PWA 預快取 ${precached.length} 項；第一夜資源完整，後期圖片與影片按需快取。`);

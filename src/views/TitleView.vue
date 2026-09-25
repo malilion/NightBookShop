@@ -21,9 +21,9 @@ async function resume() {
     <header class="title-header">
       <span class="shop-seal"><GameIcon name="moon" /> 午夜開門・黎明打烊</span>
       <nav aria-label="書店選單">
-        <RouterLink to="/collection"
+        <RouterLink to="/collection" aria-label="故事收藏"
           ><GameIcon name="bookmark" /><span>故事收藏</span></RouterLink
-        ><RouterLink to="/settings"
+        ><RouterLink to="/settings" aria-label="設定"
           ><GameIcon name="settings" /><span>設定</span></RouterLink
         >
       </nav>

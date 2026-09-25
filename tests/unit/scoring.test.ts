@@ -21,6 +21,56 @@ describe("minigame results", () => {
     expect(scoreTea({ ...ideal, teaId: "mint" }).emotionalMatch).toBe(25);
     expect(() => scoreTea({ ...ideal, water: Number.NaN })).toThrow();
   });
+  it("scores Yenuan's apple hojicha as the dedicated tea", () => {
+    const base = { ...newTea(), teaId: "hojicha" as const, leaves: 3, water: 70, temperature: 95, seconds: 60 };
+    const plain = scoreTea(base, "yenuan");
+    const apple = scoreTea({ ...base, garnish: "apple" }, "yenuan");
+    expect(plain.emotionalMatch).toBe(75);
+    expect(apple.emotionalMatch).toBe(100);
+    expect(apple.quality).toBeGreaterThan(plain.quality);
+    expect(apple.garnish).toBe("apple");
+  });
+  it("reserves Boyan's highest tea fit for chamomile with honey", () => {
+    const base = { ...newTea(), teaId: "chamomile" as const, leaves: 3, water: 70, temperature: 90, seconds: 60 };
+    const plain = scoreTea(base, "boyan");
+    const honey = scoreTea({ ...base, garnish: "honey" }, "boyan");
+    expect(plain.emotionalMatch).toBe(75);
+    expect(honey.emotionalMatch).toBe(100);
+    expect(honey.quality).toBeGreaterThan(plain.quality);
+    expect(honey.garnish).toBe("honey");
+  });
+  it("scores Yuhang's lemon mint as the dedicated tea", () => {
+    const base = { ...newTea(), teaId: "mint" as const, leaves: 3, water: 70, temperature: 80, seconds: 30 };
+    const plain = scoreTea(base, "yuhang");
+    const lemon = scoreTea({ ...base, garnish: "lemon" }, "yuhang");
+    const blend = scoreTea({ ...base, blackTea: 20 }, "yuhang");
+    const complete = scoreTea({ ...base, garnish: "lemon", blackTea: 20 }, "yuhang");
+    expect(plain.emotionalMatch).toBe(75);
+    expect(lemon.emotionalMatch).toBe(85);
+    expect(blend.emotionalMatch).toBe(90);
+    expect(complete.emotionalMatch).toBe(100);
+    expect(lemon.quality).toBeGreaterThan(plain.quality);
+    expect(complete.quality).toBeGreaterThan(blend.quality);
+    expect(complete.blackTea).toBe(20);
+    expect(lemon.garnish).toBe("lemon");
+  });
+  it("scores Yuhang's optional honey and apple recipes without overtaking mint", () => {
+    const chamomile = { ...newTea(), teaId: "chamomile" as const, leaves: 3, water: 70, temperature: 85, seconds: 45 };
+    const hojicha = { ...newTea(), teaId: "hojicha" as const, leaves: 3, water: 70, temperature: 95, seconds: 60 };
+    expect(scoreTea({ ...chamomile, garnish: "honey" }, "yuhang").emotionalMatch).toBe(75);
+    expect(scoreTea(chamomile, "yuhang").emotionalMatch).toBe(65);
+    expect(scoreTea({ ...hojicha, garnish: "apple" }, "yuhang").emotionalMatch).toBe(55);
+    expect(scoreTea(hojicha, "yuhang").emotionalMatch).toBe(45);
+  });
+  it("scores Haiming's salted caramel hojicha as the dedicated tea", () => {
+    const base = { ...newTea(), teaId: "hojicha" as const, leaves: 3, water: 70, temperature: 95, seconds: 60 };
+    const plain = scoreTea(base, "haiming");
+    const caramel = scoreTea({ ...base, garnish: "caramel" }, "haiming");
+    expect(plain.emotionalMatch).toBe(75);
+    expect(caramel.emotionalMatch).toBe(100);
+    expect(caramel.quality).toBeGreaterThan(plain.quality);
+    expect(caramel.garnish).toBe("caramel");
+  });
   it("only understands a complete original letter after observing ink", () => {
     const letter = {
       ...newLetter(),

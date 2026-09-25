@@ -1,7 +1,36 @@
 import { z } from "zod";
-export const STORY_VERSION = "jinglan-chapter-2";
+export const STORY_VERSION = "jinglan-chapter-3";
 export const storyVersionSchema = z.enum([
   STORY_VERSION,
+  "jinglan-chapter-2",
+  "boyan-chapter-1",
+  "boyan-chapter-2",
+  "boyan-chapter-3",
+  "boyan-chapter-4",
+  "boyan-chapter-5",
+  "boyan-chapter-6",
+  "ruoyin-chapter-1",
+  "ruoyin-chapter-2",
+  "ruoyin-chapter-3",
+  "ruoyin-chapter-4",
+  "yenuan-chapter-1",
+  "yenuan-chapter-2",
+  "yenuan-chapter-3",
+  "yenuan-chapter-4",
+  "yuhang-chapter-1",
+  "yuhang-chapter-2",
+  "yuhang-chapter-3",
+  "yuhang-chapter-4",
+  "yuhang-chapter-5",
+  "yuhang-chapter-6",
+  "haiming-chapter-1",
+  "haiming-chapter-2",
+  "haiming-chapter-3",
+  "haiming-chapter-4",
+  "lincheng-chapter-1",
+  "lincheng-chapter-2",
+  "lincheng-chapter-3",
+  "lincheng-chapter-4",
   "jinglan-chapter-1",
   "jinglan-prototype-1",
 ]);
@@ -19,6 +48,41 @@ export const sectionSchema = z.enum([
   "response",
   "coda",
   "afterword",
+  "office",
+  "clinic",
+  "train",
+  "childhood",
+  "backstage",
+  "banquet",
+  "grandstage",
+  "finalbar",
+  "dawn-kitchen",
+  "anniversary",
+  "old-oven",
+  "recipe-choice",
+  "observations",
+  "hearth",
+  "hospital-return",
+  "mail-route",
+  "old-post-office",
+  "last-bus",
+  "empty-shop",
+  "bookshop-door",
+  "stamp-choice",
+  "storm-tower",
+  "summer-visit",
+  "last-watch",
+  "white-room",
+  "log-choice",
+  "watch-lamp",
+  "archive",
+  "visitor-seat",
+  "child-home",
+  "hidden-room",
+  "hidden-envelope",
+  "owner-talk",
+  "self-letter",
+  "dawn-choice",
 ]);
 export const clueSchema = z.enum([
   "ring",
@@ -29,10 +93,105 @@ export const clueSchema = z.enum([
   "platform",
   "marriage",
   "old-address",
+  "old-melody",
+  "badge",
+  "watch",
+  "medicine",
+  "exam",
+  "notification",
+  "date",
+  "school-journal",
+  "broken-string",
+  "concert-ticket",
+  "injury",
+  "stage-review",
+  "cleaner",
+  "company-recital",
+  "first-joy",
+  "motif",
+  "manual-page",
+  "burnt-bread",
+  "candles",
+  "burn-mark",
+  "voicemail",
+  "recipe-card",
+  "recipe-postmark",
+  "moon-card",
+  "childhood-glimpse",
+  "wet-envelope",
+  "delivery-ledger",
+  "wooden-shop",
+  "postcard",
+  "cancelled-leave",
+  "expired-lease",
+  "stamp-bottom",
+  "future-postmark",
+  "lighthouse-postcard",
+  "address-card",
+  "many-hands",
+  "broken-lamp",
+  "rescue-log",
+  "kite",
+  "wedding-invite",
+  "paper-boat",
+  "lighthouse-photo",
+  "shared-melody",
+  "sixfold-map",
+  "child-note",
+  "hidden-page",
+  "nameplate",
 ]);
-export const fragmentSchema = z.enum(["address", "reason", "wait"]);
-export const sceneSchema = z.enum(["counter", "jinglan", "memory", "moon-sea"]);
-export const modeSchema = z.enum(["dialogue", "tea", "letter", "ending"]);
+export const fragmentSchema = z.enum([
+  "address",
+  "reason",
+  "wait",
+  "status",
+  "boundary",
+  "handoff",
+  "next",
+  "greeting",
+  "fear",
+  "music",
+  "flour",
+  "apple",
+  "waiting",
+  "tomorrow",
+  "admit",
+  "without-her",
+  "begin",
+  "light",
+  "shore",
+  "return",
+  "remember",
+  "kept",
+  "afraid",
+  "two-wishes",
+  "embrace",
+]);
+export const sceneSchema = z.enum([
+  "counter",
+  "jinglan",
+  "memory",
+  "moon-sea",
+  "boyan",
+  "ruoyin",
+  "yenuan",
+  "yuhang",
+  "haiming",
+  "lincheng",
+]);
+export const modeSchema = z.enum([
+  "dialogue",
+  "tea",
+  "letter",
+  "melody",
+  "hearth",
+  "route",
+  "lamp",
+  "archive",
+  "notifications",
+  "ending",
+]);
 export const teaIdSchema = z.enum([
   "osmanthus",
   "puer",
@@ -55,6 +214,8 @@ export const teaSchema = z.object({
     "serve",
   ]),
   teaId: teaIdSchema,
+  garnish: z.enum(["none", "apple", "lemon", "caramel", "honey"]).default("none"),
+  blackTea: z.number().min(0).max(30).default(0),
   leaves: z.number().min(0).max(5),
   water: z.number().min(0).max(100),
   temperature: z.number().min(60).max(100),
@@ -68,13 +229,55 @@ export const teaSchema = z.object({
 });
 export type TeaDraft = z.infer<typeof teaSchema>;
 export const letterSchema = z.object({
-  slots: z.array(z.string().nullable()).length(3),
+  slots: z.array(z.string().nullable()).min(3).max(4),
   inspected: z.boolean(),
   alternate: z.boolean(),
-  angles: z.array(z.number().int().min(0).max(3)).length(3).default([0, 0, 0]),
-  flipped: z.array(z.boolean()).length(3).default([false, false, false]),
+  angles: z
+    .array(z.number().int().min(0).max(3))
+    .min(3)
+    .max(4)
+    .default([0, 0, 0]),
+  flipped: z.array(z.boolean()).min(3).max(4).default([false, false, false]),
+  reverseSlots: z
+    .array(z.string().nullable())
+    .length(3)
+    .default([null, null, null]),
+  activeSide: z.enum(["front", "back"]).default("front"),
+  stamp: z.enum(["none", "past", "present", "future"]).default("none"),
 });
 export type LetterDraft = z.infer<typeof letterSchema>;
+export const melodySchema = z.object({
+  notes: z.array(z.number().int().min(0).max(3)).max(4),
+});
+export type MelodyDraft = z.infer<typeof melodySchema>;
+export const hearthActionSchema = z.enum(["rush", "silence", "wait", "ask"]);
+export const hearthSchema = z.object({
+  responses: z.array(hearthActionSchema).max(3),
+});
+export type HearthDraft = z.infer<typeof hearthSchema>;
+export const routeStopSchema = z.enum(["post-office", "last-bus", "empty-shop", "bookshop-door"]);
+export const routeSchema = z.object({ stops: z.array(routeStopSchema).max(3) });
+export type RouteDraft = z.infer<typeof routeSchema>;
+export const lampActionSchema = z.enum(["brighten", "dim", "steady"]);
+export const lampSchema = z.object({ turns: z.array(lampActionSchema).max(3) });
+export type LampDraft = z.infer<typeof lampSchema>;
+export const archiveItemSchema = z.enum(["jinglan", "boyan", "ruoyin", "yenuan", "yuhang", "haiming"]);
+export const archiveSchema = z.object({ inspected: z.array(archiveItemSchema).max(6) });
+export type ArchiveDraft = z.infer<typeof archiveSchema>;
+export const workNotificationSchema = z.enum(["manager", "teammate", "system"]);
+export type WorkNotification = z.infer<typeof workNotificationSchema>;
+export const notificationsSchema = z.object({
+  paused: z.array(workNotificationSchema).max(3),
+  repliedMother: z.boolean(),
+}).refine((draft) => new Set(draft.paused).size === draft.paused.length, "工作通知不能重複暫停。");
+export type NotificationsDraft = z.infer<typeof notificationsSchema>;
+export const openingTaskSchema = z.enum(["counter", "weather", "tea"]);
+export type OpeningTask = z.infer<typeof openingTaskSchema>;
+export const openingSchema = z.object({
+  inspected: z.array(openingTaskSchema).max(3),
+  complete: z.boolean(),
+});
+export type OpeningDraft = z.infer<typeof openingSchema>;
 export const frameSchema = z.object({
   section: sectionSchema.default("prologue"),
   clues: z.array(clueSchema).default([]),
@@ -93,6 +296,30 @@ export const frameSchema = z.object({
     "recipient",
     "unfinished",
     "intervention",
+    "boyan-rest",
+    "boyan-leave",
+    "boyan-boundary",
+    "boyan-overwork",
+    "ruoyin-one",
+    "ruoyin-stage",
+    "ruoyin-score",
+    "ruoyin-echo",
+    "yenuan-share",
+    "yenuan-reopen",
+    "yenuan-rest",
+    "yenuan-copy",
+    "yuhang-today",
+    "yuhang-future",
+    "yuhang-past",
+    "yuhang-unknown",
+    "haiming-light",
+    "haiming-voice",
+    "haiming-boat",
+    "haiming-hero",
+    "lincheng-dawn",
+    "lincheng-keeper",
+    "lincheng-shelf",
+    "lincheng-midnight",
   ]),
 });
 export type StoryFrame = z.infer<typeof frameSchema>;
@@ -103,6 +330,13 @@ export const snapshotSchema = z.object({
   frame: frameSchema,
   tea: teaSchema,
   letter: letterSchema,
+  melody: melodySchema.default({ notes: [] }),
+  hearth: hearthSchema.default({ responses: [] }),
+  route: routeSchema.default({ stops: [] }),
+  lamp: lampSchema.default({ turns: [] }),
+  archive: archiveSchema.default({ inspected: [] }),
+  notifications: notificationsSchema.default({ paused: [], repliedMother: false }),
+  opening: openingSchema.default({ inspected: ["counter", "weather", "tea"], complete: true }),
 });
 export type GameSnapshot = z.infer<typeof snapshotSchema>;
 export const saveSchema = z.object({
@@ -116,10 +350,14 @@ export interface TeaResult {
   quality: number;
   emotionalMatch: number;
   teaId: TeaId;
+  garnish?: TeaDraft["garnish"];
+  blackTea?: number;
 }
 export const newTea = (): TeaDraft => ({
   step: "select",
   teaId: "osmanthus",
+  garnish: "none",
+  blackTea: 0,
   leaves: 0,
   water: 0,
   temperature: 90,
@@ -137,4 +375,14 @@ export const newLetter = (): LetterDraft => ({
   alternate: false,
   angles: [0, 0, 0],
   flipped: [false, false, false],
+  reverseSlots: [null, null, null],
+  activeSide: "front",
+  stamp: "none",
 });
+export const newMelody = (): MelodyDraft => ({ notes: [] });
+export const newHearth = (): HearthDraft => ({ responses: [] });
+export const newRoute = (): RouteDraft => ({ stops: [] });
+export const newLamp = (): LampDraft => ({ turns: [] });
+export const newArchive = (): ArchiveDraft => ({ inspected: [] });
+export const newNotifications = (): NotificationsDraft => ({ paused: [], repliedMother: false });
+export const newOpening = (): OpeningDraft => ({ inspected: [], complete: false });

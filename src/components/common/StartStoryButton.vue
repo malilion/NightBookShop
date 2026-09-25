@@ -3,13 +3,14 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useGameStore } from "../../stores/gameStore";
 import GameIcon from "./GameIcon.vue";
-defineProps<{ label?: string; secondary?: boolean }>();
+import type { PlayableChapterId } from "../../data/catalog";
+const props = defineProps<{ label?: string; secondary?: boolean; chapter?: PlayableChapterId }>();
 const game = useGameStore(),
   router = useRouter(),
   dialog = ref<HTMLDialogElement>();
 async function start() {
   dialog.value?.close();
-  if (await game.start()) await router.push("/game");
+  if (await game.start(props.chapter)) await router.push("/game");
 }
 function ask() {
   if (game.latest) dialog.value?.showModal();

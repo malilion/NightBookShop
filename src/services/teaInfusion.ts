@@ -37,7 +37,7 @@ function mix(a: string, b: string, progress: number) {
   );
 }
 export function teaInfusion(
-  draft: Pick<TeaDraft, "teaId" | "seconds" | "leaves" | "water">,
+  draft: Pick<TeaDraft, "teaId" | "seconds" | "leaves" | "water"> & Partial<Pick<TeaDraft, "blackTea">>,
 ) {
   const profile = profiles[draft.teaId];
   const ratio =
@@ -50,11 +50,18 @@ export function teaInfusion(
   const index = capped < 0.2 ? 0 : capped < 1 ? 1 : 2;
   const progress =
     (capped - times[index]!) / (times[index + 1]! - times[index]!);
+  const base = mix(stages[index]!, stages[index + 1]!, progress);
+  const blackRatio = draft.teaId === "mint"
+    ? Math.min(0.55, (draft.blackTea ?? 0) / Math.max(30, draft.water + (draft.blackTea ?? 0)))
+    : 0;
   return {
-    color: mix(stages[index]!, stages[index + 1]!, progress),
-    strength: Math.min(1, ratio / 0.2),
+    color: blackRatio ? mix(base, profiles.black.colors[1], blackRatio) : base,
+    strength: Math.max(Math.min(1, ratio / 0.2), blackRatio * 2),
     label:
-      ratio === 0
+      blackRatio > 0
+        ? draft.water === 0 ? "備好的淡紅茶"
+          : `${ratio < 0.45 ? "淡" : ratio > 1.25 ? "濃" : "透亮"}薄荷紅茶`
+        : ratio === 0
         ? "清水初注"
         : `${ratio < 0.45 ? "淡" : ratio > 1.25 ? "濃" : "透亮"}${profile.name}`,
   };

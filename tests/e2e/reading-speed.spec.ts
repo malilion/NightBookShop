@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { prepareOpening } from "./opening-helpers";
 
 test("dialogue speed persists, reveals before advancing, and respects reduced motion", async ({
   page,
@@ -35,6 +36,7 @@ test("dialogue speed persists, reveals before advancing, and respects reduced mo
   });
   await page.getByRole("link", { name: "回到門前" }).click();
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  await prepareOpening(page);
   const dialogue = page.locator(".dialogue-text");
   const full = (await dialogue.getAttribute("data-full-text"))!;
   expect(full.length).toBeGreaterThan(20);

@@ -6,7 +6,13 @@ import { audio } from "../../audio/audioManager";
 import GameIcon from "../common/GameIcon.vue";
 
 const game = useGameStore();
+const props = defineProps<{ visibleChoiceIndexes?: number[] }>();
 const settings = useSettingsStore();
+const visibleChoices = computed(() =>
+  props.visibleChoiceIndexes
+    ? game.frame?.choices.filter((choice) => props.visibleChoiceIndexes!.includes(choice.index)) ?? []
+    : game.frame?.choices ?? [],
+);
 const units = ref<string[]>([]);
 const visibleCount = ref(0);
 const visibleText = computed(() =>
@@ -95,11 +101,11 @@ defineExpose({ reveal, revealing });
     </p>
     <p class="screen-reader-only" aria-live="polite">{{ game.frame.text }}</p>
     <div
-      v-if="!revealing && game.frame.choices.length"
+      v-if="!revealing && visibleChoices.length"
       class="dialogue-choices"
     >
       <button
-        v-for="choice in game.frame.choices"
+        v-for="choice in visibleChoices"
         :key="choice.index"
         @click="choose(choice.index)"
       >

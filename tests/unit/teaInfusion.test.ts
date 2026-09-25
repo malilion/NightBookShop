@@ -60,4 +60,14 @@ describe("tea liquor", () => {
     ).toEqual(teaInfusion(paused));
     expect(teaInfusion(newTea()).color).toBe(clearWaterColor);
   });
+  it("tints mint liquor when measured black tea is mixed in", () => {
+    const mint = { ...brew, teaId: "mint" as const, seconds: 30 };
+    const plain = teaInfusion(mint);
+    const mixed = teaInfusion({ ...mint, blackTea: 20 });
+    expect(mixed.color).not.toBe(plain.color);
+    expect(mixed.label).toContain("薄荷紅茶");
+    expect(teaInfusion({ ...mint, water: 0, blackTea: 20 }).label).toBe("備好的淡紅茶");
+    expect(teaInfusion({ ...mint, water: 0, blackTea: 20 }).strength).toBeGreaterThan(0);
+    expect(teaInfusion(teaSchema.parse({ ...mint, blackTea: 20 }))).toEqual(mixed);
+  });
 });

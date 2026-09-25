@@ -15,8 +15,10 @@ export class StoryBridge {
     canContinue: true,
     endingId: "",
   };
-  constructor(json: string) {
+  constructor(json: string, previousEndingId = "") {
     this.story = new Story(json);
+    if (typeof this.story.variablesState["previous_ending"] === "string")
+      this.story.variablesState["previous_ending"] = previousEndingId;
   }
   next(): StoryFrame {
     if (this.frame.mode !== "dialogue") return this.frame;
@@ -71,19 +73,64 @@ export class StoryBridge {
     this.story.variablesState["tea_type"] = result.teaId;
     this.story.variablesState["tea_quality"] = result.quality;
     this.story.variablesState["tea_emotional_match"] = result.emotionalMatch;
+    if (this.story.variablesState["tea_garnish"] !== null)
+      this.story.variablesState["tea_garnish"] = result.garnish ?? "none";
+    if (this.story.variablesState["tea_blend"] !== null)
+      this.story.variablesState["tea_blend"] = result.blackTea ?? 0;
     return this.resume("tea_result");
   }
   finishLetter(result: {
     completion: number;
     understood: boolean;
     alternate?: boolean;
+    stamp?: "none" | "past" | "present" | "future";
   }) {
     if (this.frame.mode !== "letter") throw new Error("目前不是拼信階段。");
     if (this.story.variablesState["letter_alternate"] !== null)
       this.story.variablesState["letter_alternate"] = result.alternate ?? false;
     this.story.variablesState["letter_completion"] = result.completion;
     this.story.variablesState["letter_understood"] = result.understood;
+    if (this.story.variablesState["letter_stamp"] !== null)
+      this.story.variablesState["letter_stamp"] = result.stamp ?? "none";
     return this.resume("letter_result");
+  }
+  finishMelody(correct: boolean) {
+    if (this.frame.mode !== "melody") throw new Error("目前不是旋律階段。");
+    this.story.variablesState["melody_correct"] = correct;
+    return this.resume("melody_result");
+  }
+  finishHearth(result: { heat: number; care: number; balanced: boolean }) {
+    if (this.frame.mode !== "hearth") throw new Error("目前不是爐火階段。");
+    this.story.variablesState["hearth_heat"] = result.heat;
+    this.story.variablesState["hearth_care"] = result.care;
+    this.story.variablesState["hearth_balanced"] = result.balanced;
+    return this.resume("hearth_result");
+  }
+  finishRoute(result: { correct: number; detours: number }) {
+    if (this.frame.mode !== "route") throw new Error("目前不是投遞路線階段。");
+    this.story.variablesState["route_correct"] = result.correct;
+    this.story.variablesState["route_detours"] = result.detours;
+    return this.resume("route_result");
+  }
+  finishLamp(result: { brightness: number; steady: number; balanced: boolean }) {
+    if (this.frame.mode !== "lamp") throw new Error("目前不是守燈階段。");
+    this.story.variablesState["lamp_brightness"] = result.brightness;
+    this.story.variablesState["lamp_steady"] = result.steady;
+    this.story.variablesState["lamp_balanced"] = result.balanced;
+    return this.resume("lamp_result");
+  }
+  finishArchive(result: { count: number; complete: boolean }) {
+    if (this.frame.mode !== "archive") throw new Error("目前不是手冊比對階段。");
+    this.story.variablesState["archive_count"] = result.count;
+    this.story.variablesState["archive_complete"] = result.complete;
+    return this.resume("archive_result");
+  }
+  finishNotifications(result: { allPaused: boolean; repliedMother: boolean }) {
+    if (this.frame.mode !== "notifications") throw new Error("目前不是整理通知階段。");
+    if (!result.allPaused) throw new Error("請先暫停三則工作通知。");
+    this.story.variablesState["notification_all_paused"] = result.allPaused;
+    this.story.variablesState["notification_mother_replied"] = result.repliedMother;
+    return this.resume("notifications_result");
   }
   private resume(knot: string) {
     this.frame.mode = "dialogue";

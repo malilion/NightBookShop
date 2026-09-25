@@ -5,6 +5,7 @@ import {
   type GameSnapshot,
   type SaveGame,
 } from "../types/game";
+import { chapterForEnding } from "../data/catalog";
 export class SaveRepository {
   constructor(private db: BookshopDatabase = database) {}
   async list() {
@@ -48,7 +49,7 @@ export class SaveRepository {
               : autos[0]!.id
             : kind === "manual"
               ? `manual-${manualSlot}`
-              : "chapter-jinglan";
+              : `chapter-${chapterForEnding(clean.frame.endingId || "moonlight")}`;
         const latest = (await this.db.saves.orderBy("updatedAt").last())
           ?.updatedAt;
         const now = new Date(
@@ -57,11 +58,12 @@ export class SaveRepository {
         await this.db.saves.put({ id, kind, updatedAt: now, snapshot: clean });
         const ending = clean.frame.endingId;
         if (ending) {
+          const chapterId = chapterForEnding(ending);
           if (!(await this.db.collection.get(ending)))
             await this.db.collection.put({ id: ending, unlockedAt: now });
-          if (!(await this.db.saves.get("chapter-jinglan")))
+          if (!(await this.db.saves.get(`chapter-${chapterId}`)))
             await this.db.saves.put({
-              id: "chapter-jinglan",
+              id: `chapter-${chapterId}`,
               kind: "chapter",
               updatedAt: now,
               snapshot: clean,

@@ -92,7 +92,9 @@ describe("complete Jinglan chapter", () => {
       ])
         expect(sections.has(section)).toBe(true);
       expect(story.frame.clues).toContain("old-address");
+      expect(story.frame.clues).toContain("old-melody");
     },
+    15_000,
   );
   it("128 deterministic varied routes terminate, including imperfect tea and letters", () => {
     const endings = new Set<string>();
@@ -113,6 +115,12 @@ describe("complete Jinglan chapter", () => {
     expect(play(2, "moonlight", false, original).story.frame.endingId).toBe(
       "moonlight",
     );
+  });
+  it.each(["moonlight", "recipient", "unfinished", "intervention"])("continues chapter-two %s saves against their archived compiled story", (target) => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-2.json", "utf8");
+    const { story } = play(2, target, false, previous);
+    expect(story.frame.endingId).toBe(target);
+    expect(story.frame.clues).not.toContain("old-melody");
   });
   it("blocks invalid choices and out-of-phase results", () => {
     const story = new StoryBridge(compiled);

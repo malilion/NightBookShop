@@ -109,7 +109,7 @@ export async function pour(
     await session.detach();
   } else await page.mouse.up();
 }
-export async function steepAndServe(page: Page, touch = false) {
+export async function steepAndServe(page: Page, touch = false, recipient = "她") {
   const { layout: l } = await geometry(page);
   await drag(page, l.lid, l.pot, touch);
   await expect
@@ -120,5 +120,5 @@ export async function steepAndServe(page: Page, touch = false) {
     )
     .toBeGreaterThanOrEqual(43);
   await pour(page, "pot", 28, touch);
-  await page.getByRole("button", { name: "將茶遞給她", exact: true }).click();
+  await page.getByRole("button", { name: `將茶遞給${recipient}`, exact: true }).click();
 }

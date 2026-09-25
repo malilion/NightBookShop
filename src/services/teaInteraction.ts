@@ -75,7 +75,7 @@ export function pourTick(
       spilled: Math.min(200, draft.spilled + amount - accepted),
     };
   }
-  const available = Math.max(0, draft.water - draft.cupWater - draft.teaLost);
+  const available = Math.max(0, draft.water + draft.blackTea - draft.cupWater - draft.teaLost);
   const pouring = Math.min(amount, available);
   const accepted = aligned ? Math.min(100 - draft.cupWater, pouring) : 0;
   return {

@@ -4,6 +4,13 @@ import { StoryBridge } from "../story/storyBridge";
 import {
   newTea,
   newLetter,
+  newMelody,
+  newHearth,
+  newRoute,
+  newLamp,
+  newArchive,
+  newNotifications,
+  newOpening,
   snapshotSchema,
   STORY_VERSION,
   type StoryVersion,
@@ -12,15 +19,40 @@ import {
   type SaveGame,
   type TeaDraft,
   type LetterDraft,
+  type MelodyDraft,
+  type HearthDraft,
+  type RouteDraft,
+  type LampDraft,
+  type ArchiveDraft,
+  type NotificationsDraft,
+  type OpeningTask,
 } from "../types/game";
 import { database, type CollectionEntry } from "../db/database";
 import { saves } from "../db/saveRepository";
 import { scoreTea } from "../services/teaScoring";
 import { scoreLetter } from "../services/letterScoring";
+import { scoreHearth } from "../services/hearthScoring";
+import { scoreRoute } from "../services/routeScoring";
+import { scoreLamp } from "../services/lampScoring";
+import { scoreArchive } from "../services/archiveScoring";
+import { cacheChapterImages } from "../services/chapterAssetPack";
+import {
+  chapterForVersion,
+  chapterForEnding,
+  previousChapter,
+  type PlayableChapterId,
+} from "../data/catalog";
 export const useGameStore = defineStore("game", () => {
   const frame = ref<StoryFrame | null>(null);
   const tea = ref(newTea());
   const letter = ref(newLetter());
+  const melody = ref(newMelody());
+  const hearth = ref(newHearth());
+  const route = ref(newRoute());
+  const lamp = ref(newLamp());
+  const archive = ref(newArchive());
+  const notifications = ref(newNotifications());
+  const opening = ref(newOpening());
   const saveList = ref<SaveGame[]>([]);
   const collection = ref<CollectionEntry[]>([]);
   const busy = ref(false);
@@ -30,6 +62,21 @@ export const useGameStore = defineStore("game", () => {
   let bridge: StoryBridge | null = null;
   const compiled = new Map<StoryVersion, string>();
   const activeStoryVersion = ref<StoryVersion>(STORY_VERSION);
+  const chapterId = computed(() => chapterForVersion(activeStoryVersion.value));
+  const completedChapters = computed(
+    () =>
+      new Set(
+        collection.value.map((entry) =>
+          chapterForEnding(entry.id as Parameters<typeof chapterForEnding>[0]),
+        ),
+      ),
+  );
+  const previousEndingId = computed(() => {
+    const previous = previousChapter[chapterId.value];
+    return previous
+      ? saveList.value.find((save) => save.id === `chapter-${previous}`)?.snapshot.frame.endingId || null
+      : null;
+  });
   let queue = Promise.resolve();
   let pendingSaves = 0;
   const latest = computed(() =>
@@ -66,6 +113,13 @@ export const useGameStore = defineStore("game", () => {
       frame: toRaw(frame.value),
       tea: toRaw(tea.value),
       letter: toRaw(letter.value),
+      melody: toRaw(melody.value),
+      hearth: toRaw(hearth.value),
+      route: toRaw(route.value),
+      lamp: toRaw(lamp.value),
+      archive: toRaw(archive.value),
+      notifications: toRaw(notifications.value),
+      opening: toRaw(opening.value),
     });
   }
   function persist(kind: "auto" | "manual" = "auto", slot = 1) {
@@ -90,17 +144,41 @@ export const useGameStore = defineStore("game", () => {
       });
     return queue;
   }
-  async function start() {
+  async function start(chapter: PlayableChapterId = "jinglan") {
     if (busy.value) return false;
     busy.value = true;
     try {
       await queue;
-      bridge = new StoryBridge(await storyJson());
-      activeStoryVersion.value = STORY_VERSION;
+      const prerequisite = previousChapter[chapter];
+      if (prerequisite && !completedChapters.value.has(prerequisite))
+        throw new Error("請先完成前一夜，再翻開這一章。");
+      const version: StoryVersion =
+        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-6" : chapter === "yuhang" ? "yuhang-chapter-6" : `${chapter}-chapter-4`;
+      const previousEnding = prerequisite
+        ? saveList.value.find((save) => save.id === `chapter-${prerequisite}`)?.snapshot.frame.endingId || ""
+        : "";
+      bridge = new StoryBridge(await storyJson(version), previousEnding);
+      activeStoryVersion.value = version;
       tea.value = newTea();
-      letter.value = newLetter();
+      melody.value = newMelody();
+      hearth.value = newHearth();
+      route.value = newRoute();
+      lamp.value = newLamp();
+      archive.value = newArchive();
+      notifications.value = newNotifications();
+      opening.value = newOpening();
+      letter.value =
+        chapter === "boyan" || chapter === "yuhang" || chapter === "haiming" || chapter === "lincheng"
+          ? {
+              ...newLetter(),
+              slots: [null, null, null, null],
+              angles: [0, 0, 0, 0],
+              flipped: [false, false, false, false],
+            }
+          : newLetter();
       frame.value = bridge.next();
       await persist();
+      void cacheChapterImages(chapter);
       return true;
     } catch (e) {
       error.value = e instanceof Error ? e.message : "故事載入失敗。";
@@ -124,8 +202,16 @@ export const useGameStore = defineStore("game", () => {
       frame.value = structuredClone(data.frame);
       tea.value = structuredClone(data.tea);
       letter.value = structuredClone(data.letter);
+      melody.value = structuredClone(data.melody);
+      hearth.value = structuredClone(data.hearth);
+      route.value = structuredClone(data.route);
+      lamp.value = structuredClone(data.lamp);
+      archive.value = structuredClone(data.archive);
+      notifications.value = structuredClone(data.notifications);
+      opening.value = structuredClone(data.opening);
       notice.value = "已回到留下的那一頁。";
       error.value = "";
+      void cacheChapterImages(chapterForVersion(data.storyVersion));
       return true;
     } catch {
       error.value = "這份存檔無法讀取，或與目前故事版本不相容。原檔已保留。";
@@ -135,9 +221,19 @@ export const useGameStore = defineStore("game", () => {
     }
   }
   function advance(choice?: number) {
-    if (!bridge || busy.value || frame.value?.mode !== "dialogue") return;
+    if (!bridge || busy.value || !opening.value.complete || frame.value?.mode !== "dialogue") return;
     if (choice === undefined && !frame.value.canContinue) return;
     frame.value = choice === undefined ? bridge.next() : bridge.choose(choice);
+    void persist();
+  }
+  function inspectOpening(task: OpeningTask) {
+    if (!bridge || opening.value.complete || opening.value.inspected.includes(task)) return;
+    opening.value = { ...opening.value, inspected: [...opening.value.inspected, task] };
+    void persist();
+  }
+  function finishOpening() {
+    if (!bridge || opening.value.complete || opening.value.inspected.length !== 3) return;
+    opening.value = { ...opening.value, complete: true };
     void persist();
   }
   function updateTea(patch: Partial<TeaDraft>) {
@@ -148,25 +244,91 @@ export const useGameStore = defineStore("game", () => {
     letter.value = { ...letter.value, ...patch };
     void persist();
   }
+  function updateMelody(patch: Partial<MelodyDraft>) {
+    melody.value = { ...melody.value, ...patch };
+    void persist();
+  }
+  function updateHearth(patch: Partial<HearthDraft>) {
+    hearth.value = { ...hearth.value, ...patch };
+    void persist();
+  }
+  function updateRoute(patch: Partial<RouteDraft>) {
+    route.value = { ...route.value, ...patch };
+    void persist();
+  }
+  function updateLamp(patch: Partial<LampDraft>) {
+    lamp.value = { ...lamp.value, ...patch };
+    void persist();
+  }
+  function updateArchive(patch: Partial<ArchiveDraft>) {
+    archive.value = { ...archive.value, ...patch };
+    void persist();
+  }
+  function updateNotifications(patch: Partial<NotificationsDraft>) {
+    notifications.value = { ...notifications.value, ...patch };
+    void persist();
+  }
   function finishTea() {
     if (!bridge || frame.value?.mode !== "tea" || tea.value.step !== "serve")
       return;
-    frame.value = bridge.finishTea(scoreTea(tea.value));
+    frame.value = bridge.finishTea(scoreTea(tea.value, chapterId.value));
     void persist();
   }
   function finishLetter() {
     if (!bridge || frame.value?.mode !== "letter") return;
     frame.value = bridge.finishLetter({
-      ...scoreLetter(letter.value),
+      ...scoreLetter(letter.value, chapterId.value),
       alternate: letter.value.alternate,
+      stamp: letter.value.stamp,
     });
+    void persist();
+  }
+  function finishMelody(correct: boolean) {
+    if (!bridge || frame.value?.mode !== "melody") return;
+    frame.value = bridge.finishMelody(correct);
+    void persist();
+  }
+  function finishHearth() {
+    if (!bridge || frame.value?.mode !== "hearth" || hearth.value.responses.length !== 3)
+      return;
+    frame.value = bridge.finishHearth(scoreHearth(hearth.value));
+    void persist();
+  }
+  function finishRoute() {
+    if (!bridge || frame.value?.mode !== "route" || route.value.stops.length !== 3) return;
+    frame.value = bridge.finishRoute(scoreRoute(route.value));
+    void persist();
+  }
+  function finishLamp() {
+    if (!bridge || frame.value?.mode !== "lamp" || lamp.value.turns.length !== 3) return;
+    frame.value = bridge.finishLamp(scoreLamp(lamp.value));
+    void persist();
+  }
+  function finishArchive() {
+    if (!bridge || frame.value?.mode !== "archive" || !scoreArchive(archive.value).complete) return;
+    frame.value = bridge.finishArchive(scoreArchive(archive.value));
+    void persist();
+  }
+  function finishNotifications() {
+    if (!bridge || frame.value?.mode !== "notifications" || !(["manager", "teammate", "system"] as const).every((id) => notifications.value.paused.includes(id))) return;
+    frame.value = bridge.finishNotifications({ allPaused: true, repliedMother: notifications.value.repliedMother });
     void persist();
   }
   return {
     activeStoryVersion,
+    chapterId,
+    completedChapters,
     frame,
     tea,
     letter,
+    melody,
+    hearth,
+    route,
+    lamp,
+    archive,
+    notifications,
+    opening,
+    previousEndingId,
     latest,
     saveList,
     collection,
@@ -178,10 +340,24 @@ export const useGameStore = defineStore("game", () => {
     start,
     load,
     advance,
+    inspectOpening,
+    finishOpening,
     updateTea,
     updateLetter,
+    updateMelody,
+    updateHearth,
+    updateRoute,
+    updateLamp,
+    updateArchive,
+    updateNotifications,
     finishTea,
     finishLetter,
+    finishMelody,
+    finishHearth,
+    finishRoute,
+    finishLamp,
+    finishArchive,
+    finishNotifications,
     persist,
   };
 });

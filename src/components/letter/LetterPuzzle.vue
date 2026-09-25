@@ -1,11 +1,46 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useGameStore } from "../../stores/gameStore";
-import { letterPieces } from "../../data/catalog";
+import {
+  letterPieces,
+  boyanLetterPieces,
+  ruoyinLetterPieces,
+  yenuanLetterPieces,
+  yuhangLetterPieces,
+  haimingLetterPieces,
+  linchengLetterPieces,
+} from "../../data/catalog";
 import { audio } from "../../audio/audioManager";
 import GameIcon from "../common/GameIcon.vue";
 
 const game = useGameStore();
+const pieces = computed(() =>
+  game.chapterId === "boyan"
+    ? boyanLetterPieces
+    : game.chapterId === "lincheng"
+      ? linchengLetterPieces
+    : game.chapterId === "haiming"
+      ? haimingLetterPieces
+    : game.chapterId === "yuhang"
+      ? yuhangLetterPieces
+    : game.chapterId === "ruoyin"
+      ? ruoyinLetterPieces
+      : game.chapterId === "yenuan"
+        ? yenuanLetterPieces
+      : letterPieces,
+);
+const isBoyan = computed(() => game.chapterId === "boyan");
+const isRuoyin = computed(() => game.chapterId === "ruoyin");
+const isYenuan = computed(() => game.chapterId === "yenuan");
+const isYuhang = computed(() => game.chapterId === "yuhang");
+const isHaiming = computed(() => game.chapterId === "haiming");
+const isLincheng = computed(() => game.chapterId === "lincheng");
+const hasTwoSides = computed(() => isRuoyin.value || isYenuan.value);
+const activeSlots = computed(() =>
+  hasTwoSides.value && game.letter.activeSide === "back"
+    ? game.letter.reverseSlots
+    : game.letter.slots,
+);
 const selected = ref<string | null>(null);
 const feedback = ref("");
 const drag = ref<{
@@ -21,37 +56,52 @@ const drag = ref<{
 let ignoreClick = false;
 
 function pieceIndex(id: string) {
-  return letterPieces.findIndex((piece) => piece.id === id);
+  return pieces.value.findIndex((piece) => piece.id === id);
 }
 function pieceText(id: string) {
   const index = pieceIndex(id);
   if (index < 0) return "";
+  if (hasTwoSides.value)
+    return game.letter.activeSide === "back"
+      ? pieces.value[index]!.back
+      : pieces.value[index]!.text;
+  if (isHaiming.value && game.letter.alternate)
+    return haimingLetterPieces[index]!.polished;
   return game.letter.flipped[index]
-    ? letterPieces[index]!.back
+    ? pieces.value[index]!.back
     : id === "wait" && game.letter.alternate
       ? "請原諒我。"
-      : letterPieces[index]!.text;
+      : pieces.value[index]!.text;
 }
 function placePiece(id: string, index: number) {
-  const slots = [...game.letter.slots];
+  const slots = [...activeSlots.value];
   const existing = slots.indexOf(id);
   if (existing !== -1) slots[existing] = null;
   slots[index] = id;
   const angles = [...game.letter.angles];
   angles[pieceIndex(id)] = 0;
-  game.updateLetter({ slots, angles });
+  game.updateLetter({
+    [hasTwoSides.value && game.letter.activeSide === "back"
+      ? "reverseSlots"
+      : "slots"]: slots,
+    angles,
+  });
   audio.cue("paper");
   selected.value = null;
   feedback.value = `碎片已吸附在第 ${index + 1} 格。`;
 }
 function onSlotClick(index: number) {
   if (ignoreClick) return;
-  const slots = [...game.letter.slots];
+  const slots = [...activeSlots.value];
   if (!selected.value) {
     if (slots[index]) {
       selected.value = slots[index];
       slots[index] = null;
-      game.updateLetter({ slots });
+      game.updateLetter({
+        [hasTwoSides.value && game.letter.activeSide === "back"
+          ? "reverseSlots"
+          : "slots"]: slots,
+      });
       feedback.value = "已取下碎片，選擇另一格放入。";
     }
     return;
@@ -64,6 +114,39 @@ function onFragmentClick(id: string) {
   feedback.value = selected.value
     ? "已選取碎片，請選擇信紙上的位置。"
     : "已取消選取。";
+}
+function focusSlot(index: number) {
+  document.querySelector<HTMLElement>(`[data-letter-slot="${index}"]`)?.focus();
+}
+function moveByKeyboard(id: string, from: number | null, direction: number) {
+  const slots = [...activeSlots.value];
+  const target = from === null
+    ? direction > 0 ? slots.findIndex((slot) => !slot) : slots.findLastIndex((slot) => !slot)
+    : (from + direction + slots.length) % slots.length;
+  const index = target < 0 ? direction > 0 ? 0 : slots.length - 1 : target;
+  const displaced = slots[index];
+  if (from !== null) slots[from] = displaced;
+  slots[index] = id;
+  game.updateLetter({
+    [hasTwoSides.value && game.letter.activeSide === "back" ? "reverseSlots" : "slots"]: slots,
+  });
+  selected.value = null;
+  feedback.value = `碎片已移到第 ${index + 1} 格。`;
+  audio.cue("paper");
+  focusSlot(index);
+}
+function onSlotKeydown(event: KeyboardEvent, index: number, id: string | null) {
+  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+  event.preventDefault();
+  const direction = event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1;
+  if (id) moveByKeyboard(id, index, direction);
+  else if (selected.value) moveByKeyboard(selected.value, null, direction);
+  else focusSlot((index + direction + activeSlots.value.length) % activeSlots.value.length);
+}
+function onFragmentKeydown(event: KeyboardEvent, id: string) {
+  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+  event.preventDefault();
+  moveByKeyboard(id, null, event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1);
 }
 function rotate() {
   if (!selected.value) return;
@@ -80,11 +163,23 @@ function flip() {
   flipped[index] = !flipped[index];
   game.updateLetter({
     flipped,
-    inspected: game.letter.inspected || selected.value === "wait",
+    inspected: true,
   });
   feedback.value = flipped[index]
     ? "翻到背面，看見紙上的另一道痕跡。"
     : "翻回正面。";
+}
+function turnLetter() {
+  game.updateLetter({
+    activeSide: game.letter.activeSide === "front" ? "back" : "front",
+    inspected: true,
+  });
+  selected.value = null;
+  feedback.value =
+    game.letter.activeSide === "back"
+      ? isYenuan.value ? "翻到背面。母親留下的短箋還在。" : "翻到背面。這一面是寫給年輕若音的信。"
+      : isYenuan.value ? "翻回正面。這一面是蘋果麵包食譜。" : "翻回正面。這一面寫給季晴。";
+  audio.cue("paper");
 }
 function beginDrag(event: PointerEvent, id: string, source: number | null) {
   if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -132,9 +227,13 @@ function endDrag(event: PointerEvent) {
       .elementFromPoint(event.clientX, event.clientY)
       ?.closest(".letter-fragments")
   ) {
-    const slots = [...game.letter.slots];
+    const slots = [...activeSlots.value];
     slots[current.source] = null;
-    game.updateLetter({ slots });
+    game.updateLetter({
+      [hasTwoSides.value && game.letter.activeSide === "back"
+        ? "reverseSlots"
+        : "slots"]: slots,
+    });
     selected.value = null;
     feedback.value = "碎片已放回桌上。";
   } else {
@@ -151,24 +250,84 @@ function cancelDrag() {
     <div class="panel-heading">
       <GameIcon name="letter" :size="28" />
       <div>
-        <p class="subtle">月下未寄出的信</p>
-        <h2>把未完的話，放回信裡</h2>
+        <p class="subtle">
+          {{
+            isLincheng
+              ? "最後一位訪客"
+              : isHaiming
+              ? "留在煤油燈裡的紙船"
+              : isYuhang
+              ? "收件人是七年後的自己"
+              : isYenuan
+              ? "留在烤箱旁的食譜"
+              : isRuoyin
+              ? "在最後一個音符之後"
+              : isBoyan
+                ? "明日之前，請讓我停一下"
+                : "月下未寄出的信"
+          }}
+        </p>
+        <h2>{{ isYenuan ? "把食譜的兩面拼回來" : isYuhang ? "把藍色信拼回來" : isHaiming ? "展開紙船，留下他的字" : isLincheng ? "把自己的信拼回來" : "把未完的話，放回信裡" }}</h2>
       </div>
     </div>
     <p class="tea-clue">
-      拖動碎片到信上的位置，或先選碎片再選格子。選中碎片可旋轉、翻面；放入時會吸附擺正，也可以留白。
+      {{
+        isLincheng
+          ? "四片信紙是小時候的妳寫給如今的自己。可以慢慢排好、看紙背，再決定想取回多少細節。"
+          : isHaiming
+          ? "四片紙船留著海明反覆修改的話。查看筆跡後，可保留停頓與矛盾，或修成流暢的英雄敘述。"
+          : isYuhang
+          ? "四片信紙有每年重寫的痕跡。排好順序，查看墨跡，再選一枚郵票決定送往哪一個時間。"
+          : isYenuan
+          ? "正面是蘋果麵包的做法，背面是母親留給葉暖的話。兩面各自排列，可拖曳或先選碎片再選格子。"
+          : isRuoyin
+          ? "同一組碎片有兩面：正面寫給季晴，背面寫給年輕的若音。兩面各自排列，可拖曳或先選碎片再選格子。"
+          : "拖動碎片到信上的位置，或先選碎片再選格子。鍵盤可用 Tab 聚焦、方向鍵移動碎片；選中碎片可旋轉、翻面，也可以留白。"
+      }}
     </p>
+    <div v-if="hasTwoSides" class="letter-side-buttons button-row">
+      <button class="quiet-button" type="button" @click="turnLetter">
+        {{
+          isYenuan
+            ? game.letter.activeSide === "front" ? "翻到背面 · 給葉暖的短箋" : "翻回正面 · 蘋果麵包食譜"
+            : game.letter.activeSide === "front" ? "翻到背面 · 給年輕的自己" : "翻回正面 · 給季晴"
+        }}
+      </button>
+      <span class="subtle"
+        >正面 {{ game.letter.slots.filter(Boolean).length }}/3 · 背面
+        {{ game.letter.reverseSlots.filter(Boolean).length }}/3</span
+      >
+    </div>
     <div class="letter-layout">
       <div class="letter-paper">
-        <p class="letter-date">一九七六年 · 未寄出</p>
+        <p class="letter-date">
+          {{
+            isLincheng
+              ? "給長大後的林澄 · 沒有寄出日期"
+              : isHaiming
+              ? "給小川 · 煤油燈內的紙船"
+              : isYuhang
+              ? "七年後仍在送信的程雨航 · 寄件人：現在的自己"
+              : isYenuan
+              ? game.letter.activeSide === "front" ? "晨麥 · 蘋果麵包" : "給葉暖 · 媽媽寫"
+              : isRuoyin
+              ? game.letter.activeSide === "front"
+                ? "給季晴 · 未寄出"
+                : "給十歲的若音 · 未寄出"
+              : isBoyan
+                ? "今晚 · 尚未寄出"
+                : "一九七六年 · 未寄出"
+          }}
+        </p>
         <button
-          v-for="(id, i) in game.letter.slots"
+          v-for="(id, i) in activeSlots"
           :key="i"
           class="letter-slot"
           :class="{ filled: id }"
           :data-letter-slot="i"
           :aria-label="`信紙第 ${i + 1} 格${id ? '：' + pieceText(id) : '，空白'}`"
           @click="onSlotClick(i)"
+          @keydown="onSlotKeydown($event, i, id)"
           @pointerdown="id && beginDrag($event, id, i)"
           @pointermove="moveDrag"
           @pointerup="endDrag"
@@ -176,21 +335,37 @@ function cancelDrag() {
         >
           <span v-if="id">{{ pieceText(id) }}</span>
           <span v-else class="empty-slot"
-            >{{ ["起筆", "那一晚", "沒說完的話"][i]
+            >{{
+              (isLincheng
+                ? ["我藏起了信", "我害怕的事", "兩個願望", "寫給自己的話"]
+                : isHaiming
+                ? ["一直守著的燈", "岸上的等待", "回家的路", "想留下的話"]
+                : isYuhang
+                ? ["如果又說明年", "先承認", "不敢面對", "我們的夢"]
+                : isYenuan
+                ? game.letter.activeSide === "front" ? ["材料", "第二次發酵", "烤箱溫度"] : ["起筆", "想告訴妳", "留給妳的"]
+                : isRuoyin
+                ? ["起筆", "沒有說出口的", "仍想留下的"]
+                : isBoyan
+                  ? ["目前狀態", "需要的界線", "能交接的事", "下一步"]
+                  : ["起筆", "那一晚", "沒說完的話"])[i]
             }}<small>放入碎片</small></span
           >
         </button>
-        <span class="letter-signature">靜蘭</span>
+        <span class="letter-signature">{{
+          isLincheng ? "林澄" : isHaiming ? "海明" : isYuhang ? "雨航" : isYenuan ? "葉暖" : isRuoyin ? "若音" : isBoyan ? "柏言" : "靜蘭"
+        }}</span>
       </div>
       <div class="letter-fragments">
         <button
-          v-for="piece in [...letterPieces].reverse()"
+          v-for="piece in [...pieces].reverse()"
           :key="piece.id"
           class="fragment"
-          :disabled="game.letter.slots.includes(piece.id)"
+          :disabled="activeSlots.includes(piece.id)"
           :aria-pressed="selected === piece.id"
           :aria-label="pieceText(piece.id)"
           @click="onFragmentClick(piece.id)"
+          @keydown="onFragmentKeydown($event, piece.id)"
           @pointerdown="beginDrag($event, piece.id, null)"
           @pointermove="moveDrag"
           @pointerup="endDrag"
@@ -204,9 +379,9 @@ function cancelDrag() {
             aria-hidden="true"
           ></span>
           <span>{{ pieceText(piece.id) }}</span>
-          <GameIcon v-if="game.letter.slots.includes(piece.id)" name="check" />
+          <GameIcon v-if="activeSlots.includes(piece.id)" name="check" />
         </button>
-        <div class="letter-tools">
+        <div v-if="!hasTwoSides" class="letter-tools">
           <button
             type="button"
             class="quiet-button"
@@ -229,16 +404,29 @@ function cancelDrag() {
           </button>
         </div>
         <button
+          v-if="!hasTwoSides"
           class="text-link inspect-ink"
           @click="game.updateLetter({ inspected: true })"
         >
-          <GameIcon name="search" />查看不同的墨跡
+          <GameIcon name="search" />{{
+            isLincheng ? "查看童年的筆跡" : isHaiming ? "查看海明的原句" : isYuhang ? "查看每年的墨跡" : isBoyan ? "查看三版草稿" : "查看不同的墨跡"
+          }}
         </button>
-        <div v-if="game.letter.inspected" class="ink-note">
+        <div v-if="game.letter.inspected && !hasTwoSides" class="ink-note">
           <p>
-            「請原諒我」的墨色更深，是多年後補上的。年輕時的她，寫的是「請不要等我」。
+            {{
+              isLincheng
+                ? "紙角的小月亮是妳自己畫的；信不是店主替妳寫的，也沒有要求妳必須一次讀完。"
+                : isHaiming
+                ? "有些句子重複、停住，甚至互相矛盾；這些痕跡也是海明正在說話的證據。"
+                : isYuhang
+                ? "郵戳每年不同，字卻是雨航自己的。他一再改寫日期，從未真正寄出。"
+                : isBoyan
+                ? "第一版只道歉，第二版只列交接，第三版終於寫下「我真的很累」。現在的四句話讓他自己說出需要。"
+                : "「請原諒我」的墨色更深，是多年後補上的。年輕時的她，寫的是「請不要等我」。"
+            }}
           </p>
-          <label
+          <label v-if="!isBoyan && !isYuhang && !isLincheng"
             ><input
               type="checkbox"
               :checked="game.letter.alternate"
@@ -247,9 +435,16 @@ function cancelDrag() {
                   alternate: ($event.target as HTMLInputElement).checked,
                 })
               "
-            />使用多年後補寫的句子</label
+            />{{ isHaiming ? "修成流暢的英雄敘述" : "使用多年後補寫的句子" }}</label
           >
         </div>
+        <fieldset v-if="isYuhang" class="letter-stamps">
+          <legend>選一枚郵票 · 只能貼一枚</legend>
+          <label v-for="stamp in [{ id: 'past', label: '過去' }, { id: 'present', label: '現在' }, { id: 'future', label: '未來' }]" :key="stamp.id">
+            <input type="radio" name="letter-stamp" :checked="game.letter.stamp === stamp.id" @change="game.updateLetter({ stamp: stamp.id as 'past' | 'present' | 'future' })" />
+            {{ stamp.label }}
+          </label>
+        </fieldset>
       </div>
     </div>
     <div
@@ -269,7 +464,20 @@ function cancelDrag() {
         feedback || "每一道摺痕，都留著不同的時間。"
       }}</span>
       <button class="ornate-button" @click="game.finishLetter">
-        {{ game.letter.slots.every(Boolean) ? "把信交還給她" : "先保留這些空白"
+        {{
+          isLincheng
+            ? "把信放在自己面前"
+            : isHaiming
+            ? "把紙船交還給他"
+            : isYuhang
+            ? "把藍色信交還給他"
+            : hasTwoSides
+            ? isYenuan ? "把食譜交還給她" : "把兩面的信交還給她"
+            : game.letter.slots.every(Boolean)
+              ? isBoyan
+                ? "把信交還給他"
+                : "把信交還給她"
+              : "先保留這些空白"
         }}<GameIcon name="arrow" />
       </button>
     </div>

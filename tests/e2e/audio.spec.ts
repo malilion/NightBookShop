@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { prepareOpening } from "./opening-helpers";
 
 test("audio starts after interaction and saved controls apply on reload", async ({
   page,
@@ -20,6 +21,7 @@ test("audio starts after interaction and saved controls apply on reload", async 
     ),
   ).toBe(0);
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  await prepareOpening(page);
   await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
   await expect
     .poll(() =>
@@ -56,6 +58,7 @@ test("missing audio files do not block the story", async ({ browser }) => {
   await page.route("**/audio/**", (route) => route.abort());
   await page.goto("/");
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  await prepareOpening(page);
   await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
   await page.getByRole("button", { name: "顯示全文" }).click();
   await page.getByRole("button", { name: "繼續", exact: true }).click();

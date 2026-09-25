@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useGameStore } from "../stores/gameStore";
 import type { SaveGame } from "../types/game";
+import { chapterForVersion, nightName } from "../data/catalog";
 import PageHeader from "../components/common/PageHeader.vue";
 import GameIcon from "../components/common/GameIcon.vue";
 const game = useGameStore(),
@@ -34,9 +35,18 @@ async function perform() {
 }
 const modeLabel = (save?: SaveGame) =>
   save
-    ? { dialogue: "傾聽", tea: "製茶", letter: "拼信", ending: "夜末" }[
-        save.snapshot.frame.mode
-      ]
+    ? {
+        dialogue: "傾聽",
+        tea: "製茶",
+        letter: "拼信",
+        melody: "旋律",
+        hearth: "爐火",
+        route: "投遞路線",
+        lamp: "守燈",
+        archive: "六夜地圖",
+        notifications: "整理通知",
+        ending: "夜末",
+      }[save.snapshot.frame.mode]
     : "";
 </script>
 <template>
@@ -64,7 +74,11 @@ const modeLabel = (save?: SaveGame) =>
         <span class="slot-number">{{ String(n).padStart(2, "0") }}</span>
         <div>
           <h2>
-            {{ slot(n) ? `第一夜 · ${modeLabel(slot(n))}` : "尚未寫下的頁面" }}
+            {{
+              slot(n)
+                ? `${nightName(chapterForVersion(slot(n)!.snapshot.storyVersion))} · ${modeLabel(slot(n))}`
+                : "尚未寫下的頁面"
+            }}
           </h2>
           <p>
             {{

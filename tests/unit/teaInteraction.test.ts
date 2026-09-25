@@ -45,6 +45,9 @@ describe("hands-on tea rules", () => {
     expect(
       pourTick({ ...draft, cupWater: 19 }, 0.1, 75, true, "pot").cupWater,
     ).toBe(19);
+    const blended = { ...newTea(), water: 20, blackTea: 10, cupWater: 29 };
+    expect(pourTick(blended, 0.1, 75, true, "pot").cupWater).toBe(30);
+    expect(pourTick({ ...blended, cupWater: 30 }, 0.1, 75, true, "pot").cupWater).toBe(30);
   });
   it("supports eight different recipes and gives spills a bounded quality cost", () => {
     expect(Object.keys(teas)).toHaveLength(8);
@@ -78,6 +81,8 @@ describe("hands-on tea rules", () => {
       teaLost: 0,
       cupWater: 0,
       spoonLoaded: false,
+      garnish: "none",
+      blackTea: 0,
     });
   });
 });

@@ -6,6 +6,7 @@ import {
   geometry,
   drag,
 } from "./tea-helpers";
+import { prepareOpening } from "./opening-helpers";
 async function until(page: Page, text: string) {
   const target = page.getByRole("button", { name: text, exact: false });
   const reveal = page.getByRole("button", { name: "顯示全文" });
@@ -44,9 +45,27 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     animations: "disabled",
   });
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  const opening = page.getByRole("region", { name: "每晚開店準備" });
+  await expect(opening.getByRole("button", { name: "開門迎接今晚的訪客" })).toBeDisabled();
+  await opening.getByRole("button", { name: /整理櫃台/ }).click();
+  await opening.getByRole("button", { name: /查看夜況/ }).click();
+  await flush(page);
+  await page.reload();
+  await expect(opening).toContainText("已準備 2/3 項");
+  await expect(opening.getByRole("button", { name: /整理櫃台/ })).toHaveAttribute("aria-pressed", "true");
+  await opening.getByRole("button", { name: /備好茶具/ }).click();
+  await page.screenshot({ path: `output/opening-first-${info.project.name}.png`, fullPage: true, animations: "disabled" });
+  await opening.getByRole("button", { name: "開門迎接今晚的訪客" }).click();
   await until(page, "翻開今晚的第一頁");
   await page.getByRole("button", { name: /翻開今晚的第一頁/ }).click();
   await until(page, "先替她拉開椅子");
+  const jinglanPortrait = page.locator(".character-portrait");
+  await expect(jinglanPortrait).toHaveAttribute("src", "/images/characters/jinglan.webp");
+  await expect.poll(() => jinglanPortrait.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  await expect(page.locator('.scene-art img[src*="jinglan-room.webp"]')).toHaveCount(1);
+  if (info.project.name === "mobile")
+    await expect(page.locator('.scene-art source[srcset*="jinglan-room-mobile.webp"]')).toHaveCount(1);
+  await page.screenshot({ path: `output/jinglan-portrait-${info.project.name}.png`, animations: "disabled" });
   await page.screenshot({
     path: `output/dialogue-${info.project.name}.png`,
     fullPage: true,
@@ -235,13 +254,16 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
       name: "信紙第 1 格：岳川，我不是不願意跟你走。",
     }),
   ).toBeVisible();
-  await page
-    .getByRole("button", {
-      name: "只是那一晚，我也有不能離開的人。",
-      exact: true,
-    })
-    .click();
-  await page.getByRole("button", { name: "信紙第 2 格，空白" }).click();
+  await page.getByRole("button", {
+    name: "只是那一晚，我也有不能離開的人。",
+    exact: true,
+  }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("button", { name: "信紙第 2 格：只是那一晚，我也有不能離開的人。" })).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("button", { name: "信紙第 3 格：只是那一晚，我也有不能離開的人。" })).toBeFocused();
+  await page.keyboard.press("ArrowLeft");
+  await expect(page.getByRole("button", { name: "信紙第 2 格：只是那一晚，我也有不能離開的人。" })).toBeFocused();
   await page.getByRole("button", { name: "請不要等我。", exact: true }).click();
   await page.getByRole("button", { name: "信紙第 3 格，空白" }).click();
   await page.getByRole("button", { name: "查看不同的墨跡" }).click();
@@ -253,6 +275,9 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   });
   await page.getByRole("button", { name: "把信交還給她" }).click();
   await until(page, "陪她寫一封信");
+  await page.getByRole("button", { name: /守夜手記/ }).click();
+  await expect(page.getByRole("heading", { name: "校刊室外的四個音" })).toBeVisible();
+  await page.getByRole("button", { name: "關閉手記" }).click();
   await page.getByRole("button", { name: "開啟遊戲選單" }).click();
   await page.getByRole("link", { name: "存檔與讀檔" }).click();
   await page.getByRole("button", { name: "儲存", exact: true }).first().click();
@@ -291,12 +316,35 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     fullPage: true,
     animations: "disabled",
   });
+  await page.goto("/#/chapters");
+  await expect(page.getByRole("button", { name: "翻開第二夜" })).toBeVisible();
+  await page.getByRole("button", { name: "翻開第二夜" }).click();
+  await page.getByRole("button", { name: "開始新的一夜" }).click();
+  await page.getByRole("region", { name: "每晚開店準備" }).getByRole("button", { name: /整理櫃台/ }).click();
+  await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("靜蘭寫給自己的信已帶走");
+  await prepareOpening(page);
+  await expect(page.locator(".scene-caption small")).toHaveText("第二夜 · 許柏言");
+  await expect(page.locator(".dialogue-text")).toHaveAttribute(
+    "data-full-text",
+    /十二點四十七分/,
+  );
+  await flush(page);
+  await page.reload();
+  await expect(page.locator(".dialogue-text")).toHaveAttribute(
+    "data-full-text",
+    /十二點四十七分/,
+  );
+  const secondReveal = page.getByRole("button", { name: "顯示全文" });
+  if (await secondReveal.isVisible()) await secondReveal.click();
+  await page.getByRole("button", { name: "繼續", exact: true }).click();
+  await expect(page.locator(".dialogue-text")).toHaveAttribute(
+    "data-full-text",
+    /靜蘭親手摺好的桂花書籤/,
+  );
   await page.goto("/#/saves");
   await page.getByRole("button", { name: "讀取", exact: true }).first().click();
   if (await page.getByRole("button", { name: "讀取這一頁" }).isVisible())
     await page.getByRole("button", { name: "讀取這一頁" }).click();
-  if (await page.getByRole("button", { name: "顯示全文" }).isVisible())
-    await page.getByRole("button", { name: "顯示全文" }).click();
   await expect(
     page.getByRole("button", { name: /陪她寫一封信/ }),
   ).toBeVisible();
@@ -323,8 +371,11 @@ test("settings persist, locked chapters stay unavailable, empty collection and k
     page.getByRole("switch", { name: /放大故事文字/ }),
   ).toBeChecked();
   await page.goto("/#/chapters");
-  await expect(page.getByText("故事尚在書寫")).toHaveCount(5);
+  await expect(page.getByText("故事尚在書寫")).toHaveCount(0);
+  await expect(page.getByText("完成第一夜後解鎖")).toBeVisible();
+  await expect(page.getByText("完成第二夜後解鎖")).toBeVisible();
   await page.getByRole("button", { name: "翻開第一夜" }).click();
+  await prepareOpening(page);
   await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
   await flush(page);
   await expect(page.getByRole("button", { name: "繼續", exact: true })).toBeVisible();
@@ -347,6 +398,7 @@ test("cached shell and first-night story resume offline", async ({
 }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  await prepareOpening(page);
   await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
   await flush(page);
   await page.evaluate(async () => {
@@ -379,6 +431,7 @@ test("tea is playable without films, keyboard spills stop, and mistakes can be r
   await page.route("**/video/**", (route) => route.abort());
   await page.goto("/");
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  await prepareOpening(page);
   await until(page, "茶罐：桂花烏龍");
   const board = page.locator(".tea-board");
   const { layout: l } = await geometry(page);
@@ -441,6 +494,7 @@ test("tea pauses under the menu and can be restarted after a mistake", async ({
   await expect(page.locator(".app")).toHaveClass(/reduce-motion/);
   await page.getByRole("link", { name: "回到門前" }).click();
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  await prepareOpening(page);
   await until(page, "茶罐：桂花烏龍");
   await prepareLeaves(page);
   await pour(page, "kettle", 35);
@@ -494,6 +548,7 @@ test("infusion changes with time and survives a paused offline reload", async ({
 }, info) => {
   await page.goto("/");
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  await prepareOpening(page);
   await until(page, "翻開今晚的第一頁");
   await page.getByRole("button", { name: /翻開今晚的第一頁/ }).click();
   await until(page, "先替她拉開椅子");
