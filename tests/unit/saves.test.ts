@@ -58,6 +58,21 @@ describe("local saves", () => {
     await expect(repo.get("manual-1")).rejects.toThrow();
     expect(await db.saves.count()).toBe(1);
   });
+  it("loads letter drafts saved before rotation and flip were added", async () => {
+    const data = snapshot();
+    const oldLetter = {
+      slots: data.letter.slots,
+      inspected: data.letter.inspected,
+      alternate: data.letter.alternate,
+    };
+    await db.saves.put({
+      id: "manual-1",
+      kind: "manual",
+      updatedAt: new Date().toISOString(),
+      snapshot: { ...data, letter: oldLetter } as GameSnapshot,
+    });
+    expect((await repo.get("manual-1"))?.snapshot.letter).toEqual(newLetter());
+  });
   it("commits collection once, preserves it across new games, and retains first chapter snapshot", async () => {
     const data = snapshot();
     data.frame.mode = "ending";

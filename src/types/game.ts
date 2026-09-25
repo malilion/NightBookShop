@@ -71,6 +71,8 @@ export const letterSchema = z.object({
   slots: z.array(z.string().nullable()).length(3),
   inspected: z.boolean(),
   alternate: z.boolean(),
+  angles: z.array(z.number().int().min(0).max(3)).length(3).default([0, 0, 0]),
+  flipped: z.array(z.boolean()).length(3).default([false, false, false]),
 });
 export type LetterDraft = z.infer<typeof letterSchema>;
 export const frameSchema = z.object({
@@ -133,4 +135,6 @@ export const newLetter = (): LetterDraft => ({
   slots: [null, null, null],
   inspected: false,
   alternate: false,
+  angles: [0, 0, 0],
+  flipped: [false, false, false],
 });

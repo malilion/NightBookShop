@@ -5,6 +5,7 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { teas } from "../../data/catalog";
 import { newTea, type TeaId } from "../../types/game";
 import { scoreTea } from "../../services/teaScoring";
+import { audio } from "../../audio/audioManager";
 import {
   tableLayout,
   distance,
@@ -327,6 +328,7 @@ function timer() {
 }
 function finish() {
   if (!readyToServe.value) return;
+  audio.cue("porcelain");
   draft.step = "serve";
   flush();
   showCompletion.value = true;

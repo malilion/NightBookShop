@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useGameStore } from "./stores/gameStore";
 import { useSettingsStore } from "./stores/settingsStore";
+import { audio } from "./audio/audioManager";
 import { registerSW } from "virtual:pwa-register";
 const game = useGameStore();
 const settings = useSettingsStore();
+const route = useRoute();
 const ready = ref(false);
 const updateAvailable = ref(false);
 const update = registerSW({
@@ -15,7 +18,53 @@ const update = registerSW({
 onMounted(async () => {
   await Promise.all([game.init(), settings.init()]);
   ready.value = true;
+  window.addEventListener("pointerdown", enableAudio, { capture: true });
+  window.addEventListener("keydown", enableAudio, { capture: true });
+  document.addEventListener("visibilitychange", updateVisibility);
+  updateVisibility();
 });
+onBeforeUnmount(() => {
+  window.removeEventListener("pointerdown", enableAudio, true);
+  window.removeEventListener("keydown", enableAudio, true);
+  document.removeEventListener("visibilitychange", updateVisibility);
+  audio.setScene(null);
+});
+function enableAudio() {
+  audio.start();
+}
+function updateVisibility() {
+  audio.setVisible(!document.hidden);
+}
+watch(
+  () => settings.values,
+  (values) =>
+    audio.setPreferences({
+      muted: values.muted,
+      bgmVolume: values.bgmVolume,
+      ambienceVolume: values.ambienceVolume,
+      sfxVolume: values.sfxVolume,
+    }),
+  { deep: true, immediate: true },
+);
+watch(
+  () => [route.name, game.frame?.scene],
+  () => {
+    if (route.name !== "game" || !game.frame) audio.setScene(null);
+    else
+      audio.setScene(
+        game.frame.scene === "memory" || game.frame.scene === "moon-sea"
+          ? "room"
+          : "rain",
+      );
+  },
+  { immediate: true },
+);
+watch(
+  () => game.frame?.section,
+  (section, previous) => {
+    if (previous === "prologue" && section === "arrival") audio.cue("bell");
+  },
+);
 function focusMain() {
   document.getElementById("main")?.focus();
 }

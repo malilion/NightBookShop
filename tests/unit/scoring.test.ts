@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { scoreTea } from "../../src/services/teaScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
+import { newLetter } from "../../src/types/game";
 import { newTea } from "../../src/types/game";
 describe("minigame results", () => {
   it("uses every tea input and caps score through validated input", () => {
@@ -22,6 +23,7 @@ describe("minigame results", () => {
   });
   it("only understands a complete original letter after observing ink", () => {
     const letter = {
+      ...newLetter(),
       slots: ["address", "reason", "wait"],
       inspected: true,
       alternate: false,
@@ -29,6 +31,10 @@ describe("minigame results", () => {
     expect(scoreLetter(letter)).toEqual({ completion: 100, understood: true });
     expect(scoreLetter({ ...letter, inspected: false }).understood).toBe(false);
     expect(scoreLetter({ ...letter, alternate: true }).understood).toBe(false);
+    expect(scoreLetter({ ...letter, flipped: [false, false, true] })).toEqual({
+      completion: 67,
+      understood: false,
+    });
     expect(scoreLetter({ ...letter, slots: [null, null, null] })).toEqual({
       completion: 0,
       understood: false,

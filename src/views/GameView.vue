@@ -3,8 +3,11 @@ import { computed, onMounted, onBeforeUnmount, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useGameStore } from "../stores/gameStore";
 import { sections, clues } from "../data/notebook";
+import { memoryEvidence, memorySection } from "../data/memoryEvidence";
 import { assets } from "../data/assets";
 import { endings } from "../data/catalog";
+import { audio } from "../audio/audioManager";
+import { STORY_VERSION } from "../types/game";
 import GameIcon from "../components/common/GameIcon.vue";
 import DialoguePanel from "../components/dialogue/DialoguePanel.vue";
 import TeaBrewingScene from "../components/tea/TeaBrewingScene.vue";
@@ -12,16 +15,62 @@ import LetterPuzzle from "../components/letter/LetterPuzzle.vue";
 const game = useGameStore(),
   router = useRouter(),
   menu = ref<HTMLDialogElement>(),
-  notebook = ref<HTMLDialogElement>();
-const background = computed(
-  () =>
-    assets.scenes[
-      game.frame?.mode === "tea" ? "counter" : game.frame?.scene || "counter"
-    ],
-);
+  notebook = ref<HTMLDialogElement>(),
+  dialogue = ref<InstanceType<typeof DialoguePanel> | null>(null);
+const background = computed(() => {
+  const frame = game.frame;
+  if (!frame || frame.mode === "tea") return assets.scenes.counter;
+  if (frame.scene === "memory") {
+    if (frame.section === "school") return assets.memories.school;
+    if (frame.section === "hospital") return assets.memories.hospital;
+    if (frame.section === "platform") return assets.memories.platform;
+  }
+  return assets.scenes[frame.scene];
+});
+const mobileBackground = computed(() => {
+  const frame = game.frame;
+  if (frame?.scene === "memory") {
+    if (frame.section === "school") return assets.mobileMemories.school;
+    if (frame.section === "hospital") return assets.mobileMemories.hospital;
+    if (frame.section === "platform") return assets.mobileMemories.platform;
+  }
+  return background.value;
+});
 const ending = computed(() =>
   game.frame?.endingId ? endings[game.frame.endingId] : null,
 );
+const memoryHub = computed(() => {
+  const frame = game.frame;
+  if (
+    !frame ||
+    frame.mode !== "dialogue" ||
+    frame.scene !== "memory" ||
+    game.activeStoryVersion !== STORY_VERSION
+  )
+    return null;
+  const section = memorySection(frame.section);
+  if (!section) return null;
+  const evidence = memoryEvidence[section];
+  if (!frame.choices.some((choice) => choice.text === evidence.leave))
+    return null;
+  return {
+    section,
+    objects: evidence.objects.map((object) => ({
+      ...object,
+      index:
+        frame.choices.find((choice) => choice.text === object.choice)?.index ??
+        null,
+    })),
+  };
+});
+const showMemoryObjects = computed(
+  () => memoryHub.value !== null && dialogue.value?.revealing === false,
+);
+function inspectMemory(index: number) {
+  if (dialogue.value?.reveal()) return;
+  audio.cue("paper");
+  void game.advance(index);
+}
 function keyboard(event: KeyboardEvent) {
   if (
     menu.value?.open ||
@@ -42,6 +91,13 @@ function keyboard(event: KeyboardEvent) {
   )
     return;
   if (game.frame?.mode !== "dialogue") return;
+  if (
+    (/^[1-4]$/.test(event.key) || event.key === "Enter" || event.key === " ") &&
+    dialogue.value?.reveal()
+  ) {
+    event.preventDefault();
+    return;
+  }
   if (/^[1-4]$/.test(event.key)) {
     const index = Number(event.key) - 1;
     if (game.frame.choices.some((c) => c.index === index)) {
@@ -55,8 +111,8 @@ function keyboard(event: KeyboardEvent) {
   }
 }
 onMounted(async () => {
-  if (!game.frame && !(await game.load())) await router.replace("/");
   window.addEventListener("keydown", keyboard);
+  if (!game.frame && !(await game.load())) await router.replace("/");
 });
 onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
 </script>
@@ -66,8 +122,13 @@ onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
     tabindex="-1"
     class="game-page"
     :class="'mode-' + game.frame?.mode"
-    :style="{ '--scene-image': `url(${background})` }"
   >
+    <Transition name="scene-fade">
+      <picture :key="background" class="scene-art" aria-hidden="true">
+        <source :srcset="mobileBackground" media="(max-width: 640px)" />
+        <img :src="background" alt="" />
+      </picture>
+    </Transition>
     <div class="scene-shade"></div>
     <header class="game-header">
       <RouterLink to="/" class="game-brand"
@@ -96,7 +157,38 @@ onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
               : "第一夜 · 周靜蘭"
           }}</small>
         </div>
-        <DialoguePanel :key="'dialogue'" /></template
+        <div
+          v-if="showMemoryObjects && memoryHub"
+          class="memory-evidence"
+          :class="`memory-evidence-${memoryHub.section}`"
+          role="group"
+          aria-label="記憶中的物件"
+        >
+          <span class="memory-evidence-hint">觸碰記憶裡留下的物件</span>
+          <template v-for="(object, position) in memoryHub.objects" :key="object.choice">
+            <button
+              v-if="object.index !== null"
+              type="button"
+              class="memory-object"
+              :class="`memory-object-${position + 1}`"
+              :aria-label="`探索物件：${object.label}`"
+              @click="inspectMemory(object.index)"
+            >
+              <span class="memory-object-number">0{{ object.index + 1 }}</span>
+              <span>{{ object.label }}</span>
+            </button>
+            <span
+              v-else
+              class="memory-object memory-object-seen"
+              :class="`memory-object-${position + 1}`"
+              aria-hidden="true"
+            >
+              <span class="memory-object-number">✓</span>
+              <span>{{ object.label }}</span>
+            </span>
+          </template>
+        </div>
+        <DialoguePanel :key="'dialogue'" ref="dialogue" /></template
       ><TeaBrewingScene v-else-if="game.frame.mode === 'tea'" /><LetterPuzzle
         v-else-if="game.frame.mode === 'letter'"
       />

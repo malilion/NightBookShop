@@ -21,7 +21,8 @@
     "video:typecheck": "npm --prefix video run typecheck",
     "video:render:complete": "node video/scripts/render-pour.mjs --clip=complete",
     "render:tea-props": "node scripts/render-tea-props.mjs",
-    "render:tea-liquor": "node scripts/render-tea-liquor.mjs"
+    "render:tea-liquor": "node scripts/render-tea-liquor.mjs",
+    "render:audio": "node scripts/render-audio.mjs"
   },
   "dependencies": {
     "@phosphor-icons/vue": "^2.2.1",
