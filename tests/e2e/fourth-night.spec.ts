@@ -67,6 +67,7 @@ test("fourth night saves hearth, reads both recipe sides, and reaches Yenuan's n
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
   await page.getByRole("switch", { name: /減少動態效果/ }).check();
   await page.reload();
+  await expect(page.getByRole("heading", { name: "閱讀的步調" })).toBeVisible();
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第四夜" }).click();
   await prepareOpening(page);
@@ -103,14 +104,23 @@ test("fourth night saves hearth, reads both recipe sides, and reaches Yenuan's n
   await page.reload();
   await expect(page.locator(".memory-evidence-dawn-kitchen .memory-object-seen")).toHaveCount(3);
   await page.getByRole("button", { name: "從麵粉袋下收起第一片食譜" }).click();
+  const dawnReflection = await untilChoice(page, "問她第一次想把晨麥留給誰");
+  await page.screenshot({ path: `output/fourth-night-dawn-reflection-${info.project.name}.png`, animations: "disabled" });
+  await dawnReflection.click();
   await expectMemoryBackground(page, "anniversary", info.project.name);
   await inspectMemoryObjects(page, "anniversary", ["週年招牌", "未接來電", "活動帳本"]);
   await page.getByRole("button", { name: "收起活動傳單裡的第二片紙" }).click();
+  await (await untilChoice(page, "問她當晚最不敢承認")).click();
   await expectMemoryBackground(page, "hospital-return", info.project.name);
   await inspectMemoryObjects(page, "hospital-return", ["母親的語音", "掛號紙", "麵包紙袋"]);
   await page.getByRole("button", { name: "帶著尚未回答的問題走向老烤箱" }).click();
+  await (await untilChoice(page, "問她若不靠責備")).click();
   await expectMemoryBackground(page, "old-oven", info.project.name);
   await inspectMemoryObjects(page, "old-oven", ["二次發酵", "生日蠟燭", "食譜紙角"]);
+  await page.getByRole("button", { name: "將第三片食譜收好，回書店" }).click();
+  const ovenReflection = await untilChoice(page, "問她想保存的是母親的味道");
+  await page.screenshot({ path: `output/fourth-night-oven-reflection-${info.project.name}.png`, animations: "disabled" });
+  await ovenReflection.click();
   await advanceUntil(page, ".letter-panel");
   await expect(page.locator(".letter-slot")).toHaveCount(3);
   for (const [index, line] of [
@@ -135,6 +145,7 @@ test("fourth night saves hearth, reads both recipe sides, and reaches Yenuan's n
   await expect(page.locator(".letter-side-buttons")).toContainText("正面 3/3 · 背面 3/3");
   await page.screenshot({ path: `output/fourth-night-recipe-${info.project.name}.png`, fullPage: true, animations: "disabled" });
   await page.getByRole("button", { name: "把食譜交還給她" }).click();
+  await (await untilChoice(page, "問她想留下哪一口")).click();
   await (await untilChoice(page, "加入自己喜歡的柚子")).click();
   await (await untilChoice(page, "陪她烤一顆新的麵包")).click();
   await advanceUntil(page, ".ending-panel");

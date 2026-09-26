@@ -27,6 +27,7 @@ VAR read_oven_wait = false
 VAR read_oven_candles = false
 VAR read_oven_note = false
 VAR recipe_choice = ""
+VAR recipe_sincere = false
 VAR ending_kind = ""
 -> arrival
 
@@ -130,6 +131,26 @@ VAR ending_kind = ""
     -> dawn_end
 === dawn_end ===
 食譜的第一片留在麵粉袋下。正面寫著揉麵的做法，背面是母親寫的「小暖」。 # fragment:flour # speaker:旁白
+葉暖捏著紙角。「我後來學會把麵包做得一樣圓，卻一直記得第一顆歪的。」她看向烤盤，像在等妳說那是失敗的證據。 # speaker:葉暖
+{
+- read_dawn_bread && read_dawn_cup:
+    妳見過母親把歪麵包擺在門口，也見過兩只杯子在布巾邊輪流停下。那天她們既把店打開，也留了時間一起等麵團。 # speaker:旁白
+- read_dawn_bread:
+    第一位客人選走最歪的那顆。葉暖說自己那時高興的不是賣出去，而是母親沒有叫她重新做。 # speaker:葉暖
+- read_dawn_cup:
+    她看著小杯，記得那個清晨曾有人陪她坐著，卻還不知道第一顆麵包最後去了哪裡。 # speaker:旁白
+- else:
+    烤盤上的麵包仍在，妳們沒有看清那天如何收場。葉暖暫時把這段記憶留在清晨，沒有替它補上後來的答案。 # speaker:旁白
+}
+* [問她第一次想把晨麥留給誰]
+    「給媽媽，也給每天經過這條街的人。」葉暖說。「她說店門開著，總會有人帶著還沒吃早餐的心情進來。」 # speaker:葉暖
+    她指著自己做的那顆，承認當年也想聽母親說一句「這是妳做的」。 # speaker:旁白
+    -> dawn_depart
+* [問她如今為何連一口麵包也不肯吃]
+    「好像我一吃，就承認日子還能照常過。」她放下紙片。「可是我每天替別人切，店也一直開著。原來我早就讓日子往前走了，只是不肯讓自己跟上。」 # speaker:葉暖
+    -> dawn_depart
+=== dawn_depart ===
+烤箱裡的第一盤麵包還歪著。葉暖沒有把它修圓；她把那片寫著「小暖」的紙帶往下一間店。 # speaker:旁白
 * [走進晨麥的週年活動]
     -> anniversary
 === anniversary ===
@@ -166,6 +187,26 @@ VAR ending_kind = ""
     -> anniversary_hub
 === anniversary_end ===
 第二片紙夾在活動傳單裡。正面列著蘋果與肉桂，背面有一句關於晨麥的話。 # fragment:apple # speaker:旁白
+葉暖把傳單摺起又打開。「那天我一面覺得自己不能關店，一面知道手機又亮了。這兩件事都是真的。」 # speaker:葉暖
+{
+- read_anniversary_calls && read_anniversary_ledger:
+    妳們看過未接來電，也看過母女一起訂料、葉暖後來改份量的帳本。一起準備過活動，不等於醫院那晚的電話可以被忽略；接錯了選擇，也不等於她從未愛過母親。 # speaker:旁白
+- read_anniversary_calls:
+    手機上留著未接來電。葉暖沒有請妳替她找藉口，只說自己曾一再對著亮起的螢幕說「再五分鐘」。 # speaker:葉暖
+- read_anniversary_ledger:
+    帳本記著母女一起備料，妳們卻尚未看手機裡的記錄。她說那晚自己既想守住店，也想去醫院，沒有把兩件事說成同一個願望。 # speaker:旁白
+- else:
+    妳們沒有翻看收銀台旁的記錄。葉暖願意說當時兩頭都想顧，妳沒有把未查的細節替她寫進傳單。 # speaker:旁白
+}
+* [問她當晚最不敢承認自己想要什麼]
+    「我想讓媽媽看見我把店撐起來。」她說。「也想聽見她說，不必每一步都照她的方法。」 # speaker:葉暖
+    她把傳單折成能放進口袋的大小，沒有把想被肯定當作那晚所有選擇的辯解。 # speaker:旁白
+    -> anniversary_depart
+* [問她現在若再忙不過來，會先找誰幫忙]
+    葉暖說出熟客、隔壁店主和能輪班的學徒，說到學徒時停了停。「那晚我以為只有我能做。現在不能再讓這句話替我決定每一天。」 # speaker:葉暖
+    -> anniversary_depart
+=== anniversary_depart ===
+隊伍的聲音退遠。葉暖把手機放進自己的口袋，說想親自看看那天以後留下的東西。 # speaker:旁白
 * [陪她走到醫院走廊]
     -> hospital
 === hospital ===
@@ -202,6 +243,26 @@ VAR ending_kind = ""
     -> hospital_hub
 === hospital_end ===
 葉暖說：「如果我有一天不再怪自己，是不是就表示我不在乎她了？」妳沒有替她回答，把食譜卡遞回她手裡。
+{
+- heard_mother && read_hospital_bag:
+    她聽過母親要她分麵包、記得自己也要吃的語音，也看過紙袋裡剩下的一片。這些不是那晚的赦免書；那是母親直到最後仍用熟悉的方式關心她。 # speaker:旁白
+- heard_mother:
+    她把手機握在掌心，說自己終於聽完那則語音，卻還需要時間想它與自己的選擇如何同時存在。 # speaker:葉暖
+- read_hospital_bag:
+    紙袋還留著麵包與紙巾。她沒有播放語音，妳也沒有拿袋裡的東西猜母親最後想說的話。 # speaker:旁白
+- else:
+    語音和長椅下的紙袋都還沒看完。葉暖仍能帶著問題離開走廊，不必為了繼續故事而重聽她尚未準備好的聲音。 # speaker:旁白
+}
+* [問她若不靠責備，還想用什麼記得母親]
+    「她切蘋果時會留最薄的一片給我。」葉暖說。「有時我想起來的不是醫院，是清晨桌上的那兩只杯子。」 # speaker:葉暖
+    她說這些記憶不會因為自己有一天笑了，就被那天晚上拿走。 # speaker:旁白
+    -> hospital_depart
+* [陪她先承認今晚仍然難過]
+    妳陪她坐回長椅。葉暖說自己現在還不能說不怪自己，也不想再每天只用「我太晚到」介紹母親。 # speaker:葉暖
+    她把卡片翻回有麵粉痕的一面，決定先去看完食譜。 # speaker:旁白
+    -> hospital_depart
+=== hospital_depart ===
+走廊的燈沒有替她答應明天會好過。葉暖自己起身，帶著手機與食譜卡，走回那台已經熄火的烤箱。 # speaker:旁白
 * [回到熄火的老烤箱]
     -> old_oven
 === old_oven ===
@@ -233,6 +294,24 @@ VAR ending_kind = ""
 她把紙放在掌心，等到手不再發抖才打開。「今晚至少能先把它讀完。」 # speaker:葉暖
 紙片正面寫著等待與火候，背面寫著母親對她往後生活的願望。 # fragment:waiting # speaker:旁白
 黑貓坐在烤箱邊，等妳們帶著三片紙回書店。
+{
+- read_oven_wait && read_oven_note:
+    妳們看過被劃掉的等待，也讀到紙背的第一句。葉暖說：「媽媽叫我等，不是叫我把店永遠停在她離開的那天。」她還沒讀完其餘文字，先把紙角小心放平。 # speaker:葉暖
+- read_oven_candles:
+    她摸到口袋裡未拆的蠟燭。「我今年可以帶它回家。點不點，明天再決定。」 # speaker:葉暖
+- else:
+    烤箱旁還有沒看的痕跡。她把三片紙帶回書店，說不想在黑暗裡把黏住的字硬撕開。 # speaker:旁白
+}
+* [問她想保存的是母親的味道，還是與母親一起做麵包的時刻]
+    「都有。」葉暖說。「有些日子我想照她寫的做，有些日子我想讓她看看我現在會做什麼。」 # speaker:葉暖
+    她把食譜正面朝上放好，也留了位置給背面。 # speaker:旁白
+    -> oven_depart
+* [問她若這次麵包仍烤焦，會怎麼做]
+    她沉默了一會。「先讓它冷下來，再看看哪一步出了問題。也許我能吃掉比較不焦的一片。」 # speaker:葉暖
+    她沒有說從此都不會難過，只是沒再把一顆麵包的顏色當成自己愛得夠不夠的證據。 # speaker:旁白
+    -> oven_depart
+=== oven_depart ===
+老烤箱沒有重新亮起。葉暖說書店的桌子比較明亮，可以慢慢把正反兩面都排出來。 # scene:yenuan # speaker:旁白
 * [把食譜正反兩面拼起來]
     -> letter_start
 === letter_start ===
@@ -248,7 +327,17 @@ VAR ending_kind = ""
 - else:
     紙片還散著。葉暖把它們放進空白信封，說明天早上光線好一點時，再慢慢拼。 # scene:yenuan # speaker:旁白 # section:response
 }
-食譜最後一格還空著。葉暖拿起筆；妳可以問她想照原樣完成，還是加入自己的味道。
+食譜最後一格還空著。葉暖拿起筆，卻先看了一眼籃底那顆焦掉的麵包。「我想把它填完。但我得先知道，是為了媽媽，還是怕再做錯一次。」 # speaker:葉暖
+* [問她想留下哪一口，讓自己也能吃下去]
+    ~ recipe_sincere = true
+    葉暖把筆放下。「我可以記得她，也可以承認我還想吃新的味道。留一口給她以前，我想先替自己留一口。」 # speaker:葉暖
+    -> recipe_options
+* [催她趕快填好，明早還要拿去賣]
+    她把筆握緊。「我知道明天要開門。」她說。「但如果只是為了趕上明天，我又會忘記這張卡片背面寫給誰。」 # speaker:葉暖
+    妳讓她把紙放平，等她決定是否還要寫。 # speaker:旁白
+    -> recipe_options
+=== recipe_options ===
+她把空格留在自己面前，請妳先聽她說想怎麼做。 # speaker:旁白
 * [照媽媽的配方，保留原來的味道]
     ~ recipe_choice = "original"
     她把母親寫的比例重新抄好。「我想先做一次，讓常客記得這個味道。」 # speaker:葉暖 # section:recipe-choice
@@ -259,7 +348,7 @@ VAR ending_kind = ""
     -> final_choice
 === final_choice ===
 烤箱還有餘溫。葉暖看著桌上的蠟燭與麵包籃，說明早開店以前，想先決定自己要做什麼。 # scene:yenuan # speaker:旁白 # section:response
-* {letter_understood && hearth_balanced && recipe_choice == "new"} [陪她烤一顆新的麵包，留一口給母親]
+* {letter_understood && hearth_balanced && recipe_sincere && recipe_choice == "new"} [陪她烤一顆新的麵包，留一口給母親]
     -> end_share
 * {recipe_choice == "original"} [讓原配方重新上架，說出母親的故事]
     -> end_reopen
