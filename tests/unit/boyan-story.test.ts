@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-9.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-10.json", "utf8");
+const chapterNine = readFileSync("public/story/compiled/boyan-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/boyan-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/boyan-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/boyan-chapter-5.json", "utf8");
@@ -24,7 +25,7 @@ const choicesByEnding = {
 function complete(
   target: keyof typeof choicesByEnding,
   storyJson = compiled,
-  options: { skipObjects?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean; orderHandoffFirst?: boolean; teaDraft?: TeaDraft; teaFollowup?: "leave" } = {},
+  options: { skipObjects?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean; orderHandoffFirst?: boolean; teaDraft?: TeaDraft; teaFollowup?: "leave"; teaChoice?: string } = {},
 ) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
@@ -45,7 +46,7 @@ function complete(
     } else if (story.frame.canContinue) {
       story.next();
     } else {
-      const choice = (options.teaFollowup === "leave" ? story.frame.choices.find((entry) => entry.text.includes("先讓杯子和手機都留在桌上")) : undefined) ?? (options.orderHandoffFirst ? story.frame.choices.find((entry) => entry.text.includes("先照舊清單排好交接")) : undefined) ?? story.frame.choices.find((entry) =>
+      const choice = (options.teaChoice ? story.frame.choices.find((entry) => entry.text.includes(options.teaChoice!)) : undefined) ?? (options.teaFollowup === "leave" ? story.frame.choices.find((entry) => entry.text.includes("先讓杯子和手機都留在桌上")) : undefined) ?? (options.orderHandoffFirst ? story.frame.choices.find((entry) => entry.text.includes("先照舊清單排好交接")) : undefined) ?? story.frame.choices.find((entry) =>
         entry.text.includes(choicesByEnding[target]),
       ) ?? (options.skipObjects
         ? story.frame.choices.find((entry) => [
@@ -105,6 +106,25 @@ describe("Boyan second night", () => {
   });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-seven %s save route", (target) => {
     expect(complete(target, chapterSeven).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-nine %s save route", (target) => {
+    expect(complete(target, chapterNine).story.frame.endingId).toBe(target);
+  });
+  it("requires an extra dialogue to stop after black tea and lets mint sort without full relief", () => {
+    const black = { ...newTea(), teaId: "black" as const, leaves: 3, water: 70, temperature: 95, seconds: 55 };
+    const mint = { ...newTea(), teaId: "mint" as const, leaves: 3, water: 70, temperature: 85, seconds: 55 };
+    const blackRoute = complete("boyan-rest", compiled, { teaDraft: black });
+    const blackAlternative = complete("boyan-rest", compiled, { teaDraft: black, teaChoice: "現在願意先放下" });
+    const mintRoute = complete("boyan-rest", compiled, { teaDraft: mint });
+    const mintAlternative = complete("boyan-rest", compiled, { teaDraft: mint, teaChoice: "暫時不必填進今晚" });
+    expect(blackRoute.texts.join(" ")).toContain("若不多問一句，他又要回到剛才的報告裡");
+    expect(blackRoute.texts.join(" ")).toContain("不能讓對方提早回覆");
+    expect(blackAlternative.texts.join(" ")).toContain("交接不必今晚一次寫完");
+    expect(mintRoute.texts.join(" ")).toContain("還不能讓他放心休息");
+    expect(mintRoute.texts.join(" ")).toContain("把報告放在「明早」");
+    expect(mintAlternative.texts.join(" ")).toContain("卻還沒真的鬆下來");
+    expect(blackRoute.story.frame.endingId).toBe("boyan-rest");
+    expect(mintRoute.story.frame.endingId).toBe("boyan-rest");
   });
   it("responds to the brewed quality, offers extra listening, and keeps poor tea playable", () => {
     const ideal = { ...newTea(), teaId: "chamomile" as const, garnish: "honey" as const, leaves: 3, water: 70, temperature: 90, seconds: 60 };

@@ -8,7 +8,8 @@ export async function geometry(page: Page) {
   const board = page.locator(".tea-board");
   await board.scrollIntoViewIfNeeded();
   const box = (await board.boundingBox())!;
-  const layout = tableLayout(box.width < 600);
+  // The tea house boils water on a stove, which moves the spoon.
+  const layout = tableLayout(box.width < 600, (await board.getAttribute("data-layout")) === "boiling");
   return {
     layout,
     at: (p: Point) => ({

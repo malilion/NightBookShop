@@ -7,10 +7,11 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-8.json",
+  "public/story/compiled/ruoyin-chapter-9.json",
   "utf8",
 );
 const chapterSeven = readFileSync("public/story/compiled/ruoyin-chapter-7.json", "utf8");
+const chapterEight = readFileSync("public/story/compiled/ruoyin-chapter-8.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/ruoyin-chapter-5.json", "utf8");
 const previousCompiled = readFileSync("public/story/compiled/ruoyin-chapter-1.json", "utf8");
 const chapterTwo = readFileSync("public/story/compiled/ruoyin-chapter-2.json", "utf8");
@@ -27,7 +28,7 @@ function play(
   target: keyof typeof targets,
   fullLetter = true,
   storyJson = compiled,
-  options: { skipObjects?: boolean; excludedChoices?: string[]; previousEnding?: string; finalBar?: "return" | "new" | "rest"; teaId?: "lavender" | "osmanthus" | "black"; chooseTexts?: string[] } = {},
+  options: { skipObjects?: boolean; excludedChoices?: string[]; previousEnding?: string; finalBar?: "return" | "new" | "rest"; teaId?: "lavender" | "osmanthus" | "black"; chooseTexts?: string[]; latePrompt?: string; skipScoreTable?: boolean } = {},
 ) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
@@ -59,11 +60,16 @@ function play(
         new: "加入一小段新的簡單旋律",
         rest: "先留下休止符",
       }[options.finalBar ?? "return"];
+      const scoreTable = story.frame.choices.some((entry) => entry.text.includes("把鉛筆交回若音"));
+      const scoreChoice = scoreTable && (options.latePrompt || options.skipScoreTable)
+        ? story.frame.choices.find((entry) => options.latePrompt && entry.text.includes(options.latePrompt))
+          ?? story.frame.choices.find((entry) => entry.text.includes("把鉛筆交回若音"))
+        : undefined;
       const choice =
         story.frame.choices.find((entry) => entry.text === finalBarText) ??
         story.frame.choices.find((entry) =>
           entry.text.includes(targets[target]),
-        ) ?? story.frame.choices.find((entry) =>
+        ) ?? scoreChoice ?? story.frame.choices.find((entry) =>
           options.chooseTexts?.some((text) => entry.text.includes(text)),
         ) ?? (options.skipObjects
           ? story.frame.choices.find((entry) => [
@@ -134,6 +140,9 @@ describe("Ruoyin third night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-seven %s save route", (target) => {
     expect(play(target, true, chapterSeven).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-eight %s save route", (target) => {
+    expect(play(target, true, chapterEight).story.frame.endingId).toBe(target);
+  });
   it("changes all four memory recaps according to inspected evidence", () => {
     const explored = play("ruoyin-stage").texts.join(" ");
     const skipped = play("ruoyin-stage", true, compiled, { skipObjects: true }).texts.join(" ");
@@ -160,10 +169,25 @@ describe("Ruoyin third night", () => {
       expect(route).toContain(detail);
   });
   it("can leave each memory early and still assemble both sides of the letter", () => {
-    const { story, finalChoiceOptions } = play("ruoyin-stage", true, compiled, { skipObjects: true });
+    const { story, finalChoiceOptions } = play("ruoyin-stage", true, compiled, { skipObjects: true, skipScoreTable: true });
     expect(story.frame.fragments).toEqual(["greeting", "fear", "music"]);
     expect(story.frame.clues).not.toContain("company-recital");
     expect(finalChoiceOptions).not.toContain("陪她只為一個人拉完這首曲子");
+  });
+  it.each([
+    ["return", "最初四個音", "妳們先前沒有停下來聽那場雨"],
+    ["new", "新的旋律想先給誰聽", "妳們沒有問過那位聽眾的想法"],
+    ["rest", "手累時能不能把休止符留下", "妳們沒有讀到過去的復健紀錄"],
+  ] as const)("can ground a sincere %s ending in a new conversation", (finalBar, latePrompt, expected) => {
+    const { story, texts, finalChoiceOptions } = play("ruoyin-one", true, compiled, {
+      skipObjects: true,
+      excludedChoices: ["問她左手是否還痛"],
+      finalBar,
+      latePrompt,
+    });
+    expect(story.frame.endingId).toBe("ruoyin-one");
+    expect(texts.join(" ")).toContain(expected);
+    expect(finalChoiceOptions).toContain("陪她只為一個人拉完這首曲子");
   });
   it("reserves the first joyful playing memory for lavender tea", () => {
     const lavender = play("ruoyin-stage");

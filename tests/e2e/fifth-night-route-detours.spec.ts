@@ -14,7 +14,7 @@ import {
   type GameSnapshot,
 } from "../../src/types/game";
 
-const storyJson = readFileSync("public/story/compiled/yuhang-chapter-8.json", "utf8");
+const storyJson = readFileSync("public/story/compiled/yuhang-chapter-9.json", "utf8");
 
 function beforeRoute(): GameSnapshot {
   const story = new StoryBridge(storyJson);
@@ -24,7 +24,7 @@ function beforeRoute(): GameSnapshot {
     if (frame.mode === "route")
       return snapshotSchema.parse({
         version: 1,
-        storyVersion: "yuhang-chapter-8",
+        storyVersion: "yuhang-chapter-9",
         inkState: story.serialize(),
         frame,
         tea: { ...newTea(), teaId: "mint", garnish: "lemon", blackTea: 20, step: "serve", leaves: 3, water: 70, seconds: 30 },

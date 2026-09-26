@@ -1,7 +1,7 @@
 import { Howl, Howler } from "howler";
 
 export type AudioScene = "rain" | "room" | null;
-export type AudioCue = "paper" | "porcelain" | "bell";
+export type AudioCue = "paper" | "porcelain" | "bell" | "chime" | "drop";
 export interface AudioPreferences {
   muted: boolean;
   bgmVolume: number;
@@ -22,7 +22,12 @@ const files = {
   paper: "paper",
   porcelain: "porcelain",
   bell: "door-bell",
+  chime: "tea-chime",
+  drop: "tea-drop",
+  pour: "tea-pour",
+  boil: "tea-boil",
 } as const;
+type EffectLoop = "pour" | "boil";
 const sources = (name: keyof typeof files) => [
   `/audio/${files[name]}.ogg`,
   `/audio/${files[name]}.mp3`,
@@ -41,6 +46,7 @@ class AudioManager {
   private preferences = defaults;
   private loops: Partial<Record<LoopName, LoopTrack>> = {};
   private cues: Partial<Record<AudioCue, Howl>> = {};
+  private effects: Partial<Record<EffectLoop, { howl: Howl; level: number }>> = {};
 
   start() {
     if (this.started) return;
@@ -82,6 +88,39 @@ class AudioManager {
     this.cues[name] = howl;
     howl.volume(this.preferences.sfxVolume / 100);
     howl.play();
+  }
+  /** Water stream while a kettle or teapot is tilted; 0 stops it. */
+  setPour(level: number) {
+    this.setEffect("pour", level, 0.55);
+  }
+  /** The kettle simmering on the stove, louder toward a rolling boil. */
+  setBoil(level: number) {
+    this.setEffect("boil", level, 0.45);
+  }
+  private setEffect(name: EffectLoop, level: number, gain: number) {
+    const allowed =
+      this.started &&
+      this.visible &&
+      this.scene !== null &&
+      !this.preferences.muted &&
+      this.preferences.sfxVolume > 0;
+    const target = allowed ? Math.round(Math.max(0, Math.min(1, level)) * 10) / 10 : 0;
+    const effect = this.effects[name];
+    if (target === (effect?.level ?? 0)) return;
+    if (target > 0) {
+      const current = effect ?? { howl: new Howl({ src: sources(name), loop: true, volume: 0 }), level: 0 };
+      this.effects[name] = current;
+      current.level = target;
+      if (!current.howl.playing()) current.howl.play();
+      current.howl.fade(current.howl.volume(), target * (this.preferences.sfxVolume / 100) * gain, 120);
+    } else if (effect) {
+      effect.level = 0;
+      if (!effect.howl.playing()) return;
+      effect.howl.fade(effect.howl.volume(), 0, 180);
+      effect.howl.once("fade", () => {
+        if (effect.level === 0) effect.howl.stop();
+      });
+    }
   }
   private track(name: LoopName) {
     if (!this.loops[name]) {

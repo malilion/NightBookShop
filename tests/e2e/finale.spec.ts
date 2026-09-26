@@ -7,7 +7,7 @@ import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
 function completedHaimingSave(): GameSnapshot {
-  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-10.json", "utf8"));
+  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-12.json", "utf8"));
   story.next();
   for (let step = 0; step < 320 && story.frame.mode !== "ending"; step++) {
     if (story.frame.mode === "tea") story.finishTea({ teaId: "hojicha", quality: 100, emotionalMatch: 100 });
@@ -19,7 +19,7 @@ function completedHaimingSave(): GameSnapshot {
   if (story.frame.endingId !== "haiming-light") throw new Error("Haiming fixture did not reach the shared-letter ending");
   return snapshotSchema.parse({
     version: 1,
-    storyVersion: "haiming-chapter-10",
+    storyVersion: "haiming-chapter-12",
     inkState: story.serialize(),
     frame: story.frame,
     tea: newTea(),
@@ -100,6 +100,8 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await steepAndServe(page, touch, "自己");
   await page.getByRole("button", { name: /繼續故事/ }).click();
   await advanceUntil(page, ".archive-panel");
+  await expect(page.getByRole("img", { name: /六張紙背的摺痕拼成城市地圖/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "走進地圖中心" })).toBeDisabled();
   await page.getByRole("button", { name: /靜蘭 · 舊信/ }).click();
   await page.getByRole("button", { name: /柏言 · 草稿/ }).click();
   await page.getByRole("button", { name: /若音 · 樂譜/ }).click();
@@ -143,6 +145,10 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await page.reload();
   await expect(page.locator(".memory-evidence-hidden-room .memory-object-seen")).toHaveCount(3);
   await page.getByRole("button", { name: "帶著看到的線索回到櫃台" }).click();
+  await untilChoice(page, "問童年的保管請求，為何變成成年後推不開的門");
+  await page.screenshot({ path: `output/finale-owner-consent-${info.project.name}.png`, animations: "disabled" });
+  await page.reload();
+  await (await untilChoice(page, "問童年的保管請求，為何變成成年後推不開的門")).click();
   await advanceUntil(page, '.scene-art img[src*="memory-child-home.webp"]');
   await expect(page.locator('.character-portrait[data-portrait="child"]')).toBeVisible();
   await expect.poll(() => page.locator('.character-portrait[data-portrait="child"]').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
@@ -176,7 +182,11 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await expect(page.locator(".letter-slot.filled")).toHaveCount(4);
   await page.screenshot({ path: `output/finale-letter-${info.project.name}.png`, fullPage: true, animations: "disabled" });
   await page.getByRole("button", { name: "把信放在自己面前" }).click();
-  await (await untilChoice(page, "取回記憶")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="這一次不需要替店主的決定辯護"]');
+  await page.screenshot({ path: `output/finale-choice-boundary-${info.project.name}.png`, animations: "disabled" });
+  const dawnChoice = await untilChoice(page, "取回記憶");
+  await expect(page.getByRole("button", { name: /把信合起來，回到櫃台/ })).toHaveCount(0);
+  await dawnChoice.click();
   await advanceUntil(page, ".ending-panel");
   await expect(page.getByRole("heading", { name: "天亮以後" })).toBeVisible();
   await page.getByRole("button", { name: /守夜手記/ }).click();

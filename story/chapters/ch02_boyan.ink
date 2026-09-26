@@ -82,9 +82,36 @@ VAR read_train_map = false
     他聞了聞洋甘菊的香氣，第一口只沾了嘴唇。「原來我可以等茶涼一點。」 # scene:boyan # speaker:許柏言 # section:listening
 - tea_type == "black":
     他把紅茶喝得很快，伸手去拿電腦。妳把熱水壺放回架上，請他先等杯底不再燙手。 # scene:boyan # speaker:旁白 # section:listening
+- tea_type == "mint":
+    薄荷的涼意讓柏言暫時不盯著通知。他說能分清哪件事要現在做，卻仍坐得筆直，手指搭在電腦邊上。 # scene:boyan # speaker:旁白 # section:listening
 - else:
     他握著杯子，指尖慢慢暖起來。「謝謝。我剛才一直在數未讀訊息。」 # scene:boyan # speaker:許柏言 # section:listening
 }
+{
+- tea_type == "black":
+    -> black_tea_pause
+- tea_type == "mint":
+    -> mint_tea_sort
+- else:
+    -> tea_quality_review
+}
+=== black_tea_pause ===
+筆電重新亮起，柏言的手已放在鍵盤上。若不多問一句，他又要回到剛才的報告裡。 # speaker:旁白
+* [問他明早那三頁，哪一頁真的只能由他完成]
+    他指著第二頁，停住了：「這頁的數字還在等另一組。我今晚盯著它，也不能讓對方提早回覆。」他合上筆電，先把待問的人寫在紙上。 # speaker:許柏言
+    -> tea_quality_review
+* [請他說出現在願意先放下哪一件工作]
+    柏言望著尚未存好的檔案。「明早的簡報我可以先放下十分鐘，交接不必今晚一次寫完。」他自己按下儲存，才把筆電闔上。 # speaker:許柏言
+    -> tea_quality_review
+=== mint_tea_sort ===
+柏言在紙上寫了「今晚」、「明早」和「要找人談」。筆尖停在第一欄；茶能讓他看清順序，還不能讓他放心休息。 # speaker:旁白
+* [陪他把報告和回診分到不同欄]
+    他把報告放在「明早」，把尚未約好的回診寫進「要找人談」。「寫下來以後，我至少不用在腦子裡把兩件事一起趕完。」 # speaker:許柏言
+    -> tea_quality_review
+* [問他哪件事暫時不必填進今晚]
+    「工作群組的新訊息。」柏言把手機翻面，腳尖還在輕敲椅腳。「我知道先不看比較好，卻還沒真的鬆下來。」 # speaker:許柏言
+    -> tea_quality_review
+=== tea_quality_review ===
 {
 - tea_quality >= 90:
     ~ understanding += 1

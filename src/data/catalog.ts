@@ -433,17 +433,17 @@ export const previousChapter: Record<
   lincheng: "haiming",
 };
 export const chapterForVersion = (version: string) =>
-  version === "lincheng-chapter-1" || version === "lincheng-chapter-2" || version === "lincheng-chapter-3" || version === "lincheng-chapter-4" || version === "lincheng-chapter-5" || version === "lincheng-chapter-6"
+  version === "lincheng-chapter-1" || version === "lincheng-chapter-2" || version === "lincheng-chapter-3" || version === "lincheng-chapter-4" || version === "lincheng-chapter-5" || version === "lincheng-chapter-6" || version === "lincheng-chapter-7" || version === "lincheng-chapter-8"
     ? "lincheng"
-    : version === "haiming-chapter-1" || version === "haiming-chapter-2" || version === "haiming-chapter-3" || version === "haiming-chapter-4" || version === "haiming-chapter-5" || version === "haiming-chapter-6" || version === "haiming-chapter-7" || version === "haiming-chapter-8" || version === "haiming-chapter-9" || version === "haiming-chapter-10"
+    : version === "haiming-chapter-1" || version === "haiming-chapter-2" || version === "haiming-chapter-3" || version === "haiming-chapter-4" || version === "haiming-chapter-5" || version === "haiming-chapter-6" || version === "haiming-chapter-7" || version === "haiming-chapter-8" || version === "haiming-chapter-9" || version === "haiming-chapter-10" || version === "haiming-chapter-11" || version === "haiming-chapter-12"
     ? "haiming"
-    : version === "yuhang-chapter-1" || version === "yuhang-chapter-2" || version === "yuhang-chapter-3" || version === "yuhang-chapter-4" || version === "yuhang-chapter-5" || version === "yuhang-chapter-6" || version === "yuhang-chapter-7" || version === "yuhang-chapter-8"
+    : version === "yuhang-chapter-1" || version === "yuhang-chapter-2" || version === "yuhang-chapter-3" || version === "yuhang-chapter-4" || version === "yuhang-chapter-5" || version === "yuhang-chapter-6" || version === "yuhang-chapter-7" || version === "yuhang-chapter-8" || version === "yuhang-chapter-9"
     ? "yuhang"
-    : version === "yenuan-chapter-1" || version === "yenuan-chapter-2" || version === "yenuan-chapter-3" || version === "yenuan-chapter-4" || version === "yenuan-chapter-5" || version === "yenuan-chapter-6" || version === "yenuan-chapter-7"
+    : version === "yenuan-chapter-1" || version === "yenuan-chapter-2" || version === "yenuan-chapter-3" || version === "yenuan-chapter-4" || version === "yenuan-chapter-5" || version === "yenuan-chapter-6" || version === "yenuan-chapter-7" || version === "yenuan-chapter-8"
     ? "yenuan"
-    : version === "ruoyin-chapter-1" || version === "ruoyin-chapter-2" || version === "ruoyin-chapter-3" || version === "ruoyin-chapter-4" || version === "ruoyin-chapter-5" || version === "ruoyin-chapter-6" || version === "ruoyin-chapter-7" || version === "ruoyin-chapter-8"
+    : version === "ruoyin-chapter-1" || version === "ruoyin-chapter-2" || version === "ruoyin-chapter-3" || version === "ruoyin-chapter-4" || version === "ruoyin-chapter-5" || version === "ruoyin-chapter-6" || version === "ruoyin-chapter-7" || version === "ruoyin-chapter-8" || version === "ruoyin-chapter-9"
     ? "ruoyin"
-    : version === "boyan-chapter-1" || version === "boyan-chapter-2" || version === "boyan-chapter-3" || version === "boyan-chapter-4" || version === "boyan-chapter-5" || version === "boyan-chapter-6" || version === "boyan-chapter-7" || version === "boyan-chapter-8" || version === "boyan-chapter-9"
+    : version === "boyan-chapter-1" || version === "boyan-chapter-2" || version === "boyan-chapter-3" || version === "boyan-chapter-4" || version === "boyan-chapter-5" || version === "boyan-chapter-6" || version === "boyan-chapter-7" || version === "boyan-chapter-8" || version === "boyan-chapter-9" || version === "boyan-chapter-10"
       ? "boyan"
       : "jinglan";
 export const chapterForEnding = (ending: EndingId) =>

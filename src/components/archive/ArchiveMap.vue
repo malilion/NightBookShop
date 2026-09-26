@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useGameStore } from "../../stores/gameStore";
 import { archiveConnections, connectionBetween, scoreArchive } from "../../services/archiveScoring";
 import type { ArchiveDraft } from "../../types/game";
+import { clueJournal, discoveredConnections, type ClueJournal } from "../../services/clueJournal";
 
 const game = useGameStore();
+const earlierJournal = ref<ClueJournal>({ seen: [], connections: [] });
+onMounted(async () => { earlierJournal.value = await clueJournal.load(); });
 const score = computed(() => scoreArchive(game.archive));
 const selected = ref<ArchiveDraft["inspected"][number] | null>(null);
 const feedback = ref("先翻看紙背，再依共同的人、地點或旋律，依序選取相連的兩張紙。");
@@ -52,6 +55,7 @@ function inspect(id: ArchiveDraft["inspected"][number]) {
   <section class="archive-panel paper-frame" aria-label="六夜故事地圖">
     <div class="panel-heading"><span class="route-mark" aria-hidden="true">☾</span><div><p class="subtle">終章 · 林澄</p><h2>把六夜的痕跡攤開</h2></div></div>
     <p class="tea-clue">翻看六位訪客留下的紙，再選兩張有共同線索的紙接起來。五段關係連成一條路，才找得到地圖中心；翻頁與連線都會保存。</p>
+    <details v-if="discoveredConnections(earlierJournal).length" class="archive-prior-notes"><summary>翻閱先前的跨夜手記 · {{ discoveredConnections(earlierJournal).length }} 段</summary><ul><li v-for="connection in discoveredConnections(earlierJournal)" :key="connection.id">{{ connection.explanation }}</li></ul></details>
     <div class="archive-grid">
       <button v-for="record in records" :key="record.id" class="archive-record" :class="{ inspected: game.archive.inspected.includes(record.id), selected: selected === record.id }" type="button" :aria-pressed="selected === record.id" @click="inspect(record.id)">
         <span class="archive-record-name">{{ record.name }}</span>

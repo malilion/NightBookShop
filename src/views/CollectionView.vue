@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useGameStore } from "../stores/gameStore";
 import {
   endings,
@@ -14,7 +14,49 @@ import { chapterArchive, collectionAchievements } from "../data/collectionArchiv
 import { assets } from "../data/assets";
 import PageHeader from "../components/common/PageHeader.vue";
 import GameIcon from "../components/common/GameIcon.vue";
+import { clues } from "../data/notebook";
+import { clueJournal, discoveredConnections, type ClueJournal } from "../services/clueJournal";
+import { archiveItemSchema } from "../types/game";
 const game = useGameStore();
+type ArchiveItem = typeof archiveItemSchema.options[number];
+const journal = ref<ClueJournal>({ seen: [], connections: [] });
+const selectedNight = ref<ArchiveItem | null>(null);
+const compareFeedback = ref("選兩位已完成故事的訪客，比對手記裡的共同痕跡。");
+const comparing = ref(false);
+const comparisonNights = computed(() => chapters.filter((chapter) => archiveItemSchema.safeParse(chapter.id).success).map((chapter) => ({
+  id: chapter.id as ArchiveItem,
+  visitor: chapter.visitor,
+  complete: game.completedChapters.has(chapter.id as PlayableChapterId),
+})));
+const observedClues: Partial<Record<ArchiveItem, (keyof typeof clues)[]>> = {
+  boyan: ["school-journal"],
+  ruoyin: ["company-recital", "motif"],
+  yenuan: ["recipe-postmark"],
+  yuhang: ["lighthouse-postcard"],
+  haiming: ["shared-melody", "lighthouse-photo"],
+};
+const foundClues = computed(() => comparisonNights.value.flatMap((night) =>
+  night.complete ? (observedClues[night.id] ?? []).filter((id) => journal.value.seen.includes(id)).map((id) => ({ id, title: clues[id][0] })) : [],
+));
+onMounted(async () => { journal.value = await clueJournal.load(); });
+async function selectNight(id: ArchiveItem) {
+  if (comparing.value || !game.completedChapters.has(id as PlayableChapterId)) return;
+  if (!selectedNight.value) {
+    selectedNight.value = id;
+    compareFeedback.value = `已選取${comparisonNights.value.find((night) => night.id === id)?.visitor}。再選另一夜。`;
+    return;
+  }
+  if (selectedNight.value === id) { selectedNight.value = null; compareFeedback.value = "已放回這一夜。"; return; }
+  comparing.value = true;
+  try {
+    const { result, journal: updated } = await clueJournal.connect(selectedNight.value, id, game.completedChapters);
+    journal.value = updated;
+    compareFeedback.value = result.status === "connected" ? result.connection.explanation
+      : result.status === "already" ? "這兩夜的關係已記在手記裡。"
+      : result.status === "missing" ? "這兩夜似乎有關，但手記裡還缺少能證實的線索。回到故事再仔細查看。"
+      : "目前看不出這兩夜有直接相連的痕跡。試著比較其他訪客。";
+  } finally { selectedNight.value = null; comparing.value = false; }
+}
 const entries = computed(() =>
   game.collection
     .filter((e) => e.id in endings)
@@ -144,6 +186,19 @@ const achievements = computed(() => collectionAchievements.map((achievement) => 
           <p v-else class="archive-missing"><GameIcon name="lock" :size="20" />這一夜尚未收存。</p>
         </article>
       </div>
+    </section>
+    <section class="archive-section clue-comparison" aria-labelledby="clue-comparison-title">
+      <div class="collection-heading"><h2 id="clue-comparison-title">跨夜線索對照</h2><span>{{ journal.connections.length }} ／ 5 段關係已記下</span></div>
+      <p class="subtle">完成故事並找到紙背的線索後，依序選兩位訪客。重訪時發現的痕跡也會留在手記裡。</p>
+      <div class="clue-night-grid" aria-label="選擇要比對的兩夜">
+        <button v-for="night in comparisonNights" :key="night.id" type="button" class="clue-night" :class="{ selected: selectedNight === night.id }" :disabled="!night.complete || comparing" :aria-pressed="selectedNight === night.id" @click="selectNight(night.id)">
+          <GameIcon :name="night.complete ? 'book' : 'lock'" :size="20" />
+          <span>{{ night.complete ? night.visitor : '尚未收存' }}</span>
+        </button>
+      </div>
+      <p class="clue-comparison-feedback" role="status" aria-live="polite">{{ compareFeedback }}</p>
+      <div v-if="foundClues.length" class="clue-comparison-evidence"><h3>手記裡的痕跡</h3><ul><li v-for="clue in foundClues" :key="clue.id">{{ clue.title }}</li></ul></div>
+      <div v-if="discoveredConnections(journal).length" class="clue-comparison-results"><h3>已接上的故事</h3><ol><li v-for="connection in discoveredConnections(journal)" :key="connection.id">{{ connection.explanation }}</li></ol></div>
     </section>
     <section class="archive-section" aria-labelledby="achievement-title">
       <div class="collection-heading"><h2 id="achievement-title">書店徽章</h2><span>{{ achievements.filter((item) => item.unlocked).length }} ／ {{ achievements.length }} 已點亮</span></div>

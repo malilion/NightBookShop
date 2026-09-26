@@ -25,6 +25,20 @@ const settings = useSettingsStore();
           " /></label
       ><label class="setting-row"
         ><span
+          ><strong>高對比閱讀</strong
+          ><small>加深文字底色，讓對話、線索與操作邊界更清楚。</small></span
+        ><input
+          type="checkbox"
+          role="switch"
+          :checked="settings.values.highContrast"
+          @change="
+            settings.update(
+              'highContrast',
+              ($event.target as HTMLInputElement).checked,
+            )
+          " /></label
+      ><label class="setting-row"
+        ><span
           ><strong>減少動態效果</strong
           ><small>減少淡入與介面過場，保留所有操作。</small></span
         ><input

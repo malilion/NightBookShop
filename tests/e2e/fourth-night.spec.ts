@@ -108,7 +108,15 @@ test("fourth night saves hearth, reads both recipe sides, and reaches Yenuan's n
   await page.screenshot({ path: `output/fourth-night-dawn-reflection-${info.project.name}.png`, animations: "disabled" });
   await dawnReflection.click();
   await expectMemoryBackground(page, "anniversary", info.project.name);
-  await inspectMemoryObjects(page, "anniversary", ["週年招牌", "未接來電", "活動帳本"]);
+  await advanceUntil(page, ".memory-evidence-anniversary");
+  await page.getByRole("button", { name: "探索物件：週年招牌" }).click();
+  await untilChoice(page, "問她滿座以外，最想讓母親看見什麼");
+  await page.screenshot({ path: `output/fourth-night-anniversary-reflection-${info.project.name}.png`, animations: "disabled" });
+  await page.reload();
+  await (await untilChoice(page, "問她滿座以外，最想讓母親看見什麼")).click();
+  await advanceUntil(page, ".memory-evidence-anniversary");
+  await expect(page.getByRole("button", { name: "探索物件：週年招牌" })).toHaveCount(0);
+  await inspectMemoryObjects(page, "anniversary", ["未接來電", "活動帳本"]);
   await page.getByRole("button", { name: "收起活動傳單裡的第二片紙" }).click();
   await (await untilChoice(page, "問她當晚最不敢承認")).click();
   await expectMemoryBackground(page, "hospital-return", info.project.name);

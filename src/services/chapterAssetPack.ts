@@ -3,7 +3,7 @@ import type { PlayableChapterId } from "../data/catalog";
 
 export const chapterImageCacheName = "night-bookshop-chapter-images-v1";
 
-const chapterImages: Record<PlayableChapterId, readonly string[]> = {
+export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
   // The first night is installed with the app shell by Workbox.
   jinglan: [],
   boyan: [

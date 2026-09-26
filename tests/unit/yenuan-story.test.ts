@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-7.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-8.json", "utf8");
+const chapterSeven = readFileSync("public/story/compiled/yenuan-chapter-7.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/yenuan-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/yenuan-chapter-4.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/yenuan-chapter-3.json", "utf8");
@@ -100,6 +101,9 @@ describe("Yenuan fourth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-five %s route", (target) => {
     expect(play(target, true, chapterFive).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-seven %s route", (target) => {
+    expect(play(target, true, chapterSeven).story.frame.endingId).toBe(target);
+  });
   it("keeps the memory recaps grounded in inspected evidence", () => {
     const explored = play("yenuan-rest").texts.join(" ");
     const skipped = play("yenuan-rest", true, compiled, { skipObjects: true }).texts.join(" ");
@@ -126,11 +130,25 @@ describe("Yenuan fourth night", () => {
     expect(story.frame.clues).not.toContain("voicemail");
     expect(story.frame.clues).not.toContain("recipe-postmark");
   });
-  it("carries Ruoyin's repeating applause into the anniversary sign response", () => {
-    const echo = play("yenuan-rest", true, compiled, { previousEnding: "ruoyin-echo" });
-    const one = play("yenuan-rest", true, compiled, { previousEnding: "ruoyin-one" });
-    expect(echo.texts.join(" ")).toContain("沒有把滿座的店面當作葉暖今晚必須做到完美的理由");
-    expect(one.texts.join(" ")).not.toContain("沒有把滿座的店面當作葉暖今晚必須做到完美的理由");
+  it.each([
+    ["ruoyin-one", "若音只為一個人彈的三分鐘"],
+    ["ruoyin-stage", "若音親手送出的信"],
+    ["ruoyin-score", "若音的交換簿還留著空白"],
+    ["ruoyin-echo", "沒有把滿座的店面當作葉暖今晚必須做到完美的理由"],
+  ])("carries %s into the anniversary sign without speaking for Yenuan", (previousEnding, detail) => {
+    const route = play("yenuan-rest", true, compiled, { previousEnding }).texts.join(" ");
+    expect(route).toContain(detail);
+    expect(route).toContain("那是我畫的");
+    expect(route).toContain("我還是該接電話");
+    expect(route).toContain("我可以先想清楚要寫什麼");
+  });
+  it("can leave the anniversary sign without pressing Yenuan for an answer", () => {
+    const route = play("yenuan-rest", true, compiled, {
+      previousEnding: "ruoyin-one",
+      chooseTexts: ["先把招牌放回"],
+    }).texts.join(" ");
+    expect(route).toContain("沒有逼她替滿座的客人找出一個能代替母親的答案");
+    expect(route).not.toContain("我可以先想清楚要寫什麼");
   });
   it("responds to apple actually being added to the hojicha", () => {
     const apple = play("yenuan-rest");

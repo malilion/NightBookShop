@@ -19,6 +19,7 @@ VAR read_dawn_bread = false
 VAR read_dawn_postmark = false
 VAR read_dawn_cup = false
 VAR read_anniversary_sign = false
+VAR compared_performances = false
 VAR read_anniversary_calls = false
 VAR read_anniversary_ledger = false
 VAR read_hospital_bench = false
@@ -187,8 +188,7 @@ VAR ending_kind = ""
     ~ read_anniversary_sign = true
     ~ understanding += 1
     「店裡那麼多人，都是媽媽以前一個個認識的。我想讓她知道，我能把我們的店照顧好。」她停了一會。「我也不想承認她可能看不到。」 # speaker:葉暖
-    {previous_ending == "ruoyin-echo":妳想起若音那張仍在催她證明自己的比賽海報，沒有把滿座的店面當作葉暖今晚必須做到完美的理由。 # speaker:旁白}
-    -> anniversary_hub
+    -> anniversary_sign_reflect
 * {not read_anniversary_calls} [查看收銀台旁反覆亮起的手機]
     ~ read_anniversary_calls = true
     螢幕記著醫院的來電。葉暖說：「我知道它響了很多次。這句話我每天都對自己說。」妳沒有替她按下重撥。 # speaker:旁白
@@ -200,6 +200,29 @@ VAR ending_kind = ""
     -> anniversary_hub
 * [收起活動傳單裡的第二片紙]
     -> anniversary_end
+=== anniversary_sign_reflect ===
+{
+- previous_ending == "ruoyin-one":
+    妳想起若音只為一個人彈的三分鐘。這塊招牌面向整條街，葉暖卻一直在找母親會站在哪裡。掌聲與被一個人看見，原來是兩種不同的願望。 # speaker:旁白
+- previous_ending == "ruoyin-stage":
+    妳想起若音親手送出的信，和她坐在台下聽完的那場演出。招牌上有母女一起畫的筆跡；葉暖想等母親來看，卻再也不能替那晚補一張觀眾席。 # speaker:旁白
+- previous_ending == "ruoyin-score":
+    若音的交換簿還留著空白，等人帶著自己的故事來。這塊招牌也由許多熟客記得；妳沒有因此說，客人能替葉暖回答母親當晚想說什麼。 # speaker:旁白
+- previous_ending == "ruoyin-echo":
+    妳想起若音那張仍在催她證明自己的比賽海報，沒有把滿座的店面當作葉暖今晚必須做到完美的理由。 # speaker:旁白
+- else:
+    妳看著招牌上的兩種筆跡。店裡很熱鬧，葉暖仍在等一個不在場的人看見它。 # speaker:旁白
+}
+* [問她滿座以外，最想讓母親看見什麼]
+    ~ compared_performances = true
+    ~ understanding += 1
+    葉暖看著招牌角落一顆畫歪的蘋果。「那是我畫的。她說不要擦掉，這樣一眼就知道是我們一起做的。」 # speaker:葉暖
+    「我想讓她看見，我也能留住自己做得不一樣的地方。」她把手從招牌邊緣收回，沒有說這足以抵過沒接到的電話。 # speaker:葉暖
+    -> anniversary_hub
+* [先把招牌放回，等她願意再說]
+    ~ trust += 1
+    葉暖讓招牌繼續朝著街道。妳沒有逼她替滿座的客人找出一個能代替母親的答案。 # speaker:旁白
+    -> anniversary_hub
 === anniversary_phone ===
 * [問她那時有沒有想過找人接手櫃台]
     葉暖說想過，卻怕把熟客交給不熟悉活動的人。「我現在知道可以請人幫忙。那晚的我，只覺得每一步都不能停。」 # speaker:葉暖
@@ -211,6 +234,7 @@ VAR ending_kind = ""
 === anniversary_end ===
 第二片紙夾在活動傳單裡。正面列著蘋果與肉桂，背面有一句關於晨麥的話。 # fragment:apple # speaker:旁白
 葉暖把傳單摺起又打開。「那天我一面覺得自己不能關店，一面知道手機又亮了。這兩件事都是真的。」 # speaker:葉暖
+{compared_performances:她的目光落在招牌那顆畫歪的蘋果上。「我想讓她看到我做得不一樣的地方。可那晚我還是該接電話。」妳把這兩句話都留在桌上，沒有讓一句蓋過另一句。 # speaker:葉暖}
 {
 - read_anniversary_calls && read_anniversary_ledger:
     妳們看過未接來電，也看過母女一起訂料、葉暖後來改份量的帳本。一起準備過活動，不等於醫院那晚的電話可以被忽略；接錯了選擇，也不等於她從未愛過母親。 # speaker:旁白
@@ -351,6 +375,7 @@ VAR ending_kind = ""
     紙片還散著。葉暖把它們放進空白信封，說明天早上光線好一點時，再慢慢拼。 # scene:yenuan # speaker:旁白 # section:response
 }
 食譜最後一格還空著。葉暖拿起筆，卻先看了一眼籃底那顆焦掉的麵包。「我想把它填完。但我得先知道，是為了媽媽，還是怕再做錯一次。」 # speaker:葉暖
+{compared_performances:她想起招牌角落那顆畫歪的蘋果，把筆尖停在空格上。「那天我不敢讓店停，現在我可以先想清楚要寫什麼。」 # speaker:葉暖}
 * [問她想留下哪一口，讓自己也能吃下去]
     ~ recipe_sincere = true
     葉暖把筆放下。「我可以記得她，也可以承認我還想吃新的味道。留一口給她以前，我想先替自己留一口。」 # speaker:葉暖

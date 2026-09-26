@@ -100,7 +100,7 @@ defineExpose({ reveal, revealing });
     >
       <span>{{ visibleText }}</span>
     </p>
-    <p class="screen-reader-only" aria-live="polite">{{ game.frame.text }}</p>
+    <p class="screen-reader-only" aria-live="polite" aria-atomic="true">{{ game.frame.speaker }}：{{ game.frame.text }}</p>
     <div
       v-if="!revealing && visibleChoices.length"
       class="dialogue-choices"

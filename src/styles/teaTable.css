@@ -1,0 +1,217 @@
+/* Shared tea table feedback: steeping ring, aroma and pouring. */
+.steep-ring-track {
+  fill: none;
+  stroke: #c9b27a26;
+  stroke-width: 4;
+}
+.steep-ring-band {
+  fill: none;
+  stroke: #d8b56a;
+  stroke-opacity: 0.55;
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+.steep-ring-progress {
+  fill: none;
+  stroke: #efe3c2;
+  stroke-opacity: 0.8;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.steep-ring-ready .steep-ring-band {
+  stroke: #ffd98e;
+  stroke-opacity: 1;
+  filter: drop-shadow(0 0 6px #ffd98ecc);
+  animation: steep-ring-pulse 0.9s ease-in-out infinite alternate;
+}
+.steep-ring-ready .steep-ring-progress {
+  stroke: #ffe6ad;
+}
+.steep-ring-over .steep-ring-progress {
+  stroke: #d0825a;
+}
+@keyframes steep-ring-pulse {
+  from {
+    stroke-width: 6;
+  }
+  to {
+    stroke-width: 10;
+  }
+}
+.aroma-particle {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: aroma-rise 5.2s ease-in-out infinite;
+}
+@keyframes aroma-rise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg) scale(0.6);
+  }
+  18% {
+    opacity: 0.95;
+  }
+  70% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift, 10px), -120px) rotate(150deg) scale(1.15);
+  }
+}
+.pour-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pour-ripple 0.8s ease-out infinite;
+}
+@keyframes pour-ripple {
+  from {
+    transform: scale(0.7);
+    opacity: 0.85;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+.reduce-motion .steep-ring-ready .steep-ring-band,
+.reduce-motion .pour-ripple {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .steep-ring-ready .steep-ring-band,
+  .pour-ripple,
+  .aroma-particle {
+    animation: none;
+  }
+}
+.high-contrast .steep-ring-track {
+  stroke: #ffdb8a66;
+}
+.high-contrast .steep-ring-band {
+  stroke: #ffdb8a;
+  stroke-opacity: 1;
+}
+/* Stove and kettle (tea house). */
+.tea-board .tea-stove {
+  cursor: pointer;
+}
+.tea-stove .stove-flames {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.tea-stove.fire-1 .stove-flames {
+  opacity: 0.45;
+  transform: scale(0.55);
+}
+.tea-stove.fire-2 .stove-flames {
+  opacity: 0.75;
+  transform: scale(0.8);
+}
+.tea-stove.fire-3 .stove-flames {
+  opacity: 1;
+}
+.tea-stove:not(.fire-0) .stove-flames path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: stove-flicker 0.7s ease-in-out infinite alternate;
+}
+.tea-stove:not(.fire-0) .stove-flames path:nth-child(2) {
+  animation-delay: 0.25s;
+}
+@keyframes stove-flicker {
+  from {
+    transform: scaleY(0.82) skewX(-3deg);
+  }
+  to {
+    transform: scaleY(1.08) skewX(3deg);
+  }
+}
+.tea-stove .stove-ember {
+  opacity: 0.15;
+  transition: opacity 0.4s;
+}
+.tea-stove.fire-1 .stove-ember {
+  opacity: 0.5;
+}
+.tea-stove.fire-2 .stove-ember {
+  opacity: 0.8;
+}
+.tea-stove.fire-3 .stove-ember {
+  opacity: 1;
+}
+.tea-stove:focus-visible > rect:first-child {
+  stroke: #ffe1a1;
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
+}
+.kettle-bubble {
+  fill: #eef3ea;
+  fill-opacity: 0.75;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kettle-bubble 1.4s ease-out infinite;
+}
+@keyframes kettle-bubble {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-16px) scale(1.2);
+  }
+}
+.kettle-steam path {
+  fill: none;
+  stroke: #dce5d8;
+  stroke-opacity: 0.3;
+  stroke-width: 3;
+  stroke-linecap: round;
+  animation: tea-breathe 3s ease-in-out infinite alternate;
+}
+.kettle-label {
+  font-size: 14px;
+}
+.stage-水老 .kettle-label {
+  fill: #e49a78;
+}
+.stage-連珠 .kettle-label,
+.stage-鼓浪 .kettle-label {
+  fill: #f4dca5;
+}
+.ingredient-count {
+  fill: #fff4dc;
+  font-size: 11px;
+  font-family: sans-serif;
+  paint-order: stroke;
+  stroke: #1b2129;
+  stroke-width: 3px;
+}
+.ingredient-drop {
+  animation: ingredient-drop 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+@keyframes ingredient-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-36px);
+  }
+}
+.reduce-motion .stove-flames path,
+.reduce-motion .kettle-bubble,
+.reduce-motion .ingredient-drop {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stove-flames path,
+  .kettle-bubble,
+  .ingredient-drop {
+    animation: none;
+  }
+}

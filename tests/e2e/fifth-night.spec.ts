@@ -30,6 +30,12 @@ async function inspectMemoryObjects(page: Page, section: string, labels: string[
   await advanceUntil(page, overlay);
   for (const label of labels) {
     await page.getByRole("button", { name: `探索物件：${label}` }).click();
+    if (section === "old-post-office" && label === "派送簿") {
+      await (await untilChoice(page, "對照代送郵戳與藍色信的收件欄")).click();
+      await expect(page.locator(".dialogue-text")).toContainText("食譜卡的收件人可以選擇何時收下");
+      const layout = (page.viewportSize()?.width ?? 0) < 600 ? "mobile" : "desktop";
+      await page.screenshot({ path: `output/fifth-night-postmark-${layout}.png`, animations: "disabled" });
+    }
     await advanceUntil(page, overlay);
     await expect(page.getByRole("button", { name: `探索物件：${label}` })).toHaveCount(0);
   }
@@ -126,6 +132,13 @@ test("fifth night restores the route and letter stamp before Yuhang signs today"
     await page.getByRole("button", { name: `信紙第 ${index + 1} 格，空白` }).click();
   }
   await page.getByRole("button", { name: "查看每年的墨跡" }).click();
+  for (const size of await page.locator(".letter-stamps label").evaluateAll((labels) => labels.map((label) => {
+    const rect = label.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  }))) {
+    expect(size.width).toBeGreaterThanOrEqual(44);
+    expect(size.height).toBeGreaterThanOrEqual(44);
+  }
   await page.getByRole("radio", { name: "現在" }).check();
   await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
   await page.reload();

@@ -85,6 +85,51 @@ button:active:not(:disabled),
 .large-text {
   --reading: 21px;
 }
+.high-contrast {
+  --night: #05080e;
+  --panel: #090f1a;
+  --gold: #ffdb8a;
+  --ink: #fff9e9;
+  --muted: #f0e5d0;
+  --line: #ffdb8a;
+  color: var(--ink);
+  background: var(--night);
+}
+.high-contrast .library-page {
+  background: var(--night);
+}
+.high-contrast .title-scrim {
+  background: #05080ee0;
+}
+.high-contrast .scene-shade {
+  background: #05080ea6;
+}
+.high-contrast .dialogue-panel,
+.high-contrast .paper-frame,
+.high-contrast .memory-object,
+.high-contrast .scene-caption {
+  color: var(--ink);
+  background: var(--night);
+  border-color: var(--gold);
+  box-shadow: none;
+  backdrop-filter: none;
+  text-shadow: none;
+}
+.high-contrast .scene-caption {
+  padding: 12px 16px;
+  border: 1px solid var(--gold);
+}
+.high-contrast .scene-caption small,
+.high-contrast .memory-evidence-hint,
+.high-contrast .keyboard-hint,
+.high-contrast .game-footer {
+  color: var(--muted);
+  text-shadow: none;
+}
+.high-contrast :is(button, a, input, select):focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
 .subtle {
   color: var(--muted);
   font-size: 14px;
@@ -790,7 +835,7 @@ button:active:not(:disabled),
   grid-column: 1/-1;
   width: 100%;
   accent-color: var(--gold);
-  min-height: 28px;
+  min-height: 44px;
 }
 .water-gauge {
   position: relative;
@@ -1044,7 +1089,7 @@ button:active:not(:disabled),
 .route-log strong { color: var(--ink); }
 .letter-stamps { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0; padding: 15px; border: 1px solid var(--line); }
 .letter-stamps legend { padding: 0 7px; color: var(--gold); }
-.letter-stamps label { display: inline-flex; gap: 7px; align-items: center; min-height: 40px; padding: 0 10px; border: 1px solid var(--line); cursor: pointer; }
+.letter-stamps label { display: inline-flex; gap: 7px; align-items: center; min-height: 44px; min-width: 44px; padding: 0 10px; border: 1px solid var(--line); cursor: pointer; }
 .letter-stamps input { accent-color: #c4a36e; }
 .lamp-panel { width: min(780px, 100%); margin: 10px auto 20px; }
 .lamp-mark { color: var(--gold); font-size: 38px; line-height: 1; }
@@ -1109,12 +1154,42 @@ button:active:not(:disabled),
   margin-top: 20px;
   font-size: 16px;
 }
+.letter-zoom-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+  color: var(--ink);
+}
+.letter-zoom-controls button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: #172130;
+  font-size: 22px;
+}
+.letter-zoom-controls button:disabled { opacity: 0.45; }
+.letter-zoom-controls output { min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
 .letter-layout {
   display: grid;
   grid-template-columns: 1.05fr 1fr;
   gap: 35px;
   padding: 0 0 25px;
+  --letter-slot-font: 18px;
+  --letter-fragment-font: var(--reading);
 }
+.letter-layout .letter-paper { padding: calc(24px * var(--letter-zoom, 1)); gap: calc(14px * var(--letter-zoom, 1)); }
+.letter-layout .letter-slot { min-height: calc(75px * var(--letter-zoom, 1)); padding: calc(12px * var(--letter-zoom, 1)); font-size: calc(var(--letter-slot-font) * var(--letter-zoom, 1)); }
+.letter-layout .letter-date { font-size: calc(12px * var(--letter-zoom, 1)); }
+.letter-layout .empty-slot { font-size: calc(15px * var(--letter-zoom, 1)); }
+.letter-layout .empty-slot small { font-size: calc(11px * var(--letter-zoom, 1)); }
+.letter-layout .letter-signature { font-size: calc(21px * var(--letter-zoom, 1)); }
+.letter-layout .letter-fragments { gap: calc(12px * var(--letter-zoom, 1)); }
+.letter-layout .fragment { min-height: calc(64px * var(--letter-zoom, 1)); padding: calc(14px * var(--letter-zoom, 1)) calc(18px * var(--letter-zoom, 1)); font-size: calc(var(--letter-fragment-font) * var(--letter-zoom, 1)); }
+.letter-layout .fragment-paper { flex-basis: calc(27px * var(--letter-zoom, 1)); height: calc(35px * var(--letter-zoom, 1)); }
+.letter-layout-zoomed .letter-paper { position: static; }
 .letter-paper {
   padding: 24px;
   background: #e5d5b8;
@@ -1538,6 +1613,18 @@ button:active:not(:disabled),
   color: var(--muted);
 }
 .archive-section { margin-top: 78px; }
+.clue-comparison > .subtle { line-height: 1.8; }
+.clue-night-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+.clue-night { display: flex; align-items: center; gap: 10px; padding: 17px 20px; border: 1px solid var(--line); border-radius: 4px; background: #1e2938; color: #ead4ac; font: inherit; cursor: pointer; text-align: left; }
+.clue-night:hover:not(:disabled), .clue-night.selected { border-color: #c9a875; background: #2b3540; }
+.clue-night:focus-visible { outline: 2px solid #f6d18a; outline-offset: 3px; }
+.clue-night:disabled { color: var(--muted); opacity: .65; cursor: default; }
+.clue-comparison-feedback { min-height: 2.5em; margin-top: 20px; color: #f3e3c7; line-height: 1.8; }
+.clue-comparison-evidence, .clue-comparison-results { margin-top: 20px; padding: 20px 24px; border: 1px solid var(--line); background: #171f2c; }
+.clue-comparison h3 { margin: 0 0 12px; color: #ead4ac; font-size: 17px; font-weight: 400; }
+.clue-comparison ul, .clue-comparison ol, .archive-prior-notes ul { margin: 0; padding-left: 1.5em; line-height: 1.9; }
+.archive-prior-notes { margin: 18px 0; padding: 14px 18px; border: 1px solid var(--line); color: #ead4ac; }
+.archive-prior-notes summary { cursor: pointer; }
 .archive-section .collection-heading { align-items: baseline; gap: 20px; }
 .archive-section .collection-heading h2 { font-size: 28px; font-weight: 400; color: #ead4ac; }
 .archive-section .collection-heading > span { font-size: 13px; color: var(--muted); }
@@ -1697,7 +1784,7 @@ button:active:not(:disabled),
 }
 .volume-control input {
   width: 160px;
-  height: 32px;
+  height: 44px;
   accent-color: var(--gold);
 }
 .volume-control output {
@@ -2207,6 +2294,8 @@ button:active:not(:disabled),
   .letter-layout {
     grid-template-columns: 1fr;
     gap: 24px;
+    --letter-slot-font: 17px;
+    --letter-fragment-font: 16px;
   }
   .letter-panel > .tea-clue {
     font-size: 14px;
@@ -2331,6 +2420,8 @@ button:active:not(:disabled),
     font-size: 13px;
   }
   .archive-section { margin-top: 56px; }
+  .clue-night-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .clue-night { padding: 14px 12px; }
   .archive-grid, .achievement-grid { grid-template-columns: 1fr; }
   .archive-card { padding: 22px; }
   .archive-card h3 { font-size: 21px; }
@@ -2454,7 +2545,9 @@ button:active:not(:disabled),
 }
 .film-caption button {
   font-size: 12px;
-  padding: 4px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
 }
 .tea-station .tea-workspace {
   padding: 0;

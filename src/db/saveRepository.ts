@@ -6,6 +6,7 @@ import {
   type SaveGame,
 } from "../types/game";
 import { chapterForEnding } from "../data/catalog";
+import { CLUE_JOURNAL_ID, mergeClues, parseJournal } from "../services/clueJournal";
 export class SaveRepository {
   constructor(private db: BookshopDatabase = database) {}
   async list() {
@@ -35,7 +36,11 @@ export class SaveRepository {
       "rw",
       this.db.saves,
       this.db.collection,
+      this.db.preferences,
       async () => {
+        const existingJournal = parseJournal((await this.db.preferences.get(CLUE_JOURNAL_ID))?.value);
+        const journal = mergeClues(existingJournal, clean.frame.clues);
+        await this.db.preferences.put({ id: CLUE_JOURNAL_ID, value: journal });
         const autos = (
           await this.db.saves.where("kind").equals("auto").toArray()
         ).sort((a, b) => a.updatedAt.localeCompare(b.updatedAt));

@@ -6,7 +6,9 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-10.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-12.json", "utf8");
+const chapterEleven = readFileSync("public/story/compiled/haiming-chapter-11.json", "utf8");
+const chapterTen = readFileSync("public/story/compiled/haiming-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/haiming-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/haiming-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/haiming-chapter-6.json", "utf8");
@@ -66,10 +68,15 @@ describe("Haiming sixth night", () => {
       expect(() => parseTag(match[1]!)).not.toThrow();
   });
   it("reveals the child and owner in the coda", () => {
-    const { portraits } = play("haiming-light");
+    const { portraits, texts } = play("haiming-light");
     expect(portraits).toContain("lincheng-child");
     expect(portraits).toContain("owner");
     expect(portraits.indexOf("lincheng-child")).toBeLessThan(portraits.indexOf("owner"));
+    expect(texts.join(" ")).toContain("妳暫時看不出它們通往哪裡");
+    expect(texts.join(" ")).not.toContain("中心是夜行書店");
+  });
+  it("keeps the previous sixth-night version loadable", () => {
+    expect(play("haiming-light", false, chapterEleven).story.frame.endingId).toBe("haiming-light");
   });
   it("uses searching and warm portraits at the matching story beats", () => {
     const { texts, portraits } = play("haiming-light");
@@ -111,6 +118,9 @@ describe("Haiming sixth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-nine %s route", (target) => {
     expect(play(target, false, chapterNine).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-ten %s route", (target) => {
+    expect(play(target, false, chapterTen).story.frame.endingId).toBe(target);
+  });
   it("can leave each memory with four paper-boat fragments and no optional clues", () => {
     const { story } = play("haiming-boat", false, compiled, { skipObjects: true });
     expect(story.frame.fragments).toEqual(["light", "shore", "return", "remember"]);
@@ -122,6 +132,18 @@ describe("Haiming sixth night", () => {
     const today = play("haiming-boat", false, compiled, { previousEnding: "yuhang-today" });
     expect(past.texts.join(" ")).toContain("顧川的路也不該只照他的日誌安排");
     expect(today.texts.join(" ")).not.toContain("顧川的路也不該只照他的日誌安排");
+  });
+  it.each([
+    ["yuhang-today", "知道可以出發與真的踏上船"],
+    ["yuhang-future", "日期也可能再一次消失"],
+    ["yuhang-past", "顧川的路也不該只照他的日誌安排"],
+    ["yuhang-unknown", "不表示妳可以替雨航把他尚未拆的信打開"],
+  ])("recalls %s without deciding for either visitor", (previousEnding, expected) => {
+    const route = play("haiming-boat", false, compiled, { previousEnding });
+    expect(route.texts.join(" ")).toContain(expected);
+    expect(route.texts.join(" ")).toContain("不能用後來的風暴，抹掉我先前做的選擇");
+    expect(route.texts.join(" ")).toContain("我曾能搭上早班船");
+    expect(route.story.frame.endingId).toBe("haiming-boat");
   });
   it("lets Yuhang return after the future-stamp ending without claiming his plan is done", () => {
     const plan = play("haiming-boat", false, compiled, { previousEnding: "yuhang-future" });

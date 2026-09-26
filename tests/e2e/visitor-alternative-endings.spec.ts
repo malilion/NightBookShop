@@ -17,13 +17,14 @@ import {
   type StoryVersion,
   type TeaId,
 } from "../../src/types/game";
+import { smallTargets } from "./touch-target-helpers";
 
 const chapters = [
   { version: STORY_VERSION, file: "main", tea: "osmanthus", fragments: ["address", "reason", "wait"] },
-  { version: "boyan-chapter-9", file: "boyan-chapter-9", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
-  { version: "ruoyin-chapter-8", file: "ruoyin-chapter-8", tea: "lavender", fragments: ["greeting", "fear", "music"] },
-  { version: "yenuan-chapter-7", file: "yenuan-chapter-7", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
-  { version: "haiming-chapter-10", file: "haiming-chapter-10", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
+  { version: "boyan-chapter-10", file: "boyan-chapter-10", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
+  { version: "ruoyin-chapter-9", file: "ruoyin-chapter-9", tea: "lavender", fragments: ["greeting", "fear", "music"] },
+  { version: "yenuan-chapter-8", file: "yenuan-chapter-8", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
+  { version: "haiming-chapter-12", file: "haiming-chapter-12", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
 ] as const satisfies readonly { version: StoryVersion; file: string; tea: TeaId; fragments: readonly string[] }[];
 const endings = [
   { chapter: 0, id: "recipient", choice: "陪她寫一張詢問收信意願的短箋", title: "遲來的收件人" },
@@ -131,6 +132,8 @@ for (const ending of endings) {
     }
     await expect(page.locator(".ending-panel")).toBeVisible();
     await expect(page.getByRole("heading", { name: ending.title })).toBeVisible();
+    if (info.project.name === "mobile")
+      expect(await smallTargets(page), `${ending.id} ending controls`).toEqual([]);
     await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
     await page.screenshot({ path: `output/${ending.id}-ending-${info.project.name}.png`, fullPage: true, animations: "disabled" });
     await page.goto("/#/collection");

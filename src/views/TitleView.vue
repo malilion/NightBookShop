@@ -43,7 +43,11 @@ async function resume() {
           @click="resume"
         >
           <GameIcon name="book" />繼續故事<GameIcon name="arrow" /></button
-        ><StartStoryButton :secondary="!!game.latest" />
+        ><StartStoryButton :secondary="!!game.latest" /><RouterLink
+          to="/tea"
+          class="quiet-button tea-house-entry"
+          ><GameIcon name="leaf" />午夜茶席<GameIcon name="arrow" /></RouterLink
+        >
         <div class="title-submenu">
           <RouterLink to="/chapters">今夜的訪客</RouterLink><span>／</span
           ><RouterLink to="/saves">讀取存檔</RouterLink>
@@ -59,3 +63,9 @@ async function resume() {
     </footer>
   </main>
 </template>
+<style scoped>
+.title-actions > .tea-house-entry {
+  min-width: 255px;
+  letter-spacing: 0.12em;
+}
+</style>

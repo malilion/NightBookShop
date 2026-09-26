@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { BookshopDatabase } from "../../src/db/database";
 import { SaveRepository } from "../../src/db/saveRepository";
+import { ClueJournalRepository, compareClues } from "../../src/services/clueJournal";
 import { StoryBridge } from "../../src/story/storyBridge";
 import {
   newTea,
@@ -42,8 +43,37 @@ function snapshot(): GameSnapshot {
 afterEach(async () => {
   await db.saves.clear();
   await db.collection.clear();
+  await db.preferences.clear();
 });
 describe("local saves", () => {
+  it("accumulates clues from replay and restores earlier pairings", async () => {
+    const journalRepo = new ClueJournalRepository(db);
+    const first = snapshot();
+    first.frame.clues = ["school-journal"];
+    await repo.write(first);
+    await repo.write(snapshot());
+    const journal = await journalRepo.load();
+    expect(journal.seen).toContain("school-journal");
+    const complete = new Set(["jinglan", "boyan"]);
+    const result = await journalRepo.connect("jinglan", "boyan", complete);
+    expect(result.result.status).toBe("connected");
+    expect((await journalRepo.load()).connections).toEqual(["jinglan-boyan"]);
+    expect((await journalRepo.connect("jinglan", "boyan", complete)).result.status).toBe("already");
+  });
+  it("backfills old saves and requires observed proof before pairing", async () => {
+    const journalRepo = new ClueJournalRepository(db);
+    const old = snapshot();
+    old.frame.clues = ["motif"];
+    await db.saves.put({ id: "manual-1", kind: "manual", updatedAt: new Date().toISOString(), snapshot: old });
+    const journal = await journalRepo.load();
+    expect(journal.seen).toEqual(["motif"]);
+    const complete = new Set(["ruoyin", "haiming", "boyan"]);
+    expect(compareClues(journal, "ruoyin", "haiming", complete)).toMatchObject({ status: "missing", missing: ["shared-melody"] });
+    expect(compareClues(journal, "ruoyin", "boyan", complete).status).toBe("missing");
+    expect(compareClues(journal, "ruoyin", "haiming", new Set(["ruoyin"])).status).toBe("unfinished");
+    expect(compareClues(journal, "boyan", "haiming", complete).status).toBe("unrelated");
+    expect((await journalRepo.connect("ruoyin", "haiming", complete)).journal.connections).toEqual([]);
+  });
   it("restores opening tasks and treats older saves as already opened", async () => {
     const data = snapshot();
     data.opening.inspected = ["counter", "weather"];

@@ -45,6 +45,8 @@ const activeSlots = computed(() =>
 );
 const selected = ref<string | null>(null);
 const feedback = ref("");
+const workspaceZoom = ref(1);
+let pinch: { distance: number; zoom: number } | null = null;
 const drag = ref<{
   id: string;
   source: number | null;
@@ -56,6 +58,34 @@ const drag = ref<{
   moved: boolean;
 } | null>(null);
 let ignoreClick = false;
+
+function clampZoom(value: number) {
+  return Math.round(Math.min(1.75, Math.max(1, value)) * 100) / 100;
+}
+function changeZoom(value: number) {
+  workspaceZoom.value = clampZoom(value);
+}
+function touchDistance(touches: TouchList) {
+  const first = touches.item(0)!;
+  const second = touches.item(1)!;
+  return Math.hypot(first.clientX - second.clientX, first.clientY - second.clientY);
+}
+function beginWorkspaceTouch(event: TouchEvent) {
+  if (event.touches.length !== 2) return;
+  pinch = { distance: touchDistance(event.touches), zoom: workspaceZoom.value };
+  drag.value = null;
+  ignoreClick = true;
+}
+function moveWorkspaceTouch(event: TouchEvent) {
+  if (!pinch || event.touches.length !== 2) return;
+  event.preventDefault();
+  changeZoom(pinch.zoom * touchDistance(event.touches) / Math.max(1, pinch.distance));
+}
+function endWorkspaceTouch(event: TouchEvent) {
+  if (event.touches.length > 0) return;
+  pinch = null;
+  window.setTimeout(() => { ignoreClick = false; }, 250);
+}
 
 function pieceIndex(id: string) {
   return pieces.value.findIndex((piece) => piece.id === id);
@@ -300,7 +330,14 @@ function cancelDrag() {
         {{ game.letter.reverseSlots.filter(Boolean).length }}/3</span
       >
     </div>
-    <div class="letter-layout">
+    <div class="letter-zoom-controls" role="group" aria-label="拼信工作區縮放">
+      <span>工作區縮放</span>
+      <button type="button" :disabled="workspaceZoom <= 1" aria-label="縮小拼信工作區" @click="changeZoom(workspaceZoom - 0.15)">−</button>
+      <output aria-live="polite">{{ Math.round(workspaceZoom * 100) }}%</output>
+      <button type="button" :disabled="workspaceZoom >= 1.75" aria-label="放大拼信工作區" @click="changeZoom(workspaceZoom + 0.15)">＋</button>
+      <span class="subtle">手機可雙指縮放</span>
+    </div>
+    <div class="letter-layout" :class="{ 'letter-layout-zoomed': workspaceZoom > 1 }" :style="{ '--letter-zoom': workspaceZoom }" @touchstart="beginWorkspaceTouch" @touchmove="moveWorkspaceTouch" @touchend="endWorkspaceTouch" @touchcancel="endWorkspaceTouch">
       <div class="letter-paper">
         <p class="letter-date">
           {{

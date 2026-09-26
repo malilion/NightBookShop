@@ -24,6 +24,18 @@ async function until(page: Page, text: string) {
   }
   throw new Error("Target not reached: " + text);
 }
+async function untilMemory(page: Page, section: string) {
+  const target = page.locator(`.memory-evidence-${section}`);
+  for (let step = 0; step < 240; step++) {
+    if (await target.isVisible()) return;
+    const reveal = page.getByRole("button", { name: "顯示全文" });
+    const next = page.locator(".dialogue-panel button").first();
+    await expect(next).toBeVisible();
+    if (await reveal.isVisible()) await reveal.click();
+    else await next.click();
+  }
+  throw new Error(`Memory not reached: ${section}`);
+}
 async function flush(page: Page) {
   await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText(
     "進度自動保存在此瀏覽器",
@@ -72,6 +84,12 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     animations: "disabled",
   });
   await page.getByRole("button", { name: /先替她拉開椅子/ }).click();
+  await until(page, "問包裡那朵壓乾的白山茶");
+  await page.getByRole("button", { name: "問包裡那朵壓乾的白山茶" }).click();
+  await page.getByRole("button", { name: /守夜手記/ }).click();
+  await expect(page.getByRole("heading", { name: "壓乾的白山茶" })).toBeVisible();
+  await page.screenshot({ path: `output/jinglan-camellia-${info.project.name}.png`, animations: "disabled" });
+  await page.getByRole("button", { name: "關閉手記" }).click();
   await until(page, "茶罐：桂花烏龍");
   await expect(page.locator(".shelf-jar .tea-prop-3d")).toHaveCount(8);
   await prepareLeaves(page, info.project.name === "mobile");
@@ -156,12 +174,8 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   await expect(completion).not.toBeVisible({ timeout: 12000 });
   await until(page, "聽她說，那一晚");
   await page.getByRole("button", { name: /聽她說，那一晚/ }).click();
-  for (const [choice, scene] of [
-    ["查看校刊的編輯名單", "school"],
-    ["先陪她看看病房裡的人", "hospital"],
-    ["查看長椅底下的紙角", "platform"],
-  ]) {
-    await until(page, choice);
+  for (const scene of ["school", "hospital", "platform"]) {
+    await untilMemory(page, scene);
     await expect(
       page.locator(`.scene-art img[src*="memory-${scene}.webp"]`),
     ).toHaveCount(1);
@@ -182,7 +196,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
       );
       await flush(page);
       await page.reload();
-      await until(page, choice);
+      await untilMemory(page, scene);
       await expect(page.locator(".memory-object-seen")).toContainText(
         "稿紙改字",
       );
@@ -190,12 +204,55 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
         page.getByRole("button", { name: "探索物件：獎學金便條" }),
       ).toContainText("02");
     }
+    if (scene === "hospital") {
+      const familyQuestion = page.getByRole("button", {
+        name: "問靜蘭，家人原本怎麼看她去外地",
+      });
+      await expect(familyQuestion).toBeVisible();
+      await familyQuestion.click();
+      await expect(page.locator(".dialogue-text")).toHaveAttribute(
+        "data-full-text",
+        /外地沒有人照應/,
+      );
+      await flush(page);
+      await page.reload();
+      await untilMemory(page, scene);
+      await expect(familyQuestion).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "探索物件：公用電話" })).toBeVisible();
+    }
     await page.screenshot({
       path: `output/memory-${scene}-${info.project.name}.png`,
       animations: "disabled",
     });
   }
   await until(page, "查看不同的墨跡");
+  const zoomLevel = page.getByRole("group", { name: "拼信工作區縮放" }).locator("output");
+  await expect(zoomLevel).toHaveText("100%");
+  await page.getByRole("button", { name: "放大拼信工作區" }).click();
+  await expect(zoomLevel).toHaveText("115%");
+  await page.getByRole("button", { name: "縮小拼信工作區" }).click();
+  await expect(zoomLevel).toHaveText("100%");
+  await page.getByRole("button", { name: "放大拼信工作區" }).click();
+  await expect(zoomLevel).toHaveText("115%");
+  if (info.project.name === "mobile") {
+    const paper = page.locator(".letter-paper");
+    await paper.scrollIntoViewIfNeeded();
+    const box = (await paper.boundingBox())!;
+    const x = box.x + box.width / 2;
+    const y = box.y + Math.min(80, box.height / 2);
+    const session = await context.newCDPSession(page);
+    await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: x - 25, y, id: 0 }, { x: x + 25, y, id: 1 }] });
+    await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: x - 60, y, id: 0 }, { x: x + 60, y, id: 1 }] });
+    await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [{ x: x + 60, y, id: 1 }] });
+    await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await session.detach();
+    await expect.poll(async () => Number.parseInt(await zoomLevel.textContent() ?? "0", 10)).toBeGreaterThan(100);
+    await page.screenshot({ path: "output/letter-pinch-mobile.png", animations: "disabled" });
+    for (let step = 0; step < 5 && Number.parseInt(await zoomLevel.textContent() ?? "0", 10) > 115; step++)
+      await page.getByRole("button", { name: "縮小拼信工作區" }).click();
+    await expect(zoomLevel).toHaveText("115%");
+    await page.waitForTimeout(300);
+  }
   const firstPiece = page.getByRole("button", {
     name: "岳川，我不是不願意跟你走。",
     exact: true,
@@ -275,6 +332,13 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     animations: "disabled",
   });
   await page.getByRole("button", { name: "把信交還給她" }).click();
+  await until(page, "把兩種墨色分開，問她多年後寫「原諒」時想起誰");
+  await page.screenshot({ path: `output/first-night-ink-reflection-${info.project.name}.png`, animations: "disabled" });
+  await flush(page);
+  await page.reload();
+  await page.getByRole("button", { name: "把兩種墨色分開，問她多年後寫「原諒」時想起誰" }).click();
+  await until(page, "把信交回她手裡，聽她自己決定下一步");
+  await page.getByRole("button", { name: "把信交回她手裡，聽她自己決定下一步" }).click();
   await until(page, "陪她寫一封信");
   await page.getByRole("button", { name: /守夜手記/ }).click();
   await expect(page.getByRole("heading", { name: "校刊室外的四個音" })).toBeVisible();

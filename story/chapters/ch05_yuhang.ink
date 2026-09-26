@@ -29,6 +29,7 @@ VAR read_shop_shelf = false
 VAR read_door_photo = false
 VAR read_door_stamp = false
 VAR read_door_address = false
+VAR compared_postmarks = false
 VAR promise_frame = ""
 VAR ending_kind = ""
 -> arrival
@@ -164,10 +165,39 @@ VAR ending_kind = ""
 * {not read_post_ledger} [查看郵局門前的派送簿]
     ~ read_post_ledger = true
     派送簿最早一頁寫著旅行書店，往後每年都被夜班覆蓋。雨航認出父親替晨麥送過食譜卡的簽名，停在「代送」兩字上。 # speaker:旁白
-    {previous_ending == "yenuan-rest":葉暖曾讓晨麥歇一週。妳把那張有日期的小牌告訴雨航；他說原來停下來也能是一個具體的決定。 # speaker:旁白}
-    -> post_hub
+    那張卡沒有年份，派送簿卻記著收件人、退件日，以及父親第二次上門的時間。雨航一直以為父親只替人把東西送到；原來有些東西第一次無人接，也可以先帶回來，等對方準備好再問。
+    -> post_ledger_reflect
 * [從郵戳後收起第一片信紙]
     -> post_end
+=== post_ledger_reflect ===
+{
+- previous_ending == "yenuan-share":
+    妳想起葉暖曾把原配方重新放上架，也說出母親的名字。雨航指出簿上第二次派送的簽收欄：「她現在願意讓別人知道這張卡從哪裡來了。」 # speaker:旁白
+    他沒有說那是父親替她做出的決定；父親當年只留下再次送達的機會。
+- previous_ending == "yenuan-reopen":
+    妳記得晨麥第一爐重新出爐的日期。雨航比對派送簿，發現父親將卡片交還後，仍隔了很久，葉暖才自己定下重新開店的那天。 # speaker:旁白
+    「兩個日期不一樣。」他說，「原來送到，也不用立刻開始。」
+- previous_ending == "yenuan-rest":
+    葉暖曾讓晨麥歇一週。妳把那張有日期的小牌告訴雨航；他說原來停下來也能是一個具體的決定。 # speaker:旁白
+    他把休息的起訖日寫在派送簿空白處，沒有偷偷改成下一年。
+- previous_ending == "yenuan-copy":
+    妳記得食譜卡上被描重的舊字。雨航說父親第二次送達時，只請葉暖核對收件姓名，沒有替她修正卡上的任何一筆。 # speaker:旁白
+    「我總以為送信就是讓東西變好。」他低頭看自己的藍信，「有時候只是把原樣交回去。」
+- else:
+    妳不知道食譜卡後來如何，只能看見父親兩次上門的紀錄。雨航也不替收件人猜答案，把兩個日期並排指給妳看。 # speaker:旁白
+}
+* [對照代送郵戳與藍色信的收件欄]
+    ~ compared_postmarks = true
+    ~ understanding += 1
+    妳把父親留下的兩次派送日期，與雨航每年改過的「明年」並排。食譜卡的收件人可以選擇何時收下；藍色信的收件人卻一直是他自己。 # speaker:旁白
+    「我把寄件人的責任推給了日子。」雨航翻過自己的信，「好像日期自己會替我決定要不要開。」
+    妳沒有催他現在簽收，只讓他看清兩封信的不同。
+    -> post_hub
+* [讓他先把派送簿收好]
+    ~ trust += 1
+    「這是我父親的紀錄，也是別人的信。」他把簿子合上，只把自己需要記住的兩個日期寫在掌心。 # speaker:程雨航
+    妳們沿著舊郵局的紅漆線往前走，沒有把葉暖的選擇當作雨航必須照做的答案。
+    -> post_hub
 === post_end ===
 郵戳後卡著第一片信紙，正面寫著「明年再開始」。 # fragment:tomorrow # speaker:旁白
 * [搭上末班公車]
@@ -262,6 +292,7 @@ VAR ending_kind = ""
     -> promise_conversation
 === promise_conversation ===
 走回櫃台的路上，雨航把四片紙握在手裡。「她不在了，這封信卻每年都由我重寫。我到底是在守約，還是不敢承認自己也想過別的生活？」 # scene:yuhang # speaker:程雨航 # section:letter
+{compared_postmarks:妳想起老郵局派送簿上相隔許久的兩次日期。雨航說：「我父親能敲第二次門，是因為他沒把第一次沒人簽收當作最後的回答。我也可以問問現在的自己。」 # speaker:程雨航}
 妳沒有妹妹的答案，雨航也還沒有自己的。可以先說出妳在那些地址看見了什麼，再讓他自己決定如何收信。
 * [提醒他，妹妹的計畫原本就容許改動]
     ~ promise_frame = "open"
@@ -362,6 +393,7 @@ VAR ending_kind = ""
 === chapter_coda ===
 妳把空信封轉向燈下。郵戳日期是七年後，中央刻的不是郵政編號，而是夜行書店的門牌。 # scene:counter # speaker:旁白 # section:coda # clue:future-postmark
 書架上那封五十年前的信、柏言的七年前草稿、葉暖母親更早的食譜，如今都指向這個不守時間順序的地址。
+{compared_postmarks:妳在手冊旁畫下兩道郵戳。一道記著送達，另一道記著再次詢問；它們沒有替任何收件人寫下回答。 # speaker:旁白}
 妳想起手冊的第一頁：店員也要留下自己的故事。黑貓盯著妳，像在等妳承認已知道自己該寫給誰。
 窗外仍是夜。妳沒有替雨航留下簽名，只把那枚郵戳描進手冊。
 -> final_bookmark

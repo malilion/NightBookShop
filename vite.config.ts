@@ -3,10 +3,19 @@ import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 export default defineConfig({
+  build: {
+    rolldownOptions: {
+      // The tea house also ships as its own page, without the story engine.
+      input: { main: "index.html", tea: "tea.html" },
+    },
+  },
   plugins: [
     vue(),
     tailwindcss(),
     VitePWA({
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.js",
       registerType: "prompt",
       injectRegister: false,
       manifest: {
@@ -27,10 +36,10 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
+      injectManifest: {
         globPatterns: [
           "**/*.{js,css,html,svg,png,webmanifest}",
-          "story/compiled/*.json",
+          "story/compiled/main.json",
           "audio/*.{ogg,mp3}",
           "images/tea-props/*.webp",
           "images/rain-street.webp",
@@ -49,30 +58,12 @@ export default defineConfig({
           "video/tea/complete-liquor.webp",
         ],
         maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
-        navigateFallback: "/index.html",
-        runtimeCaching: [
-          {
-            urlPattern: /\/images\/.*\.webp$/,
-            handler: "StaleWhileRevalidate",
-            options: {
-              cacheName: "night-bookshop-chapter-images-v1",
-              expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            },
-          },
-          {
-            urlPattern: /\/video\/tea\/.*\.(?:mp4|webm)$/,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "night-bookshop-tea-films-v1",
-              expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            },
-          },
-        ],
       },
     }),
   ],
   test: {
     include: ["tests/unit/**/*.test.ts"],
     setupFiles: ["tests/unit/setup.ts"],
+    testTimeout: 15000,
   },
 });

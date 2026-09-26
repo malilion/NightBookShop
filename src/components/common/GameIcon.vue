@@ -15,6 +15,8 @@ import {
   PhLockSimple,
   PhCheck,
   PhMagnifyingGlass,
+  PhSpeakerHigh,
+  PhSpeakerSlash,
 } from "@phosphor-icons/vue";
 defineProps<{
   name:
@@ -32,7 +34,9 @@ defineProps<{
     | "clock"
     | "lock"
     | "check"
-    | "search";
+    | "search"
+    | "sound"
+    | "muted";
   size?: number;
 }>();
 const icons = {
@@ -51,6 +55,8 @@ const icons = {
   lock: PhLockSimple,
   check: PhCheck,
   search: PhMagnifyingGlass,
+  sound: PhSpeakerHigh,
+  muted: PhSpeakerSlash,
 };
 </script>
 <template>

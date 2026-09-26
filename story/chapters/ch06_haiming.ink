@@ -18,6 +18,7 @@ VAR kept_everyday = false
 VAR read_storm_log = false
 VAR read_storm_birth = false
 VAR read_storm_chart = false
+VAR asked_earlier_ferry = false
 VAR read_summer_kite = false
 VAR read_summer_lamp = false
 VAR read_summer_lunch = false
@@ -179,7 +180,16 @@ VAR ending_kind = ""
     潮汐圖留下漁船回港的航線，也圈出當夜往醫院的渡船停航。海明說自己選了留下，不願把天氣說成唯一原因。 # speaker:旁白
     圖上還有一條更早可以搭的航線，鉛筆在碼頭位置停了很久，壓出一個小洞。海明認得那個洞：「警報還沒掛上去的時候，我能走。我想著先把備用燈檢查完。」 # speaker:顧海明
     妳們照順序讀日期：他確實需要在風暴中守塔，但也曾在還能離開時，選擇把出發推到下一刻。海明沒有把這兩件事互相抵消。 # speaker:旁白
-    {previous_ending == "yuhang-past":妳想起雨航選擇將舊夢放進紀念盒的那夜；海明看著沒有走成的航線，說顧川的路也不該只照他的日誌安排。 # speaker:旁白}
+    {
+    - previous_ending == "yuhang-today":
+        妳想起雨航在今天的簽收欄寫下名字。他終於開始走自己的路；海明這張圖卻提醒妳，知道可以出發與真的踏上船，中間仍有一個沒人能代選的時刻。 # speaker:旁白
+    - previous_ending == "yuhang-future":
+        雨航替下個月的第一步寫了日期，沒有說計畫已經完成。妳看著海明未劃掉的早班船：若只把出發留到「天氣好些」，日期也可能再一次消失。 # speaker:旁白
+    - previous_ending == "yuhang-past":
+        妳想起雨航選擇將舊夢放進紀念盒的那夜；海明看著沒有走成的航線，說顧川的路也不該只照他的日誌安排。 # speaker:旁白
+    - previous_ending == "yuhang-unknown":
+        雨航沒有簽收那封藍色信，信仍會回到郵袋。妳看著紙上的早班船：海明今晚願意讀這個沒走的岔口，不表示妳可以替雨航把他尚未拆的信打開。 # speaker:旁白
+    }
     -> storm_hub
 * [從救援圖旁收起第一角紙船]
     -> storm_end
@@ -193,6 +203,13 @@ VAR ending_kind = ""
 - else:
     海明先合起日誌，說如果有一天他想知道那晚還漏了什麼，顧川或許願意陪他再翻一次。
 }
+-> storm_reflection
+=== storm_reflection ===
+* {read_storm_chart && not asked_earlier_ferry} [問海明，早班船那一格該怎麼寫給顧川]
+    ~ asked_earlier_ferry = true
+    「寫我那時能走，卻先去檢查了備用燈。」海明把鉛筆孔旁的問號圈起來。「後來船停了，是真的。但不能用後來的風暴，抹掉我先前做的選擇。」 # speaker:顧海明
+    妳沒有把這句寫成請顧川原諒；海明說若兒子願意讀，可以讓他知道父親終於肯說完整。 # speaker:旁白
+    -> storm_reflection
 * [看夏天顧川來訪]
     -> summer_visit
 === summer_visit ===
@@ -345,6 +362,7 @@ VAR ending_kind = ""
     -> letter_invitation
 === letter_invitation ===
 妳們回到櫃台，燈照著紙船的摺痕。即使四片都拼上，也不能讓海明重過那些錯過的日子；它能讓他用今天還能決定的語氣，把信交給顧川。 # scene:counter # speaker:旁白
+{asked_earlier_ferry:海明在草稿邊留著「我曾能搭上早班船」。他說這句不能替顧川補回婚禮上的空椅子，卻也不願再把它改寫成「當時沒有別的辦法」。 # speaker:顧海明}
 * [在柔光下拼回四片紙船]
     -> letter_start
 === letter_start ===
@@ -411,7 +429,7 @@ VAR ending_kind = ""
 海明離開後，妳在日誌裡找到三十年前的燈塔照片。海面倒映著夜行書店的窗，岸邊站著一個和妳極為相似的孩子。 # scene:counter # speaker:旁白 # section:coda # clue:lighthouse-photo
 照片背面有雨航妹妹的字：「找到月亮標誌了。」她曾到過這座燈塔，卻也沒有寫下書店從哪裡來。
 海明口中哼出的四個音，與若音的未完成曲相同。靜蘭曾說她年輕時在校刊室聽過；如今那段旋律在照片背面仍像一條沒有接好的線。
-黑貓把六夜留下的紙攤在桌上。水痕、油漬與摺線接成一張城市地圖，中心是夜行書店。妳明白，這裡一直在保管沒有被好好說完的故事。
+黑貓把六夜留下的紙攤在桌上。水痕、油漬與摺線似乎能接起來，紙角卻還疊著；妳暫時看不出它們通往哪裡。六位訪客都曾把沒能說完的故事留在這裡，妳想等天亮前再逐張翻看。
 照片裡的孩子轉過身來。她是年幼的林澄，站在店門前，像在等如今的妳認出她。 # portrait:lincheng-child
 一個從未見過面的男人走到櫃台後。 # speaker:旁白 # portrait:owner
 妳不是偶然來到這裡。小時候，妳親手請我替妳保管一段不願記得的故事。黎明前，妳可以自己決定要不要把它取回。 # speaker:店主 # portrait:owner

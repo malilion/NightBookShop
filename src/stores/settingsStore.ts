@@ -6,6 +6,7 @@ const textSpeedSchema = z.enum(["instant", "fast", "normal", "slow"]);
 export type TextSpeed = z.infer<typeof textSpeedSchema>;
 const schema = z.object({
   largeText: z.boolean(),
+  highContrast: z.boolean().default(false),
   reducedMotion: z.boolean(),
   textSpeed: textSpeedSchema.default("normal"),
   muted: z.boolean().default(false),
@@ -17,6 +18,7 @@ type Settings = z.infer<typeof schema>;
 export const useSettingsStore = defineStore("settings", () => {
   const values = ref<Settings>({
     largeText: false,
+    highContrast: false,
     reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
       .matches,
     textSpeed: "normal",

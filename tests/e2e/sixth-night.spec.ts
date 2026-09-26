@@ -105,6 +105,16 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await page.reload();
   await expect(page.locator(".memory-evidence-storm-tower .memory-object-seen")).toHaveCount(3);
   await page.getByRole("button", { name: "從救援圖旁收起第一角紙船" }).click();
+  await untilChoice(page, "問海明，早班船那一格該怎麼寫給顧川");
+  await page.screenshot({ path: `output/sixth-night-ferry-question-${info.project.name}.png`, animations: "disabled" });
+  await page.reload();
+  await (await untilChoice(page, "問海明，早班船那一格該怎麼寫給顧川")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="不能用後來的風暴"]');
+  await expect(page.locator('.dialogue-text[data-full-text*="不能用後來的風暴"]')).toBeVisible();
+  await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
+  await page.reload();
+  await expect(page.locator('.dialogue-text[data-full-text*="不能用後來的風暴"]')).toBeVisible();
+  await (await untilChoice(page, "看夏天顧川來訪")).click();
   await advanceUntil(page, '.scene-art img[src*="memory-summer-visit.webp"]');
   await expect(page.locator(".scene-art")).toHaveCount(1);
   await expect.poll(() => page.locator('.scene-art img[src*="memory-summer-visit.webp"]').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);

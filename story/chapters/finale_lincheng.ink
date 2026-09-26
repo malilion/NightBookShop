@@ -22,18 +22,19 @@ VAR read_home_coat = false
 VAR read_envelope_wishes = false
 VAR read_envelope_height = false
 VAR read_envelope_ink = false
+VAR demanded_exit_answer = false
 VAR ending_kind = ""
 -> threshold
 
 === threshold ===
-六夜的書籤排在櫃台上。靜蘭的信、柏言的草稿、若音的樂譜、葉暖的食譜、雨航的郵戳與海明的照片，背面的痕跡在燈下接成一張地圖。 # scene:lincheng # speaker:旁白 # section:visitor-seat
+六夜的書籤排在櫃台上。靜蘭的信、柏言的草稿、若音的樂譜、葉暖的食譜、雨航的郵戳與海明的照片，背面各有一道水痕或摺線。妳還沒有把它們逐張翻開。 # scene:lincheng # speaker:旁白 # section:visitor-seat
 {
 - previous_ending == "haiming-light":
     海明與顧川一起讀過的信仍不整齊，父子兩人的字卻靠在同一頁。妳第一次想，自己的信或許也不必修得平整才能讀。 # speaker:旁白
 - previous_ending == "haiming-voice":
     海明的聲音航海誌停在一段笑話後面。妳聽見自己的笑聲，才發現記得害怕與記得快樂可以在同一頁。 # speaker:旁白
 - previous_ending == "haiming-boat":
-    紙船在杯旁晾乾，還有一行留白。妳把它放回地圖，不再要求每封信都在今晚寫完。 # speaker:旁白
+    紙船在杯旁晾乾，還有一行留白。妳把它放回六張紙旁，不再要求每封信都在今晚寫完。 # speaker:旁白
 - previous_ending == "haiming-hero":
     海明那份流暢的英雄日誌平整得沒有摺痕。妳想到顧川沒有回話，終於不想把自己的舊信也修成只剩漂亮句子。 # speaker:旁白
 - else:
@@ -64,7 +65,7 @@ VAR ending_kind = ""
 - else:
     這杯茶是妳自己選的。水溫與時間不必剛好對應任何訪客；杯口的暖意是此刻真實的。 # scene:lincheng # speaker:旁白 # section:archive
 }
-六張紙背相互重疊，店主沒有替妳指出地圖中心。妳逐一翻看，確認每位訪客留下的不是同一個答案。
+六張紙背相互重疊，店主沒有替妳指出那些摺痕通往哪裡。妳逐一翻看，確認每位訪客留下的不是同一個答案。
 把六夜的線索攤開，找出地圖真正的中心。 # minigame:archive
 -> DONE
 === archive_result ===
@@ -72,10 +73,14 @@ VAR ending_kind = ""
 - archive_complete:
     ~ understanding += 2
     六條水痕、油漬與摺線接在夜行書店的門牌上。它們來自不同年月，卻都曾帶著一封沒能說完的信到這裡。 # scene:lincheng # speaker:旁白 # section:archive # clue:sixfold-map
+    -> hidden_room
 - else:
     地圖還沒有接全。妳先把看到的紙放在一起；至少知道最早的痕跡不是今夜才留下。 # scene:lincheng # speaker:旁白 # section:archive
+    -> archive_retry
 }
--> hidden_room
+=== archive_retry ===
+還有紙背的關係沒找齊。妳把六張紙攤回桌面，再比對一次。 # minigame:archive
+-> DONE
 === hidden_room ===
 妳沿著六條摺線走到最裡面的書架。黑貓跳上第三層，碰歪一本沒有書名的薄冊；整排書架向內退開，露出一間窄小的收藏室。 # scene:memory # speaker:旁白 # section:hidden-room
 桌上有六個空信格，門框留著孩子的身高線，牆上的鐘停在午夜。窗外卻已經有晨光。這裡沒有替任何人寫好的結局。
@@ -112,6 +117,11 @@ VAR ending_kind = ""
 * [問店主為何一直沒有告訴妳]
     ~ trust += 1
     「那是妳當時的請求。我不能替那個孩子反悔。」店主停了一下。「但我讓妳成為店員，卻沒有說清楚妳也能離開。這件事我做得不好。」 # speaker:店主 # portrait:owner
+    -> child_home
+* [問童年的保管請求，為何變成成年後推不開的門]
+    ~ demanded_exit_answer = true
+    「妳只請我保管那封信。」店主看向門口。「第一夜的門在黎明前確實不能從內側開。我知道規則，仍讓妳在不知情時進來；不能拿童年的請求，當成妳成年後同意守夜的證據。」 # speaker:店主 # portrait:owner
+    「我現在坐在這裡，是為了拿回自己的話，不是替你當初的決定簽名。」妳把徽章放到桌子的另一邊。 # speaker:林澄
     -> child_home
 * [先問信是不是由店主寫的]
     店主把手冊翻過來。紙角是妳自己畫的小月亮，字也屬於童年的妳。「我保存的是妳的字，不是替妳編好的答案。」 # speaker:店主 # portrait:owner
@@ -175,6 +185,7 @@ VAR ending_kind = ""
 我只保管妳要求我留住的紙。當時妳說：「先不要讓我想起來。」妳也說，等妳能替別人泡完一杯茶，再問妳一次。 # speaker:店主 # portrait:owner
 妳問他為何把這當成挑選店員的理由。店主沒有拿書店規則擋住問題。 # speaker:旁白
 我以為讓妳看見別人的故事會幫妳走到自己的信前。但我不該讓妳以為沒有選擇。對不起。 # speaker:店主 # portrait:owner
+{demanded_exit_answer:妳沒有立刻接受道歉，只請他把「保管信」與「讓門在黎明前打不開」分開記進手冊。店主照做，沒有把理由寫成妳同意過的事。 # speaker:旁白}
 {
 - previous_ending == "haiming-light":
     妳想起海明與顧川共讀時，兩人仍可以停在不同的句子上。妳告訴店主：「我讀自己的信，也不必先同意你對那晚的解釋。」 # speaker:林澄
@@ -210,6 +221,7 @@ VAR ending_kind = ""
     妳只讀了一小片，仍知道這是童年的自己留下的。妳可以把它收著，不必今晚替所有細節命名。 # scene:lincheng # speaker:旁白 # section:dawn-choice
 }
 店門仍在妳面前。六夜的手記留在書架上，徽章放在妳與店主之間；從哪一側拿起，終於由妳決定。
+{demanded_exit_answer:妳想起第一夜推不開的玻璃門。今天它開著，妳可以讀完信再走，也可以把信留下；這一次不需要替店主的決定辯護。 # speaker:旁白}
 * {letter_understood && archive_complete} [取回記憶，摘下徽章，在天亮後走出書店]
     ~ remembered_all = true
     -> end_dawn
@@ -218,8 +230,6 @@ VAR ending_kind = ""
     -> end_keeper
 * [承認那段過去，讓信暫留書架，帶著未完的記憶離開]
     -> end_shelf
-* [把信合起來，回到櫃台繼續接待別人]
-    -> end_midnight
 === end_dawn ===
 妳把四片信放進自己的口袋，摘下月亮徽章。店主把門打開；這一次，門內沒有任何聲音催妳回頭。 # speaker:旁白
 早晨的街道跟妳記得的一樣，也有妳以往沒看過的細節。那封兒時沒交出去的信不能重寄，但妳可以重新跟母親談談那段日子，也可以選擇先去吃早餐。
@@ -257,7 +267,7 @@ VAR ending_kind = ""
 ~ ending_kind = "midnight"
 -> chapter_coda
 === chapter_coda ===
-六位訪客的書籤仍在書架上。靜蘭有後來的日子，柏言可以停下，若音留了一拍給呼吸，葉暖記得吃麵包，雨航學著替自己簽收，海明的信還留著原句。 # scene:counter # speaker:旁白 # section:coda
+六位訪客的書籤仍在書架上。靜蘭曾在月台停留，柏言攤開過未寄出的信，若音寫過四個音，葉暖留下食譜，雨航面對寫給自己的信，海明想把話留給顧川。後來他們各自做出的選擇，沒有一種能由妳替他們改寫。 # scene:counter # speaker:旁白 # section:coda
 他們的故事沒有替妳選答案。夜行書店只是保管了那些沒被說完的話，直到寫信的人有機會親手碰到它們。
 妳也在其中。 # speaker:旁白
 -> final_bookmark

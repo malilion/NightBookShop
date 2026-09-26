@@ -136,15 +136,19 @@ const memoryHub = computed(() => {
   const evidence = memoryEvidence[section];
   if (!frame.choices.some((choice) => choice.text === evidence.leave))
     return null;
+  const objects = evidence.objects.map((object) => ({
+    ...object,
+    index:
+      frame.choices.find((choice) => choice.text === object.choice)?.index ??
+      null,
+  }));
+  const objectIndexes = new Set(objects.map((object) => object.index));
   return {
     section,
-    leaveIndex: frame.choices.find((choice) => choice.text === evidence.leave)!.index,
-    objects: evidence.objects.map((object) => ({
-      ...object,
-      index:
-        frame.choices.find((choice) => choice.text === object.choice)?.index ??
-        null,
-    })),
+    objects,
+    dialogueIndexes: frame.choices
+      .filter((choice) => !objectIndexes.has(choice.index))
+      .map((choice) => choice.index),
   };
 });
 const showMemoryObjects = computed(
@@ -279,7 +283,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
             </span>
           </template>
         </div>
-        <DialoguePanel :key="'dialogue'" ref="dialogue" :visible-choice-indexes="memoryHub ? [memoryHub.leaveIndex] : undefined" /></template
+        <DialoguePanel :key="'dialogue'" ref="dialogue" :visible-choice-indexes="memoryHub?.dialogueIndexes" /></template
       ><TeaBrewingScene v-else-if="game.frame.mode === 'tea'" /><MelodyPuzzle
         v-else-if="game.frame.mode === 'melody'"
       /><HearthScene v-else-if="game.frame.mode === 'hearth'" /><DeliveryRoute v-else-if="game.frame.mode === 'route'" /><WatchLamp v-else-if="game.frame.mode === 'lamp'" /><ArchiveMap v-else-if="game.frame.mode === 'archive'" /><LetterPuzzle v-else-if="game.frame.mode === 'letter'" />

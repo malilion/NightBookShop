@@ -7,7 +7,9 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-6.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-8.json", "utf8");
+const chapterSeven = readFileSync("public/story/compiled/lincheng-chapter-7.json", "utf8");
+const chapterSix = readFileSync("public/story/compiled/lincheng-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/lincheng-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/lincheng-chapter-4.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/lincheng-chapter-3.json", "utf8");
@@ -24,13 +26,14 @@ const completeArchive = {
   connections: archiveConnections.map((connection) => connection.id),
 };
 
-function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string } = {}) {
+function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; askOwnerConsent?: boolean } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
   const sections = new Set<string>();
   const texts: string[] = [];
   const speakers: string[] = [];
   const portraits: string[] = [];
+  const choices: string[] = [];
   let steps = 0;
   while (story.frame.mode !== "ending") {
     expect(++steps).toBeLessThan(300);
@@ -38,6 +41,7 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
     texts.push(story.frame.text);
     speakers.push(story.frame.speaker);
     portraits.push(story.frame.portrait);
+    choices.push(...story.frame.choices.map((entry) => entry.text));
     if (story.frame.mode === "tea")
       story.finishTea({ teaId: "osmanthus", quality: 90, emotionalMatch: 100 });
     else if (story.frame.mode === "archive")
@@ -47,7 +51,7 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
       story.finishLetter({ completion: fullLetter ? 100 : 50, understood: fullLetter });
     } else if (story.frame.canContinue) story.next();
     else {
-      const selected = (options.skipObjects ? story.frame.choices.find((entry) => [
+      const selected = (options.askOwnerConsent ? story.frame.choices.find((entry) => entry.text.includes("童年的保管請求")) : undefined) ?? (options.skipObjects ? story.frame.choices.find((entry) => [
         "帶著看到的線索回到櫃台",
         "從兒時外套裡收起第一片信紙",
         "從高高的櫃台下收起另外兩片信紙",
@@ -59,7 +63,7 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
     restored.restore(story.serialize(), frameSchema.parse(story.frame));
     expect(restored.frame).toEqual(story.frame);
   }
-  return { story, sections, texts, speakers, portraits };
+  return { story, sections, texts, speakers, portraits, choices };
 }
 
 describe("Lincheng finale", () => {
@@ -75,6 +79,43 @@ describe("Lincheng finale", () => {
     expect(chapterForVersion("lincheng-chapter-4")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-5")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-6")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-7")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-8")).toBe("lincheng");
+  });
+  it("keeps the previous finale version loadable", () => {
+    expect(play("lincheng-dawn", true, chapterSeven).story.frame.endingId).toBe("lincheng-dawn");
+  });
+  it("keeps the map hidden until the six-night archive is complete", () => {
+    const story = new StoryBridge(compiled);
+    story.next();
+    const beforeArchive: string[] = [];
+    while (story.frame.mode !== "archive") {
+      beforeArchive.push(story.frame.text);
+      if (story.frame.mode === "tea") story.finishTea({ teaId: "osmanthus", quality: 90, emotionalMatch: 100 });
+      else if (story.frame.canContinue) story.next();
+      else story.choose(story.frame.choices[0]!.index);
+    }
+    expect(beforeArchive.join(" ")).not.toContain("接成一張地圖");
+    story.finishArchive({ count: 2, complete: false });
+    const retryTexts: string[] = [];
+    while (story.frame.mode !== "archive") {
+      retryTexts.push(story.frame.text);
+      expect(story.frame.section).not.toBe("hidden-room");
+      story.next();
+    }
+    expect(retryTexts.join(" ")).toContain("地圖還沒有接全");
+    expect(story.frame.text).toContain("還有紙背的關係沒找齊");
+    story.finishArchive(scoreArchive(completeArchive));
+    while (story.frame.section !== "hidden-room") story.next();
+    expect(story.frame.text).toContain("收藏室");
+  });
+  it("does not rewrite the visitors' choices in the closing narration", () => {
+    const hero = play("lincheng-shelf", true, compiled, { previousEnding: "haiming-hero" });
+    const closing = hero.texts.find((text) => text.includes("六位訪客的書籤仍在書架上"));
+    expect(closing).toContain("後來他們各自做出的選擇");
+    expect(closing).not.toContain("海明的信還留著原句");
+    const boat = play("lincheng-dawn", true, compiled, { previousEnding: "haiming-boat" });
+    expect(boat.texts.join(" ")).toContain("放回六張紙旁");
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the %s route in the previous finale", (target) => {
     const { story, sections } = play(target, true, previousCompiled);
@@ -92,6 +133,25 @@ describe("Lincheng finale", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-five %s route", (target) => {
     expect(play(target, true, chapterFive).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-six %s route", (target) => {
+    expect(play(target, true, chapterSix).story.frame.endingId).toBe(target);
+  });
+  it("requires refusing the visitor seat for the midnight ending", () => {
+    const refusal = play("lincheng-midnight");
+    const readLetter = play("lincheng-dawn");
+    expect(refusal.sections.has("self-letter")).toBe(false);
+    expect(refusal.choices).toContain("拒絕坐下，繼續替別人整理故事");
+    expect(readLetter.choices).not.toContain("把信合起來，回到櫃台繼續接待別人");
+    expect(readLetter.choices).toContain("承認那段過去，讓信暫留書架，帶著未完的記憶離開");
+  });
+  it("lets Lincheng challenge the owner's use of her childhood request", () => {
+    const challenged = play("lincheng-dawn", true, compiled, { askOwnerConsent: true });
+    const unasked = play("lincheng-dawn");
+    expect(challenged.texts.join(" ")).toContain("不能拿童年的請求，當成妳成年後同意守夜的證據");
+    expect(challenged.texts.join(" ")).toContain("請他把「保管信」與「讓門在黎明前打不開」分開記進手冊");
+    expect(challenged.texts.join(" ")).toContain("這一次不需要替店主的決定辯護");
+    expect(unasked.texts.join(" ")).not.toContain("這一次不需要替店主的決定辯護");
   });
   it.each([
     ["haiming-light", "兩種筆跡都留在桌上", "不必先同意你對那晚的解釋"],

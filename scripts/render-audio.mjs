@@ -42,7 +42,15 @@ function wave(seconds, sample) {
   }
   return data;
 }
+// `--only=tea-pour,tea-chime` renders just those cues and leaves the others untouched.
+const only = process.argv
+  .find((arg) => arg.startsWith("--only="))
+  ?.slice("--only=".length)
+  .split(",");
+let rendered = 0;
 function render(name, seconds, sample, bitrate = "64k") {
+  if (only && !only.includes(name)) return;
+  rendered++;
   const wav = join(temp, `${name}.wav`);
   writeFileSync(wav, wave(seconds, sample));
   for (const [extension, codec, bitRate] of [
@@ -168,7 +176,90 @@ try {
         0.06 * Math.sin(2 * Math.PI * 1764 * t))
     );
   });
-  process.stdout.write("Rendered 6 original audio cues in Ogg Opus and MP3.\n");
+  // Tea table cues use their own generator so the cues above stay byte-stable.
+  let teaSeed = 20260926;
+  const teaRandom = () => {
+    teaSeed ^= teaSeed << 13;
+    teaSeed ^= teaSeed >>> 17;
+    teaSeed ^= teaSeed << 5;
+    return (teaSeed >>> 0) / 4294967296;
+  };
+  // A water stream: low-passed noise with small bubbles, crossfaded into a seamless loop.
+  const pourSeconds = 2.4;
+  const fade = Math.round(0.25 * rate);
+  const raw = new Float32Array(Math.round(pourSeconds * rate) + fade);
+  let streamLow = 0;
+  let streamBody = 0;
+  let bubble = 0;
+  let bubbleFrequency = 700;
+  let bubblePhase = 0;
+  for (let i = 0; i < raw.length; i++) {
+    const t = i / rate;
+    const noise = teaRandom() * 2 - 1;
+    streamLow = streamLow * 0.985 + noise * 0.015;
+    streamBody = streamBody * 0.8 + noise * 0.2;
+    if (teaRandom() < 0.0011) {
+      bubble = 1;
+      bubbleFrequency = 520 + teaRandom() * 980;
+    }
+    bubble *= 0.9982;
+    bubblePhase += (2 * Math.PI * bubbleFrequency * (1 + 0.5 * (1 - bubble))) / rate;
+    const swell = 0.85 + 0.15 * Math.sin(2 * Math.PI * 2.5 * t);
+    raw[i] =
+      (streamBody - streamLow) * 0.42 * swell +
+      streamLow * 0.9 +
+      Math.sin(bubblePhase) * bubble * 0.07;
+  }
+  const loop = raw.length - fade;
+  render("tea-pour", loop / rate, (_t, i) =>
+    i < fade ? raw[i] * (i / fade) + raw[loop + i] * (1 - i / fade) : raw[i],
+  );
+  render("tea-chime", 1.3, (t) => {
+    const attack = Math.min(1, t * 220);
+    const decay = Math.exp(-t * 4.2);
+    return (
+      attack *
+      decay *
+      (0.15 * Math.sin(2 * Math.PI * 1318.5 * t) +
+        0.08 * Math.sin(2 * Math.PI * 1975.5 * t) +
+        0.05 * Math.sin(2 * Math.PI * 2637 * t) * Math.exp(-t * 5))
+    );
+  });
+  // Kettle on the stove: a low rumble with bubbles popping, looped like the pour.
+  const boilSeconds = 3.2;
+  const boilRaw = new Float32Array(Math.round(boilSeconds * rate) + fade);
+  let rumble = 0;
+  let rumbleSlow = 0;
+  const pops = [];
+  for (let i = 0; i < boilRaw.length; i++) {
+    const noise = teaRandom() * 2 - 1;
+    rumble = rumble * 0.97 + noise * 0.03;
+    rumbleSlow = rumbleSlow * 0.995 + noise * 0.005;
+    if (teaRandom() < 0.0005)
+      pops.push({ age: 0, frequency: 180 + teaRandom() * 420, phase: 0, level: 0.04 + teaRandom() * 0.06 });
+    let popped = 0;
+    for (const pop of pops) {
+      pop.age += 1 / rate;
+      pop.phase += (2 * Math.PI * pop.frequency * (1 + pop.age * 9)) / rate;
+      popped += Math.sin(pop.phase) * pop.level * Math.exp(-pop.age * 45);
+    }
+    while (pops.length && pops[0].age > 0.2) pops.shift();
+    boilRaw[i] = (rumble - rumbleSlow) * 0.9 + rumbleSlow * 1.6 + popped;
+  }
+  const boilLoop = boilRaw.length - fade;
+  render("tea-boil", boilLoop / rate, (_t, i) =>
+    i < fade ? boilRaw[i] * (i / fade) + boilRaw[boilLoop + i] * (1 - i / fade) : boilRaw[i],
+  );
+  // An ingredient dropping into tea: a falling plop and a small splash.
+  let splash = 0;
+  render("tea-drop", 0.45, (t) => {
+    const noise = teaRandom() * 2 - 1;
+    splash = splash * 0.6 + noise * 0.4;
+    const pitch = 780 * Math.exp(-t * 9) + 240;
+    const plop = Math.sin(2 * Math.PI * pitch * t) * Math.min(1, t * 400) * Math.exp(-t * 16);
+    return plop * 0.22 + splash * Math.exp(-Math.pow((t - 0.03) / 0.03, 2)) * 0.08;
+  });
+  process.stdout.write(`Rendered ${rendered} original audio cues in Ogg Opus and MP3.\n`);
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

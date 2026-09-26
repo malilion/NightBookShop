@@ -178,6 +178,14 @@ test("third night saves the cup motif and both sides of the letter", async ({
     animations: "disabled",
   });
   await page.getByRole("button", { name: "把兩面的信交還給她" }).click();
+  await (await untilChoice(page, "請她說說最初四個音裡的停頓")).click();
+  await (await untilChoice(page, "問她新的旋律想先給誰聽")).click();
+  await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
+  await page.reload();
+  await expect(page.getByRole("button", { name: "請她說說最初四個音裡的停頓" })).toHaveCount(0);
+  await (await untilChoice(page, "問她手累時能不能把休止符留下")).click();
+  await page.screenshot({ path: `output/third-night-score-table-${info.project.name}.png`, animations: "disabled" });
+  await (await untilChoice(page, "把鉛筆交回若音")).click();
   await (await untilChoice(page, "回到最初的四個音")).click();
   await (await untilChoice(page, "陪她只為一個人拉完")).click();
   await advanceUntil(page, ".ending-panel");

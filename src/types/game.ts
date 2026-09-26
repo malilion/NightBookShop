@@ -1,7 +1,10 @@
 import { z } from "zod";
-export const STORY_VERSION = "jinglan-chapter-4";
+export const STORY_VERSION = "jinglan-chapter-7";
 export const storyVersionSchema = z.enum([
   STORY_VERSION,
+  "jinglan-chapter-6",
+  "jinglan-chapter-5",
+  "jinglan-chapter-4",
   "jinglan-chapter-3",
   "jinglan-chapter-2",
   "boyan-chapter-1",
@@ -13,6 +16,7 @@ export const storyVersionSchema = z.enum([
   "boyan-chapter-7",
   "boyan-chapter-8",
   "boyan-chapter-9",
+  "boyan-chapter-10",
   "ruoyin-chapter-1",
   "ruoyin-chapter-2",
   "ruoyin-chapter-3",
@@ -21,6 +25,7 @@ export const storyVersionSchema = z.enum([
   "ruoyin-chapter-6",
   "ruoyin-chapter-7",
   "ruoyin-chapter-8",
+  "ruoyin-chapter-9",
   "yenuan-chapter-1",
   "yenuan-chapter-2",
   "yenuan-chapter-3",
@@ -28,6 +33,7 @@ export const storyVersionSchema = z.enum([
   "yenuan-chapter-5",
   "yenuan-chapter-6",
   "yenuan-chapter-7",
+  "yenuan-chapter-8",
   "yuhang-chapter-1",
   "yuhang-chapter-2",
   "yuhang-chapter-3",
@@ -36,6 +42,7 @@ export const storyVersionSchema = z.enum([
   "yuhang-chapter-6",
   "yuhang-chapter-7",
   "yuhang-chapter-8",
+  "yuhang-chapter-9",
   "haiming-chapter-1",
   "haiming-chapter-2",
   "haiming-chapter-3",
@@ -46,12 +53,16 @@ export const storyVersionSchema = z.enum([
   "haiming-chapter-8",
   "haiming-chapter-9",
   "haiming-chapter-10",
+  "haiming-chapter-11",
+  "haiming-chapter-12",
   "lincheng-chapter-1",
   "lincheng-chapter-2",
   "lincheng-chapter-3",
   "lincheng-chapter-4",
   "lincheng-chapter-5",
   "lincheng-chapter-6",
+  "lincheng-chapter-7",
+  "lincheng-chapter-8",
   "jinglan-chapter-1",
   "jinglan-prototype-1",
 ]);
@@ -109,6 +120,7 @@ export const clueSchema = z.enum([
   "ring",
   "ticket",
   "envelope",
+  "camellia",
   "margin",
   "bedside",
   "platform",
@@ -238,6 +250,25 @@ export const teaIdSchema = z.enum([
   "hojicha",
 ]);
 export type TeaId = z.infer<typeof teaIdSchema>;
+export const ingredientIdSchema = z.enum([
+  "honey",
+  "lemon",
+  "apple",
+  "caramel",
+  "ginger",
+  "rose",
+  "milk",
+  "cinnamon",
+]);
+export type IngredientId = z.infer<typeof ingredientIdSchema>;
+/** One unit of an ingredient, steeped in the pot or stirred into the cup. */
+export const ingredientUnitSchema = z.object({
+  id: ingredientIdSchema,
+  where: z.enum(["pot", "cup"]),
+  /** Steep seconds on the hourglass when it went in. */
+  at: z.number().min(0).max(120),
+});
+export type IngredientUnit = z.infer<typeof ingredientUnitSchema>;
 export const teaSchema = z.object({
   step: z.enum([
     "select",
@@ -266,9 +297,20 @@ export const teaSchema = z.object({
   teaLost: z.number().min(0).max(100).default(0),
   cupWater: z.number().min(0).max(100).default(0),
   steepRunning: z.boolean().default(false),
+  // Tea house only: ingredients by unit, and water boiled on the stove.
+  ingredients: z.array(ingredientUnitSchema).max(6).default([]),
+  kettleTemp: z.number().min(20).max(100).default(45),
+  fire: z.number().int().min(0).max(3).default(0),
+  /** Seconds the kettle has spent at a rolling boil. */
+  kettleOverBoil: z.number().min(0).max(600).default(0),
+  /** How long the water in the pot had boiled, mixed in as it was poured. */
+  overBoil: z.number().min(0).max(600).default(0),
 }).superRefine((draft, ctx) => {
   if (draft.leaves + draft.blendLeaves > 5)
     ctx.addIssue({ code: "custom", path: ["blendLeaves"], message: "兩種茶葉總量不能超過五匙。" });
+  for (const id of new Set(draft.ingredients.map((unit) => unit.id)))
+    if (draft.ingredients.filter((unit) => unit.id === id).length > 3)
+      ctx.addIssue({ code: "custom", path: ["ingredients"], message: "同一種配料最多三份。" });
   if (draft.blendLeaves > 0 && (!draft.blendTeaId || draft.blendTeaId === draft.teaId))
     ctx.addIssue({ code: "custom", path: ["blendTeaId"], message: "第二種茶葉必須與第一種不同。" });
 });
@@ -435,6 +477,11 @@ export const newTea = (): TeaDraft => ({
   teaLost: 0,
   cupWater: 0,
   steepRunning: false,
+  ingredients: [],
+  kettleTemp: 45,
+  fire: 0,
+  kettleOverBoil: 0,
+  overBoil: 0,
 });
 export const newLetter = (): LetterDraft => ({
   slots: [null, null, null],

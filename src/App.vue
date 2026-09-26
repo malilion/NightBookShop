@@ -49,7 +49,8 @@ watch(
 watch(
   () => [route.name, game.frame?.scene],
   () => {
-    if (route.name !== "game" || !game.frame) audio.setScene(null);
+    if (route.name === "tea") audio.setScene("rain");
+    else if (route.name !== "game" || !game.frame) audio.setScene(null);
     else
       audio.setScene(
         game.frame.scene === "memory" || game.frame.scene === "moon-sea"
@@ -78,6 +79,7 @@ async function installUpdate() {
     class="app"
     :class="{
       'large-text': settings.values.largeText,
+      'high-contrast': settings.values.highContrast,
       'reduce-motion': settings.values.reducedMotion,
     }"
   >

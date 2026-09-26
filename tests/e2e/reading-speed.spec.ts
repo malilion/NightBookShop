@@ -93,4 +93,37 @@ test("older reading preferences gain the standard speed without losing their swi
     page.getByRole("switch", { name: /減少動態效果/ }),
   ).not.toBeChecked();
   await expect(page.getByLabel("對話文字速度")).toHaveValue("normal");
+  await expect(page.getByRole("switch", { name: /高對比閱讀/ })).not.toBeChecked();
+});
+
+test("high contrast survives reload and live dialogue includes its speaker", async ({ page }, info) => {
+  await page.goto("/#/settings");
+  await page.getByRole("switch", { name: /高對比閱讀/ }).check();
+  await expect(page.locator(".app")).toHaveClass(/high-contrast/);
+  await expect.poll(() => page.evaluate(async () => {
+    const request = indexedDB.open("night-bookshop");
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const enabled = await new Promise<boolean | undefined>((resolve, reject) => {
+      const read = db.transaction("preferences").objectStore("preferences").get("settings");
+      read.onsuccess = () => resolve(read.result?.value?.highContrast);
+      read.onerror = () => reject(read.error);
+    });
+    db.close();
+    return enabled;
+  })).toBe(true);
+  await page.reload();
+  await expect(page.getByRole("switch", { name: /高對比閱讀/ })).toBeChecked();
+  await page.getByRole("link", { name: "回到門前" }).click();
+  await page.getByRole("button", { name: "開始故事", exact: true }).click();
+  await prepareOpening(page);
+  await expect(page.locator(".app")).toHaveClass(/high-contrast/);
+  await expect(page.locator(".dialogue-panel")).toHaveCSS("background-color", "rgb(5, 8, 14)");
+  const liveDialogue = page.locator(".screen-reader-only[aria-live='polite']");
+  await expect(liveDialogue).toHaveText(/^.+：.+/);
+  await page.getByRole("button", { name: "顯示全文" }).click();
+  await expect(page.locator(".dialogue-text")).toHaveText(/雨聲忽然遠了/);
+  await page.screenshot({ path: `output/high-contrast-dialogue-${info.project.name}.png`, animations: "disabled" });
 });

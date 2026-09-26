@@ -25,6 +25,9 @@ VAR read_grand_score = false
 VAR read_grand_exit = false
 VAR final_bar = ""
 VAR final_bar_sincere = false
+VAR score_rain = false
+VAR score_person = false
+VAR score_rest = false
 VAR ending_kind = ""
 -> arrival
 
@@ -356,21 +359,50 @@ VAR ending_kind = ""
     她沒有催妳填空。桌上至少留下了一片能讀清楚的字，她說想把剩下的帶回去慢慢看。 # scene:ruoyin # speaker:旁白 # section:response
 }
 妳把空白樂譜推回她面前。最後一小節還等著她決定，不一定要用最響亮的音收尾。
+-> score_table
+=== score_table ===
+若音把琴盒裡的舊稿攤在茶杯旁。譜上的擦痕一層疊一層，有些音是她改的，有些是她怕別人失望才改的。她拿起鉛筆，卻先把橡皮擦放遠。 # speaker:旁白 # section:finalbar
+「我以前總想直接寫一個正確的結尾。」她說。「今晚可以先弄清楚，我想把什麼留在曲子裡嗎？」 # speaker:沈若音
+-> score_table_hub
+=== score_table_hub ===
+她沒有催妳替她填音符。妳可以聽她多談幾句，也可以把最後一小節交還給她。 # speaker:旁白
+* {not score_rain} [請她說說最初四個音裡的停頓]
+    ~ score_rain = true
+    若音用指尖在桌面敲出前三個音，第四下卻沒有落下。「我小時候拉給雨聽。雨小一點，我就等它；不是忘了下一個音。」 # speaker:沈若音
+    {heard_rain:妳記得空教室裡那個空拍。她點頭：「那時我已經會讓別的聲音進來，不必把它補成比賽用的整齊拍子。」 # speaker:沈若音}
+    {not heard_rain:妳們先前沒有停下來聽那場雨。她現在重新敲給妳聽，讓妳知道空拍是她自己留下的。 # speaker:旁白}
+    -> score_table_hub
+* {not score_person} [問她新的旋律想先給誰聽]
+    ~ score_person = true
+    若音說，散場後曾有一個人留在門邊，聽她把最後三分鐘拉完。「我不知道她後來過得怎樣，也不想把她的故事拿來替自己證明。」 # speaker:沈若音
+    {heard_cleaner:妳們先前聽過那位清潔人員的話。若音說，她想先問對方願不願意聽，再決定是否把新的旋律交出去。 # speaker:旁白}
+    {not heard_cleaner:妳們沒有問過那位聽眾的想法。若音說，若再見面，她會先問對方願不願意聽，不把眼淚當成一份委託。 # speaker:旁白}
+    -> score_table_hub
+* {not score_rest} [問她手累時能不能把休止符留下]
+    ~ score_rest = true
+    她把左手平放在譜紙邊。「可以。我還想拉琴，但不想再用疼痛證明自己沒有放棄。下次練習前，我會先問清楚適合的方式。」 # speaker:沈若音
+    {read_injury:她想起妳們看過的復健日期，把「停一下」寫在新曲旁，沒有把舊傷與那場比賽混成同一個失敗。 # speaker:旁白}
+    {not read_injury:妳們沒有讀到過去的復健紀錄；她此刻說的是現在的手。妳不替她推斷還能拉多久。 # speaker:旁白}
+    -> score_table_hub
+* [把鉛筆交回若音，聽她決定最後一小節]
+    -> final_bar_choice
+=== final_bar_choice ===
+若音把譜紙轉向自己。「這三種寫法都可以是我的。我要知道的是，今晚哪一種最貼近我說過的話。」 # speaker:沈若音 # section:finalbar
 * [回到最初的四個音]
     ~ final_bar = "return"
-    ~ final_bar_sincere = heard_rain
+    ~ final_bar_sincere = heard_rain || score_rain
     她把童年那段旋律拉了一遍，這回沒有急著修改第一個音。 # speaker:旁白 # section:finalbar
     {heard_rain:她在雨聲變小的那一拍等了一下。妳們都記得空教室裡原本就有這個停頓。 # speaker:旁白}
     -> final_choice
 * [加入一小段新的簡單旋律]
     ~ final_bar = "new"
-    ~ final_bar_sincere = heard_cleaner
+    ~ final_bar_sincere = heard_cleaner || score_person
     她試著把雨聲與宴會廳那段安靜放進去。曲子變短了，也能完整落下。 # speaker:旁白 # section:finalbar
     {heard_cleaner:若音說，那位聽完的客人沒有要她證明什麼；這段新的旋律可以只送給願意坐下來聽的人。 # speaker:沈若音}
     -> final_choice
 * [先留下休止符]
     ~ final_bar = "rest"
-    ~ final_bar_sincere = read_injury
+    ~ final_bar_sincere = read_injury || score_rest
     她畫了一個休止符，說這不是放棄，只是今晚還不想填滿。 # speaker:旁白 # section:finalbar
     {read_injury:她摸了摸舊傷，說想先把能夠舒服地拉琴的方式問清楚，再決定要把休止符留多久。 # speaker:沈若音}
     -> final_choice

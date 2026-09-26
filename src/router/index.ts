@@ -28,6 +28,11 @@ export const router = createRouter({
       component: () => import("../views/SaveView.vue"),
     },
     {
+      path: "/tea",
+      name: "tea",
+      component: () => import("../views/TeaHouseView.vue"),
+    },
+    {
       path: "/settings",
       name: "settings",
       component: () => import("../views/SettingsView.vue"),

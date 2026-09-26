@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-8.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-9.json", "utf8");
+const chapterEight = readFileSync("public/story/compiled/yuhang-chapter-8.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/yuhang-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/yuhang-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/yuhang-chapter-4.json", "utf8");
@@ -21,7 +22,7 @@ const targets = {
   "yuhang-unknown": { stamp: "none", choice: "拒絕簽收" },
 } as const;
 
-function play(target: keyof typeof targets, fullLetter = true, detour = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; teaId?: "mint" | "chamomile" | "hojicha"; garnish?: TeaDraft["garnish"]; blackTea?: number; promiseChoice?: string } = {}) {
+function play(target: keyof typeof targets, fullLetter = true, detour = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; teaId?: "mint" | "chamomile" | "hojicha"; garnish?: TeaDraft["garnish"]; blackTea?: number; promiseChoice?: string; deferPostmarkComparison?: boolean } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
   const sections = new Set<string>();
@@ -40,7 +41,7 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
       story.finishLetter({ completion: fullLetter ? 100 : 50, understood: fullLetter, stamp: targets[target].stamp });
     } else if (story.frame.canContinue) story.next();
     else {
-      const selected = (options.skipObjects ? story.frame.choices.find((entry) => [
+      const selected = (options.deferPostmarkComparison ? story.frame.choices.find((entry) => entry.text.includes("讓他先把派送簿收好")) : undefined) ?? (options.skipObjects ? story.frame.choices.find((entry) => [
         "從郵戳後收起第一片信紙",
         "從假單裡收起第二片信紙",
         "從門縫裡收起第三片信紙",
@@ -90,17 +91,30 @@ describe("Yuhang fifth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-six %s route", (target) => {
     expect(play(target, true, false, chapterSix).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-eight %s route", (target) => {
+    expect(play(target, true, false, chapterEight).story.frame.endingId).toBe(target);
+  });
   it("allows leaving every memory with four fragments and no optional clues", () => {
     const { story } = play("yuhang-unknown", true, false, compiled, { skipObjects: true });
     expect(story.frame.fragments).toEqual(["tomorrow", "admit", "without-her", "begin"]);
     expect(story.frame.clues).not.toContain("lighthouse-postcard");
     expect(story.frame.clues).not.toContain("stamp-bottom");
   });
-  it("recalls Yenuan's dated rest decision in the post office ledger", () => {
-    const rest = play("yuhang-unknown", true, false, compiled, { previousEnding: "yenuan-rest" });
-    const share = play("yuhang-unknown", true, false, compiled, { previousEnding: "yenuan-share" });
-    expect(rest.texts.join(" ")).toContain("停下來也能是一個具體的決定");
-    expect(share.texts.join(" ")).not.toContain("停下來也能是一個具體的決定");
+  it.each([
+    ["yenuan-share", "父親當年只留下再次送達的機會"],
+    ["yenuan-reopen", "送到，也不用立刻開始"],
+    ["yenuan-rest", "停下來也能是一個具體的決定"],
+    ["yenuan-copy", "只是把原樣交回去"],
+  ])("recalls %s during post office exploration", (previousEnding, expected) => {
+    const played = play("yuhang-unknown", true, false, compiled, { previousEnding });
+    expect(played.texts.join(" ")).toContain(expected);
+    expect(played.texts.join(" ")).toContain("食譜卡的收件人可以選擇何時收下");
+  });
+  it("lets the player set aside the postmark comparison without losing the ending", () => {
+    const deferred = play("yuhang-today", true, false, compiled, { previousEnding: "yenuan-rest", deferPostmarkComparison: true });
+    expect(deferred.texts.join(" ")).toContain("沒有把葉暖的選擇當作雨航必須照做的答案");
+    expect(deferred.texts.join(" ")).not.toContain("食譜卡的收件人可以選擇何時收下");
+    expect(deferred.story.frame.endingId).toBe("yuhang-today");
   });
   it("lets the promise conversation reflect evidence the player actually examined", () => {
     const seen = play("yuhang-today", true, false, compiled, { promiseChoice: "過期租約" });

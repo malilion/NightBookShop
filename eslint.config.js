@@ -46,5 +46,9 @@ export default ts.config(
     ],
     languageOptions: { globals: { window: "readonly", document: "readonly" } },
   },
+  {
+    files: ["src/sw.js"],
+    languageOptions: { globals: { self: "readonly", caches: "readonly" } },
+  },
   { files: ["**/*.ts", "**/*.tsx", "**/*.vue"], rules: { "no-undef": "off" } },
 );
