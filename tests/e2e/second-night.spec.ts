@@ -119,6 +119,12 @@ test("second night can be brewed, assembled, completed and resumed", async ({
   await page.getByRole("button", { name: "暫停系統通知" }).click();
   await page.screenshot({ path: `output/second-night-notifications-${info.project.name}.png`, fullPage: true, animations: "disabled" });
   await page.getByRole("button", { name: "收起手機，看向車窗" }).click();
+  await advanceTo(page, ".dialogue-choices");
+  const ownFirstLine = page.getByRole("button", { name: "先問柏言最想讓對方知道的現況" });
+  await expect(ownFirstLine).toBeVisible();
+  await expect(page.getByRole("button", { name: "先照舊清單排好交接，再請他核對" })).toBeVisible();
+  await page.screenshot({ path: `output/second-night-first-line-${info.project.name}.png`, animations: "disabled" });
+  await ownFirstLine.click();
   await advanceTo(page, ".letter-panel");
   await expect(page.locator(".letter-slot")).toHaveCount(4);
   await page.screenshot({

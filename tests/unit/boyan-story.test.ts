@@ -5,7 +5,8 @@ import { parseTag } from "../../src/story/commandParser";
 import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-6.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-7.json", "utf8");
+const chapterSix = readFileSync("public/story/compiled/boyan-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/boyan-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/boyan-chapter-4.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/boyan-chapter-3.json", "utf8");
@@ -21,7 +22,7 @@ const choicesByEnding = {
 function complete(
   target: keyof typeof choicesByEnding,
   storyJson = compiled,
-  options: { skipObjects?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean } = {},
+  options: { skipObjects?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean; orderHandoffFirst?: boolean } = {},
 ) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
@@ -42,7 +43,7 @@ function complete(
     } else if (story.frame.canContinue) {
       story.next();
     } else {
-      const choice = story.frame.choices.find((entry) =>
+      const choice = (options.orderHandoffFirst ? story.frame.choices.find((entry) => entry.text.includes("先照舊清單排好交接")) : undefined) ?? story.frame.choices.find((entry) =>
         entry.text.includes(choicesByEnding[target]),
       ) ?? (options.skipObjects
         ? story.frame.choices.find((entry) => [
@@ -97,6 +98,9 @@ describe("Boyan second night", () => {
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-five %s save route", (target) => {
     expect(complete(target, chapterFive).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-six %s save route", (target) => {
+    expect(complete(target, chapterSix).story.frame.endingId).toBe(target);
+  });
   it("opens a distinct health and help conversation after honey chamomile", () => {
     const honey = complete("boyan-rest", compiled, { honey: true });
     const plain = complete("boyan-rest", compiled);
@@ -122,6 +126,25 @@ describe("Boyan second night", () => {
     expect(replied.texts.join(" ")).toContain("我明天先去看醫生，之後再打給妳");
     expect(deferred.texts.join(" ")).toContain("明天看完醫生再回");
     expect(replied.story.frame.clues).toContain("notification");
+  });
+  it("changes memory recaps when evidence is explored or skipped", () => {
+    const explored = complete("boyan-rest", compiled, { honey: true });
+    const skipped = complete("boyan-rest", compiled, { skipObjects: true });
+    expect(explored.texts.join(" ")).toContain("曾主動幫忙、曾被別人代為答應");
+    expect(explored.texts.join(" ")).toContain("醫療需要由醫療人員判斷");
+    expect(explored.texts.join(" ")).toContain("七年前的願望也沒有替他做決定");
+    expect(skipped.texts.join(" ")).toContain("沒有請妳替他猜別人為何把工作交過來");
+    expect(skipped.texts.join(" ")).not.toContain("曾主動幫忙、曾被別人代為答應");
+  });
+  it("lets Boyan move his current condition before the handoff list", () => {
+    const ordered = complete("boyan-rest", compiled, { orderHandoffFirst: true });
+    expect(ordered.texts.join(" ")).toContain("交接可以寫，但不能再替我說完全部");
+    expect(ordered.story.frame.endingId).toBe("boyan-rest");
+  });
+  it("distinguishes urgent recurring symptoms from a later appointment", () => {
+    const { texts } = complete("boyan-rest");
+    expect(texts.join(" ")).toContain("就別等明早掛號，立刻請求急救");
+    expect(texts.join(" ")).toContain("今晚胸口安靜下來了");
   });
   it("scores all four letter positions", () => {
     const letter: LetterDraft = {
