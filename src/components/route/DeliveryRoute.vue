@@ -2,24 +2,20 @@
 import { computed } from "vue";
 import { useGameStore } from "../../stores/gameStore";
 import { scoreRoute } from "../../services/routeScoring";
+import { deliveryRouteScene, deliveryRouteScenes } from "../../data/deliveryRouteNarrative";
 import type { RouteDraft } from "../../types/game";
 
 const game = useGameStore();
 const stage = computed(() => game.route.stops.length);
 const score = computed(() => scoreRoute(game.route));
-const prompts = [
-  { clue: "郵戳上的舊區碼", text: "郵戳刻著已停用的區碼。收件地址被雨沖淡，只剩一個「郵」字。" },
-  { clue: "長長的雨痕", text: "第二道雨痕像末班車的路線。派送簿裡，休假申請被一條線又一條線劃掉。" },
-  { clue: "背面的字跡", text: "第三個地址用雨航自己的筆跡寫成。那是一間七年前就租下、卻沒有開門的店。" },
-] as const;
-const stops: { id: RouteDraft["stops"][number]; label: string; detour: string }[] = [
-  { id: "post-office", label: "已拆除的老郵局", detour: "郵局的牆早已拆去；他曾和妹妹在這裡寫開店計畫。" },
-  { id: "last-bus", label: "末班公車站", detour: "車站的站牌還在，他有七年沒有搭車去旅行。" },
-  { id: "empty-shop", label: "鎖住的空店面", detour: "租約早過期了，他卻一直留著那把鑰匙。" },
-  { id: "bookshop-door", label: "夜行書店門外", detour: "書店門邊有他的簽收印章。他一直記得別人的地址。" },
+const stops: { id: RouteDraft["stops"][number]; label: string }[] = [
+  { id: "post-office", label: "已拆除的老郵局" },
+  { id: "last-bus", label: "末班公車站" },
+  { id: "empty-shop", label: "鎖住的空店面" },
+  { id: "bookshop-door", label: "夜行書店門外" },
 ];
 function choose(id: RouteDraft["stops"][number]) {
-  if (stage.value >= 3) return;
+  if (stage.value >= 3 || game.route.stops.includes(id)) return;
   game.updateRoute({ stops: [...game.route.stops, id] });
 }
 </script>
@@ -34,15 +30,15 @@ function choose(id: RouteDraft["stops"][number]) {
     <div class="route-map" role="img" aria-label="雨夜裡的城市投遞地圖">
       <span v-for="stop in stops" :key="stop.id" class="route-map-stop">{{ stop.label }}</span>
     </div>
-    <p v-if="stage < 3" class="route-clue"><strong>{{ prompts[stage]!.clue }}</strong> {{ prompts[stage]!.text }}</p>
+    <p v-if="stage < 3" class="route-clue"><strong>{{ deliveryRouteScenes[stage]!.clue }}</strong> {{ deliveryRouteScenes[stage]!.prompt }}</p>
     <p v-else class="route-clue">三段地址走完了。信封又把你們帶回夜行書店。</p>
     <div v-if="stage < 3" class="route-actions">
-      <button v-for="stop in stops" :key="stop.id" class="quiet-button" type="button" @click="choose(stop.id)">{{ stop.label }}</button>
+      <button v-for="stop in stops" :key="stop.id" class="quiet-button" type="button" :disabled="game.route.stops.includes(stop.id)" @click="choose(stop.id)">{{ stop.label }}</button>
     </div>
     <ol class="route-log" aria-live="polite">
       <li v-for="(id, index) in game.route.stops" :key="index">
-        <strong>第 {{ index + 1 }} 站 · {{ stops.find((stop) => stop.id === id)?.label }}</strong>
-        <span>{{ stops.find((stop) => stop.id === id)?.detour }}</span>
+        <strong>第 {{ index + 1 }} 站 · {{ stops.find((stop) => stop.id === id)?.label }} · {{ deliveryRouteScene(index, id).matchesClue ? "線索吻合" : "另一種可能" }}</strong>
+        <span>{{ deliveryRouteScene(index, id).text }}</span>
       </li>
     </ol>
     <div class="button-row">

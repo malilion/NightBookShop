@@ -5,6 +5,7 @@ import { parseTag } from "../../src/story/commandParser";
 import { frameSchema, newLetter, type LetterDraft, type TeaDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
+import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
 const compiled = readFileSync("public/story/compiled/yuhang-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/yuhang-chapter-5.json", "utf8");
@@ -129,6 +130,14 @@ describe("Yuhang fifth night", () => {
     expect(scoreRoute({ stops: ["post-office", "last-bus", "empty-shop"] })).toEqual({ correct: 3, detours: 0 });
     expect(scoreRoute({ stops: ["bookshop-door", "post-office", "last-bus"] })).toEqual({ correct: 0, detours: 3 });
     expect(play("yuhang-unknown", false, true).story.frame.endingId).toBe("yuhang-unknown");
+  });
+  it("shows a distinct possible life for each wrong route clue", () => {
+    const wrongStops = ["bookshop-door", "post-office", "last-bus"] as const;
+    const detours = wrongStops.map((stop, index) => deliveryRouteScene(index, stop));
+    expect(detours.every((scene) => !scene.matchesClue && scene.text.includes("另一種可能"))).toBe(true);
+    expect(new Set(detours.map((scene) => scene.text)).size).toBe(3);
+    for (const [index, stop] of (["post-office", "last-bus", "empty-shop"] as const).entries())
+      expect(deliveryRouteScene(index, stop).matchesClue).toBe(true);
   });
   it("requires four lines and inspection to understand the letter", () => {
     const letter: LetterDraft = {
