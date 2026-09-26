@@ -404,6 +404,9 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     });
     jar.add(jarLeaves);
     spoon.add(spoonLeaves);
+    // Every animated piece keeps its authored scale so frames never compound.
+    for (const piece of [...falling, ...potDry, ...potWet, ...aroma.filter(Boolean)])
+      piece.userData.base = piece.scale.clone();
     const entry = { spec, group, jarLeaves, spoonLeaves, falling, potDry, potWet, sideDish, aroma };
     varieties.set(id, entry);
     return entry;
@@ -463,6 +466,12 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     left.visible = false;
     accent.intensity = 0;
     rim.intensity = 0;
+    for (const entry of varieties.values())
+      for (const piece of [...entry.falling, ...entry.potDry, ...entry.potWet, ...entry.aroma])
+        if (piece) {
+          piece.visible = false;
+          piece.scale.copy(piece.userData.base);
+        }
   }
   function setLiquor(material, hex, strength = 1) {
     material.color.set("#dae1d8").lerp(new THREE.Color(hex), strength);
@@ -508,7 +517,12 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     jar.rotation.y = -0.5;
     jarCap.position.set(1.62, 0.09, 0.62);
     jarCap.rotation.set(0.02, 0.4, 0);
-    placeCamera(V(0.3, 2.55, 3.7).lerp(V(0.24, 2.4, 3.45), smooth(t)), V(0.12, 0.78, -0.1), 32);
+    const rise = smooth(span(t, 0.12, 0.45)) * (1 - 0.5 * smooth(span(t, 0.7, 1)));
+    placeCamera(
+      V(0.3, 2.55, 3.7).lerp(V(0.2, 2.75, 3.85), rise),
+      V(0.14, 0.78, -0.1).lerp(V(0.02, 1.08, -0.12), rise),
+      32,
+    );
     // The left hand wraps the caddy's back-right side.
     const phi = -0.42;
     const r = 0.46;
@@ -579,9 +593,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
         rr = Math.sqrt(noise(i + 12)) * 0.34;
       piece.visible = i < 6 + inPot * 18;
       piece.position.set(Math.cos(a) * rr, 0.19 + noise(i + 13) * 0.03, Math.sin(a) * rr);
-      piece.scale.setScalar(piece.userData.scale ?? (piece.userData.scale = piece.scale.x));
     });
-    v.potWet.forEach((p) => (p.visible = false));
     rim.intensity = 0.6;
     rim.position.set(1.5, 3, -3);
     rim.target.position.set(0, 0.5, 0);
@@ -597,13 +609,18 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     const level = setPotLevel(0.08 + fill * 0.92);
     const bloom = smoother(span(t, 0.18, 1));
     setLiquor(potLiquorMaterial, v.spec.liquor, bloom * 0.95);
-    // Kettle spout just inside the top-left of frame.
+    // Clear enough to see the leaves below the surface, tinted by the tea.
+    potLiquorMaterial.opacity = mix(0.22, 0.66, bloom);
+    // The kettle's spout reaches in from the top-left corner of frame.
     kettle.visible = true;
-    kettle.position.set(-1.72, 1.15, -0.62);
-    kettle.rotation.set(0, 0.35, -0.62);
+    kettle.rotation.set(0, 0.55, -0.72);
+    kettle.position.set(0, 0, 0);
+    kettle.updateMatrixWorld(true);
+    const lipOffset = kettle.localToWorld(V(1.38, 1.36, 0));
+    kettle.position.copy(V(-0.5, 1.5, -0.34).sub(lipOffset));
     kettle.updateMatrixWorld(true);
     const lip = kettle.localToWorld(V(1.38, 1.36, 0));
-    const tangent = kettle.localToWorld(V(1.5, 1.44, 0)).sub(lip);
+    const tangent = kettle.localToWorld(V(1.5, 1.4, 0)).sub(lip);
     const flow = span(t, 0, 0.04) * (1 - span(t, 0.8, 0.88));
     waterStream.update(lip, tangent, level + 0.09, t, 0.026, flow);
     // Leaves lift, swirl and open; flowers rise to the surface.
@@ -615,8 +632,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       piece.visible = open < 0.98;
       const lift = mix(0.19 + noise(i + 13) * 0.03, level - 0.05 - noise(i) * 0.12, smooth(span(t, 0.05, 0.5)));
       piece.position.set(Math.cos(a) * rr, lift, Math.sin(a) * rr);
-      const base = piece.userData.scale ?? (piece.userData.scale = piece.scale.x);
-      piece.scale.setScalar(base * (1 + open * 0.4) * (1 - open));
+      piece.scale.copy(piece.userData.base).multiplyScalar((1 + open * 0.4) * (1 - open));
       piece.rotation.y = a + swirl;
     });
     v.potWet.forEach((piece, i) => {
@@ -624,10 +640,10 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       const rr = Math.sqrt(noise(i + 32)) * mix(0.3, 0.52, fill);
       const open = smooth(span(t, 0.25 + noise(i + 3) * 0.2, 0.7 + noise(i + 3) * 0.2));
       piece.visible = open > 0.02;
-      const base = piece.userData.scale ?? (piece.userData.scale = piece.scale.x);
-      piece.scale.setScalar(base * open);
-      const floats = v.spec.wet.kind === "flower" || i % 4 === 0;
-      piece.position.set(Math.cos(a) * rr, level - (floats ? 0.004 : 0.03 + noise(i) * 0.1), Math.sin(a) * rr);
+      piece.scale.copy(piece.userData.base).multiplyScalar(open);
+      // Opened leaves drift up; about a third float on the surface.
+      const floats = v.spec.wet.kind === "flower" || i % 3 === 0;
+      piece.position.set(Math.cos(a) * rr, level + (floats ? 0.004 : -0.025 - noise(i) * 0.09), Math.sin(a) * rr);
       piece.rotation.y = a + swirl * 0.7 + i;
     });
     potRipples.forEach((ring, i) => {
@@ -783,12 +799,16 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       const s = clamp01((t - start) / 0.6);
       particle.visible = s > 0 && s < 1;
       if (!particle.visible) return;
-      const a = noise(i + 7) * Math.PI * 2 + s * 2.2;
-      const radius = 0.12 + noise(i + 9) * 0.28 + s * 0.2;
-      particle.position.set(top.x + Math.cos(a) * radius, top.y + 0.24 + s * (0.7 + noise(i) * 0.4), top.z + Math.sin(a) * radius * 0.6 - 0.1);
+      const a = noise(i + 7) * Math.PI * 2 + s * 1.6;
+      const radius = 0.16 + noise(i + 9) * 0.42 + s * 0.22;
+      particle.position.set(
+        top.x + Math.cos(a) * radius,
+        top.y + 0.2 + s * (0.34 + noise(i) * 0.2),
+        top.z + Math.sin(a) * radius * 0.5 - 0.05,
+      );
       particle.rotation.set(s * 3 + i, s * 4, s * 2);
       const size = Math.sin(s * Math.PI);
-      particle.scale.setScalar((kind === "mint" ? 0.9 : 1.2) * Math.min(1, size * 3));
+      particle.scale.copy(particle.userData.base).multiplyScalar((kind === "mint" ? 0.9 : 1.25) * Math.min(1, size * 3));
     });
     const glint = v.spec.aroma.glint ?? v.spec.aroma.color;
     motes.forEach((mote, i) => {
@@ -798,11 +818,11 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       mote.visible = sprite && s > 0 && s < 1;
       if (!mote.visible) return;
       const a = noise(i + 17) * Math.PI * 2;
-      const radius = 0.08 + noise(i + 19) * 0.3;
+      const radius = 0.1 + noise(i + 19) * 0.4;
       mote.position.set(
         top.x + Math.cos(a) * radius + Math.sin(s * 9 + i) * 0.03,
-        top.y + 0.22 + s * (kind === "ember" ? 1.2 : 0.8),
-        top.z + Math.sin(a) * radius * 0.5 - 0.1,
+        top.y + 0.18 + s * (kind === "ember" ? 0.62 : 0.42),
+        top.z + Math.sin(a) * radius * 0.5 - 0.05,
       );
       const flicker = kind === "ember" ? 0.6 + 0.4 * Math.sin(s * 40 + i) : 1;
       mote.material.color.set(kind === "honey" || kind === "ember" ? v.spec.aroma.color : glint);
@@ -814,8 +834,8 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       const s = clamp01((t - 0.42 - i * 0.03) / 0.6);
       wisp.visible = kind === "smoke" && s > 0 && s < 1;
       if (!wisp.visible) return;
-      wisp.position.set(top.x + Math.sin(s * 5 + i) * 0.16, top.y + 0.25 + s * 1.0, top.z - 0.05 + Math.cos(s * 4 + i) * 0.08);
-      wisp.scale.set(0.22 + s * 0.4, 0.4 + s * 0.6, 1);
+      wisp.position.set(top.x + Math.sin(s * 5 + i) * 0.2, top.y + 0.18 + s * 0.55, top.z - 0.05 + Math.cos(s * 4 + i) * 0.08);
+      wisp.scale.set(0.22 + s * 0.4, 0.3 + s * 0.45, 1);
       wisp.material.color.set(v.spec.aroma.color);
       wisp.material.opacity = Math.sin(s * Math.PI) * 0.28;
     });

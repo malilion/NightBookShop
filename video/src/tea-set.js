@@ -1389,6 +1389,8 @@ export function createTeaSet(container, W = 1280, H = 720) {
   return {
     setFrame,
     renderProp,
+    // For tooling: the live scene, and a frame seen from another angle.
+    internals: { scene, camera, renderer },
     // For tooling: inspect a frame from another angle without changing it.
     renderFrom(position, target, fov = camera.fov) {
       const saved = [camera.position.clone(), camera.quaternion.clone(), camera.fov];
