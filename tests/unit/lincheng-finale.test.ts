@@ -7,7 +7,8 @@ import { scoreArchive } from "../../src/services/archiveScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-5.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-6.json", "utf8");
+const chapterFive = readFileSync("public/story/compiled/lincheng-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/lincheng-chapter-4.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/lincheng-chapter-3.json", "utf8");
 const chapterTwo = readFileSync("public/story/compiled/lincheng-chapter-2.json", "utf8");
@@ -24,12 +25,14 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
   story.next();
   const sections = new Set<string>();
   const texts: string[] = [];
+  const speakers: string[] = [];
   const portraits: string[] = [];
   let steps = 0;
   while (story.frame.mode !== "ending") {
     expect(++steps).toBeLessThan(300);
     sections.add(story.frame.section);
     texts.push(story.frame.text);
+    speakers.push(story.frame.speaker);
     portraits.push(story.frame.portrait);
     if (story.frame.mode === "tea")
       story.finishTea({ teaId: "osmanthus", quality: 90, emotionalMatch: 100 });
@@ -52,7 +55,7 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
     restored.restore(story.serialize(), frameSchema.parse(story.frame));
     expect(restored.frame).toEqual(story.frame);
   }
-  return { story, sections, texts, portraits };
+  return { story, sections, texts, speakers, portraits };
 }
 
 describe("Lincheng finale", () => {
@@ -67,6 +70,7 @@ describe("Lincheng finale", () => {
     expect(chapterForVersion("lincheng-chapter-3")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-4")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-5")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-6")).toBe("lincheng");
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the %s route in the previous finale", (target) => {
     const { story, sections } = play(target, true, previousCompiled);
@@ -81,6 +85,26 @@ describe("Lincheng finale", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-four %s route", (target) => {
     expect(play(target, true, chapterFour).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-five %s route", (target) => {
+    expect(play(target, true, chapterFive).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["haiming-light", "兩種筆跡都留在桌上", "不必先同意你對那晚的解釋"],
+    ["haiming-voice", "索引放回錄音旁", "連停筆的地方一起"],
+    ["haiming-boat", "沒有在空信套上寫好寄出的日期", "再決定今天讀到哪一句"],
+    ["haiming-hero", "那頁原稿與整齊的版本並排", "別替我刪去難看的句子"],
+  ])("carries %s into the cabinet and owner conversation", (previousEnding, cabinet, ownerTalk) => {
+    const { story, texts } = play("lincheng-dawn", true, compiled, { previousEnding });
+    expect(story.frame.endingId).toBe("lincheng-dawn");
+    expect(texts.join(" ")).toContain(cabinet);
+    expect(texts.join(" ")).toContain(ownerTalk);
+  });
+  it("attributes the owner's explanation and Lincheng's question to their speakers", () => {
+    const { texts, speakers } = play("lincheng-dawn", true, compiled, { previousEnding: "haiming-light" });
+    expect(speakers[texts.findIndex((text) => text.startsWith("我只保管妳要求我留住的紙"))]).toBe("店主");
+    expect(speakers[texts.findIndex((text) => text.startsWith("妳問他為何把這當成挑選店員的理由"))]).toBe("旁白");
+    expect(speakers[texts.findIndex((text) => text.startsWith("妳想起海明與顧川共讀時"))]).toBe("林澄");
   });
   it("uses supported tags", () => {
     const source = readFileSync("story/chapters/finale_lincheng.ink", "utf8");

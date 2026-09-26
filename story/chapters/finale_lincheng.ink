@@ -85,7 +85,16 @@ VAR ending_kind = ""
 * {not read_hidden_cabinet} [查看六格信櫃]
     ~ read_hidden_cabinet = true
     靜蘭的校刊夾著若音旋律的四個音。柏言母親留下的舊刊與若音在尾牙演出的節目單疊在一起；食譜卡的郵戳、燈塔照片的月亮又各自接上下一夜。六封信曾從不同的人手中經過。 # speaker:旁白
-    {previous_ending == "haiming-hero":海明被修平的傳記放在第六格。妳沒有把他真正寫下的猶豫也藏進抽屜，讓那頁原稿與整齊的版本並排。 # speaker:旁白}
+    {
+    - previous_ending == "haiming-light":
+        第六格攤著海明與顧川一起讀過的那頁信，旁邊放著顧川補寫過的日誌。信上的塗改沒有被擦掉；妳讓兩種筆跡都留在桌上。 # speaker:旁白
+    - previous_ending == "haiming-voice":
+        第六格放著聲音航海誌的索引。海明重說的那句笑話標了兩次時間，沒有剪成一段流暢的英雄事蹟；妳把索引放回錄音旁，沒有替他的聲音改字。 # speaker:旁白
+    - previous_ending == "haiming-boat":
+        第六格只留著燈塔照片與空信套。紙船由海明和顧川帶到海邊，還有幾句沒說；妳沒有在空信套上寫好寄出的日期。 # speaker:旁白
+    - previous_ending == "haiming-hero":
+        海明被修平的傳記放在第六格。妳沒有把他真正寫下的猶豫也藏進抽屜，讓那頁原稿與整齊的版本並排。 # speaker:旁白
+    }
     -> hidden_hub
 * {not read_hidden_height} [摸摸門框上的身高線]
     ~ read_hidden_height = true
@@ -164,8 +173,18 @@ VAR ending_kind = ""
 === owner_talk ===
 書店保管了妳的信，沒有讓大人的爭吵消失。妳後來長大、上學、交朋友，也會在一些夜裡覺得自己不該難過，因為已經過了很多年。 # scene:lincheng # speaker:旁白 # section:owner-talk
 我只保管妳要求我留住的紙。當時妳說：「先不要讓我想起來。」妳也說，等妳能替別人泡完一杯茶，再問妳一次。 # speaker:店主 # portrait:owner
-妳問他為何把這當成挑選店員的理由。店主沒有拿書店規則擋住問題。
+妳問他為何把這當成挑選店員的理由。店主沒有拿書店規則擋住問題。 # speaker:旁白
 我以為讓妳看見別人的故事會幫妳走到自己的信前。但我不該讓妳以為沒有選擇。對不起。 # speaker:店主 # portrait:owner
+{
+- previous_ending == "haiming-light":
+    妳想起海明與顧川共讀時，兩人仍可以停在不同的句子上。妳告訴店主：「我讀自己的信，也不必先同意你對那晚的解釋。」 # speaker:林澄
+- previous_ending == "haiming-voice":
+    妳記得海明的笑聲被錄下來時，重複的一句也沒被剪掉。妳告訴店主：「我的信也請照原樣交給我，連停筆的地方一起。」 # speaker:林澄
+- previous_ending == "haiming-boat":
+    海明的紙船沒有在那夜拆完。妳把手放在信封上，說：「我可以先拿到它，再決定今天讀到哪一句。」 # speaker:林澄
+- previous_ending == "haiming-hero":
+    妳想到自己曾把海明的猶豫修成好看的傳記，顧川卻仍找不到父親真正要說的話。妳對店主說：「別替我刪去難看的句子。」 # speaker:林澄
+}
 * [讓他把手冊最後一頁交給妳]
     ~ trust += 1
     他把紙放在桌面，不伸手替妳翻。上面寫著：「保管不等於擁有。取回與否，應由寫信的人決定。」 # clue:hidden-page # speaker:旁白

@@ -14,7 +14,7 @@ const chapters = [
 
 describe("previous-night story continuity", () => {
   it.each(chapters)("%s responds to all four preceding endings and saves the selected response", (chapter, endings) => {
-    const version = chapter === "boyan" || chapter === "yuhang" ? 5 : 4;
+    const version = chapter === "boyan" || chapter === "yuhang" || chapter === "lincheng" ? 6 : chapter === "haiming" ? 5 : 4;
     const json = readFileSync(`public/story/compiled/${chapter}-chapter-${version}.json`, "utf8");
     const responses = endings.map((ending) => {
       const story = new StoryBridge(json, ending);

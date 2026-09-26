@@ -33,6 +33,7 @@ export const storyVersionSchema = z.enum([
   "lincheng-chapter-3",
   "lincheng-chapter-4",
   "lincheng-chapter-5",
+  "lincheng-chapter-6",
   "jinglan-chapter-1",
   "jinglan-prototype-1",
 ]);

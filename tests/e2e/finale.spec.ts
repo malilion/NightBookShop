@@ -1,6 +1,31 @@
 import { test, expect, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { StoryBridge } from "../../src/story/storyBridge";
+import { scoreLamp } from "../../src/services/lampScoring";
+import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
+
+function completedHaimingSave(): GameSnapshot {
+  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-5.json", "utf8"));
+  story.next();
+  for (let step = 0; step < 320 && story.frame.mode !== "ending"; step++) {
+    if (story.frame.mode === "tea") story.finishTea({ teaId: "hojicha", quality: 100, emotionalMatch: 100 });
+    else if (story.frame.mode === "lamp") story.finishLamp(scoreLamp({ turns: ["steady", "steady", "steady"] }));
+    else if (story.frame.mode === "letter") story.finishLetter({ completion: 100, understood: true });
+    else if (story.frame.canContinue) story.next();
+    else story.choose(story.frame.choices[0]!.index);
+  }
+  if (story.frame.endingId !== "haiming-light") throw new Error("Haiming fixture did not reach the shared-letter ending");
+  return snapshotSchema.parse({
+    version: 1,
+    storyVersion: "haiming-chapter-5",
+    inkState: story.serialize(),
+    frame: story.frame,
+    tea: newTea(),
+    letter: newLetter(),
+  });
+}
 
 async function advanceUntil(page: Page, target: string, max = 280) {
   for (let step = 0; step < max; step++) {
@@ -40,20 +65,21 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  await page.evaluate(async () => {
+  await page.evaluate(async (chapterSave) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const db = request.result;
-        const tx = db.transaction("collection", "readwrite");
+        const tx = db.transaction(["collection", "saves"], "readwrite");
         for (const id of ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today", "haiming-light"])
           tx.objectStore("collection").put({ id, unlockedAt: new Date().toISOString() });
+        tx.objectStore("saves").put({ id: "chapter-haiming", kind: "chapter", updatedAt: new Date().toISOString(), snapshot: chapterSave });
         tx.oncomplete = () => { db.close(); resolve(); };
         tx.onerror = () => reject(tx.error);
       };
     });
-  });
+  }, completedHaimingSave());
   await page.getByRole("link", { name: "設定" }).click();
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
   await page.getByRole("switch", { name: /減少動態效果/ }).check();
@@ -91,7 +117,10 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await page.screenshot({ path: `output/finale-hidden-room-${info.project.name}.png`, animations: "disabled" });
   await advanceUntil(page, ".memory-evidence-hidden-room");
   await page.screenshot({ path: `output/finale-hidden-room-objects-${info.project.name}.png`, animations: "disabled" });
-  await inspectMemoryObjects(page, "hidden-room", ["六格信櫃", "門框身高線", "停住的時鐘"]);
+  await page.getByRole("button", { name: "探索物件：六格信櫃" }).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="兩種筆跡都留在桌上"]');
+  await page.screenshot({ path: `output/finale-haiming-letter-${info.project.name}.png`, animations: "disabled" });
+  await inspectMemoryObjects(page, "hidden-room", ["門框身高線", "停住的時鐘"]);
   await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
   await page.reload();
   await expect(page.locator(".memory-evidence-hidden-room .memory-object-seen")).toHaveCount(3);
