@@ -76,5 +76,7 @@ export const assets = {
     yenuan: "/images/characters/yenuan.webp",
     yuhang: "/images/characters/yuhang.webp",
     haiming: "/images/characters/haiming.webp",
+    owner: "/images/characters/owner.webp",
+    linchengChild: "/images/characters/lincheng-child.webp",
   },
 } as const;

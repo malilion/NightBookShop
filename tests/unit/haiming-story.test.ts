@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-4.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-5.json", "utf8");
+const chapterFour = readFileSync("public/story/compiled/haiming-chapter-4.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/haiming-chapter-3.json", "utf8");
 const chapterTwo = readFileSync("public/story/compiled/haiming-chapter-2.json", "utf8");
 const previousCompiled = readFileSync("public/story/compiled/haiming-chapter-1.json", "utf8");
@@ -22,11 +23,13 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
   story.next();
   const sections = new Set<string>();
   const texts: string[] = [];
+  const portraits: string[] = [];
   let steps = 0;
   while (story.frame.mode !== "ending") {
     expect(++steps).toBeLessThan(280);
     sections.add(story.frame.section);
     texts.push(story.frame.text);
+    portraits.push(story.frame.portrait);
     if (story.frame.mode === "tea")
       story.finishTea({ teaId: "hojicha", garnish: options.garnish ?? "caramel", quality: 100, emotionalMatch: 100 });
     else if (story.frame.mode === "lamp")
@@ -49,7 +52,7 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
     restored.restore(story.serialize(), frameSchema.parse(story.frame));
     expect(restored.frame).toEqual(story.frame);
   }
-  return { story, sections, texts };
+  return { story, sections, texts, portraits };
 }
 
 describe("Haiming sixth night", () => {
@@ -57,6 +60,12 @@ describe("Haiming sixth night", () => {
     const source = readFileSync("story/chapters/ch06_haiming.ink", "utf8");
     for (const match of source.matchAll(/#\s*([^#\n}]+)/g))
       expect(() => parseTag(match[1]!)).not.toThrow();
+  });
+  it("reveals the child and owner in the coda", () => {
+    const { portraits } = play("haiming-light");
+    expect(portraits).toContain("lincheng-child");
+    expect(portraits).toContain("owner");
+    expect(portraits.indexOf("lincheng-child")).toBeLessThan(portraits.indexOf("owner"));
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("reaches %s and restores each checkpoint", (target) => {
     const { story, sections } = play(target);
@@ -76,6 +85,9 @@ describe("Haiming sixth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-three %s route", (target) => {
     expect(play(target, false, chapterThree).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-four %s route", (target) => {
+    expect(play(target, false, chapterFour).story.frame.endingId).toBe(target);
   });
   it("can leave each memory with four paper-boat fragments and no optional clues", () => {
     const { story } = play("haiming-boat", false, compiled, { skipObjects: true });

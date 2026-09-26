@@ -58,10 +58,14 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
   await page.getByRole("switch", { name: /減少動態效果/ }).check();
   await page.reload();
+  await expect(page.getByRole("heading", { name: "閱讀的步調" })).toBeVisible();
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開終章" }).click();
   await prepareOpening(page);
   await expect(page.locator(".scene-caption small")).toHaveText("終章 · 林澄");
+  await advanceUntil(page, '.character-portrait[data-portrait="owner"]');
+  await expect.poll(() => page.locator('.character-portrait[data-portrait="owner"]').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+  await page.screenshot({ path: `output/finale-owner-${info.project.name}.png`, animations: "disabled" });
   await (await untilChoice(page, "先坐到訪客席")).click();
   await advanceUntil(page, ".tea-board");
   const touch = info.project.name === "mobile";
@@ -93,6 +97,8 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await expect(page.locator(".memory-evidence-hidden-room .memory-object-seen")).toHaveCount(3);
   await page.getByRole("button", { name: "帶著看到的線索回到櫃台" }).click();
   await advanceUntil(page, '.scene-art img[src*="memory-child-home.webp"]');
+  await expect(page.locator('.character-portrait[data-portrait="child"]')).toBeVisible();
+  await expect.poll(() => page.locator('.character-portrait[data-portrait="child"]').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   await expect(page.locator(".scene-art")).toHaveCount(1);
   await expect(page.locator(".scene-art")).toHaveCSS("opacity", "1");
   await expect.poll(() => page.locator('.scene-art img[src*="memory-child-home.webp"]').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);

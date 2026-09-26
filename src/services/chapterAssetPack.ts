@@ -50,6 +50,8 @@ const chapterImages: Record<PlayableChapterId, readonly string[]> = {
   ],
   haiming: [
     assets.characters.haiming,
+    assets.characters.owner,
+    assets.characters.linchengChild,
     assets.memories.lighthouse,
     assets.mobileMemories.lighthouse,
     assets.memories.summerVisit,
@@ -60,6 +62,8 @@ const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.whiteRoom,
   ],
   lincheng: [
+    assets.characters.owner,
+    assets.characters.linchengChild,
     assets.memories.hiddenRoom,
     assets.mobileMemories.hiddenRoom,
     assets.memories.childHome,

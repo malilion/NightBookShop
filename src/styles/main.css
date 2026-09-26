@@ -442,6 +442,10 @@ button:active:not(:disabled),
   pointer-events: none;
   user-select: none;
 }
+.character-portrait-child {
+  height: min(47vh, 430px);
+  right: clamp(9%, 17vw, 22%);
+}
 .memory-evidence {
   position: absolute;
   top: 33%;
@@ -1982,6 +1986,10 @@ button:active:not(:disabled),
     bottom: 190px;
     height: min(45vh, 370px);
     max-width: 65%;
+  }
+  .character-portrait-child {
+    right: 4%;
+    height: min(34vh, 290px);
   }
   .memory-evidence {
     top: 100px;

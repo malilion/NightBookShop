@@ -1,5 +1,11 @@
 # 章節、可拖曳茶席與製茶影片驗證紀錄
 
+## 童年林澄與店主立繪（2026-09-26）
+
+- 以內建 `image_gen` 生成兩張透明角色圖，轉為 1024×1536 WebP：`public/images/characters/lincheng-child.webp`（約 119 KiB）、`owner.webp`（約 121 KiB）。第六夜章末與終章以明確的 Ink `portrait` 標記顯示角色，段落切換時清除標記；兩章的離線素材包包含兩張圖。第六夜店主揭露的稱謂修正為與原稿一致的男性。
+- 新劇本編譯為 `haiming-chapter-5` 與 `lincheng-chapter-5`；`-4` 等舊 JSON 保留，單元測試逐條載入舊路線並驗證存檔還原。`npm run build`（Ink、型別、正式建置、效能預算）、`npm run lint` 與 `npm test` 通過；單元測試共 217 項。正式建置的完整遊戲 JS gzip 約 213.5 KiB，PWA 預快取約 6.41 MiB，低於既定預算。
+- 第六夜與終章完整路線、其餘結局的瀏覽器續玩，以及按章離線素材包均於桌機 1440×900、iPhone 13 Chromium 模擬核對。首輪 40 項中 38 項通過，第六夜一項遇到設定頁導航競態、一項在圖片載入前快速略過角色提示；等待設定頁就緒及新立繪載入後，第六夜與離線素材包重跑 14 項全通過。桌機／手機截圖 `output/{sixth-night-child,sixth-night-owner,finale-owner,finale-child-home}-{desktop,mobile}.png` 已目視檢查，角色可見且對話可讀。這仍是 Chromium 模擬，尚未做實機 Safari／Android 驗收。
+
 ## 終章童年住處與第五夜場景複核（2026-09-26）
 
 - 終章 `child-home` 原先落回共用記憶圖；新增專屬橫向與直向 WebP，接入場景切換與終章離線素材包。兩張遊戲圖分別為 1672×941 與 941×1672，合計約 231 KiB。完整終章桌機／手機 Chromium 流程及終章離線素材包共 4 項通過；場景轉場後再跑完整流程 2 項通過。已目視檢查 `output/finale-child-home-{desktop,mobile}.png`，信、空椅、行李與雨衣符合童年住處敘述，對話可讀。首次桌機截圖在淡入前抓到上一場景，已改為等待舊圖層移除且新圖層不透明後再截圖。

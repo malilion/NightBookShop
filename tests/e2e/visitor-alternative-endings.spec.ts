@@ -23,7 +23,7 @@ const chapters = [
   { version: "boyan-chapter-6", file: "boyan-chapter-6", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
   { version: "ruoyin-chapter-4", file: "ruoyin-chapter-4", tea: "lavender", fragments: ["greeting", "fear", "music"] },
   { version: "yenuan-chapter-4", file: "yenuan-chapter-4", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
-  { version: "haiming-chapter-4", file: "haiming-chapter-4", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
+  { version: "haiming-chapter-5", file: "haiming-chapter-5", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
 ] as const satisfies readonly { version: StoryVersion; file: string; tea: TeaId; fragments: readonly string[] }[];
 const endings = [
   { chapter: 0, id: "recipient", choice: "陪她寫一張詢問收信意願的短箋", title: "遲來的收件人" },

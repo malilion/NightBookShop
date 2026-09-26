@@ -3,6 +3,7 @@ import {
   sectionSchema,
   clueSchema,
   fragmentSchema,
+  portraitCueSchema,
 } from "../types/game";
 export function parseTag(tag: string) {
   const [type, ...parts] = tag.trim().split(":");
@@ -14,6 +15,8 @@ export function parseTag(tag: string) {
     return { type, value: fragmentSchema.parse(value) } as const;
   if (type === "scene")
     return { type, value: sceneSchema.parse(value) } as const;
+  if (type === "portrait")
+    return { type, value: portraitCueSchema.parse(value) } as const;
   if (
     type === "speaker" &&
     [

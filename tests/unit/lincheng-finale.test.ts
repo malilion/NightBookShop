@@ -7,7 +7,8 @@ import { scoreArchive } from "../../src/services/archiveScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-4.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-5.json", "utf8");
+const chapterFour = readFileSync("public/story/compiled/lincheng-chapter-4.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/lincheng-chapter-3.json", "utf8");
 const chapterTwo = readFileSync("public/story/compiled/lincheng-chapter-2.json", "utf8");
 const previousCompiled = readFileSync("public/story/compiled/lincheng-chapter-1.json", "utf8");
@@ -23,11 +24,13 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
   story.next();
   const sections = new Set<string>();
   const texts: string[] = [];
+  const portraits: string[] = [];
   let steps = 0;
   while (story.frame.mode !== "ending") {
     expect(++steps).toBeLessThan(300);
     sections.add(story.frame.section);
     texts.push(story.frame.text);
+    portraits.push(story.frame.portrait);
     if (story.frame.mode === "tea")
       story.finishTea({ teaId: "osmanthus", quality: 90, emotionalMatch: 100 });
     else if (story.frame.mode === "archive")
@@ -49,7 +52,7 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
     restored.restore(story.serialize(), frameSchema.parse(story.frame));
     expect(restored.frame).toEqual(story.frame);
   }
-  return { story, sections, texts };
+  return { story, sections, texts, portraits };
 }
 
 describe("Lincheng finale", () => {
@@ -63,6 +66,7 @@ describe("Lincheng finale", () => {
     expect(chapterForVersion("lincheng-chapter-2")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-3")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-4")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-5")).toBe("lincheng");
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the %s route in the previous finale", (target) => {
     const { story, sections } = play(target, true, previousCompiled);
@@ -75,10 +79,20 @@ describe("Lincheng finale", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-three %s route", (target) => {
     expect(play(target, true, chapterThree).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-four %s route", (target) => {
+    expect(play(target, true, chapterFour).story.frame.endingId).toBe(target);
+  });
   it("uses supported tags", () => {
     const source = readFileSync("story/chapters/finale_lincheng.ink", "utf8");
     for (const match of source.matchAll(/#\s*([^#\n}]+)/g))
       expect(() => parseTag(match[1]!)).not.toThrow();
+  });
+  it("shows owner and child only on their reveal lines", () => {
+    const { portraits } = play("lincheng-dawn");
+    expect(portraits).toContain("owner");
+    expect(portraits).toContain("lincheng-child");
+    expect(portraits.indexOf("owner")).toBeLessThan(portraits.indexOf("lincheng-child"));
+    expect(portraits).toContain("none");
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("reaches %s and restores each checkpoint", (target) => {
     const { story, sections } = play(target);

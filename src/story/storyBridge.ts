@@ -9,6 +9,7 @@ export class StoryBridge {
     fragments: [],
     text: "",
     speaker: "旁白",
+    portrait: "none",
     scene: "counter",
     mode: "dialogue",
     choices: [],
@@ -22,6 +23,7 @@ export class StoryBridge {
   }
   next(): StoryFrame {
     if (this.frame.mode !== "dialogue") return this.frame;
+    this.frame.portrait = "none";
     let text = "";
     while (this.story.canContinue && !text) {
       text = this.story.Continue()?.trim() ?? "";
@@ -40,6 +42,7 @@ export class StoryBridge {
           this.frame.fragments.push(command.value);
         if (command.type === "scene") this.frame.scene = command.value;
         if (command.type === "speaker") this.frame.speaker = command.value;
+        if (command.type === "portrait") this.frame.portrait = command.value;
         if (command.type === "minigame") this.frame.mode = command.value;
         if (command.type === "ending") {
           this.frame.mode = "ending";

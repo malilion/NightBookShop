@@ -36,6 +36,8 @@ test("starting a later chapter makes its unvisited memories available offline", 
 
   const chapterImages = [
     "/images/characters/haiming.webp",
+    "/images/characters/owner.webp",
+    "/images/characters/lincheng-child.webp",
     ...["lighthouse", "summer-visit", "last-watch", "white-room"].flatMap((scene) => [
       `/images/memory-${scene}.webp`,
       `/images/memory-${scene}-mobile.webp`,
@@ -153,6 +155,8 @@ test("finale childhood home loads from the chapter pack offline", async ({ page,
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開終章" }).click();
   await expectImagesCached(page, [
+    "/images/characters/owner.webp",
+    "/images/characters/lincheng-child.webp",
     ...["hidden-room", "child-home", "child-bookshop"].flatMap((scene) => [
       `/images/memory-${scene}.webp`,
       `/images/memory-${scene}-mobile.webp`,

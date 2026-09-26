@@ -4,6 +4,10 @@ import { prepareOpening } from "./opening-helpers";
 
 async function advanceUntil(page: Page, target: string, max = 280) {
   for (let step = 0; step < max; step++) {
+    if (target.startsWith(".character-portrait") && await page.locator(target).count()) {
+      await expect.poll(() => page.locator(target).evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+      return;
+    }
     if (await page.locator(target).isVisible()) return;
     const reveal = page.getByRole("button", { name: "顯示全文" });
     const next = page.getByRole("button", { name: "繼續", exact: true });
@@ -58,6 +62,7 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
   await page.getByRole("switch", { name: /減少動態效果/ }).check();
   await page.reload();
+  await expect(page.getByRole("heading", { name: "閱讀的步調" })).toBeVisible();
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第六夜" }).click();
   await prepareOpening(page);
@@ -134,6 +139,10 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await page.screenshot({ path: `output/sixth-night-letter-${info.project.name}.png`, fullPage: true, animations: "disabled" });
   await page.getByRole("button", { name: "把紙船交還給他" }).click();
   await (await untilChoice(page, "邀請顧川到書店")).click();
+  await advanceUntil(page, '.character-portrait[data-portrait="child"]');
+  await page.screenshot({ path: `output/sixth-night-child-${info.project.name}.png`, animations: "disabled" });
+  await advanceUntil(page, '.character-portrait[data-portrait="owner"]');
+  await page.screenshot({ path: `output/sixth-night-owner-${info.project.name}.png`, animations: "disabled" });
   await advanceUntil(page, ".ending-panel");
   await expect(page.getByRole("heading", { name: "燈仍然在這裡" })).toBeVisible();
   await page.getByRole("button", { name: /守夜手記/ }).click();

@@ -27,10 +27,12 @@ export const storyVersionSchema = z.enum([
   "haiming-chapter-2",
   "haiming-chapter-3",
   "haiming-chapter-4",
+  "haiming-chapter-5",
   "lincheng-chapter-1",
   "lincheng-chapter-2",
   "lincheng-chapter-3",
   "lincheng-chapter-4",
+  "lincheng-chapter-5",
   "jinglan-chapter-1",
   "jinglan-prototype-1",
 ]);
@@ -278,12 +280,14 @@ export const openingSchema = z.object({
   complete: z.boolean(),
 });
 export type OpeningDraft = z.infer<typeof openingSchema>;
+export const portraitCueSchema = z.enum(["none", "owner", "lincheng-child"]);
 export const frameSchema = z.object({
   section: sectionSchema.default("prologue"),
   clues: z.array(clueSchema).default([]),
   fragments: z.array(fragmentSchema).default([]),
   text: z.string(),
   speaker: z.string(),
+  portrait: portraitCueSchema.default("none"),
   scene: sceneSchema,
   mode: modeSchema,
   choices: z.array(
