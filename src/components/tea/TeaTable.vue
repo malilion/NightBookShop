@@ -680,40 +680,6 @@ defineExpose({ hint, cancel });
           <stop offset=".45" stop-color="#ffb347" />
           <stop offset="1" stop-color="#e2562a" />
         </linearGradient>
-        <g id="ing-honey">
-          <path d="M-8-6H8L6 9Q0 12-6 9Z" fill="#c98d3a" stroke="#f1c47c" stroke-width="1.5" />
-          <path d="M-6-9H6" stroke="#f1c47c" stroke-width="2" stroke-linecap="round" />
-        </g>
-        <g id="ing-lemon">
-          <circle r="10" fill="#e7cc67" stroke="#f3dfa1" stroke-width="1.5" />
-          <circle r="7" fill="#fff0a8" />
-          <path d="M0-7V7M-7 0H7M-5-5L5 5M5-5L-5 5" stroke="#e1c45c" stroke-width=".8" />
-        </g>
-        <g id="ing-apple">
-          <circle r="10" fill="#b7783b" stroke="#e7bb78" stroke-width="1.5" />
-          <circle r="5.5" fill="#d8a563" />
-          <circle r="1.5" fill="#8a4c27" />
-        </g>
-        <g id="ing-caramel">
-          <rect x="-8" y="-8" width="16" height="16" rx="3" transform="rotate(-12)" fill="#a46b3a" stroke="#edc47f" stroke-width="1.5" />
-          <path d="M-4-2L3-5M-1 4L6 1" stroke="#edc47f" stroke-width="1.3" stroke-linecap="round" />
-        </g>
-        <g id="ing-ginger">
-          <path d="M-10-2Q-8-9 0-8Q9-9 10 0Q9 8 1 8Q-9 9-10-2Z" fill="#e2c48a" stroke="#b58a44" stroke-width="1.5" />
-          <path d="M-5-2Q0-4 5-1M-4 3Q1 1 5 4" stroke="#c9a15c" stroke-width=".9" fill="none" />
-        </g>
-        <g id="ing-rose">
-          <path d="M0-10Q9-8 8 1Q6 9 0 10Q-6 9-8 1Q-9-8 0-10Z" fill="#c9607a" stroke="#f0a3b4" stroke-width="1.2" />
-          <path d="M-3-3Q0-6 3-3Q2 2 0 3Q-2 2-3-3Z" fill="#a8455e" />
-        </g>
-        <g id="ing-milk">
-          <path d="M-6-8H6L7 7Q0 11-7 7Z" fill="#efe6d2" stroke="#fffaf0" stroke-width="1.5" />
-          <path d="M6-4Q11-3 9 3" fill="none" stroke="#fffaf0" stroke-width="1.5" />
-        </g>
-        <g id="ing-cinnamon">
-          <rect x="-11" y="-3.5" width="22" height="7" rx="3.5" transform="rotate(-25)" fill="#8a5232" stroke="#c98a5c" stroke-width="1.2" />
-          <path d="M-8 1L8-6" transform="translate(0 2)" stroke="#5e3420" stroke-width="1" />
-        </g>
       </defs>
       <rect width="100%" height="100%" fill="#152229" />
       <path
@@ -971,7 +937,7 @@ defineExpose({ hint, cancel });
         <g v-if="potIngredients.length" transform="translate(40 -82)" pointer-events="none" aria-hidden="true" class="ingredient-markers">
           <g v-for="(item, i) in potIngredients" :key="`${item.id}-${item.count}`" :transform="`translate(${i * 30} 0)`">
             <g class="ingredient-drop">
-              <use :href="`#ing-${item.id}`" />
+              <image :href="`/images/tea-ingredients/${item.id}.webp`" x="-14" y="-14" width="28" height="28" />
               <text v-if="item.count > 1" x="9" y="16" class="ingredient-count">×{{ item.count }}</text>
             </g>
           </g>
@@ -1016,7 +982,7 @@ defineExpose({ hint, cancel });
         <g v-if="cupIngredients.length" transform="translate(-30 -52)" pointer-events="none" aria-hidden="true" class="ingredient-markers">
           <g v-for="(item, i) in cupIngredients" :key="`${item.id}-${item.count}`" :transform="`translate(${i * 28} 0)`">
             <g class="ingredient-drop">
-              <use :href="`#ing-${item.id}`" />
+              <image :href="`/images/tea-ingredients/${item.id}.webp`" x="-14" y="-14" width="28" height="28" />
               <text v-if="item.count > 1" x="9" y="16" class="ingredient-count">×{{ item.count }}</text>
             </g>
           </g>

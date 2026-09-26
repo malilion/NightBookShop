@@ -90,6 +90,7 @@
 - `components/tea/TeaBrewingScene.vue`：故事側欄與完成影片，行為不變；遞茶後以延遲載入把這杯記進茶譜。
 - `tea.html`、`src/tea.ts`、`src/TeaApp.vue`：獨立頁的入口與外殼（閱讀偏好、聲音、Service Worker）。`vite.config.ts` 以兩個入口建置；故事引擎只在書店主入口。獨立頁左上角是聲音開關，大廳附一行通往故事的連結。
 - `views/TeaHouseView.vue`：大廳、營業與打烊；`standalone` 決定顯示「回到門前」或聲音開關。`BrewCompletion`（完成度）、`StovePanel`（爐火與水溫）、`IngredientTray`（配料盤）、`TeaOrderTicket`、`FlavorRadar`、`TeaServeResult`、`TeaNightSummary`、`TeaRecipeBook` 各自負責一塊畫面。
+- `public/images/tea-ingredients/`：八種配料各有一張 256×256 透明 WebP；配料盤和壺／杯上的標記共用，並隨茶屋離線預快取。
 - `services/teaInteraction.ts`：`heatTick`（火力升溫、接近沸點變慢、離火降溫、計算水滾時間）、`boilStage`、注水時的溫度與水齡混合。
 - `stores/teaHouseStore.ts`：唯一的茶席進度；常客名單直接讀本機故事收藏，不依賴故事 store。進度存在 Dexie `preferences` 的 `tea-house` 列，以 Zod 驗證（`types/teaHouse.ts`）。讀不懂的舊資料先另存成 `tea-house-unreadable-時間戳` 再重新開始，不覆寫。
 - `types/game.ts` 的茶 draft 新增 `ingredients`、`kettleTemp`、`fire`、`kettleOverBoil`、`overBoil`，都有預設值，舊存檔可直接讀入。

@@ -42,6 +42,7 @@ export default defineConfig({
           "story/compiled/main.json",
           "audio/*.{ogg,mp3}",
           "images/tea-props/*.webp",
+          "images/tea-ingredients/*.webp",
           "images/rain-street.webp",
           "images/counter.webp",
           "images/jinglan-room*.webp",

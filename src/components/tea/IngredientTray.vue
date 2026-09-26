@@ -46,7 +46,7 @@ const cards = computed(() =>
     </header>
     <ul>
       <li v-for="card in cards" :key="card.id" :class="{ used: card.inPot + card.inCup > 0 }" :data-ingredient="card.id">
-        <svg viewBox="-14 -14 28 28" aria-hidden="true"><use :href="`#ing-${card.id}`" /></svg>
+        <img :src="`/images/tea-ingredients/${card.id}.webp`" alt="" width="44" height="44" decoding="async" />
         <div class="ingredient-info">
           <strong>{{ card.spec.name }}</strong>
           <small>{{ card.effects }} · 宜{{ card.spec.best === "pot" ? "壺中" : "杯中" }}</small>
@@ -119,7 +119,7 @@ const cards = computed(() =>
 }
 .ingredient-tray li {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
   padding: 8px;
@@ -130,9 +130,11 @@ const cards = computed(() =>
   border-color: #e7bb78;
   background: #b7783b1f;
 }
-.ingredient-tray svg {
-  width: 28px;
-  height: 28px;
+.ingredient-tray img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px #0008);
 }
 .ingredient-info {
   display: grid;
