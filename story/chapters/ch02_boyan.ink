@@ -76,7 +76,7 @@ VAR asked_first_reader = false
 - tea_type == "chamomile" && tea_garnish == "honey":
     ~ trust += 2
     ~ understanding += 1
-    他看著蜂蜜在洋甘菊裡化開，終於把手機推遠一點。「我一直以為胸悶只是咖啡喝太多。」妳沒有替他判斷原因，只問上週昏倒後是否回診。 # scene:boyan # speaker:許柏言 # section:listening
+    他看著蜂蜜在洋甘菊裡化開，終於把手機推遠一點。「我一直以為胸悶只是咖啡喝太多。」妳沒有替他判斷原因，只問上週昏倒後是否回診。 # scene:boyan # speaker:許柏言 # portrait:boyan-soft # section:listening
     「還沒。」他捧著杯子想了一會兒，「我可以先約門診，再決定明天的報告怎麼辦。」 # speaker:許柏言
 - tea_type == "chamomile":
     ~ trust += 2
@@ -86,7 +86,7 @@ VAR asked_first_reader = false
 - tea_type == "mint":
     薄荷的涼意讓柏言暫時不盯著通知。他說能分清哪件事要現在做，卻仍坐得筆直，手指搭在電腦邊上。 # scene:boyan # speaker:旁白 # section:listening
 - else:
-    他握著杯子，指尖慢慢暖起來。「謝謝。我剛才一直在數未讀訊息。」 # scene:boyan # speaker:許柏言 # section:listening
+    他握著杯子，指尖慢慢暖起來。「謝謝。我剛才一直在數未讀訊息。」 # scene:boyan # speaker:許柏言 # portrait:boyan-soft # section:listening
 }
 {
 - tea_type == "black":

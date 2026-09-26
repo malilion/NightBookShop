@@ -8,6 +8,9 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
   // The first night is installed with the app shell by Workbox.
   jinglan: [],
   boyan: [
+    assets.scenes.boyan,
+    assets.mobileScenes.boyan,
+    assets.characters.boyanSoft,
     bookmarkArt["boyan-rest"],
     bookmarkArt["boyan-leave"],
     bookmarkArt["boyan-boundary"],
@@ -21,6 +24,9 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.train,
   ],
   ruoyin: [
+    assets.scenes.ruoyin,
+    assets.mobileScenes.ruoyin,
+    assets.characters.ruoyinReflective,
     bookmarkArt["ruoyin-one"],
     bookmarkArt["ruoyin-stage"],
     bookmarkArt["ruoyin-score"],
@@ -36,6 +42,9 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.grandstage,
   ],
   yenuan: [
+    assets.scenes.yenuan,
+    assets.mobileScenes.yenuan,
+    assets.characters.yenuanThoughtful,
     bookmarkArt["yenuan-share"],
     bookmarkArt["yenuan-reopen"],
     bookmarkArt["yenuan-rest"],
@@ -51,6 +60,9 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.oldOven,
   ],
   yuhang: [
+    assets.scenes.yuhang,
+    assets.mobileScenes.yuhang,
+    assets.characters.yuhangHopeful,
     bookmarkArt["yuhang-today"],
     bookmarkArt["yuhang-future"],
     bookmarkArt["yuhang-past"],
@@ -66,6 +78,8 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.bookshopDoor,
   ],
   haiming: [
+    assets.scenes.haiming,
+    assets.mobileScenes.haiming,
     bookmarkArt["haiming-light"],
     bookmarkArt["haiming-voice"],
     bookmarkArt["haiming-boat"],
@@ -86,6 +100,9 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.whiteRoom,
   ],
   lincheng: [
+    assets.scenes.lincheng,
+    assets.mobileScenes.lincheng,
+    assets.characters.ownerApology,
     bookmarkArt["lincheng-dawn"],
     bookmarkArt["lincheng-keeper"],
     bookmarkArt["lincheng-shelf"],

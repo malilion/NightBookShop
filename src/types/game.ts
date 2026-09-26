@@ -374,7 +374,18 @@ export const openingSchema = z.object({
   complete: z.boolean(),
 });
 export type OpeningDraft = z.infer<typeof openingSchema>;
-export const portraitCueSchema = z.enum(["none", "owner", "lincheng-child", "haiming-searching", "haiming-warm"]);
+export const portraitCueSchema = z.enum([
+  "none",
+  "owner",
+  "owner-apology",
+  "lincheng-child",
+  "boyan-soft",
+  "ruoyin-reflective",
+  "yenuan-thoughtful",
+  "yuhang-hopeful",
+  "haiming-searching",
+  "haiming-warm",
+]);
 export const resonanceChapterSchema = z.enum(["jinglan", "boyan", "ruoyin", "yenuan", "yuhang", "haiming"]);
 export type ResonanceChapterId = z.infer<typeof resonanceChapterSchema>;
 export const frameSchema = z.object({

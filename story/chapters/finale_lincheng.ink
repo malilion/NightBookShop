@@ -239,7 +239,7 @@ VAR ending_kind = ""
 書店保管了妳的信，沒有讓大人的爭吵消失。妳後來長大、上學、交朋友，也會在一些夜裡覺得自己不該難過，因為已經過了很多年。 # scene:lincheng # speaker:旁白 # section:owner-talk
 我只保管妳要求我留住的紙。當時妳說：「先不要讓我想起來。」妳也說，等妳能替別人泡完一杯茶，再問妳一次。 # speaker:店主 # portrait:owner
 妳問他為何把這當成挑選店員的理由。店主沒有拿書店規則擋住問題。 # speaker:旁白
-我以為讓妳看見別人的故事會幫妳走到自己的信前。但我不該讓妳以為沒有選擇。對不起。 # speaker:店主 # portrait:owner
+我以為讓妳看見別人的故事會幫妳走到自己的信前。但我不該讓妳以為沒有選擇。對不起。 # speaker:店主 # portrait:owner-apology
 {demanded_exit_answer:妳沒有立刻接受道歉，只請他把「保管信」與「讓門在黎明前打不開」分開記進手冊。店主照做，沒有把理由寫成妳同意過的事。 # speaker:旁白}
 {
 - previous_ending == "haiming-light":

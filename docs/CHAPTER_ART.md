@@ -22,7 +22,7 @@
 | 海明 · 暴風燈塔 | `memory-lighthouse.webp`／`memory-lighthouse-mobile.webp` | 暴風雨中的舊石造燈塔燈室、琥珀色燈光、深藍色海面、航海日誌、紙船與舊照片；溫柔而克制的手繪電影背景，無人物、可讀文字或介面，下方留對話安全區。 |
 | 海明 · 夏日探視 | `memory-summer-visit.webp`／`memory-summer-visit-mobile.webp` | 延續暴風燈塔的石造與銅燈語彙，改為安靜夏日塔頂；小顧川未放起的紙風箏與午餐袋留在矮牆，海面與漁村在遠處，沒有角色、可讀文字或介面，下方留對話安全區。 |
 | 海明 · 最後一次值班 | `memory-last-watch.webp`／`memory-last-watch-mobile.webp` | 同一座燈塔在颱風前的值班室；婚禮信封、風暴圖、航海日誌與一張空椅子分別指向責任和未到場的家人。延續舊石、銅燈與深藍海面，無人物或可讀文字。 |
-| 海明 · 沒有海的白色房間 | `memory-white-room.webp`／`memory-white-room-mobile.webp` | 海明想像中的一般城市房間；窗外只有雨中的屋頂與樹，桌上是未點亮的壞煤油燈、姓名卡與日誌。保留生活痕跡，不使用醫院、恐怖或魔法治癒符號。 |
+| 海明 · 沒有海的白色房間 | `memory-white-room-v2.webp`／`memory-white-room-v2-mobile.webp` | 海明想像中的一般城市房間；窗外只有雨中的屋頂與樹，桌上是未點亮的壞煤油燈、姓名卡與日誌。保留生活痕跡，不使用醫院、恐怖或魔法治癒符號。 |
 | 林澄 · 書架後的收藏室 | `memory-hidden-room.webp`／`memory-hidden-room-mobile.webp` | 夜行書店活動書架後的窄收藏室、六封信、月亮銅飾、兒童身高線、停在午夜的鐘與窗外晨光；舊紙、深藍與暖金色，無人物、可讀文字或介面，下方留對話安全區。 |
 | 林澄 · 童年住處 | `memory-child-home.webp`／`memory-child-home-mobile.webp` | 孩子的低視角看臺北雨夜住處：餐桌上未寄出的信、空椅子，門邊的行李箱與黃色兒童雨衣；藍色雨窗配暖燈，留出對話安全區。 |
 | 林澄 · 童年書店櫃台 | `memory-child-bookshop.webp`／`memory-child-bookshop-mobile.webp` | 孩子的低視角看高木櫃台、未交出的信、墨水、熟睡黑貓、月亮刻痕與雨夜街燈；深藍和暖金的手繪電影感，無人物、可讀文字或介面，下方留對話安全區。橫直圖分別生成。 |
@@ -43,3 +43,20 @@
 | 店主 | `owner.webp` | 年近六十的臺灣男性、深色針織外衣與棕色圍裙，手持書店手冊；表情沉靜，不以反派形象呈現。 |
 
 第一夜書店對話另以原場景為參考，生成去除舊人物與非中文文字的橫向、直向背景 `public/images/jinglan-room.webp` 和 `public/images/jinglan-room-mobile.webp`；保留林澄、雨窗、書架與空訪客席，在右側疊加靜蘭立繪。章節選單的六張訪客縮圖也由各自背景與立繪組合。七章目前列出的 25 段記憶皆有專屬橫直背景；對應瀏覽器截圖與驗證範圍見 [驗證紀錄](VERIFICATION.md)。
+
+柏言、若音、葉暖、雨航與店主另有各一張情緒立繪，分別在坦承就醫、放下琴弓、想起第一顆麵包、拆開第一箱書、以及店主道歉時切換；海明已有搜尋與暖笑兩張。信紙拼圖碎片使用 CSS 紙纖維、舊紙色和撕邊紋理。製茶的「投茶」狀態使用 `tea-props/pot-leaves.webp`，壺口可見焙烏龍散茶；另八種茶罐與配料圖示保持既有素材。
+
+## 訪客席主場景
+
+六位後續訪客各有獨立書店主場景，桌機輸出 1672×941、手機輸出 941×1672；畫面保持無人物、無介面，並預留立繪與對話區。依章節線索安排筆電與腕錶、小提琴與票根、蘋果麵包、郵袋與信封、航海誌與紙船、月亮徽章與六張書籤。場景由 `src/data/assets.ts` 對照，後續章節包會把橫直兩張都快取。
+
+| 訪客 | 桌機／手機檔案 |
+| --- | --- |
+| 柏言 | `bookshop-boyan.webp`／`bookshop-boyan-mobile.webp` |
+| 若音 | `bookshop-ruoyin.webp`／`bookshop-ruoyin-mobile.webp` |
+| 葉暖 | `bookshop-yenuan.webp`／`bookshop-yenuan-mobile.webp` |
+| 雨航 | `bookshop-yuhang.webp`／`bookshop-yuhang-mobile.webp` |
+| 海明 | `bookshop-haiming.webp`／`bookshop-haiming-mobile.webp` |
+| 林澄 | `bookshop-lincheng.webp`／`bookshop-lincheng-mobile.webp` |
+
+角色情緒立繪也已接入劇情 cue：柏言 `boyan-soft.webp`、若音 `ruoyin-reflective.webp`、葉暖 `yenuan-thoughtful.webp`、雨航 `yuhang-hopeful.webp`、店主 `owner-apology.webp`。海明保留既有 `haiming-searching.webp` 與 `haiming-warm.webp`。這些檔案會跟隨對應章節快取，舊存檔的 cue 仍以預設值相容。

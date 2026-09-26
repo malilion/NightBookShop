@@ -81,7 +81,7 @@ VAR ending_kind = ""
 - tea_type == "black":
     她喝了一口紅茶，開始列出新的練習計畫。妳沒有跟著填日期，先問她手現在有沒有痛。 # scene:ruoyin # speaker:旁白 # section:listening
 - else:
-    她慢慢握住杯子。琴弓還在桌上，暫時不需要立刻拿起來。 # scene:ruoyin # speaker:旁白 # section:listening
+    她慢慢握住杯子。琴弓還在桌上，暫時不需要立刻拿起來。 # scene:ruoyin # speaker:旁白 # portrait:ruoyin-reflective # section:listening
 }
 {
 - tea_quality >= 90:

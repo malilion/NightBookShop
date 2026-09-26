@@ -366,7 +366,7 @@ VAR ending_kind = ""
 這次他把日期寫在派送簿的今日欄，而不是又翻到「明年」。信可以晚一點抵達；下個月那箱書則要由他親手打開。
 -> future_afterword
 === future_afterword ===
-書籤後記：下個月他果然打開了第一箱書。店還沒開，他把新的日期寄回書店，請黑貓替他壓在手冊裡。 # scene:counter # speaker:旁白 # section:afterword
+書籤後記：下個月他果然打開了第一箱書。店還沒開，他把新的日期寄回書店，請黑貓替他壓在手冊裡。 # scene:yuhang # speaker:旁白 # portrait:yuhang-hopeful # section:afterword
 有些路還遠；至少這一次，他能指出自己已經走到哪裡。
 ~ ending_kind = "future"
 -> chapter_coda

@@ -138,7 +138,7 @@ VAR ending_kind = ""
 * {not read_dawn_bread} [請葉暖說說第一顆麵包最後如何]
     ~ read_dawn_bread = true
     ~ understanding += 1
-    她笑了。「烤好更歪。媽媽說兩顆擺在一起，客人一眼就看得出是我們做的。」她終於拿起桌上一小片麵包。 # speaker:葉暖
+    她笑了。「烤好更歪。媽媽說兩顆擺在一起，客人一眼就看得出是我們做的。」她終於拿起桌上一小片麵包。 # speaker:葉暖 # portrait:yenuan-thoughtful
     母親把形狀最不圓的一顆放在門口，第一位進來的客人偏偏選了它。小葉暖跟著笑，笑到麵粉沾上鼻尖。 # speaker:旁白
     -> dawn_hub
 * {not read_dawn_postmark} [翻看食譜卡背面的代送郵戳]

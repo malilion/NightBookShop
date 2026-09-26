@@ -5,6 +5,7 @@ import { useGameStore } from "../stores/gameStore";
 import { sections, clues } from "../data/notebook";
 import { memoryEvidence, memorySection, supportsMemoryEvidence } from "../data/memoryEvidence";
 import { assets } from "../data/assets";
+import { bookmarkArt } from "../data/bookmarkArt";
 import {
   endings,
   chapters,
@@ -46,6 +47,7 @@ async function nextNight() {
 const background = computed(() => {
   const frame = game.frame;
   if (!frame || !game.opening.complete || frame.mode === "tea") return assets.scenes.counter;
+  if (frame.mode === "ending") return assets.scenes[game.chapterId];
   if (frame.scene === "memory") {
     if (frame.section === "school") return assets.memories.school;
     if (frame.section === "hospital") return assets.memories.hospital;
@@ -78,7 +80,9 @@ const background = computed(() => {
 const mobileBackground = computed(() => {
   const frame = game.frame;
   if (!game.opening.complete) return assets.scenes.counter;
-  if (frame?.mode === "dialogue" && frame.scene === "jinglan") return assets.mobileScenes.jinglan;
+  if (frame?.mode === "ending") return assets.mobileScenes[game.chapterId];
+  if (frame?.mode === "dialogue" && frame.scene in assets.mobileScenes)
+    return assets.mobileScenes[frame.scene as keyof typeof assets.mobileScenes];
   if (frame?.scene === "memory") {
     if (frame.section === "school") return assets.mobileMemories.school;
     if (frame.section === "hospital") return assets.mobileMemories.hospital;
@@ -114,8 +118,13 @@ const ending = computed(() =>
 const portrait = computed(() => {
   const frame = game.frame;
   if (frame?.mode !== "dialogue") return null;
+  if (frame.portrait === "owner-apology") return { src: assets.characters.ownerApology, kind: "owner" };
   if (frame.portrait === "owner") return { src: assets.characters.owner, kind: "owner" };
   if (frame.portrait === "lincheng-child") return { src: assets.characters.linchengChild, kind: "child" };
+  if (frame.portrait === "boyan-soft") return { src: assets.characters.boyanSoft, kind: "visitor" };
+  if (frame.portrait === "ruoyin-reflective") return { src: assets.characters.ruoyinReflective, kind: "visitor" };
+  if (frame.portrait === "yenuan-thoughtful") return { src: assets.characters.yenuanThoughtful, kind: "visitor" };
+  if (frame.portrait === "yuhang-hopeful") return { src: assets.characters.yuhangHopeful, kind: "visitor" };
   if (frame.portrait === "haiming-searching") return { src: assets.characters.haimingSearching, kind: "visitor" };
   if (frame.portrait === "haiming-warm") return { src: assets.characters.haimingWarm, kind: "visitor" };
   return frame.scene in assets.characters
@@ -248,7 +257,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
               : nightLabel
           }}</small>
         </div>
-        <img v-if="portrait" :src="portrait.src" class="character-portrait" :class="{ 'character-portrait-child': portrait.kind === 'child' }" :data-portrait="portrait.kind" :data-expression="game.frame.portrait === 'haiming-searching' ? 'searching' : game.frame.portrait === 'haiming-warm' ? 'warm' : undefined" alt="" aria-hidden="true" />
+        <img v-if="portrait" :key="portrait.src" :src="portrait.src" class="character-portrait" :class="{ 'character-portrait-child': portrait.kind === 'child' }" :data-portrait="portrait.kind" :data-expression="game.frame.portrait === 'haiming-searching' ? 'searching' : game.frame.portrait === 'haiming-warm' ? 'warm' : undefined" alt="" aria-hidden="true" />
         <div
           v-if="showMemoryObjects && memoryHub"
           class="memory-evidence"
@@ -289,23 +298,30 @@ onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
       /><HearthScene v-else-if="game.frame.mode === 'hearth'" /><DeliveryRoute v-else-if="game.frame.mode === 'route'" /><WatchLamp v-else-if="game.frame.mode === 'lamp'" /><ArchiveMap v-else-if="game.frame.mode === 'archive'" /><LetterPuzzle v-else-if="game.frame.mode === 'letter'" />
       <QuietCarriage v-else-if="game.frame.mode === 'notifications'" />
       <section v-else-if="ending" class="ending-panel paper-frame">
-        <GameIcon name="bookmark" :size="36" />
-        <p class="subtle">{{ nightLabel }} · 故事已收進書頁</p>
-        <h1>{{ ending.title }}</h1>
-        <p class="ending-quote">「{{ ending.quote }}」</p>
-        <p>{{ game.frame.text }}</p>
-        <div class="ending-bookmark" :class="{ 'ending-bookmark-golden': game.frame.resonanceFragment === game.chapterId }">
-          <GameIcon name="leaf" /><span
-            >{{ game.frame.resonanceFragment === game.chapterId ? '獲得金色書籤 · 共鳴之茶' : '獲得書籤' }}<br /><strong>{{ ending.bookmark }}</strong></span
-          >
-        </div>
-        <div class="button-row">
-          <button v-if="nextChapter" class="ornate-button" @click="nextNight">
-            翻開{{ nightName(nextChapter) }}<GameIcon name="arrow" />
-          </button>
-          <RouterLink class="ornate-button" to="/collection"
-            >翻開故事收藏<GameIcon name="arrow" /></RouterLink
-          ><RouterLink class="quiet-button" to="/">回到門前</RouterLink>
+        <img
+          class="ending-illustration"
+          :src="bookmarkArt[game.frame.endingId as keyof typeof bookmarkArt]"
+          :alt="`${ending.bookmark}結局插畫`"
+        />
+        <div class="ending-copy">
+          <GameIcon name="bookmark" :size="36" />
+          <p class="subtle">{{ nightLabel }} · 故事已收進書頁</p>
+          <h1>{{ ending.title }}</h1>
+          <p class="ending-quote">「{{ ending.quote }}」</p>
+          <p>{{ game.frame.text }}</p>
+          <div class="ending-bookmark" :class="{ 'ending-bookmark-golden': game.frame.resonanceFragment === game.chapterId }">
+            <GameIcon name="leaf" /><span
+              >{{ game.frame.resonanceFragment === game.chapterId ? '獲得金色書籤 · 共鳴之茶' : '獲得書籤' }}<br /><strong>{{ ending.bookmark }}</strong></span
+            >
+          </div>
+          <div class="button-row">
+            <button v-if="nextChapter" class="ornate-button" @click="nextNight">
+              翻開{{ nightName(nextChapter) }}<GameIcon name="arrow" />
+            </button>
+            <RouterLink class="ornate-button" to="/collection"
+              >翻開故事收藏<GameIcon name="arrow" /></RouterLink
+            ><RouterLink class="quiet-button" to="/">回到門前</RouterLink>
+          </div>
         </div>
       </section>
     </div>
