@@ -7,7 +7,7 @@ import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
 function completedHaimingSave(): GameSnapshot {
-  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-8.json", "utf8"));
+  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-9.json", "utf8"));
   story.next();
   for (let step = 0; step < 320 && story.frame.mode !== "ending"; step++) {
     if (story.frame.mode === "tea") story.finishTea({ teaId: "hojicha", quality: 100, emotionalMatch: 100 });
@@ -19,7 +19,7 @@ function completedHaimingSave(): GameSnapshot {
   if (story.frame.endingId !== "haiming-light") throw new Error("Haiming fixture did not reach the shared-letter ending");
   return snapshotSchema.parse({
     version: 1,
-    storyVersion: "haiming-chapter-8",
+    storyVersion: "haiming-chapter-9",
     inkState: story.serialize(),
     frame: story.frame,
     tea: newTea(),

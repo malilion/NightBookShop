@@ -88,7 +88,7 @@ VAR ending_kind = ""
     她聞了聞茶，不急著回答。書店裡的爐火還亮著，足夠陪她坐一會。 # scene:yenuan # speaker:旁白 # section:hearth
 }
 {
-- tea_quality >= 90 && tea_emotional_match >= 90:
+- tea_quality >= 90:
     ~ understanding += 1
     葉暖想起開店前的一個下午，母親在烤箱旁擺了兩只不同的杯子，只說：「這杯是妳的，不必等客人都走了才喝。」當時她把茶喝完，麵包仍在慢慢發酵。 # clue:two-cups-break # speaker:葉暖
 - tea_quality >= 70:

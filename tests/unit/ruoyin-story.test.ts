@@ -7,7 +7,7 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-6.json",
+  "public/story/compiled/ruoyin-chapter-7.json",
   "utf8",
 );
 const chapterFive = readFileSync("public/story/compiled/ruoyin-chapter-5.json", "utf8");

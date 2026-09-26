@@ -86,7 +86,7 @@ VAR read_train_map = false
     他握著杯子，指尖慢慢暖起來。「謝謝。我剛才一直在數未讀訊息。」 # scene:boyan # speaker:許柏言 # section:listening
 }
 {
-- tea_quality >= 90 && tea_emotional_match >= 90:
+- tea_quality >= 90:
     ~ understanding += 1
     手機又亮了，柏言這次沒去看。他想起入職第一年，下班後常去河堤的二手書攤；那時他替團隊排好工作，也記得最後一項是回家。「我原來不是一直這樣趕。」他說。 # clue:river-bookstall # speaker:許柏言
 - tea_quality >= 70:

@@ -6,7 +6,7 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-8.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/boyan-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/boyan-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/boyan-chapter-5.json", "utf8");

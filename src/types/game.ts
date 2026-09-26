@@ -1,7 +1,8 @@
 import { z } from "zod";
-export const STORY_VERSION = "jinglan-chapter-3";
+export const STORY_VERSION = "jinglan-chapter-4";
 export const storyVersionSchema = z.enum([
   STORY_VERSION,
+  "jinglan-chapter-3",
   "jinglan-chapter-2",
   "boyan-chapter-1",
   "boyan-chapter-2",
@@ -11,18 +12,21 @@ export const storyVersionSchema = z.enum([
   "boyan-chapter-6",
   "boyan-chapter-7",
   "boyan-chapter-8",
+  "boyan-chapter-9",
   "ruoyin-chapter-1",
   "ruoyin-chapter-2",
   "ruoyin-chapter-3",
   "ruoyin-chapter-4",
   "ruoyin-chapter-5",
   "ruoyin-chapter-6",
+  "ruoyin-chapter-7",
   "yenuan-chapter-1",
   "yenuan-chapter-2",
   "yenuan-chapter-3",
   "yenuan-chapter-4",
   "yenuan-chapter-5",
   "yenuan-chapter-6",
+  "yenuan-chapter-7",
   "yuhang-chapter-1",
   "yuhang-chapter-2",
   "yuhang-chapter-3",
@@ -30,6 +34,7 @@ export const storyVersionSchema = z.enum([
   "yuhang-chapter-5",
   "yuhang-chapter-6",
   "yuhang-chapter-7",
+  "yuhang-chapter-8",
   "haiming-chapter-1",
   "haiming-chapter-2",
   "haiming-chapter-3",
@@ -38,6 +43,7 @@ export const storyVersionSchema = z.enum([
   "haiming-chapter-6",
   "haiming-chapter-7",
   "haiming-chapter-8",
+  "haiming-chapter-9",
   "lincheng-chapter-1",
   "lincheng-chapter-2",
   "lincheng-chapter-3",
@@ -258,6 +264,7 @@ export type TeaDraft = z.infer<typeof teaSchema>;
 export const letterSchema = z.object({
   slots: z.array(z.string().nullable()).min(3).max(4),
   inspected: z.boolean(),
+  resonanceInspected: z.boolean().default(false),
   alternate: z.boolean(),
   angles: z
     .array(z.number().int().min(0).max(3))
@@ -306,10 +313,13 @@ export const openingSchema = z.object({
 });
 export type OpeningDraft = z.infer<typeof openingSchema>;
 export const portraitCueSchema = z.enum(["none", "owner", "lincheng-child"]);
+export const resonanceChapterSchema = z.enum(["jinglan", "boyan", "ruoyin", "yenuan", "yuhang", "haiming"]);
+export type ResonanceChapterId = z.infer<typeof resonanceChapterSchema>;
 export const frameSchema = z.object({
   section: sectionSchema.default("prologue"),
   clues: z.array(clueSchema).default([]),
   fragments: z.array(fragmentSchema).default([]),
+  resonanceFragment: resonanceChapterSchema.nullable().default(null),
   text: z.string(),
   speaker: z.string(),
   portrait: portraitCueSchema.default("none"),
@@ -401,6 +411,7 @@ export const newTea = (): TeaDraft => ({
 export const newLetter = (): LetterDraft => ({
   slots: [null, null, null],
   inspected: false,
+  resonanceInspected: false,
   alternate: false,
   angles: [0, 0, 0],
   flipped: [false, false, false],

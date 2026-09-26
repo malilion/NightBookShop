@@ -27,7 +27,7 @@
 - `teaScoring.ts`：原有五項計分、有上限的灑水代價，以及葉暖蘋果焙茶、雨航薄荷檸檬紅茶、海明海鹽焦糖焙茶的專屬情緒契合分數。
 - `catalog.ts`：八種茶的資料；新增茶由資料驅動畫面。
 
-每次放下、暫停與操作中的每秒保存 draft。舊 draft 的新增欄位使用 schema 預設值；第一夜目前 Ink 版本為 `jinglan-chapter-3`，保留 `jinglan-chapter-1.json`、`jinglan-chapter-2.json` 及原型故事，舊位置只套回各自的原編譯檔。
+每次放下、暫停與操作中的每秒保存 draft。舊 draft 的新增欄位使用 schema 預設值；第一夜目前 Ink 版本為 `jinglan-chapter-4`，保留 `jinglan-chapter-1.json`、`jinglan-chapter-2.json`、`jinglan-chapter-3.json` 及原型故事，舊位置只套回各自的原編譯檔。
 
 ## 邊界
 

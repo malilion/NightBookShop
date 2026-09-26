@@ -11,6 +11,7 @@ import {
   linchengLetterPieces,
 } from "../../data/catalog";
 import { audio } from "../../audio/audioManager";
+import { resonanceFragments } from "../../data/resonanceFragments";
 import GameIcon from "../common/GameIcon.vue";
 
 const game = useGameStore();
@@ -36,6 +37,7 @@ const isYuhang = computed(() => game.chapterId === "yuhang");
 const isHaiming = computed(() => game.chapterId === "haiming");
 const isLincheng = computed(() => game.chapterId === "lincheng");
 const hasTwoSides = computed(() => isRuoyin.value || isYenuan.value);
+const resonanceFragment = computed(() => game.frame?.resonanceFragment ? resonanceFragments[game.frame.resonanceFragment] : null);
 const activeSlots = computed(() =>
   hasTwoSides.value && game.letter.activeSide === "back"
     ? game.letter.reverseSlots
@@ -357,6 +359,19 @@ function cancelDrag() {
         }}</span>
       </div>
       <div class="letter-fragments">
+        <div v-if="resonanceFragment" class="resonance-fragment">
+          <p class="resonance-fragment-label">共鳴之茶 · 特殊信件碎片</p>
+          <button
+            type="button"
+            class="resonance-fragment-button"
+            :aria-expanded="game.letter.resonanceInspected"
+            @click="game.updateLetter({ resonanceInspected: !game.letter.resonanceInspected })"
+          >
+            <GameIcon name="letter" :size="21" />
+            {{ game.letter.resonanceInspected ? '摺起' : '展開' }}{{ resonanceFragment.title }}
+          </button>
+          <p v-if="game.letter.resonanceInspected" class="resonance-fragment-text">{{ resonanceFragment.text }}</p>
+        </div>
         <button
           v-for="piece in [...pieces].reverse()"
           :key="piece.id"

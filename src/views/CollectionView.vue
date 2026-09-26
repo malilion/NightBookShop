@@ -67,10 +67,10 @@ const achievements = computed(() => collectionAchievements.map((achievement) => 
       /></RouterLink>
     </div>
     <div v-else class="bookmark-grid">
-      <article v-for="entry in entries" :key="entry.id" class="bookmark-entry">
+      <article v-for="entry in entries" :key="entry.id" class="bookmark-entry" :class="{ 'bookmark-entry-golden': entry.golden }">
         <div
           class="bookmark-art"
-          :class="{ cracked: entry.id === 'intervention' }"
+          :class="{ cracked: entry.id === 'intervention', golden: entry.golden }"
         >
           <img
             :src="assets.scenes['moon-sea']"
@@ -88,6 +88,7 @@ const achievements = computed(() => collectionAchievements.map((achievement) => 
             · {{ nightName(chapterForEnding(entry.id as EndingId)) }}
           </p>
           <h2>{{ entry.title }}</h2>
+          <p v-if="entry.golden" class="golden-bookmark-label">共鳴之茶 · 金色書籤</p>
           <p>{{ entry.note }}</p>
           <blockquote>{{ entry.quote }}</blockquote>
           <span class="collection-date"
@@ -105,7 +106,7 @@ const achievements = computed(() => collectionAchievements.map((achievement) => 
         <div v-for="chapter in bookmarkShelf" :key="chapter.id" class="bookmark-shelf-row">
           <h3>{{ chapter.visitor }}</h3>
           <ol>
-            <li v-for="(id, index) in chapter.slots" :key="id" :class="{ 'bookmark-slot-locked': !collected.has(id) }">
+            <li v-for="(id, index) in chapter.slots" :key="id" :class="{ 'bookmark-slot-locked': !collected.has(id), 'bookmark-slot-golden': entries.some((entry) => entry.id === id && entry.golden) }">
               <GameIcon :name="collected.has(id) ? 'bookmark' : 'lock'" :size="18" />
               <span>{{ collected.has(id) ? endings[id].bookmark : `缺頁 ${index + 1}` }}</span>
             </li>

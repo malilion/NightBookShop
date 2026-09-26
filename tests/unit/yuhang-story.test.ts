@@ -7,7 +7,7 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-7.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-8.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/yuhang-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/yuhang-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/yuhang-chapter-4.json", "utf8");

@@ -6,10 +6,10 @@ import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema, type GameSnapshot, type TeaDraft, type TeaId } from "../../src/types/game";
 
 const chapters = [
-  { id: "ruoyin", version: 6, tea: "lavender", garnish: "none", blackTea: 0, ask: "問她今晚最怕錯過哪個時刻", wait: "先陪她聽完杯緣的餘音", askResponse: "沒有演出要趕", waitResponse: "我可以先聽", mismatch: "tea-score", lowText: "茶有些澀" },
-  { id: "yenuan", version: 6, tea: "hojicha", garnish: "apple", blackTea: 0, ask: "問她烤箱一安靜下來會想起什麼", wait: "先讓她把杯子握暖", askResponse: "我會想起媽媽說", waitResponse: "我們不用趕在茶涼之前", mismatch: "tea-cleanup", lowText: "茶太濃" },
-  { id: "yuhang", version: 7, tea: "mint", garnish: "lemon", blackTea: 20, ask: "問他若寄給自己會寫哪個住址", wait: "讓他先看清信的收件欄", askResponse: "我記得每個人的門牌", waitResponse: "地址等我想好再填", mismatch: "delivery-reflex", lowText: "雨航只喝一口" },
-  { id: "haiming", version: 8, tea: "hojicha", garnish: "caramel", blackTea: 0, ask: "請他指出想保留的原句", wait: "先等他選好頁碼", askResponse: "今天風很大，我也害怕", waitResponse: "這一頁可以先看", mismatch: "tea-date", lowText: "茶涼得快" },
+  { id: "ruoyin", version: 7, tea: "lavender", garnish: "none", blackTea: 0, ask: "問她今晚最怕錯過哪個時刻", wait: "先陪她聽完杯緣的餘音", askResponse: "沒有演出要趕", waitResponse: "我可以先聽", mismatch: "tea-score", lowText: "茶有些澀" },
+  { id: "yenuan", version: 7, tea: "hojicha", garnish: "apple", blackTea: 0, ask: "問她烤箱一安靜下來會想起什麼", wait: "先讓她把杯子握暖", askResponse: "我會想起媽媽說", waitResponse: "我們不用趕在茶涼之前", mismatch: "tea-cleanup", lowText: "茶太濃" },
+  { id: "yuhang", version: 8, tea: "mint", garnish: "lemon", blackTea: 20, ask: "問他若寄給自己會寫哪個住址", wait: "讓他先看清信的收件欄", askResponse: "我記得每個人的門牌", waitResponse: "地址等我想好再填", mismatch: "delivery-reflex", lowText: "雨航只喝一口" },
+  { id: "haiming", version: 9, tea: "hojicha", garnish: "caramel", blackTea: 0, ask: "請他指出想保留的原句", wait: "先等他選好頁碼", askResponse: "今天風很大，我也害怕", waitResponse: "這一頁可以先看", mismatch: "tea-date", lowText: "茶涼得快" },
 ] as const;
 
 function ordinaryTea(chapter: (typeof chapters)[number]): TeaDraft {

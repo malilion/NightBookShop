@@ -26,6 +26,7 @@ import {
   type ArchiveDraft,
   type NotificationsDraft,
   type OpeningTask,
+  type ResonanceChapterId,
 } from "../types/game";
 import { database, type CollectionEntry } from "../db/database";
 import { saves } from "../db/saveRepository";
@@ -153,7 +154,7 @@ export const useGameStore = defineStore("game", () => {
       if (prerequisite && !completedChapters.value.has(prerequisite))
         throw new Error("請先完成前一夜，再翻開這一章。");
       const version: StoryVersion =
-        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-8" : chapter === "ruoyin" ? "ruoyin-chapter-6" : chapter === "yenuan" ? "yenuan-chapter-6" : chapter === "yuhang" ? "yuhang-chapter-7" : chapter === "haiming" ? "haiming-chapter-8" : chapter === "lincheng" ? "lincheng-chapter-6" : `${chapter}-chapter-4`;
+        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-9" : chapter === "ruoyin" ? "ruoyin-chapter-7" : chapter === "yenuan" ? "yenuan-chapter-7" : chapter === "yuhang" ? "yuhang-chapter-8" : chapter === "haiming" ? "haiming-chapter-9" : "lincheng-chapter-6";
       const previousEnding = prerequisite
         ? saveList.value.find((save) => save.id === `chapter-${prerequisite}`)?.snapshot.frame.endingId || ""
         : "";
@@ -271,7 +272,10 @@ export const useGameStore = defineStore("game", () => {
   function finishTea() {
     if (!bridge || frame.value?.mode !== "tea" || tea.value.step !== "serve")
       return;
-    frame.value = bridge.finishTea(scoreTea(tea.value, chapterId.value));
+    frame.value = bridge.finishTea(
+      scoreTea(tea.value, chapterId.value),
+      chapterId.value === "lincheng" ? null : chapterId.value as ResonanceChapterId,
+    );
     void persist();
   }
   function finishLetter() {

@@ -6,10 +6,10 @@ import { StoryBridge } from "../../src/story/storyBridge";
 import { newTea, type TeaDraft, type TeaId, type TeaResult } from "../../src/types/game";
 
 const chapters = [
-  { id: "ruoyin", version: 6, tea: "lavender", garnish: "none", blackTea: 0, nextMode: "melody", hidden: "bus-hum", listening: "tea-breath", mismatch: "tea-score", ask: "今晚最怕錯過哪個時刻" },
-  { id: "yenuan", version: 6, tea: "hojicha", garnish: "apple", blackTea: 0, nextMode: "hearth", hidden: "two-cups-break", listening: "oven-pause", mismatch: "tea-cleanup", ask: "烤箱一安靜下來" },
-  { id: "yuhang", version: 7, tea: "mint", garnish: "lemon", blackTea: 20, nextMode: "route", hidden: "sister-route-note", listening: "own-address", mismatch: "delivery-reflex", ask: "若寄給自己" },
-  { id: "haiming", version: 8, tea: "hojicha", garnish: "caramel", blackTea: 0, nextMode: "lamp", hidden: "tower-table", listening: "today-page", mismatch: "tea-date", ask: "想保留的原句" },
+  { id: "ruoyin", version: 7, tea: "lavender", garnish: "none", blackTea: 0, nextMode: "melody", hidden: "bus-hum", listening: "tea-breath", mismatch: "tea-score", ask: "今晚最怕錯過哪個時刻" },
+  { id: "yenuan", version: 7, tea: "hojicha", garnish: "apple", blackTea: 0, nextMode: "hearth", hidden: "two-cups-break", listening: "oven-pause", mismatch: "tea-cleanup", ask: "烤箱一安靜下來" },
+  { id: "yuhang", version: 8, tea: "mint", garnish: "lemon", blackTea: 20, nextMode: "route", hidden: "sister-route-note", listening: "own-address", mismatch: "delivery-reflex", ask: "若寄給自己" },
+  { id: "haiming", version: 9, tea: "hojicha", garnish: "caramel", blackTea: 0, nextMode: "lamp", hidden: "tower-table", listening: "today-page", mismatch: "tea-date", ask: "想保留的原句" },
 ] as const;
 
 function fittingDraft(chapter: (typeof chapters)[number]): TeaDraft {
@@ -68,11 +68,13 @@ describe.each(chapters)("$id tea quality", (chapter) => {
     expect(mismatched.quality).toBeLessThan(50);
 
     const resonant = playToNextActivity(chapter, ideal);
+    const scoreNinety = playToNextActivity(chapter, { ...ideal, quality: 90, emotionalMatch: 75 });
     const steady = playToNextActivity(chapter, suitable);
     const ask = playToNextActivity(chapter, ordinary);
     const wait = playToNextActivity(chapter, ordinary, true);
     const poor = playToNextActivity(chapter, mismatched);
     expect(resonant.story.frame.clues).toContain(chapter.hidden);
+    expect(scoreNinety.story.frame.clues).toContain(chapter.hidden);
     expect(steady.sawFollowup).toBe(false);
     expect(steady.story.frame.clues).not.toContain(chapter.hidden);
     expect(steady.story.metrics.trust).toBeGreaterThan(poor.story.metrics.trust);

@@ -3,6 +3,7 @@ import type { SaveGame } from "../types/game";
 export interface CollectionEntry {
   id: string;
   unlockedAt: string;
+  golden?: boolean;
 }
 export interface PreferenceEntry {
   id: string;

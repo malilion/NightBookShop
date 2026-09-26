@@ -107,7 +107,7 @@ VAR ending_kind = ""
     他握著杯子，仍記不起今天的日期。妳沒有把這杯茶說成一種治療；今晚只需要先聽清他想留下的話。 # scene:haiming # speaker:旁白 # section:watch-lamp
 }
 {
-- tea_quality >= 90 && tea_emotional_match >= 90:
+- tea_quality >= 90:
     ~ understanding += 1
     海明記起顧川小時候在塔裡替他擺過兩個杯墊，一個靠窗、一個靠日誌。「他說燈照船，也該照到我們吃飯的桌子。」海明沒有替這句話補上日期，只請妳把它照原樣寫下。 # clue:tower-table # speaker:顧海明
 - tea_quality >= 70:

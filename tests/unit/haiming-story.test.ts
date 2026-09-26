@@ -6,7 +6,7 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-8.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/haiming-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/haiming-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/haiming-chapter-5.json", "utf8");

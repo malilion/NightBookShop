@@ -81,7 +81,7 @@ VAR ending_kind = ""
     她慢慢握住杯子。琴弓還在桌上，暫時不需要立刻拿起來。 # scene:ruoyin # speaker:旁白 # section:listening
 }
 {
-- tea_quality >= 90 && tea_emotional_match >= 90:
+- tea_quality >= 90:
     ~ understanding += 1
     若音又聞了一次茶香，想起小學放學的公車。她把剛寫的四個音哼錯，母親沒有糾正，只跟著唱到下車。「那時沒有人替我打分數。」 # clue:bus-hum # speaker:沈若音
 - tea_quality >= 70:

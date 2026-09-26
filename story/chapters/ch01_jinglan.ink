@@ -81,6 +81,10 @@
     桂花。我們校刊室外面有一棵，開花的時候，連退稿信都帶著這個味道。 # speaker:周靜蘭
     那時岳川說，收到的人要是生氣，可以先聞一下，再罵我們。
     她把杯子貼近嘴唇，笑聲很輕，妳卻第一次聽清楚那個名字。 # speaker:旁白
+- tea_quality >= 90:
+    ~ trust += 2
+    ~ understanding += 1
+    靜蘭把杯子捧在手裡，想起校刊室裡一張反覆修改的退稿信。岳川在紙角寫過：「等我們把話說清楚，再一起寄出去。」她原以為那張紙早就丟了，今晚卻還記得那行字。 # scene:jinglan # speaker:周靜蘭 # section:listening
 - tea_type == "puer":
     ~ trust += 1
     熱茶入口，靜蘭的肩膀鬆了些。她把手提包從腿邊推遠，像終於不必隨時站起來。 # scene:jinglan # speaker:旁白 # section:listening

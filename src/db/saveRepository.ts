@@ -59,8 +59,12 @@ export class SaveRepository {
         const ending = clean.frame.endingId;
         if (ending) {
           const chapterId = chapterForEnding(ending);
-          if (!(await this.db.collection.get(ending)))
-            await this.db.collection.put({ id: ending, unlockedAt: now });
+          const existing = await this.db.collection.get(ending);
+          const golden = clean.frame.resonanceFragment === chapterId;
+          if (!existing)
+            await this.db.collection.put({ id: ending, unlockedAt: now, golden });
+          else if (golden && !existing.golden)
+            await this.db.collection.update(ending, { golden: true });
           if (!(await this.db.saves.get(`chapter-${chapterId}`)))
             await this.db.saves.put({
               id: `chapter-${chapterId}`,

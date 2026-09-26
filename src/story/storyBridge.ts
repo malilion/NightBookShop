@@ -1,12 +1,13 @@
 import { Story } from "inkjs";
 import { parseTag } from "./commandParser";
-import type { StoryFrame, TeaResult } from "../types/game";
+import type { ResonanceChapterId, StoryFrame, TeaResult } from "../types/game";
 export class StoryBridge {
   readonly story: Story;
   frame: StoryFrame = {
     section: "prologue",
     clues: [],
     fragments: [],
+    resonanceFragment: null,
     text: "",
     speaker: "旁白",
     portrait: "none",
@@ -71,7 +72,7 @@ export class StoryBridge {
     this.story.ChooseChoiceIndex(index);
     return this.next();
   }
-  finishTea(result: TeaResult) {
+  finishTea(result: TeaResult, resonanceChapter: ResonanceChapterId | null = null) {
     if (this.frame.mode !== "tea") throw new Error("目前不是製茶階段。");
     this.story.variablesState["tea_type"] = result.teaId;
     this.story.variablesState["tea_quality"] = result.quality;
@@ -80,6 +81,8 @@ export class StoryBridge {
       this.story.variablesState["tea_garnish"] = result.garnish ?? "none";
     if (this.story.variablesState["tea_blend"] !== null)
       this.story.variablesState["tea_blend"] = result.blackTea ?? 0;
+    if (result.quality >= 90 && resonanceChapter)
+      this.frame.resonanceFragment = resonanceChapter;
     return this.resume("tea_result");
   }
   finishLetter(result: {

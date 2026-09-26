@@ -101,7 +101,7 @@ VAR ending_kind = ""
     他把茶杯握在手裡。雨沒有停，派送路線還在；此刻可以先看清信上的地址。 # scene:yuhang # speaker:旁白 # section:mail-route
 }
 {
-- tea_quality >= 90 && tea_emotional_match >= 90:
+- tea_quality >= 90:
     ~ understanding += 1
     雨航想起妹妹曾在派送簿背面寫：「先問懂書的人，書架要怎麼固定。」他們那時連第一站都沒決定，卻已一起想過一件做得到的小事。 # clue:sister-route-note # speaker:程雨航
 - tea_quality >= 70:

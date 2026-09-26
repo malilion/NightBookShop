@@ -1,6 +1,6 @@
 # 柏言第二夜：明日之前，請讓我停一下
 
-第一夜完成後，從章節選單或第一夜結局進入第二夜。Ink 原稿是 `story/chapters/ch02_boyan.ink`，由 `npm run build:ink` 產生 `public/story/compiled/boyan-chapter-8.json`。前夜首次結局會改變柏言抵達時的對話，靜蘭被代為決定的結局也會在辦公室觸發一段不同反應；第一夜及柏言舊版 `-1` 至 `-7` 存檔仍讀取各自保留的編譯檔。
+第一夜完成後，從章節選單或第一夜結局進入第二夜。Ink 原稿是 `story/chapters/ch02_boyan.ink`，由 `npm run build:ink` 產生 `public/story/compiled/boyan-chapter-9.json`。前夜首次結局會改變柏言抵達時的對話，靜蘭被代為決定的結局也會在辦公室觸發一段不同反應；第一夜及柏言舊版 `-1` 至 `-8` 存檔仍讀取各自保留的編譯檔。
 
 ## 流程
 

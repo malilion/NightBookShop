@@ -122,6 +122,10 @@ describe("complete Jinglan chapter", () => {
     expect(story.frame.endingId).toBe(target);
     expect(story.frame.clues).not.toContain("old-melody");
   });
+  it("continues chapter-three saves against their archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-3.json", "utf8");
+    expect(play(2, "moonlight", false, previous).story.frame.endingId).toBe("moonlight");
+  });
   it("blocks invalid choices and out-of-phase results", () => {
     const story = new StoryBridge(compiled);
     story.next();

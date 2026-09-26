@@ -118,6 +118,42 @@ describe("local saves", () => {
       "moonlight",
     );
   });
+  it("upgrades a collected ending to gold after resonant tea and never downgrades it", async () => {
+    const ordinary = snapshot();
+    ordinary.frame.mode = "ending";
+    ordinary.frame.endingId = "moonlight";
+    await repo.write(ordinary);
+    const first = await db.collection.get("moonlight");
+    expect(first?.golden).toBe(false);
+
+    const resonant = snapshot();
+    resonant.frame.mode = "ending";
+    resonant.frame.endingId = "moonlight";
+    resonant.frame.resonanceFragment = "jinglan";
+    resonant.letter.resonanceInspected = true;
+    await repo.write(resonant);
+    expect(await db.collection.get("moonlight")).toEqual({ ...first, golden: true });
+    expect((await repo.get("auto-2"))?.snapshot.letter.resonanceInspected).toBe(true);
+
+    await repo.write(ordinary);
+    expect((await db.collection.get("moonlight"))?.golden).toBe(true);
+    expect(snapshotSchema.parse({ ...ordinary, frame: { ...ordinary.frame, resonanceFragment: undefined }, letter: { ...ordinary.letter, resonanceInspected: undefined } }).frame.resonanceFragment).toBeNull();
+  });
+  it.each([
+    ["jinglan", "moonlight"],
+    ["boyan", "boyan-rest"],
+    ["ruoyin", "ruoyin-one"],
+    ["yenuan", "yenuan-share"],
+    ["yuhang", "yuhang-today"],
+    ["haiming", "haiming-light"],
+  ] as const)("stores a gold bookmark for %s", async (chapter, ending) => {
+    const data = snapshot();
+    data.frame.mode = "ending";
+    data.frame.endingId = ending;
+    data.frame.resonanceFragment = chapter;
+    await repo.write(data);
+    expect((await db.collection.get(ending))?.golden).toBe(true);
+  });
   it("stores a separate second-night bookmark and chapter snapshot", async () => {
     const data = snapshot();
     data.storyVersion = "boyan-chapter-1";

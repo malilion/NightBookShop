@@ -4,7 +4,7 @@ import { StoryBridge } from "../../src/story/storyBridge";
 import { scoreTea } from "../../src/services/teaScoring";
 import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
 
-const storyJson = readFileSync("public/story/compiled/boyan-chapter-8.json", "utf8");
+const storyJson = readFileSync("public/story/compiled/boyan-chapter-9.json", "utf8");
 
 function beforeTeaFollowup(): GameSnapshot {
   const tea = { ...newTea(), teaId: "chamomile" as const, leaves: 1, water: 40, temperature: 75, seconds: 10, step: "serve" as const, cupWater: 30 };
@@ -17,7 +17,7 @@ function beforeTeaFollowup(): GameSnapshot {
     if (frame.choices.some((choice) => choice.text.includes("今晚最怕哪件事停下來")))
       return snapshotSchema.parse({
         version: 1,
-        storyVersion: "boyan-chapter-8",
+        storyVersion: "boyan-chapter-9",
         inkState: story.serialize(),
         frame,
         tea,
