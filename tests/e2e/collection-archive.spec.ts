@@ -42,6 +42,16 @@ test("collection reveals each chapter's recap and earned afterword without spoil
   await expect(page.getByText("過了幾個星期，靜蘭把一張空白明信片留在櫃台。她說，這次要等自己真的想寫了，才把它填滿。")).toBeVisible();
 
   await collect(page, Object.keys(endings));
+  const bookmarkImages = page.locator(".bookmark-art img");
+  await expect(bookmarkImages).toHaveCount(28);
+  await expect.poll(async () => bookmarkImages.evaluateAll((images) => images.filter((image) => {
+    const img = image as HTMLImageElement;
+    return img.complete && img.naturalWidth > 0;
+  }).length)).toBe(28);
+  const imageSources = await bookmarkImages.evaluateAll((images) => images.map((image) => image.getAttribute("src")));
+  expect(new Set(imageSources).size).toBe(28);
+  await page.locator(".bookmark-entry").first().screenshot({ path: `output/bookmark-card-first-${info.project.name}.png` });
+  await page.locator(".bookmark-entry").last().screenshot({ path: `output/bookmark-card-last-${info.project.name}.png` });
   await expect(page.locator(".archive-afterword")).toHaveCount(7);
   await expect(page.locator(".bookmark-slot-locked")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "每一頁都讀過" })).toBeVisible();

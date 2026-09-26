@@ -11,7 +11,7 @@ import {
   type PlayableChapterId,
 } from "../data/catalog";
 import { chapterArchive, collectionAchievements } from "../data/collectionArchive";
-import { assets } from "../data/assets";
+import { bookmarkArt } from "../data/bookmarkArt";
 import PageHeader from "../components/common/PageHeader.vue";
 import GameIcon from "../components/common/GameIcon.vue";
 import { clues } from "../data/notebook";
@@ -115,8 +115,8 @@ const achievements = computed(() => collectionAchievements.map((achievement) => 
           :class="{ cracked: entry.id === 'intervention', golden: entry.golden }"
         >
           <img
-            :src="assets.scenes['moon-sea']"
-            alt="月光與漂浮的信，映照著海邊的書店"
+            :src="bookmarkArt[entry.id as EndingId]"
+            :alt="`${entry.bookmark}書籤插畫`"
           /><span>{{ entry.bookmark }}</span>
         </div>
         <div>

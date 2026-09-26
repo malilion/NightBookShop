@@ -1530,38 +1530,45 @@ button:active:not(:disabled),
 }
 .bookmark-entry {
   display: grid;
-  grid-template-columns: 130px 1fr;
+  grid-template-columns: 126px 1fr;
   gap: 24px;
   align-items: start;
 }
 .bookmark-art {
   position: relative;
-  height: 290px;
-  border: 6px solid #decbab;
-  background: #decbab;
-  color: #30271e;
+  width: 126px;
+  aspect-ratio: 3 / 8;
+  border: 4px solid #decbab;
+  background: #101722;
+  color: #f3e7d3;
   box-shadow: 0 10px 30px #0004;
   transform: rotate(-2deg);
+  overflow: hidden;
 }
 .bookmark-art img {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
-  object-position: 60%;
+  display: block;
 }
 .bookmark-art > span {
-  display: block;
-  font-size: 13px;
-  line-height: 1.5;
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  min-height: 26%;
+  place-items: center;
+  padding: 18px 6px 9px;
+  background: linear-gradient(transparent, #101722ef 40%);
+  font-size: 12px;
+  line-height: 1.4;
   text-align: center;
-  padding: 14px 4px;
+  text-shadow: 0 1px 3px #000;
 }
 .bookmark-art.golden {
   border-color: #edc96e;
-  background: linear-gradient(150deg, #f9e9b0, #c99543 60%, #f8da85);
   box-shadow: 0 0 25px #d8aa4f62, 0 10px 30px #0006;
 }
-.bookmark-art.golden > span { color: #33230d; font-weight: 600; }
+.bookmark-art.golden > span { color: #f9e9b0; font-weight: 600; }
 .bookmark-art.cracked:after {
   content: "";
   position: absolute;
@@ -2380,19 +2387,16 @@ button:active:not(:disabled),
     font-size: 12px;
   }
   .bookmark-entry {
-    grid-template-columns: 100px 1fr;
+    grid-template-columns: 102px 1fr;
     gap: 20px;
   }
   .bookmark-art {
-    height: 240px;
-    border-width: 5px;
-  }
-  .bookmark-art img {
-    height: 165px;
+    width: 102px;
+    border-width: 3px;
   }
   .bookmark-art > span {
     font-size: 11px;
-    padding: 10px 2px;
+    padding: 14px 3px 6px;
   }
   .bookmark-entry h2 {
     font-size: 21px;

@@ -1,4 +1,5 @@
 import { assets } from "../data/assets";
+import { bookmarkArt } from "../data/bookmarkArt";
 import type { PlayableChapterId } from "../data/catalog";
 
 export const chapterImageCacheName = "night-bookshop-chapter-images-v1";
@@ -7,6 +8,10 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
   // The first night is installed with the app shell by Workbox.
   jinglan: [],
   boyan: [
+    bookmarkArt["boyan-rest"],
+    bookmarkArt["boyan-leave"],
+    bookmarkArt["boyan-boundary"],
+    bookmarkArt["boyan-overwork"],
     assets.characters.boyan,
     assets.memories.office,
     assets.mobileMemories.office,
@@ -16,6 +21,10 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.train,
   ],
   ruoyin: [
+    bookmarkArt["ruoyin-one"],
+    bookmarkArt["ruoyin-stage"],
+    bookmarkArt["ruoyin-score"],
+    bookmarkArt["ruoyin-echo"],
     assets.characters.ruoyin,
     assets.memories.practiceRoom,
     assets.mobileMemories.practiceRoom,
@@ -27,6 +36,10 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.grandstage,
   ],
   yenuan: [
+    bookmarkArt["yenuan-share"],
+    bookmarkArt["yenuan-reopen"],
+    bookmarkArt["yenuan-rest"],
+    bookmarkArt["yenuan-copy"],
     assets.characters.yenuan,
     assets.memories.bakery,
     assets.mobileMemories.bakery,
@@ -38,6 +51,10 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.oldOven,
   ],
   yuhang: [
+    bookmarkArt["yuhang-today"],
+    bookmarkArt["yuhang-future"],
+    bookmarkArt["yuhang-past"],
+    bookmarkArt["yuhang-unknown"],
     assets.characters.yuhang,
     assets.memories.postOffice,
     assets.mobileMemories.postOffice,
@@ -49,6 +66,10 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.bookshopDoor,
   ],
   haiming: [
+    bookmarkArt["haiming-light"],
+    bookmarkArt["haiming-voice"],
+    bookmarkArt["haiming-boat"],
+    bookmarkArt["haiming-hero"],
     assets.characters.haiming,
     assets.characters.haimingSearching,
     assets.characters.haimingWarm,
@@ -65,6 +86,10 @@ export const chapterImages: Record<PlayableChapterId, readonly string[]> = {
     assets.mobileMemories.whiteRoom,
   ],
   lincheng: [
+    bookmarkArt["lincheng-dawn"],
+    bookmarkArt["lincheng-keeper"],
+    bookmarkArt["lincheng-shelf"],
+    bookmarkArt["lincheng-midnight"],
     assets.characters.owner,
     assets.characters.linchengChild,
     assets.memories.hiddenRoom,

@@ -36,6 +36,10 @@ const mustPrecache = [
   "images/memory-hospital-mobile.webp",
   "images/memory-platform.webp",
   "images/memory-platform-mobile.webp",
+  "images/bookmarks/moonlight.webp",
+  "images/bookmarks/recipient.webp",
+  "images/bookmarks/unfinished.webp",
+  "images/bookmarks/intervention.webp",
   "images/characters/jinglan.webp",
 ];
 for (const url of mustPrecache) {
