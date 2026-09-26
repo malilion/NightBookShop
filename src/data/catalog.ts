@@ -435,7 +435,7 @@ export const previousChapter: Record<
 export const chapterForVersion = (version: string) =>
   version === "lincheng-chapter-1" || version === "lincheng-chapter-2" || version === "lincheng-chapter-3" || version === "lincheng-chapter-4" || version === "lincheng-chapter-5" || version === "lincheng-chapter-6"
     ? "lincheng"
-    : version === "haiming-chapter-1" || version === "haiming-chapter-2" || version === "haiming-chapter-3" || version === "haiming-chapter-4" || version === "haiming-chapter-5" || version === "haiming-chapter-6"
+    : version === "haiming-chapter-1" || version === "haiming-chapter-2" || version === "haiming-chapter-3" || version === "haiming-chapter-4" || version === "haiming-chapter-5" || version === "haiming-chapter-6" || version === "haiming-chapter-7"
     ? "haiming"
     : version === "yuhang-chapter-1" || version === "yuhang-chapter-2" || version === "yuhang-chapter-3" || version === "yuhang-chapter-4" || version === "yuhang-chapter-5" || version === "yuhang-chapter-6"
     ? "yuhang"

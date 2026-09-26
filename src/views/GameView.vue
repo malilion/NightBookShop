@@ -117,9 +117,8 @@ const portrait = computed(() => {
   if (frame?.mode !== "dialogue") return null;
   if (frame.portrait === "owner") return { src: assets.characters.owner, kind: "owner" };
   if (frame.portrait === "lincheng-child") return { src: assets.characters.linchengChild, kind: "child" };
-  const chapter = game.chapterId;
-  return frame.scene === chapter && chapter in assets.characters
-    ? { src: assets.characters[chapter as keyof typeof assets.characters], kind: "visitor" }
+  return frame.scene in assets.characters
+    ? { src: assets.characters[frame.scene as keyof typeof assets.characters], kind: "visitor" }
     : null;
 });
 const memoryHub = computed(() => {
@@ -128,7 +127,7 @@ const memoryHub = computed(() => {
     !frame ||
     frame.mode !== "dialogue" ||
     frame.scene !== "memory" ||
-    (game.activeStoryVersion !== STORY_VERSION && game.activeStoryVersion !== "jinglan-chapter-2" && game.activeStoryVersion !== "boyan-chapter-4" && game.activeStoryVersion !== "boyan-chapter-5" && game.activeStoryVersion !== "boyan-chapter-6" && game.activeStoryVersion !== "boyan-chapter-7" && game.activeStoryVersion !== "ruoyin-chapter-4" && game.activeStoryVersion !== "ruoyin-chapter-5" && game.activeStoryVersion !== "yenuan-chapter-4" && game.activeStoryVersion !== "yenuan-chapter-5" && game.activeStoryVersion !== "yuhang-chapter-4" && game.activeStoryVersion !== "yuhang-chapter-5" && game.activeStoryVersion !== "yuhang-chapter-6" && game.activeStoryVersion !== "haiming-chapter-4" && game.activeStoryVersion !== "haiming-chapter-5" && game.activeStoryVersion !== "haiming-chapter-6" && game.activeStoryVersion !== "lincheng-chapter-4" && game.activeStoryVersion !== "lincheng-chapter-5" && game.activeStoryVersion !== "lincheng-chapter-6")
+    (game.activeStoryVersion !== STORY_VERSION && game.activeStoryVersion !== "jinglan-chapter-2" && game.activeStoryVersion !== "boyan-chapter-4" && game.activeStoryVersion !== "boyan-chapter-5" && game.activeStoryVersion !== "boyan-chapter-6" && game.activeStoryVersion !== "boyan-chapter-7" && game.activeStoryVersion !== "ruoyin-chapter-4" && game.activeStoryVersion !== "ruoyin-chapter-5" && game.activeStoryVersion !== "yenuan-chapter-4" && game.activeStoryVersion !== "yenuan-chapter-5" && game.activeStoryVersion !== "yuhang-chapter-4" && game.activeStoryVersion !== "yuhang-chapter-5" && game.activeStoryVersion !== "yuhang-chapter-6" && game.activeStoryVersion !== "haiming-chapter-4" && game.activeStoryVersion !== "haiming-chapter-5" && game.activeStoryVersion !== "haiming-chapter-6" && game.activeStoryVersion !== "haiming-chapter-7" && game.activeStoryVersion !== "lincheng-chapter-4" && game.activeStoryVersion !== "lincheng-chapter-5" && game.activeStoryVersion !== "lincheng-chapter-6")
   )
     return null;
   const section = memorySection(frame.section);
@@ -279,7 +278,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
             </span>
           </template>
         </div>
-        <DialoguePanel :key="'dialogue'" ref="dialogue" :visible-choice-indexes="(game.activeStoryVersion === 'boyan-chapter-4' || game.activeStoryVersion === 'boyan-chapter-5' || game.activeStoryVersion === 'boyan-chapter-6' || game.activeStoryVersion === 'boyan-chapter-7' || game.activeStoryVersion === 'ruoyin-chapter-4' || game.activeStoryVersion === 'ruoyin-chapter-5' || game.activeStoryVersion === 'yenuan-chapter-4' || game.activeStoryVersion === 'yenuan-chapter-5' || game.activeStoryVersion === 'yuhang-chapter-4' || game.activeStoryVersion === 'yuhang-chapter-5' || game.activeStoryVersion === 'yuhang-chapter-6' || game.activeStoryVersion === 'haiming-chapter-4' || game.activeStoryVersion === 'haiming-chapter-5' || game.activeStoryVersion === 'haiming-chapter-6' || game.activeStoryVersion === 'lincheng-chapter-4' || game.activeStoryVersion === 'lincheng-chapter-5' || game.activeStoryVersion === 'lincheng-chapter-6') && memoryHub ? [memoryHub.leaveIndex] : undefined" /></template
+        <DialoguePanel :key="'dialogue'" ref="dialogue" :visible-choice-indexes="(game.activeStoryVersion === 'boyan-chapter-4' || game.activeStoryVersion === 'boyan-chapter-5' || game.activeStoryVersion === 'boyan-chapter-6' || game.activeStoryVersion === 'boyan-chapter-7' || game.activeStoryVersion === 'ruoyin-chapter-4' || game.activeStoryVersion === 'ruoyin-chapter-5' || game.activeStoryVersion === 'yenuan-chapter-4' || game.activeStoryVersion === 'yenuan-chapter-5' || game.activeStoryVersion === 'yuhang-chapter-4' || game.activeStoryVersion === 'yuhang-chapter-5' || game.activeStoryVersion === 'yuhang-chapter-6' || game.activeStoryVersion === 'haiming-chapter-4' || game.activeStoryVersion === 'haiming-chapter-5' || game.activeStoryVersion === 'haiming-chapter-6' || game.activeStoryVersion === 'haiming-chapter-7' || game.activeStoryVersion === 'lincheng-chapter-4' || game.activeStoryVersion === 'lincheng-chapter-5' || game.activeStoryVersion === 'lincheng-chapter-6') && memoryHub ? [memoryHub.leaveIndex] : undefined" /></template
       ><TeaBrewingScene v-else-if="game.frame.mode === 'tea'" /><MelodyPuzzle
         v-else-if="game.frame.mode === 'melody'"
       /><HearthScene v-else-if="game.frame.mode === 'hearth'" /><DeliveryRoute v-else-if="game.frame.mode === 'route'" /><WatchLamp v-else-if="game.frame.mode === 'lamp'" /><ArchiveMap v-else-if="game.frame.mode === 'archive'" /><LetterPuzzle v-else-if="game.frame.mode === 'letter'" />

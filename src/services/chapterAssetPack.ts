@@ -50,6 +50,7 @@ const chapterImages: Record<PlayableChapterId, readonly string[]> = {
   ],
   haiming: [
     assets.characters.haiming,
+    assets.characters.yuhang,
     assets.characters.owner,
     assets.characters.linchengChild,
     assets.memories.lighthouse,

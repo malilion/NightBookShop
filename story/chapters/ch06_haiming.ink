@@ -31,12 +31,32 @@ VAR ending_kind = ""
 -> arrival
 
 === arrival ===
+{
+- previous_ending == "yuhang-future":
+    -> future_return
+- else:
+    -> haiming_arrival
+}
+=== future_return ===
+一點五十六分，雨航把郵袋放在門外，自己走進來。上回那封寄往七年後的信仍在他手裡，封口旁多寫了一個下個月的日期。 # scene:yuhang # speaker:旁白 # section:reunion
+「我路過，想確認那天寫的字還在。」他指向「整理第一箱書，去看一間店」，沒有把那兩件事說成已經完成。 # speaker:程雨航
+他說日期還沒到；工作照舊，信卻不再躲在袋底。妳可以問他打算怎麼開始，也可以讓他先帶著這張紙走。 # speaker:旁白
+* [問他第一箱書準備從哪裡開始整理]
+    雨航說箱子還在床下，妹妹寫過店名的明信片放在最上面。「我會先把它搬到門邊。到那天，再決定要不要去看店。」他自己把日期又讀了一遍。 # speaker:程雨航
+    -> future_return_end
+* [請他保留日期，也保留改變方法的餘地]
+    「好。」雨航把信折好。「如果那間店不合適，我還是會整理書，找下一個地方。日期是提醒我開始，不是另一張不能改的派送表。」 # speaker:程雨航
+    -> future_return_end
+=== future_return_end ===
+他把信放回自己的口袋，沒請妳替他簽收。妳看著他走到街角；郵袋仍在肩上，腳步卻沒有再繞過自己住的那一站。 # speaker:旁白
+-> haiming_arrival
+=== haiming_arrival ===
 兩點二十三分，一位老人推門進來，先檢查窗框，再抬頭看向書店的燈。他抱著一本缺頁航海日誌，臂彎裡還有一盞擦得發亮的煤油燈。 # scene:haiming # speaker:旁白 # section:arrival
 {
 - previous_ending == "yuhang-today":
     雨航今日簽收的回條還在櫃台。老人看見北岸燈塔的照片，認出自己曾守過的那扇窗，卻沒有想起拍照的人。 # speaker:旁白
 - previous_ending == "yuhang-future":
-    七年後的郵戳壓在燈塔照片下。老人看了很久，只說照片裡的燈沒有熄；妳沒有要他解釋日期。 # speaker:旁白
+    雨航剛帶著寫有下個月日期的信離開，七年後的郵戳仍壓在燈塔照片下。老人看了很久，只說照片裡的燈沒有熄；妳沒有要他解釋日期。 # speaker:旁白
 - previous_ending == "yuhang-past":
     妹妹紀念盒的素描夾著燈塔照片。老人認出塔頂的欄杆，問送照片的人是否平安回家；妳只說那是她留下的影像。 # speaker:旁白
 - previous_ending == "yuhang-unknown":

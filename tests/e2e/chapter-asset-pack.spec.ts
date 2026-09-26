@@ -36,6 +36,7 @@ test("starting a later chapter makes its unvisited memories available offline", 
 
   const chapterImages = [
     "/images/characters/haiming.webp",
+    "/images/characters/yuhang.webp",
     "/images/characters/owner.webp",
     "/images/characters/lincheng-child.webp",
     ...["lighthouse", "summer-visit", "last-watch"].flatMap((scene) => [
