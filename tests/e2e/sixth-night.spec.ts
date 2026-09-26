@@ -120,6 +120,10 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await page.screenshot({ path: `output/sixth-night-white-room-${info.project.name}.png`, animations: "disabled" });
   await inspectMemoryObjects(page, "white-room", ["住址卡", "沒有海的窗", "壞煤油燈"]);
   await page.getByRole("button", { name: "從煤油燈內取出最後一角紙船" }).click();
+  const originalWords = await untilChoice(page, "先問海明今天想保留哪句");
+  await expect(page.getByRole("button", { name: "先替他排好年份，再請他核對" })).toBeVisible();
+  await page.screenshot({ path: `output/sixth-night-original-words-${info.project.name}.png`, animations: "disabled" });
+  await originalWords.click();
   await advanceUntil(page, ".letter-panel");
   await expect(page.locator(".letter-slot")).toHaveCount(4);
   for (const [index, line] of [

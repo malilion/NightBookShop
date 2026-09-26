@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-5.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-6.json", "utf8");
+const chapterFive = readFileSync("public/story/compiled/haiming-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/haiming-chapter-4.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/haiming-chapter-3.json", "utf8");
 const chapterTwo = readFileSync("public/story/compiled/haiming-chapter-2.json", "utf8");
@@ -18,7 +19,7 @@ const targets = {
   "haiming-hero": "只寄流暢的英雄故事",
 } as const;
 
-function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none" } = {}) {
+function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none"; orderDates?: boolean } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
   const sections = new Set<string>();
@@ -39,7 +40,7 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
       story.finishLetter({ completion: 100, understood: !polished, alternate: polished });
     } else if (story.frame.canContinue) story.next();
     else {
-      const selected = (options.skipObjects ? story.frame.choices.find((entry) => [
+      const selected = (options.orderDates ? story.frame.choices.find((entry) => entry.text.includes("先替他排好年份")) : undefined) ?? (options.skipObjects ? story.frame.choices.find((entry) => [
         "從救援圖旁收起第一角紙船",
         "從風箏尾巴收起第二角紙船",
         "從邀請背面收起第三角紙船",
@@ -89,6 +90,9 @@ describe("Haiming sixth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-four %s route", (target) => {
     expect(play(target, false, chapterFour).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-five %s route", (target) => {
+    expect(play(target, false, chapterFive).story.frame.endingId).toBe(target);
+  });
   it("can leave each memory with four paper-boat fragments and no optional clues", () => {
     const { story } = play("haiming-boat", false, compiled, { skipObjects: true });
     expect(story.frame.fragments).toEqual(["light", "shore", "return", "remember"]);
@@ -106,6 +110,23 @@ describe("Haiming sixth night", () => {
     const plain = play("haiming-boat", false, compiled, { garnish: "none" });
     expect(caramel.texts.join(" ")).toContain("焙茶與一點鹹甜氣味");
     expect(plain.texts.join(" ")).toContain("海鹽焦糖還沒加入");
+  });
+  it("keeps distinct evidence in all four memories before Haiming chooses his words", () => {
+    const explored = play("haiming-light");
+    const skipped = play("haiming-boat", false, compiled, { skipObjects: true });
+    const fullText = explored.texts.join(" ");
+    const briefText = skipped.texts.join(" ");
+    expect(fullText).toContain("被救回的人、錯過的出生、還來得及出發的那一刻");
+    expect(fullText).toContain("孩子等候的時間、海明修燈的時間");
+    expect(fullText).toContain("那天顧川怎麼等、後來怎麼想，得由顧川自己說");
+    expect(fullText).toContain("它們不能替他擋住遺忘");
+    expect(briefText).not.toContain("三件紀錄攤在一起");
+    expect(briefText).toContain("還沒看過的東西不該由書店替他補寫");
+  });
+  it("lets Haiming keep his own wording even when the player first orders the dates", () => {
+    const ordered = play("haiming-light", false, compiled, { orderDates: true });
+    expect(ordered.texts.join(" ")).toContain("他請妳先別刪");
+    expect(ordered.story.frame.endingId).toBe("haiming-light");
   });
   it("keeps contradictory original words for full understanding", () => {
     const letter: LetterDraft = {
