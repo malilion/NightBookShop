@@ -647,6 +647,111 @@ export function createTeaSet(container, W = 1280, H = 720) {
     leaf.rotation.x = (leafNoise(i + 231) - 0.5) * 0.9;
     dryPotLeaves.push(leaf);
   }
+  const teaAccentGroups = [];
+  const petalGeometry = new THREE.SphereGeometry(1, 10, 7);
+  const budGeometry = new THREE.SphereGeometry(1, 10, 8);
+  const botanicalMaterials = {
+    stem: material("#5e6847", 0, 0.95),
+    lavender: material("#8b739c", 0, 0.9),
+    lavenderLight: material("#aa8bb1", 0, 0.9),
+    petal: material("#f2ead5", 0, 0.9),
+    osmanthus: material("#e4bd68", 0, 0.9),
+    center: material("#e5c775", 0, 0.88),
+    chamomile: material("#d5a838", 0, 0.88),
+  };
+  function addBotanical(type, parent, position, size = 1) {
+    const group = new THREE.Group();
+    group.position.set(...position);
+    group.visible = false;
+    parent.add(group);
+    teaAccentGroups.push({ type, group });
+    if (type === "lavender") {
+      const stem = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.003, 0.005, 0.075 * size, 5),
+        botanicalMaterials.stem,
+      );
+      stem.position.y = 0.035 * size;
+      group.add(stem);
+      for (let i = 0; i < 6; i++) {
+        const bud = new THREE.Mesh(
+          budGeometry,
+          i % 2
+            ? botanicalMaterials.lavender
+            : botanicalMaterials.lavenderLight,
+        );
+        bud.scale.set(0.009 * size, 0.018 * size, 0.009 * size);
+        bud.position.set(
+          (i % 2 ? 1 : -1) * 0.009 * size,
+          (0.045 + i * 0.009) * size,
+          0,
+        );
+        group.add(bud);
+      }
+      return;
+    }
+    const chamomile = type === "chamomile";
+    const count = chamomile ? 9 : type === "jasmine" ? 6 : 5;
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const petal = new THREE.Mesh(
+        petalGeometry,
+        type === "osmanthus"
+          ? botanicalMaterials.osmanthus
+          : botanicalMaterials.petal,
+      );
+      const radius = (chamomile ? 0.022 : 0.018) * size;
+      petal.scale.set(0.014 * size, 0.006 * size, 0.009 * size);
+      petal.position.set(
+        Math.cos(angle) * radius,
+        0.003 * size,
+        Math.sin(angle) * radius,
+      );
+      group.add(petal);
+    }
+    const center = new THREE.Mesh(
+      budGeometry,
+      chamomile ? botanicalMaterials.chamomile : botanicalMaterials.center,
+    );
+    center.scale.set(
+      (chamomile ? 0.012 : 0.008) * size,
+      0.007 * size,
+      (chamomile ? 0.012 : 0.008) * size,
+    );
+    center.position.y = 0.008 * size;
+    group.add(center);
+  }
+  for (const type of ["osmanthus", "jasmine", "chamomile", "lavender"]) {
+    const potPoints = Array.from({ length: 5 }, (_, i) => {
+      const angle = (i / 5) * Math.PI * 2 + 0.4;
+      return [
+        Math.cos(angle) * 0.2,
+        0.775 + (i % 2) * 0.008,
+        Math.sin(angle) * 0.2,
+      ];
+    });
+    const jarPoints = Array.from({ length: 4 }, (_, i) => {
+      const angle = (i / 4) * Math.PI * 2 + 0.35;
+      return [
+        Math.cos(angle) * 0.14,
+        0.595 + (i % 2) * 0.008,
+        Math.sin(angle) * 0.14,
+      ];
+    });
+    const spoonPoints = [
+      [-0.035, 0.055, -0.05],
+      [0.03, 0.06, 0.025],
+    ];
+    for (const point of potPoints) addBotanical(type, pot, point, 1.05);
+    for (const point of jarPoints) addBotanical(type, jar, point, 0.95);
+    for (const point of spoonPoints)
+      addBotanical(type, spoonLeaves, point, 0.8);
+  }
+  function setTeaAppearance(type) {
+    setTeaType(type);
+    teaAccentGroups.forEach(({ type: accentType, group }) => {
+      group.visible = accentType === type;
+    });
+  }
   const streamMat = new THREE.MeshPhysicalMaterial({
     color: "#d7e5e2",
     transparent: true,
@@ -1040,7 +1145,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
       teaType = "osmanthus",
     } = {},
   ) {
-    setTeaType(teaType);
+    setTeaAppearance(teaType);
     setFrame("complete", 0);
     const filled = state === "full" || state === "water";
     const objects = { jar, jarLid, kettle, pot, potLid: lid, cup, spoon };
