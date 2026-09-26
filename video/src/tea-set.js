@@ -1,6 +1,9 @@
 // Deterministic, editable tea-film set. No external models, stock footage, or audio.
 import * as THREE from "three";
 import { createTeaLeaves } from "./tea-leaves.js";
+import { createBrewFilm } from "./brew-film.js";
+import { createTeaForms, noise as formNoise } from "./tea-forms.js";
+import { brewFilmTeas } from "./tea-varieties.js";
 import {
   studioEnvironment,
   hammeredTexture,
@@ -175,7 +178,12 @@ export function createTeaSet(container, W = 1280, H = 720) {
     map: woodTexture(),
     roughness: 0.58,
   });
-  box([16, 0.24, 12], wood, [0, -0.15, 0]);
+  // Backdrop pieces stay in every shot of the brew film.
+  const backdrop = (object) => {
+    object.userData.backdrop = true;
+    return object;
+  };
+  backdrop(box([16, 0.24, 12], wood, [0, -0.15, 0]));
   const soloFloor = box(
     [30, 0.035, 30],
     material("#172329", 0, 0.94),
@@ -183,10 +191,10 @@ export function createTeaSet(container, W = 1280, H = 720) {
   );
   soloFloor.visible = false;
   const mat = material("#283841", 0, 0.9);
-  box([4.9, 0.055, 3.1], mat, [-0.05, 0.015, 0.15]);
+  backdrop(box([4.9, 0.055, 3.1], mat, [-0.05, 0.015, 0.15]));
   // Brass edging on the navy linen runner.
   for (const z of [-1.35, 1.65])
-    box([4.84, 0.012, 0.025], brass, [-0.05, 0.05, z]);
+    backdrop(box([4.84, 0.012, 0.025], brass, [-0.05, 0.05, z]));
   const kettle = new THREE.Group();
   scene.add(kettle);
   kettle.position.set(-2.3, 0.08, -0.45);
@@ -442,6 +450,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
     pot,
   );
   teaSurface.rotation.x = -Math.PI / 2;
+  teaSurface.name = "pot-liquor";
   const cupLiquid = mesh(
     new THREE.CircleGeometry(0.34, 64),
     teaMat,
@@ -449,6 +458,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
     cup,
   );
   cupLiquid.rotation.x = -Math.PI / 2;
+  cupLiquid.name = "cup-liquor";
   // A narrow curved meniscus catches light where liquid meets the vessel wall.
   const meniscusMat = new THREE.MeshPhysicalMaterial({
     color: "#d2b774",
@@ -486,8 +496,8 @@ export function createTeaSet(container, W = 1280, H = 720) {
     }
   }
 
-  const cupRipples = Array.from({ length: 3 }, () =>
-    ring(
+  const cupRipples = Array.from({ length: 3 }, () => {
+    const ripple = ring(
       0.12,
       0.0025,
       new THREE.MeshBasicMaterial({
@@ -498,8 +508,10 @@ export function createTeaSet(container, W = 1280, H = 720) {
       }),
       [0, 0.506, 0],
       cup,
-    ),
-  );
+    );
+    ripple.name = "cup-ripple";
+    return ripple;
+  });
   const jar = new THREE.Group();
   scene.add(jar);
   jar.position.set(-1.8, 0.08, 1.25);
@@ -537,6 +549,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
   ring(0.385, 0.011, brass, [0, 0.035, 0], jarLid);
   const jarCap = jarLid.clone();
   jarCap.position.set(0, 0.705, 0);
+  jarCap.name = "jar-cap";
   jar.add(jarCap);
   jarCap.visible = false;
   const labelCanvas = document.createElement("canvas");
@@ -554,6 +567,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
     [0, 0.34, 0],
     jar,
   );
+  labelMesh.name = "jar-label";
   function jarLabel(label, color) {
     const c = labelCanvas.getContext("2d");
     c.fillStyle = "#e1d0aa";
@@ -585,6 +599,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
     jar,
   );
   leafBed.rotation.x = -Math.PI / 2;
+  leafBed.name = "jar-leaf-bed";
   const {
     leaf: teaLeaf,
     noise: leafNoise,
@@ -597,7 +612,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
       Math.cos(a) * r,
       0.565 + leafNoise(i + 99) * 0.035,
       Math.sin(a) * r,
-    ]);
+    ]).name = "jar-leaf";
   }
   const spoon = new THREE.Group();
   scene.add(spoon);
@@ -617,6 +632,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
   spoonBowl.scale.z = 1.45;
   ball([0.042, 0.023, 0.44], brass, [0, 0.025, 0.54], spoon);
   const spoonLeaves = new THREE.Group();
+  spoonLeaves.name = "spoon-leaves";
   spoon.add(spoonLeaves);
   for (let i = 0; i < 18; i++) {
     teaLeaf(i + 100, false, spoonLeaves, [
@@ -633,7 +649,9 @@ export function createTeaSet(container, W = 1280, H = 720) {
   }
   const floatingLeaves = [];
   for (let i = 0; i < 13; i++) {
-    floatingLeaves.push(teaLeaf(i + 30, true, pot));
+    const leaf = teaLeaf(i + 30, true, pot);
+    leaf.name = "pot-leaf";
+    floatingLeaves.push(leaf);
   }
   const dryPotLeaves = [];
   for (let i = 0; i < 64; i++) {
@@ -646,6 +664,57 @@ export function createTeaSet(container, W = 1280, H = 720) {
     ]);
     leaf.rotation.x = (leafNoise(i + 231) - 0.5) * 0.9;
     dryPotLeaves.push(leaf);
+  }
+  // Production prop renders use the same eight botanical forms as the brew
+  // film. Keep one active set and rebuild it only when the selected tea changes.
+  const teaForms = createTeaForms();
+  const jarFormGroup = new THREE.Group();
+  jarFormGroup.name = "jar-tea-form";
+  jar.add(jarFormGroup);
+  const spoonFormGroup = new THREE.Group();
+  spoonFormGroup.name = "spoon-tea-form";
+  spoonLeaves.add(spoonFormGroup);
+  const potDryFormGroup = new THREE.Group();
+  potDryFormGroup.name = "pot-dry-tea-form";
+  pot.add(potDryFormGroup);
+  const potWetFormGroup = new THREE.Group();
+  potWetFormGroup.name = "pot-wet-tea-form";
+  pot.add(potWetFormGroup);
+  const clearForms = (group) => {
+    group.clear();
+  };
+  function scatterTeaForms(group, spec, count, wet, radius, baseY, seedOffset) {
+    clearForms(group);
+    for (let i = 0; i < count; i++) {
+      const angle = i * 2.39996 + formNoise(seedOffset + i) * 0.35;
+      const r = Math.sqrt((i + 0.5) / count) * radius;
+      const piece = wet ? teaForms.wet(spec, seedOffset + i) : teaForms.dry(spec, seedOffset + i);
+      piece.position.set(
+        Math.cos(angle) * r,
+        baseY + formNoise(seedOffset + i * 7) * (wet ? 0.006 : 0.024),
+        Math.sin(angle) * r * 0.9,
+      );
+      group.add(piece);
+    }
+  }
+  let activePropTea = "";
+  function setPropTeaForms(type) {
+    const spec = brewFilmTeas[type];
+    if (!spec) throw new Error(`Unknown tea form ${type}`);
+    if (activePropTea !== type) {
+      // Hide the former shared-leaf placeholders. These remain for the film's
+      // moving shots, while all still prop art now uses individual tea forms.
+      jar.children.filter((child) => child.name === "jar-leaf").forEach((leaf) => (leaf.visible = false));
+      spoonLeaves.children.filter((child) => child !== spoonFormGroup).forEach((leaf) => (leaf.visible = false));
+      floatingLeaves.forEach((leaf) => (leaf.visible = false));
+      dryPotLeaves.forEach((leaf) => (leaf.visible = false));
+      scatterTeaForms(jarFormGroup, spec, 72, false, 0.215, 0.565, 101 + Object.keys(brewFilmTeas).indexOf(type) * 1000);
+      scatterTeaForms(spoonFormGroup, spec, 22, false, 0.085, 0.035, 401 + Object.keys(brewFilmTeas).indexOf(type) * 1000);
+      scatterTeaForms(potDryFormGroup, spec, 56, false, 0.34, 0.705, 701 + Object.keys(brewFilmTeas).indexOf(type) * 1000);
+      scatterTeaForms(potWetFormGroup, spec, 16, true, 0.31, 0.723, 1001 + Object.keys(brewFilmTeas).indexOf(type) * 1000);
+      activePropTea = type;
+    }
+    teaAccentGroups.forEach(({ group }) => (group.visible = false));
   }
   const teaAccentGroups = [];
   const petalGeometry = new THREE.SphereGeometry(1, 10, 7);
@@ -831,6 +900,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
       [0, 0, 0],
       pot,
     );
+    m.name = "pot-ripple";
     ripples.push(m);
   }
   // Table props establish the bookshop without blocking the action.
@@ -838,6 +908,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
     const g = new THREE.Group();
     g.position.set(-2.3, 0.05 + i * 0.17, -2.35);
     g.rotation.y = -0.12 + i * 0.04;
+    backdrop(g);
     scene.add(g);
     box([1.65, 0.13, 1.1], material("#b6a27c"), [0, 0.08, 0], g);
     for (const y of [0, 0.17])
@@ -846,6 +917,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
   }
   const candleGroup = new THREE.Group();
   candleGroup.position.set(2.5, 0, -1.2);
+  backdrop(candleGroup);
   scene.add(candleGroup);
   lathe(
     [
@@ -904,23 +976,28 @@ export function createTeaSet(container, W = 1280, H = 720) {
     ]);
   }
   // Window with a night gradient, mullions and distant warm points of light.
-  mesh(new THREE.PlaneGeometry(18, 8), material("#132a42"), [0, 3, -4]);
+  backdrop(mesh(new THREE.PlaneGeometry(18, 8), material("#132a42"), [0, 3, -4]));
   for (let i = -4; i <= 4; i++)
-    box([0.06, 6, 0.06], wood, [i * 1.25, 2.5, -3.9]);
-  for (const y of [0.7, 3.2, 5.3]) box([13, 0.06, 0.06], wood, [0, y, -3.9]);
+    backdrop(box([0.06, 6, 0.06], wood, [i * 1.25, 2.5, -3.9]));
+  for (const y of [0.7, 3.2, 5.3])
+    backdrop(box([13, 0.06, 0.06], wood, [0, y, -3.9]));
   for (let i = 0; i < 45; i++) {
     const x = Math.sin(i * 9.3) * 6,
       y = 0.5 + ((i * 17) % 29) / 14;
-    ball(
-      [0.023, 0.032, 0.015],
-      new THREE.MeshBasicMaterial({ color: i % 3 ? "#b77d37" : "#b8bcca" }),
-      [x, y, -3.95],
+    backdrop(
+      ball(
+        [0.023, 0.032, 0.015],
+        new THREE.MeshBasicMaterial({ color: i % 3 ? "#b77d37" : "#b8bcca" }),
+        [x, y, -3.95],
+      ),
     );
   }
-  mesh(
-    new THREE.CircleGeometry(0.3, 48),
-    new THREE.MeshBasicMaterial({ color: "#ecdfb9" }),
-    [-1.1, 4.5, -3.8],
+  backdrop(
+    mesh(
+      new THREE.CircleGeometry(0.3, 48),
+      new THREE.MeshBasicMaterial({ color: "#ecdfb9" }),
+      [-1.1, 4.5, -3.8],
+    ),
   );
   const ambient = new THREE.HemisphereLight("#d4dcd8", "#40362a", 1.05);
   scene.add(ambient);
@@ -965,11 +1042,30 @@ export function createTeaSet(container, W = 1280, H = 720) {
   }
   const ease = (t) => t * t * (3 - 2 * t);
   const clamp = (t) => Math.max(0, Math.min(1, t));
+  // The per-tea brew film with Lin Cheng's hands, built on first use from
+  // copies of the same pot, cup, caddy, scoop and kettle.
+  let brew = null;
+  const brewFilm = () =>
+    (brew ??= createBrewFilm({
+      scene,
+      camera,
+      props: { pot, lid, cup, jar, jarLid, spoon, kettle },
+      materials: { jarGlaze, cream },
+    }));
   function setFrame(clip, t, tea = "osmanthus") {
     t = clamp(t);
+    if (clip === "brew") {
+      scene.fog = null;
+      brewFilm().setFrame(t, tea);
+      renderer.render(scene, camera);
+      return;
+    }
     scene.children.forEach((child) => {
       child.visible = true;
     });
+    if (brew) brew.root.visible = false;
+    camera.fov = 35;
+    camera.updateProjectionMatrix();
     soloFloor.visible = false;
     scene.fog = clip === "complete" ? soloFog : null;
     const isFull = ["steep", "serve", "complete"].includes(clip);
@@ -1146,6 +1242,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
     } = {},
   ) {
     setTeaAppearance(teaType);
+    setPropTeaForms(teaType);
     setFrame("complete", 0);
     const filled = state === "full" || state === "water";
     const objects = { jar, jarLid, kettle, pot, potLid: lid, cup, spoon };
@@ -1175,18 +1272,15 @@ export function createTeaSet(container, W = 1280, H = 720) {
     teaSurface.visible = kind === "pot" && filled;
     teaSurface.position.y = 0.72;
     floatingLeaves.forEach((l) => {
-      l.visible = kind === "pot" && state !== "empty";
-      l.position.y = filled ? 0.723 : 0.18;
-      const [leafWidth, leafLength] = l.userData.teaScale ?? [1, 1];
-      l.scale.set(
-        (filled ? 1 : 0.65) * leafWidth,
-        filled ? 1 : 2,
-        (filled ? 1 : 0.65) * leafLength,
-      );
+      l.visible = false;
     });
     dryPotLeaves.forEach((leaf) => {
-      leaf.visible = kind === "pot" && state === "leaves";
+      leaf.visible = false;
     });
+    jarFormGroup.visible = kind === "jar" && state === "open";
+    spoonFormGroup.visible = kind === "spoon" && state === "full";
+    potDryFormGroup.visible = kind === "pot" && state === "leaves";
+    potWetFormGroup.visible = kind === "pot" && filled;
     cupLiquid.visible = kind === "cup" && filled;
     cupLiquid.position.y = 0.47;
     cupRipples.forEach((r) => {
@@ -1295,7 +1389,23 @@ export function createTeaSet(container, W = 1280, H = 720) {
   return {
     setFrame,
     renderProp,
-    renderLiquorFrame(t) {
+    // For tooling: inspect a frame from another angle without changing it.
+    renderFrom(position, target, fov = camera.fov) {
+      const saved = [camera.position.clone(), camera.quaternion.clone(), camera.fov];
+      camera.position.set(...position);
+      camera.lookAt(...target);
+      camera.fov = fov;
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+      const image = renderer.domElement.toDataURL("image/png");
+      camera.position.copy(saved[0]);
+      camera.quaternion.copy(saved[1]);
+      camera.fov = saved[2];
+      camera.updateProjectionMatrix();
+      return image;
+    },
+    renderLiquorFrame(t, clip = "complete") {
+      if (clip === "brew") return brewFilm().renderLiquorMask(renderer, t);
       setFrame("complete", t);
       return renderLiquorOnly(camera);
     },
