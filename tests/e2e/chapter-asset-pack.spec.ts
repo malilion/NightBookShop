@@ -38,10 +38,12 @@ test("starting a later chapter makes its unvisited memories available offline", 
     "/images/characters/haiming.webp",
     "/images/characters/owner.webp",
     "/images/characters/lincheng-child.webp",
-    ...["lighthouse", "summer-visit", "last-watch", "white-room"].flatMap((scene) => [
+    ...["lighthouse", "summer-visit", "last-watch"].flatMap((scene) => [
       `/images/memory-${scene}.webp`,
       `/images/memory-${scene}-mobile.webp`,
     ]),
+    "/images/memory-white-room-v2.webp",
+    "/images/memory-white-room-v2-mobile.webp",
   ];
   await expectImagesCached(page, chapterImages);
 
@@ -49,7 +51,7 @@ test("starting a later chapter makes its unvisited memories available offline", 
   const offlineImage = await page.evaluate(async (url) => {
     const response = await fetch(url);
     return { ok: response.ok, type: response.headers.get("content-type"), bytes: (await response.blob()).size };
-  }, "/images/memory-white-room-mobile.webp");
+  }, "/images/memory-white-room-v2-mobile.webp");
   expect(offlineImage.ok).toBe(true);
   expect(offlineImage.type).toContain("image/webp");
   expect(offlineImage.bytes).toBeGreaterThan(0);

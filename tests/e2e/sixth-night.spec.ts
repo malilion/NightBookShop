@@ -113,10 +113,10 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await page.screenshot({ path: `output/sixth-night-last-watch-${info.project.name}.png`, animations: "disabled" });
   await inspectMemoryObjects(page, "last-watch", ["婚禮邀請", "颱風警報", "婚禮照片"]);
   await page.getByRole("button", { name: "從邀請背面收起第三角紙船" }).click();
-  await advanceUntil(page, '.scene-art img[src*="memory-white-room.webp"]');
+  await advanceUntil(page, '.scene-art img[src*="memory-white-room-v2.webp"]');
   await expect(page.locator(".scene-art")).toHaveCount(1);
-  await expect.poll(() => page.locator('.scene-art img[src*="memory-white-room.webp"]').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
-  if (touch) await expect(page.locator('.scene-art source[srcset*="memory-white-room-mobile.webp"]')).toHaveCount(1);
+  await expect.poll(() => page.locator('.scene-art img[src*="memory-white-room-v2.webp"]').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+  if (touch) await expect(page.locator('.scene-art source[srcset*="memory-white-room-v2-mobile.webp"]')).toHaveCount(1);
   await page.screenshot({ path: `output/sixth-night-white-room-${info.project.name}.png`, animations: "disabled" });
   await inspectMemoryObjects(page, "white-room", ["住址卡", "沒有海的窗", "壞煤油燈"]);
   await page.getByRole("button", { name: "從煤油燈內取出最後一角紙船" }).click();
