@@ -80,6 +80,29 @@ VAR ending_kind = ""
 - else:
     她慢慢握住杯子。琴弓還在桌上，暫時不需要立刻拿起來。 # scene:ruoyin # speaker:旁白 # section:listening
 }
+{
+- tea_quality >= 90 && tea_emotional_match >= 90:
+    ~ understanding += 1
+    若音又聞了一次茶香，想起小學放學的公車。她把剛寫的四個音哼錯，母親沒有糾正，只跟著唱到下車。「那時沒有人替我打分數。」 # clue:bus-hum # speaker:沈若音
+- tea_quality >= 70:
+    ~ trust += 1
+    茶的溫度讓她肯把琴弓擱在一旁。她看著窗外，先說起自己今晚想聽的聲音，而不是下一場演出的曲目。 # speaker:旁白
+- tea_quality >= 50:
+    -> tea_followup
+- else:
+    茶有些澀，若音立刻說自己也常把拍子拉錯，像要替杯子接受一次評分。妳請她不用替這杯茶辯護；她才發現，自己連休息時都在等一句「夠好」。 # clue:tea-score # speaker:旁白
+}
+-> tea_aftercare
+=== tea_followup ===
+若音喝了幾口，仍把杯子放在琴盒旁。若想知道她為何一直看時鐘，可以請她多說一句，也可以陪她先聽完杯緣的餘音。 # speaker:旁白
+* [問她今晚最怕錯過哪個時刻]
+    ~ trust += 1
+    「沒有演出要趕。我怕的是停下來以後，連自己喜歡哪個音都認不出來。」她說，這比錯過下一班車更讓她不安。 # clue:tea-breath # speaker:沈若音
+    -> tea_aftercare
+* [先陪她聽完杯緣的餘音]
+    她沒有立刻答話，只把琴盒推遠一點。「我可以先聽，再決定要不要拉。」 # speaker:沈若音
+    -> tea_aftercare
+=== tea_aftercare ===
 茶匙碰到杯緣，發出四個高低不同的音。若音放下茶杯，低聲說：「那是我小時候寫的開頭。」
 她輕敲杯緣示範了一遍。妳想用四個音回應，最後一個音，先由她自己聽。 # minigame:melody
 -> DONE

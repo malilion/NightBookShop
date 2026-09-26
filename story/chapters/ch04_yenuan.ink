@@ -87,6 +87,29 @@ VAR ending_kind = ""
 - else:
     她聞了聞茶，不急著回答。書店裡的爐火還亮著，足夠陪她坐一會。 # scene:yenuan # speaker:旁白 # section:hearth
 }
+{
+- tea_quality >= 90 && tea_emotional_match >= 90:
+    ~ understanding += 1
+    葉暖想起開店前的一個下午，母親在烤箱旁擺了兩只不同的杯子，只說：「這杯是妳的，不必等客人都走了才喝。」當時她把茶喝完，麵包仍在慢慢發酵。 # clue:two-cups-break # speaker:葉暖
+- tea_quality >= 70:
+    ~ trust += 1
+    茶的香氣停在她手心。葉暖沒有起身收拾桌面，先讓那顆焦麵包留在籃子裡，說想把那天的事講清楚。 # speaker:旁白
+- tea_quality >= 50:
+    -> tea_followup
+- else:
+    茶太濃，她已經拿起抹布，說要替妳重泡一杯。妳看見她不是嫌這杯茶，而是把每次不如預期都當成自己該補做的工作。 # clue:tea-cleanup # speaker:旁白
+}
+-> tea_aftercare
+=== tea_followup ===
+葉暖接受了茶，眼睛卻仍盯著烤箱。妳可以問她為何不能等麵包慢慢發起來，也可以先讓她把杯子握暖。 # speaker:旁白
+* [問她烤箱一安靜下來會想起什麼]
+    ~ trust += 1
+    「我會想起媽媽說『再等一下』。以前我以為她只是在教我做麵包。」葉暖望著焦黑的表面，沒有急著把它藏回籃底。 # clue:oven-pause # speaker:葉暖
+    -> tea_aftercare
+* [先讓她把杯子握暖]
+    她坐了一會，才說：「我們不用趕在茶涼之前，把每件事都講完。」 # speaker:葉暖
+    -> tea_aftercare
+=== tea_aftercare ===
 她指著牆邊的小烤爐。「妳們店裡也有爐。火若開太大，外皮先焦；等太久又會涼。」
 葉暖開始說那年週年活動。妳在爐邊回應她，調整每一次傾聽的火候。 # minigame:hearth
 -> DONE

@@ -4,10 +4,10 @@ import { resolve, dirname } from "node:path";
 for (const [source, output] of [
   ["story/main.ink", "main.json"],
   ["story/chapters/ch02_boyan.ink", "boyan-chapter-8.json"],
-  ["story/chapters/ch03_ruoyin.ink", "ruoyin-chapter-5.json"],
-  ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-5.json"],
-  ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-6.json"],
-  ["story/chapters/ch06_haiming.ink", "haiming-chapter-7.json"],
+  ["story/chapters/ch03_ruoyin.ink", "ruoyin-chapter-6.json"],
+  ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-6.json"],
+  ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-7.json"],
+  ["story/chapters/ch06_haiming.ink", "haiming-chapter-8.json"],
   ["story/chapters/finale_lincheng.ink", "lincheng-chapter-6.json"],
 ]) {
   const file = resolve(source);

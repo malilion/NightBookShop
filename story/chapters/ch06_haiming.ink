@@ -106,6 +106,29 @@ VAR ending_kind = ""
 - else:
     他握著杯子，仍記不起今天的日期。妳沒有把這杯茶說成一種治療；今晚只需要先聽清他想留下的話。 # scene:haiming # speaker:旁白 # section:watch-lamp
 }
+{
+- tea_quality >= 90 && tea_emotional_match >= 90:
+    ~ understanding += 1
+    海明記起顧川小時候在塔裡替他擺過兩個杯墊，一個靠窗、一個靠日誌。「他說燈照船，也該照到我們吃飯的桌子。」海明沒有替這句話補上日期，只請妳把它照原樣寫下。 # clue:tower-table # speaker:顧海明
+- tea_quality >= 70:
+    ~ trust += 1
+    茶的溫度剛好，海明把日誌移到能看清的地方。今夜能讀到哪一頁由他決定，妳等他翻開。 # speaker:旁白
+- tea_quality >= 50:
+    -> tea_followup
+- else:
+    茶涼得快，海明以為自己又記錯了沖泡的日子，急著翻日誌求證。妳告訴他茶的溫度不需要證明他的記憶，讓他自己選要讀哪一頁。 # clue:tea-date # speaker:旁白
+}
+-> tea_aftercare
+=== tea_followup ===
+海明把杯子放到日誌旁，說有幾頁寫得太整齊。妳可以請他指出想留下的原句，也可以先等他選好頁碼。 # speaker:旁白
+* [請他指出想保留的原句]
+    ~ trust += 1
+    他指著一句「今天風很大，我也害怕」，說這一行不必修成勇敢的樣子；日誌裡還有他自己的聲音。 # clue:today-page # speaker:顧海明
+    -> tea_aftercare
+* [先等他選好頁碼]
+    他慢慢翻過兩頁，停在自己認得的字上。「這一頁可以先看，後面的再說。」 # speaker:顧海明
+    -> tea_aftercare
+=== tea_aftercare ===
 妳把桌上可用的小燈點亮，讓他看得清日誌。海明說強光下每段往事都像英雄故事，太暗卻會丟掉重要的細節。
 隨著他談三段往事，守住一盞柔和的燈。 # minigame:lamp
 -> DONE

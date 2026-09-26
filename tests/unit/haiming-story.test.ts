@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-7.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-8.json", "utf8");
+const chapterSeven = readFileSync("public/story/compiled/haiming-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/haiming-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/haiming-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/haiming-chapter-4.json", "utf8");
@@ -96,6 +97,9 @@ describe("Haiming sixth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-six %s route", (target) => {
     expect(play(target, false, chapterSix).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-seven %s route", (target) => {
+    expect(play(target, false, chapterSeven).story.frame.endingId).toBe(target);
   });
   it("can leave each memory with four paper-boat fragments and no optional clues", () => {
     const { story } = play("haiming-boat", false, compiled, { skipObjects: true });

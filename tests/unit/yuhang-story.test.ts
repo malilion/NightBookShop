@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-6.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-7.json", "utf8");
+const chapterSix = readFileSync("public/story/compiled/yuhang-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/yuhang-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/yuhang-chapter-4.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/yuhang-chapter-3.json", "utf8");
@@ -85,6 +86,9 @@ describe("Yuhang fifth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-five %s route", (target) => {
     expect(play(target, true, false, chapterFive).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-six %s route", (target) => {
+    expect(play(target, true, false, chapterSix).story.frame.endingId).toBe(target);
   });
   it("allows leaving every memory with four fragments and no optional clues", () => {
     const { story } = play("yuhang-unknown", true, false, compiled, { skipObjects: true });

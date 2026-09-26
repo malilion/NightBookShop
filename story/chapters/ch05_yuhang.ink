@@ -100,6 +100,29 @@ VAR ending_kind = ""
 - else:
     他把茶杯握在手裡。雨沒有停，派送路線還在；此刻可以先看清信上的地址。 # scene:yuhang # speaker:旁白 # section:mail-route
 }
+{
+- tea_quality >= 90 && tea_emotional_match >= 90:
+    ~ understanding += 1
+    雨航想起妹妹曾在派送簿背面寫：「先問懂書的人，書架要怎麼固定。」他們那時連第一站都沒決定，卻已一起想過一件做得到的小事。 # clue:sister-route-note # speaker:程雨航
+- tea_quality >= 70:
+    ~ trust += 1
+    茶讓他肯坐到郵袋旁。他仍記得路線，卻先把今晚尚未送完的信放好，沒有催妳立刻簽收。 # speaker:旁白
+- tea_quality >= 50:
+    -> tea_followup
+- else:
+    雨航只喝一口，便問是不是該把茶送去別桌。他連不是郵件的杯子也想替人送達，卻一直不肯看信封上自己的姓名。 # clue:delivery-reflex # speaker:旁白
+}
+-> tea_aftercare
+=== tea_followup ===
+雨航把杯子放在郵袋旁，身體卻仍朝向門。妳可以問他自己的住址，或讓他先看清那封信的收件欄。 # speaker:旁白
+* [問他若寄給自己會寫哪個住址]
+    ~ trust += 1
+    「我記得每個人的門牌，卻很久沒寫過自己的。」他念出住處的街名，第一次沒有用派送路線代替回答。 # clue:own-address # speaker:程雨航
+    -> tea_aftercare
+* [讓他先看清信的收件欄]
+    他把信翻正，承認上面寫的是自己的名字。「地址等我想好再填。」 # speaker:程雨航
+    -> tea_aftercare
+=== tea_aftercare ===
 藍色信的地址又變了。郵戳、雨痕與字跡分別指向一處地方；桌面像城市地圖一樣展開。
 依三個線索選擇投遞地點。走錯不會失敗，也會看見雨航避開的某段生活。 # minigame:route
 -> DONE

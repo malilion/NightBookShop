@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-5.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-6.json", "utf8");
+const chapterFive = readFileSync("public/story/compiled/yenuan-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/yenuan-chapter-4.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/yenuan-chapter-3.json", "utf8");
 const chapterTwo = readFileSync("public/story/compiled/yenuan-chapter-2.json", "utf8");
@@ -95,6 +96,9 @@ describe("Yenuan fourth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-four %s route", (target) => {
     expect(play(target, true, chapterFour).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-five %s route", (target) => {
+    expect(play(target, true, chapterFive).story.frame.endingId).toBe(target);
   });
   it("keeps the memory recaps grounded in inspected evidence", () => {
     const explored = play("yenuan-rest").texts.join(" ");

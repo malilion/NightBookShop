@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-5.json",
+  "public/story/compiled/ruoyin-chapter-6.json",
   "utf8",
 );
+const chapterFive = readFileSync("public/story/compiled/ruoyin-chapter-5.json", "utf8");
 const previousCompiled = readFileSync("public/story/compiled/ruoyin-chapter-1.json", "utf8");
 const chapterTwo = readFileSync("public/story/compiled/ruoyin-chapter-2.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/ruoyin-chapter-3.json", "utf8");
@@ -125,6 +126,9 @@ describe("Ruoyin third night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-four %s save route", (target) => {
     expect(play(target, true, chapterFour).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-five %s save route", (target) => {
+    expect(play(target, true, chapterFive).story.frame.endingId).toBe(target);
   });
   it("changes all four memory recaps according to inspected evidence", () => {
     const explored = play("ruoyin-stage").texts.join(" ");
