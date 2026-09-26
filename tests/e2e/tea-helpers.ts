@@ -121,4 +121,5 @@ export async function steepAndServe(page: Page, touch = false, recipient = "她"
     .toBeGreaterThanOrEqual(43);
   await pour(page, "pot", 28, touch);
   await page.getByRole("button", { name: `將茶遞給${recipient}`, exact: true }).click();
+  await expect(page.getByRole("heading", { name: `把這一杯，放到${recipient}面前。` })).toBeVisible();
 }

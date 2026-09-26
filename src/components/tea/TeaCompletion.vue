@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { useGameStore } from "../../stores/gameStore";
 import TeaFilm from "./TeaFilm.vue";
-defineProps<{ teaName: string; liquorColor: string }>();
+defineProps<{ teaName: string; liquorColor: string; recipientLabel: string }>();
 const emit = defineEmits<{ done: [] }>();
 const settings = useSettingsStore();
-const game = useGameStore();
 const dialog = ref<HTMLDialogElement>();
 let finished = false;
 function finish() {
@@ -27,7 +25,7 @@ onMounted(() => dialog.value?.showModal());
   >
     <header class="tea-completion-heading">
       <p class="subtle">{{ teaName }} · 茶已備好</p>
-      <h2 id="tea-completion-title">把這一杯，放到{{ game.chapterId === "boyan" ? "他" : "她" }}面前。</h2>
+      <h2 id="tea-completion-title">把這一杯，放到{{ recipientLabel }}面前。</h2>
     </header>
     <TeaFilm
       clip="complete"

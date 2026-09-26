@@ -1087,6 +1087,7 @@ onBeforeUnmount(() => {
       v-if="showCompletion"
       :tea-name="teaName"
       :liquor-color="infusion.color"
+      :recipient-label="recipientLabel"
       @done="completeTea"
     />
   </section>

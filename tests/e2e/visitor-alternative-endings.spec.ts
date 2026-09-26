@@ -20,7 +20,7 @@ import {
 
 const chapters = [
   { version: STORY_VERSION, file: "main", tea: "osmanthus", fragments: ["address", "reason", "wait"] },
-  { version: "boyan-chapter-7", file: "boyan-chapter-7", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
+  { version: "boyan-chapter-8", file: "boyan-chapter-8", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
   { version: "ruoyin-chapter-5", file: "ruoyin-chapter-5", tea: "lavender", fragments: ["greeting", "fear", "music"] },
   { version: "yenuan-chapter-5", file: "yenuan-chapter-5", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
   { version: "haiming-chapter-7", file: "haiming-chapter-7", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },

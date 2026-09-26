@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { parseTag } from "../../src/story/commandParser";
-import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
+import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
+import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-7.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-8.json", "utf8");
+const chapterSeven = readFileSync("public/story/compiled/boyan-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/boyan-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/boyan-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/boyan-chapter-4.json", "utf8");
@@ -22,7 +24,7 @@ const choicesByEnding = {
 function complete(
   target: keyof typeof choicesByEnding,
   storyJson = compiled,
-  options: { skipObjects?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean; orderHandoffFirst?: boolean } = {},
+  options: { skipObjects?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean; orderHandoffFirst?: boolean; teaDraft?: TeaDraft; teaFollowup?: "leave" } = {},
 ) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
@@ -34,7 +36,7 @@ function complete(
     sections.add(story.frame.section);
     texts.push(story.frame.text);
     if (story.frame.mode === "tea") {
-      story.finishTea({ teaId: "chamomile", garnish: options.honey ? "honey" : "none", quality: 95, emotionalMatch: options.honey ? 100 : 75 });
+      story.finishTea(options.teaDraft ? scoreTea(options.teaDraft, "boyan") : { teaId: "chamomile", garnish: options.honey ? "honey" : "none", quality: 95, emotionalMatch: options.honey ? 100 : 75 });
     } else if (story.frame.mode === "letter") {
       expect(story.frame.fragments).toEqual(["status", "boundary", "handoff", "next"]);
       story.finishLetter({ completion: 100, understood: true });
@@ -43,7 +45,7 @@ function complete(
     } else if (story.frame.canContinue) {
       story.next();
     } else {
-      const choice = (options.orderHandoffFirst ? story.frame.choices.find((entry) => entry.text.includes("先照舊清單排好交接")) : undefined) ?? story.frame.choices.find((entry) =>
+      const choice = (options.teaFollowup === "leave" ? story.frame.choices.find((entry) => entry.text.includes("先讓杯子和手機都留在桌上")) : undefined) ?? (options.orderHandoffFirst ? story.frame.choices.find((entry) => entry.text.includes("先照舊清單排好交接")) : undefined) ?? story.frame.choices.find((entry) =>
         entry.text.includes(choicesByEnding[target]),
       ) ?? (options.skipObjects
         ? story.frame.choices.find((entry) => [
@@ -100,6 +102,27 @@ describe("Boyan second night", () => {
   });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-six %s save route", (target) => {
     expect(complete(target, chapterSix).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-seven %s save route", (target) => {
+    expect(complete(target, chapterSeven).story.frame.endingId).toBe(target);
+  });
+  it("responds to the brewed quality, offers extra listening, and keeps poor tea playable", () => {
+    const ideal = { ...newTea(), teaId: "chamomile" as const, garnish: "honey" as const, leaves: 3, water: 70, temperature: 90, seconds: 60 };
+    const middling = { ...ideal, garnish: "none" as const, leaves: 1, water: 40, temperature: 75, seconds: 10 };
+    const poor = { ...ideal, teaId: "black" as const, garnish: "none" as const, leaves: 0, water: 0, temperature: 60, seconds: 0 };
+    expect(scoreTea(ideal, "boyan").quality).toBeGreaterThanOrEqual(90);
+    expect(scoreTea(middling, "boyan").quality).toBeGreaterThanOrEqual(50);
+    expect(scoreTea(middling, "boyan").quality).toBeLessThan(70);
+    expect(scoreTea(poor, "boyan").quality).toBeLessThan(50);
+    const best = complete("boyan-rest", compiled, { teaDraft: ideal });
+    const followup = complete("boyan-rest", compiled, { teaDraft: middling });
+    const quiet = complete("boyan-rest", compiled, { teaDraft: middling, teaFollowup: "leave" });
+    const mismatched = complete("boyan-rest", compiled, { teaDraft: poor });
+    expect(best.story.frame.clues).toContain("river-bookstall");
+    expect(followup.texts.join(" ")).toContain("我怕明早有人找不到我");
+    expect(quiet.texts.join(" ")).not.toContain("我怕明早有人找不到我");
+    expect(mismatched.story.frame.clues).toContain("tea-apology");
+    expect(mismatched.story.frame.endingId).toBe("boyan-rest");
   });
   it("opens a distinct health and help conversation after honey chamomile", () => {
     const honey = complete("boyan-rest", compiled, { honey: true });
