@@ -306,7 +306,13 @@ export const lampActionSchema = z.enum(["brighten", "dim", "steady"]);
 export const lampSchema = z.object({ turns: z.array(lampActionSchema).max(3) });
 export type LampDraft = z.infer<typeof lampSchema>;
 export const archiveItemSchema = z.enum(["jinglan", "boyan", "ruoyin", "yenuan", "yuhang", "haiming"]);
-export const archiveSchema = z.object({ inspected: z.array(archiveItemSchema).max(6) });
+export const archiveConnectionSchema = z.enum([
+  "jinglan-boyan", "boyan-ruoyin", "ruoyin-haiming", "haiming-yuhang", "yuhang-yenuan",
+]);
+export const archiveSchema = z.object({
+  inspected: z.array(archiveItemSchema).max(6),
+  connections: z.array(archiveConnectionSchema).max(5).default([]),
+});
 export type ArchiveDraft = z.infer<typeof archiveSchema>;
 export const workNotificationSchema = z.enum(["manager", "teammate", "system"]);
 export type WorkNotification = z.infer<typeof workNotificationSchema>;
@@ -384,7 +390,7 @@ export const snapshotSchema = z.object({
   hearth: hearthSchema.default({ responses: [] }),
   route: routeSchema.default({ stops: [] }),
   lamp: lampSchema.default({ turns: [] }),
-  archive: archiveSchema.default({ inspected: [] }),
+  archive: archiveSchema.default({ inspected: [], connections: [] }),
   notifications: notificationsSchema.default({ paused: [], repliedMother: false }),
   opening: openingSchema.default({ inspected: ["counter", "weather", "tea"], complete: true }),
 });
@@ -443,6 +449,6 @@ export const newMelody = (): MelodyDraft => ({ notes: [] });
 export const newHearth = (): HearthDraft => ({ responses: [] });
 export const newRoute = (): RouteDraft => ({ stops: [] });
 export const newLamp = (): LampDraft => ({ turns: [] });
-export const newArchive = (): ArchiveDraft => ({ inspected: [] });
+export const newArchive = (): ArchiveDraft => ({ inspected: [], connections: [] });
 export const newNotifications = (): NotificationsDraft => ({ paused: [], repliedMother: false });
 export const newOpening = (): OpeningDraft => ({ inspected: [], complete: false });

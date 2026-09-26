@@ -103,12 +103,30 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await page.getByRole("button", { name: /靜蘭 · 舊信/ }).click();
   await page.getByRole("button", { name: /柏言 · 草稿/ }).click();
   await page.getByRole("button", { name: /若音 · 樂譜/ }).click();
+  await page.getByRole("button", { name: /靜蘭 · 舊信/ }).click();
+  await page.getByRole("button", { name: /柏言 · 草稿/ }).click();
+  await expect(page.locator(".archive-connections")).toContainText("柏言母親保存了靜蘭的舊校刊");
   await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
   await page.reload();
-  await expect(page.locator(".archive-panel")).toContainText("已查看 3/6 張");
+  await expect(page.locator(".archive-panel")).toContainText("已查看 3/6 張，接上 1/5 段");
   await page.getByRole("button", { name: /葉暖 · 食譜/ }).click();
   await page.getByRole("button", { name: /雨航 · 郵戳/ }).click();
   await page.getByRole("button", { name: /海明 · 照片/ }).click();
+  await page.getByRole("button", { name: /靜蘭 · 舊信/ }).click();
+  await page.getByRole("button", { name: /海明 · 照片/ }).click();
+  await expect(page.locator(".archive-feedback")).toContainText("還接不起來");
+  await expect(page.getByRole("button", { name: "走進地圖中心" })).toBeDisabled();
+  for (const [first, second] of [
+    ["柏言 · 草稿", "若音 · 樂譜"],
+    ["若音 · 樂譜", "海明 · 照片"],
+    ["海明 · 照片", "雨航 · 郵戳"],
+    ["雨航 · 郵戳", "葉暖 · 食譜"],
+  ]) {
+    await page.getByRole("button", { name: new RegExp(first) }).click();
+    await page.getByRole("button", { name: new RegExp(second) }).click();
+  }
+  await expect(page.locator(".archive-connections li")).toHaveCount(5);
+  await expect(page.getByRole("img", { name: /六張紙背的摺痕拼成城市地圖/ })).toBeVisible();
   await page.screenshot({ path: `output/finale-map-${info.project.name}.png`, fullPage: true, animations: "disabled" });
   await page.getByRole("button", { name: "走進地圖中心" }).click();
   await advanceUntil(page, '.scene-art img[src*="memory-hidden-room.webp"]');

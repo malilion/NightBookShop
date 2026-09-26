@@ -58,6 +58,16 @@ async function playNight(page: Page, night: number, touch: boolean) {
     if (await page.locator(".archive-panel").isVisible()) {
       for (const visitor of ["靜蘭 · 舊信", "柏言 · 草稿", "若音 · 樂譜", "葉暖 · 食譜", "雨航 · 郵戳", "海明 · 照片"])
         await page.getByRole("button", { name: new RegExp(visitor) }).click();
+      for (const [first, second] of [
+        ["靜蘭 · 舊信", "柏言 · 草稿"],
+        ["柏言 · 草稿", "若音 · 樂譜"],
+        ["若音 · 樂譜", "海明 · 照片"],
+        ["海明 · 照片", "雨航 · 郵戳"],
+        ["雨航 · 郵戳", "葉暖 · 食譜"],
+      ]) {
+        await page.getByRole("button", { name: new RegExp(first) }).click();
+        await page.getByRole("button", { name: new RegExp(second) }).click();
+      }
       await page.getByRole("button", { name: "走進地圖中心" }).click();
       continue;
     }

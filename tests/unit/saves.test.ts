@@ -263,6 +263,7 @@ describe("local saves", () => {
   it("loads older saves without archive data and stores the finale bookmark", async () => {
     const parsed = snapshotSchema.parse({ ...snapshot(), archive: undefined });
     expect(parsed.archive).toEqual(newArchive());
+    expect(snapshotSchema.parse({ ...snapshot(), archive: { inspected: ["jinglan"] } }).archive.connections).toEqual([]);
     const data = snapshot();
     data.storyVersion = "lincheng-chapter-1";
     data.frame.mode = "ending";

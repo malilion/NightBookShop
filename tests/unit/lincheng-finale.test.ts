@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { parseTag } from "../../src/story/commandParser";
 import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
-import { scoreArchive } from "../../src/services/archiveScoring";
+import { archiveConnections, connectionBetween, scoreArchive } from "../../src/services/archiveScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
@@ -19,6 +19,10 @@ const targets = {
   "lincheng-shelf": "讓信暫留書架",
   "lincheng-midnight": "拒絕坐下",
 } as const;
+const completeArchive = {
+  inspected: ["jinglan", "boyan", "ruoyin", "yenuan", "yuhang", "haiming"] as (typeof archiveConnections)[number]["first"][],
+  connections: archiveConnections.map((connection) => connection.id),
+};
 
 function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding);
@@ -37,7 +41,7 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
     if (story.frame.mode === "tea")
       story.finishTea({ teaId: "osmanthus", quality: 90, emotionalMatch: 100 });
     else if (story.frame.mode === "archive")
-      story.finishArchive(scoreArchive({ inspected: ["jinglan", "boyan", "ruoyin", "yenuan", "yuhang", "haiming"] }));
+      story.finishArchive(scoreArchive(completeArchive));
     else if (story.frame.mode === "letter") {
       expect(story.frame.fragments).toEqual(["kept", "afraid", "two-wishes", "embrace"]);
       story.finishLetter({ completion: fullLetter ? 100 : 50, understood: fullLetter });
@@ -140,9 +144,12 @@ describe("Lincheng finale", () => {
     expect(hero.texts.join(" ")).toContain("讓那頁原稿與整齊的版本並排");
     expect(light.texts.join(" ")).not.toContain("讓那頁原稿與整齊的版本並排");
   });
-  it("requires every archive page and the four original lines for a full return", () => {
-    expect(scoreArchive({ inspected: ["jinglan", "boyan", "ruoyin", "yenuan", "yuhang", "haiming"] }).complete).toBe(true);
-    expect(scoreArchive({ inspected: ["jinglan", "boyan"] }).complete).toBe(false);
+  it("requires five evidence links across every archive page and the four original lines", () => {
+    expect(scoreArchive(completeArchive)).toMatchObject({ count: 6, connected: 5, complete: true });
+    expect(scoreArchive({ ...completeArchive, connections: completeArchive.connections.slice(0, 4) }).complete).toBe(false);
+    expect(scoreArchive({ ...completeArchive, inspected: ["jinglan", "boyan"] }).complete).toBe(false);
+    expect(connectionBetween("jinglan", "boyan")?.id).toBe("jinglan-boyan");
+    expect(connectionBetween("jinglan", "haiming")).toBeUndefined();
     const letter: LetterDraft = {
       ...newLetter(), slots: ["kept", "afraid", "two-wishes", "embrace"],
       angles: [0, 0, 0, 0], flipped: [false, false, false, false], inspected: true,
