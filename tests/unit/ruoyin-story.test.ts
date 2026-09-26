@@ -7,12 +7,13 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-4.json",
+  "public/story/compiled/ruoyin-chapter-5.json",
   "utf8",
 );
 const previousCompiled = readFileSync("public/story/compiled/ruoyin-chapter-1.json", "utf8");
 const chapterTwo = readFileSync("public/story/compiled/ruoyin-chapter-2.json", "utf8");
 const chapterThree = readFileSync("public/story/compiled/ruoyin-chapter-3.json", "utf8");
+const chapterFour = readFileSync("public/story/compiled/ruoyin-chapter-4.json", "utf8");
 const targets = {
   "ruoyin-one": "只為一個人拉完",
   "ruoyin-stage": "給季晴的信寄出",
@@ -24,7 +25,7 @@ function play(
   target: keyof typeof targets,
   fullLetter = true,
   storyJson = compiled,
-  options: { skipObjects?: boolean; previousEnding?: string; finalBar?: "return" | "new" | "rest"; teaId?: "lavender" | "osmanthus" | "black" } = {},
+  options: { skipObjects?: boolean; excludedChoices?: string[]; previousEnding?: string; finalBar?: "return" | "new" | "rest"; teaId?: "lavender" | "osmanthus" | "black"; chooseTexts?: string[] } = {},
 ) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
@@ -60,6 +61,8 @@ function play(
         story.frame.choices.find((entry) => entry.text === finalBarText) ??
         story.frame.choices.find((entry) =>
           entry.text.includes(targets[target]),
+        ) ?? story.frame.choices.find((entry) =>
+          options.chooseTexts?.some((text) => entry.text.includes(text)),
         ) ?? (options.skipObjects
           ? story.frame.choices.find((entry) => [
               "從譜架下拾起第一片信紙",
@@ -67,7 +70,9 @@ function play(
               "把節目單背面的第三片信紙收好",
               "帶著琴盒回書店，拼起信的兩面",
             ].includes(entry.text))
-          : undefined) ?? story.frame.choices[0];
+          : undefined) ?? story.frame.choices.find((entry) =>
+            !options.excludedChoices?.some((text) => entry.text.includes(text)),
+          );
       expect(choice).toBeDefined();
       story.choose(choice!.index);
     }
@@ -117,6 +122,34 @@ describe("Ruoyin third night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-three %s save route", (target) => {
     expect(play(target, true, chapterThree).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-four %s save route", (target) => {
+    expect(play(target, true, chapterFour).story.frame.endingId).toBe(target);
+  });
+  it("changes all four memory recaps according to inspected evidence", () => {
+    const explored = play("ruoyin-stage").texts.join(" ");
+    const skipped = play("ruoyin-stage", true, compiled, { skipObjects: true }).texts.join(" ");
+    for (const detail of ["雲朵旁的日期", "沒有折住的講評", "核對了那三分鐘", "坐過空椅"])
+      expect(explored).toContain(detail);
+    for (const detail of ["尚未查清的記憶", "還沒有讀全桌上的記錄", "尚未問門邊的人", "掌聲還在重複"])
+      expect(skipped).toContain(detail);
+    expect(skipped).not.toContain("雲朵旁的日期");
+  });
+  it("does not cite the award date when only the rain and score were inspected", () => {
+    const route = play("ruoyin-stage", true, compiled, {
+      excludedChoices: ["查看講台上隔年的獎狀"],
+    }).texts.join(" ");
+    expect(route).toContain("這四個音最初是寫給雨的");
+    expect(route).not.toContain("雲朵旁的日期");
+  });
+  it("lets her discuss comparison and the stage without forcing an answer", () => {
+    const { story, texts } = play("ruoyin-stage", true, compiled, {
+      chooseTexts: ["為何不願再聽", "原樣念完", "會不會想替", "是否仍想站上"],
+    });
+    expect(story.frame.endingId).toBe("ruoyin-stage");
+    const route = texts.join(" ");
+    for (const detail of ["下一個音不像她", "沒讓她說完", "先學會聽", "還需要時間想清楚"])
+      expect(route).toContain(detail);
   });
   it("can leave each memory early and still assemble both sides of the letter", () => {
     const { story, finalChoiceOptions } = play("ruoyin-stage", true, compiled, { skipObjects: true });

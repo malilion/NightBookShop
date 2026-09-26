@@ -76,6 +76,7 @@ test("third night saves the cup motif and both sides of the letter", async ({
     .selectOption("instant");
   await page.getByRole("switch", { name: /減少動態效果/ }).check();
   await page.reload();
+  await expect(page.getByRole("heading", { name: "閱讀的步調" })).toBeVisible();
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第三夜" }).click();
   await prepareOpening(page);
@@ -111,14 +112,23 @@ test("third night saves the cup motif and both sides of the letter", async ({
   await page.reload();
   await expect(page.locator(".memory-evidence-childhood .memory-object-seen")).toHaveCount(3);
   await page.getByRole("button", { name: "從譜架下拾起第一片信紙" }).click();
+  const childhoodReflection = await untilChoice(page, "問她願不願意說");
+  await page.screenshot({ path: `output/third-night-childhood-reflection-${info.project.name}.png`, animations: "disabled" });
+  await childhoodReflection.click();
   await expectMemoryBackground(page, "backstage", info.project.name);
   await inspectMemoryObjects(page, "backstage", ["評審講評", "季晴的舊票", "護手繃帶"]);
   await page.getByRole("button", { name: "從鏡框背後收起第二片信紙" }).click();
+  await (await untilChoice(page, "問她想補給季晴")).click();
   await expectMemoryBackground(page, "banquet", info.project.name);
   await inspectMemoryObjects(page, "banquet", ["企業節目單", "門邊的聽眾", "演出時程"]);
   await page.getByRole("button", { name: "把節目單背面的第三片信紙收好" }).click();
+  await (await untilChoice(page, "問那三分鐘")).click();
   await expectMemoryBackground(page, "grandstage", info.project.name);
   await inspectMemoryObjects(page, "grandstage", ["第一排空椅", "最後一頁樂譜", "側門的燈光"]);
+  await page.getByRole("button", { name: "帶著琴盒回書店，拼起信的兩面" }).click();
+  const stageReflection = await untilChoice(page, "問她若能把掌聲停下");
+  await page.screenshot({ path: `output/third-night-stage-reflection-${info.project.name}.png`, animations: "disabled" });
+  await stageReflection.click();
   await advanceUntil(page, ".letter-panel");
   await expect(page.locator(".letter-slot")).toHaveCount(3);
   for (const [index, line] of [

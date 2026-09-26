@@ -21,7 +21,7 @@ import {
 const chapters = [
   { version: STORY_VERSION, file: "main", tea: "osmanthus", fragments: ["address", "reason", "wait"] },
   { version: "boyan-chapter-7", file: "boyan-chapter-7", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
-  { version: "ruoyin-chapter-4", file: "ruoyin-chapter-4", tea: "lavender", fragments: ["greeting", "fear", "music"] },
+  { version: "ruoyin-chapter-5", file: "ruoyin-chapter-5", tea: "lavender", fragments: ["greeting", "fear", "music"] },
   { version: "yenuan-chapter-4", file: "yenuan-chapter-4", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
   { version: "haiming-chapter-6", file: "haiming-chapter-6", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
 ] as const satisfies readonly { version: StoryVersion; file: string; tea: TeaId; fragments: readonly string[] }[];

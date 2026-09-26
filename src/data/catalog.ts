@@ -441,7 +441,7 @@ export const chapterForVersion = (version: string) =>
     ? "yuhang"
     : version === "yenuan-chapter-1" || version === "yenuan-chapter-2" || version === "yenuan-chapter-3" || version === "yenuan-chapter-4"
     ? "yenuan"
-    : version === "ruoyin-chapter-1" || version === "ruoyin-chapter-2" || version === "ruoyin-chapter-3" || version === "ruoyin-chapter-4"
+    : version === "ruoyin-chapter-1" || version === "ruoyin-chapter-2" || version === "ruoyin-chapter-3" || version === "ruoyin-chapter-4" || version === "ruoyin-chapter-5"
     ? "ruoyin"
     : version === "boyan-chapter-1" || version === "boyan-chapter-2" || version === "boyan-chapter-3" || version === "boyan-chapter-4" || version === "boyan-chapter-5" || version === "boyan-chapter-6" || version === "boyan-chapter-7"
       ? "boyan"
