@@ -73,11 +73,18 @@ try {
     await render("spoon", "spoon", { state: "full" });
   } else {
     for (const [id, tea] of Object.entries(catalog)) {
-      const props = { color: tea.color, label: tea.name, glaze: glazes[id] };
+      const props = {
+        color: tea.color,
+        label: tea.name,
+        glaze: glazes[id],
+        teaType: id,
+      };
       for (const state of ["open", "closed"])
         await render(`jar-${id}-${state}`, "jar", { ...props, state });
       await render(`cup-${id}`, "cup", { ...props, state: "full" });
       await render(`pot-${id}`, "pot", { ...props, state: "full" });
+      await render(`pot-${id}-leaves`, "pot", { ...props, state: "leaves" });
+      await render(`spoon-${id}-full`, "spoon", { ...props, state: "full" });
     }
     for (const kind of ["jarLid", "kettle", "potLid", "spoon", "cup", "pot"])
       await render(kind, kind);

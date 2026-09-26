@@ -31,6 +31,24 @@
       "y": -24.644987513467136
     }
   },
+  "pot-osmanthus-leaves": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-osmanthus-leaves.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "spoon-osmanthus-full": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon-osmanthus-full.webp"
+  },
   "jar-puer-open": {
     "x": -44,
     "y": -61,
@@ -62,6 +80,24 @@
       "x": 89.26213454506748,
       "y": -24.644987513467136
     }
+  },
+  "pot-puer-leaves": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-puer-leaves.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "spoon-puer-full": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon-puer-full.webp"
   },
   "jar-mint-open": {
     "x": -44,
@@ -95,6 +131,24 @@
       "y": -24.644987513467136
     }
   },
+  "pot-mint-leaves": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-mint-leaves.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "spoon-mint-full": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon-mint-full.webp"
+  },
   "jar-jasmine-open": {
     "x": -44,
     "y": -61,
@@ -126,6 +180,24 @@
       "x": 89.26213454506748,
       "y": -24.644987513467136
     }
+  },
+  "pot-jasmine-leaves": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-jasmine-leaves.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "spoon-jasmine-full": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon-jasmine-full.webp"
   },
   "jar-black-open": {
     "x": -44,
@@ -159,6 +231,24 @@
       "y": -24.644987513467136
     }
   },
+  "pot-black-leaves": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-black-leaves.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "spoon-black-full": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon-black-full.webp"
+  },
   "jar-chamomile-open": {
     "x": -44,
     "y": -61,
@@ -190,6 +280,24 @@
       "x": 89.26213454506748,
       "y": -24.644987513467136
     }
+  },
+  "pot-chamomile-leaves": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-chamomile-leaves.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "spoon-chamomile-full": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon-chamomile-full.webp"
   },
   "jar-lavender-open": {
     "x": -44,
@@ -223,6 +331,24 @@
       "y": -24.644987513467136
     }
   },
+  "pot-lavender-leaves": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-lavender-leaves.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "spoon-lavender-full": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon-lavender-full.webp"
+  },
   "jar-hojicha-open": {
     "x": -44,
     "y": -61,
@@ -254,6 +380,24 @@
       "x": 89.26213454506748,
       "y": -24.644987513467136
     }
+  },
+  "pot-hojicha-leaves": {
+    "x": -96,
+    "y": -61,
+    "width": 200,
+    "height": 126,
+    "file": "/images/tea-props/pot-hojicha-leaves.webp",
+    "spout": {
+      "x": 89.26213454506748,
+      "y": -24.644987513467136
+    }
+  },
+  "spoon-hojicha-full": {
+    "x": -64,
+    "y": -25,
+    "width": 132,
+    "height": 48,
+    "file": "/images/tea-props/spoon-hojicha-full.webp"
   },
   "jarLid": {
     "x": -39,

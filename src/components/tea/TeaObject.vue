@@ -10,6 +10,7 @@ const props = withDefaults(
     label?: string;
     open?: boolean;
     loaded?: boolean;
+    teaType?: string;
     fill?: number;
     liquorColor?: string;
     liquorStrength?: number;
@@ -19,6 +20,7 @@ const props = withDefaults(
     label: "",
     open: false,
     loaded: false,
+    teaType: undefined,
     fill: 0,
     liquorStrength: 1,
     liquorColor: undefined,
@@ -56,11 +58,14 @@ const assetId = computed(() => {
     return props.fill > 0 ? `cup-${teaId.value}` : "cup";
   if (props.kind === "pot")
     return props.fill > 0
-      ? `pot-${teaId.value}`
+      ? `pot-${props.teaType || teaId.value}`
       : props.loaded
-        ? "pot-leaves"
+        ? `pot-${props.teaType || teaId.value}-leaves`
         : "pot";
-  if (props.kind === "spoon") return props.loaded ? "spoon-full" : "spoon";
+  if (props.kind === "spoon")
+    return props.loaded
+      ? `spoon-${props.teaType || teaId.value}-full`
+      : "spoon";
   return props.kind;
 });
 const liquorAsset = computed(

@@ -118,6 +118,11 @@ const aromaTeas = computed(() => {
   if (draft.blendTeaId && draft.blendLeaves > 0) inPot.push(draft.blendTeaId);
   return inPot;
 });
+const dominantTeaId = computed(() =>
+  draft.blendTeaId && draft.blendLeaves > draft.leaves
+    ? draft.blendTeaId
+    : draft.teaId,
+);
 const showAroma = computed(
   () =>
     !settings.values.reducedMotion &&
@@ -931,7 +936,8 @@ defineExpose({ hint, cancel });
           :liquor-color="infusion.color"
           :liquor-strength="infusion.strength"
           :fill="potRemaining"
-          :loaded="draft.leaves > 0"
+          :loaded="totalLeaves > 0"
+          :tea-type="dominantTeaId"
           :color="selected.color"
         />
         <g v-if="potIngredients.length" transform="translate(40 -82)" pointer-events="none" aria-hidden="true" class="ingredient-markers">
@@ -1004,6 +1010,7 @@ defineExpose({ hint, cancel });
         <TeaObject
           kind="spoon"
           :loaded="draft.spoonLoaded"
+          :tea-type="draft.spoonTeaId || draft.teaId"
           :color="draft.spoonLoaded && draft.spoonTeaId ? teas[draft.spoonTeaId].color : selected.color"
         />
       </g>

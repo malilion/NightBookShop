@@ -585,7 +585,11 @@ export function createTeaSet(container, W = 1280, H = 720) {
     jar,
   );
   leafBed.rotation.x = -Math.PI / 2;
-  const { leaf: teaLeaf, noise: leafNoise } = createTeaLeaves();
+  const {
+    leaf: teaLeaf,
+    noise: leafNoise,
+    setType: setTeaType,
+  } = createTeaLeaves();
   for (let i = 0; i < 90; i++) {
     const a = leafNoise(i + 201) * Math.PI * 2;
     const r = Math.sqrt(leafNoise(i + 312)) * 0.215;
@@ -630,6 +634,18 @@ export function createTeaSet(container, W = 1280, H = 720) {
   const floatingLeaves = [];
   for (let i = 0; i < 13; i++) {
     floatingLeaves.push(teaLeaf(i + 30, true, pot));
+  }
+  const dryPotLeaves = [];
+  for (let i = 0; i < 64; i++) {
+    const angle = leafNoise(i + 141) * Math.PI * 2;
+    const radius = Math.sqrt(leafNoise(i + 162)) * 0.34;
+    const leaf = teaLeaf(i + 180, false, pot, [
+      Math.cos(angle) * radius,
+      0.7 + leafNoise(i + 203) * 0.08,
+      Math.sin(angle) * radius,
+    ]);
+    leaf.rotation.x = (leafNoise(i + 231) - 0.5) * 0.9;
+    dryPotLeaves.push(leaf);
   }
   const streamMat = new THREE.MeshPhysicalMaterial({
     color: "#d7e5e2",
@@ -1021,8 +1037,10 @@ export function createTeaSet(container, W = 1280, H = 720) {
       glaze = "#234d47",
       state = "empty",
       liquidOnly = false,
+      teaType = "osmanthus",
     } = {},
   ) {
+    setTeaType(teaType);
     setFrame("complete", 0);
     const filled = state === "full" || state === "water";
     const objects = { jar, jarLid, kettle, pot, potLid: lid, cup, spoon };
@@ -1054,7 +1072,15 @@ export function createTeaSet(container, W = 1280, H = 720) {
     floatingLeaves.forEach((l) => {
       l.visible = kind === "pot" && state !== "empty";
       l.position.y = filled ? 0.723 : 0.18;
-      l.scale.set(filled ? 1 : 0.65, filled ? 1 : 2, filled ? 1 : 0.65);
+      const [leafWidth, leafLength] = l.userData.teaScale ?? [1, 1];
+      l.scale.set(
+        (filled ? 1 : 0.65) * leafWidth,
+        filled ? 1 : 2,
+        (filled ? 1 : 0.65) * leafLength,
+      );
+    });
+    dryPotLeaves.forEach((leaf) => {
+      leaf.visible = kind === "pot" && state === "leaves";
     });
     cupLiquid.visible = kind === "cup" && filled;
     cupLiquid.position.y = 0.47;
