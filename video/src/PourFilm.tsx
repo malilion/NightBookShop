@@ -7,13 +7,21 @@ import {
   useVideoConfig,
 } from "remotion";
 import { createTeaSet } from "./tea-set.js";
-export type Tea = "osmanthus" | "puer" | "mint";
+export type Tea =
+  | "osmanthus"
+  | "puer"
+  | "mint"
+  | "jasmine"
+  | "black"
+  | "chamomile"
+  | "lavender"
+  | "hojicha";
 export function PourFilm({
   tea = "osmanthus",
   clip = "pour",
 }: {
   tea?: Tea;
-  clip?: "pour" | "complete";
+  clip?: "pour" | "complete" | "brew";
 }) {
   const frame = useCurrentFrame();
   const { width, height, durationInFrames } = useVideoConfig();

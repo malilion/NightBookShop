@@ -513,6 +513,48 @@ export function createSkinMaterial() {
   // Skin scatters light under its surface: diffuse light wraps past the
   // terminator, red furthest, which keeps hands from looking like plastic.
   material.onBeforeCompile = (shader) => {
+    // Fine, uneven skin texture in the hand's own space, so it rides with the
+    // hand instead of swimming: a two-octave value-noise bump on the normal.
+    shader.vertexShader = shader.vertexShader
+      .replace("#include <common>", "#include <common>\nvarying vec3 vSkinPos;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvSkinPos = position;");
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+varying vec3 vSkinPos;
+uniform mat3 normalMatrix;
+float skinHash( vec3 p ) {
+	p = fract( p * 0.3183099 + 0.1 );
+	p *= 17.0;
+	return fract( p.x * p.y * p.z * ( p.x + p.y + p.z ) );
+}
+float skinNoise( vec3 x ) {
+	vec3 i = floor( x );
+	vec3 f = fract( x );
+	f = f * f * ( 3.0 - 2.0 * f );
+	return mix( mix( mix( skinHash( i ), skinHash( i + vec3( 1, 0, 0 ) ), f.x ),
+		mix( skinHash( i + vec3( 0, 1, 0 ) ), skinHash( i + vec3( 1, 1, 0 ) ), f.x ), f.y ),
+		mix( mix( skinHash( i + vec3( 0, 0, 1 ) ), skinHash( i + vec3( 1, 0, 1 ) ), f.x ),
+		mix( skinHash( i + vec3( 0, 1, 1 ) ), skinHash( i + vec3( 1, 1, 1 ) ), f.x ), f.y ), f.z );
+}
+float skinDetail( vec3 p ) {
+	return skinNoise( p * 55.0 ) * 0.6 + skinNoise( p * 130.0 ) * 0.4;
+}`,
+      )
+      .replace(
+        "#include <normal_fragment_maps>",
+        `#include <normal_fragment_maps>
+	{
+		float e = 0.003;
+		float c = skinDetail( vSkinPos );
+		vec3 g = vec3( skinDetail( vSkinPos + vec3( e, 0.0, 0.0 ) ) - c,
+			skinDetail( vSkinPos + vec3( 0.0, e, 0.0 ) ) - c,
+			skinDetail( vSkinPos + vec3( 0.0, 0.0, e ) ) - c ) / e;
+		vec3 gv = normalMatrix * g;
+		normal = normalize( normal - 0.0011 * ( gv - normal * dot( gv, normal ) ) );
+	}`,
+      );
     const target =
       "reflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );";
     const chunk = THREE.ShaderChunk.lights_physical_pars_fragment;

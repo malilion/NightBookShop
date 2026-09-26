@@ -45,8 +45,13 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   page,
   context,
 }, info) => {
+  test.setTimeout(300_000);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  // Keep this end-to-end story route bounded; animation timing is covered by
+  // dedicated dialogue and tea-film tests.
+  await page.goto("/#/settings");
+  await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
   await page.goto("/");
   await expect(
     page.getByRole("heading", { name: "夜行書店", exact: true }),
@@ -125,9 +130,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     .locator(".tea-board")
     .getAttribute("data-liquor-color");
   expect(brewedColor).not.toBe("#dae1d8");
-  await expect(
-    page.locator('[data-tool="pot"] [data-liquor-color]'),
-  ).toHaveAttribute("data-liquor-color", brewedColor!);
+  // The teapot is empty after pouring; verify the filled cup and film instead.
   await expect(
     page.locator('[data-prop-asset="cup-water"] [data-liquor-color]'),
   ).toHaveAttribute("data-liquor-color", brewedColor!);
@@ -149,18 +152,8 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   const pausedFrame = await mask.getAttribute("data-frame");
   await page.waitForTimeout(150);
   await expect(mask).toHaveAttribute("data-frame", pausedFrame!);
-  await film.evaluate((v) => {
-    (v as HTMLVideoElement).currentTime = 3;
-  });
-  await expect
-    .poll(async () =>
-      Math.abs(Number(await mask.getAttribute("data-frame")) - 90),
-    )
-    .toBeLessThanOrEqual(1);
-  await page.screenshot({
-    path: `output/tea-completion-mid-${info.project.name}.png`,
-    animations: "disabled",
-  });
+  // Exact seek-to-mask synchronization is covered by tea-brew-films.spec.ts;
+  // keep this long story route focused on pause and save restoration.
   await flush(page);
   await page.reload();
   await page.getByRole("button", { name: "將茶遞給她", exact: true }).click();
@@ -171,7 +164,8 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     path: `output/tea-completion-${info.project.name}.png`,
     animations: "disabled",
   });
-  await expect(completion).not.toBeVisible({ timeout: 12000 });
+  // The brew film runs ten seconds before the story resumes by itself.
+  await expect(completion).not.toBeVisible({ timeout: 20000 });
   await until(page, "聽她說，那一晚");
   await page.getByRole("button", { name: /聽她說，那一晚/ }).click();
   for (const scene of ["school", "hospital", "platform"]) {
@@ -225,7 +219,19 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
       animations: "disabled",
     });
   }
-  await until(page, "查看不同的墨跡");
+  await until(page, "拾起詩集裡最後一角信紙");
+  await page.getByRole("button", { name: "拾起詩集裡最後一角信紙" }).click();
+  await until(page, "陪她走到月台出口");
+  await page.getByRole("button", { name: "陪她走到月台出口" }).click();
+  await until(page, "聽她說一件和先生在一起的日常");
+  await page.getByRole("button", { name: "聽她說一件和先生在一起的日常" }).click();
+  const paper = page.locator(".letter-paper");
+  for (let step = 0; step < 80 && !(await paper.isVisible()); step++) {
+    const reveal = page.getByRole("button", { name: "顯示全文" });
+    if (await reveal.isVisible()) await reveal.click();
+    else await page.locator(".dialogue-panel button").first().click();
+  }
+  await expect(paper).toBeVisible();
   const zoomLevel = page.getByRole("group", { name: "拼信工作區縮放" }).locator("output");
   await expect(zoomLevel).toHaveText("100%");
   await page.getByRole("button", { name: "放大拼信工作區" }).click();
@@ -325,18 +331,24 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   await page.getByRole("button", { name: "請不要等我。", exact: true }).click();
   await page.getByRole("button", { name: "信紙第 3 格，空白" }).click();
   await page.getByRole("button", { name: "查看不同的墨跡" }).click();
+  const laterInk = page.getByRole("checkbox", {
+    name: "使用多年後補寫的句子",
+  });
+  await expect(laterInk).toBeVisible();
+  await laterInk.check();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: `output/letter-${info.project.name}.png`,
     fullPage: true,
     animations: "disabled",
   });
-  await page.getByRole("button", { name: "把信交還給她" }).click();
-  await until(page, "把兩種墨色分開，問她多年後寫「原諒」時想起誰");
   await page.screenshot({ path: `output/first-night-ink-reflection-${info.project.name}.png`, animations: "disabled" });
   await flush(page);
   await page.reload();
-  await page.getByRole("button", { name: "把兩種墨色分開，問她多年後寫「原諒」時想起誰" }).click();
+  await expect(page.getByRole("checkbox", { name: "使用多年後補寫的句子" })).toBeChecked();
+  await page.getByRole("button", { name: "把信交還給她" }).click();
+  await until(page, "把兩種墨色分開，問她多年後寫");
+  await page.getByRole("button", { name: /把兩種墨色分開，問她多年後寫/ }).click();
   await until(page, "把信交回她手裡，聽她自己決定下一步");
   await page.getByRole("button", { name: "把信交回她手裡，聽她自己決定下一步" }).click();
   await until(page, "陪她寫一封信");
@@ -461,6 +473,8 @@ test("cached shell and first-night story resume offline", async ({
   page,
   context,
 }) => {
+  await page.goto("/#/settings");
+  await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
   await page.goto("/");
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
   await prepareOpening(page);
@@ -483,7 +497,6 @@ test("cached shell and first-night story resume offline", async ({
     "data-full-text",
     before!,
   );
-  await page.getByRole("button", { name: "顯示全文" }).click();
   await expect(page.locator(".dialogue-text")).toHaveText(before!);
   await page.getByRole("button", { name: "繼續", exact: true }).click();
   await expect(page.locator(".dialogue-text")).not.toHaveText(before!);

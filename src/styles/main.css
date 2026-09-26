@@ -2592,6 +2592,23 @@ button:active:not(:disabled),
   min-height: 44px;
   padding: 8px;
 }
+/* The brew film's four shots; the one on screen is lit. */
+.film-shots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  letter-spacing: 0.14em;
+  color: #8f8677;
+}
+.film-shots li {
+  transition: color 0.4s ease;
+}
+.film-shots li[aria-current="step"] {
+  color: #f0d69c;
+}
 .tea-station .tea-workspace {
   padding: 0;
   min-height: 240px;

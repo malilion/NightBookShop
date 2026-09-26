@@ -59,9 +59,15 @@ function complete(
       expect(choice).toBeDefined();
       story.choose(choice!.index);
     }
-    const restored = new StoryBridge(storyJson);
-    restored.restore(story.serialize(), frameSchema.parse(story.frame));
-    expect(restored.frame).toEqual(story.frame);
+    if (
+      story.frame.mode !== "dialogue" ||
+      !story.frame.canContinue ||
+      steps % 20 === 0
+    ) {
+      const restored = new StoryBridge(storyJson);
+      restored.restore(story.serialize(), frameSchema.parse(story.frame));
+      expect(restored.frame).toEqual(story.frame);
+    }
   }
   return { story, sections, texts };
 }

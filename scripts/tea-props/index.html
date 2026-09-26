@@ -12,13 +12,13 @@
         ]),
       );
       const scenes = new Map();
-      window.renderLiquorFrame = (t) => {
+      window.renderLiquorFrame = (t, clip = "complete", tea = "osmanthus", renderScale = 1) => {
         if (!scenes.has("film"))
           scenes.set(
             "film",
-            createTeaSet(document.getElementById("stage"), 1280, 720),
+            createTeaSet(document.getElementById("stage"), 1280 / renderScale, 720 / renderScale),
           );
-        return scenes.get("film").renderLiquorFrame(t);
+        return scenes.get("film").renderLiquorFrame(t, clip, tea);
       };
       window.renderProp = (spec) => {
         let set = scenes.get(spec.kind);

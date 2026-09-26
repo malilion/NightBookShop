@@ -44,7 +44,10 @@ const teaName = computed(() =>
 const recipientLabel = computed(() => game.chapterId === "lincheng" ? "自己" : ["boyan", "yuhang", "haiming"].includes(game.chapterId) ? "他" : "她");
 const showCompletion = ref(false);
 let resultDelivered = false;
-const quality = computed(() => scoreTea(draft, game.chapterId).quality);
+const scored = computed(() => scoreTea(draft, game.chapterId));
+const quality = computed(() => scored.value.quality);
+// The brew film follows the tea the story answers to: the larger share.
+const filmTea = computed(() => scored.value.teaId);
 function flush() {
   if (game.frame?.mode === "tea") game.updateTea({ ...draft });
 }
@@ -302,6 +305,7 @@ function restart() {
     <TeaCompletion
       v-if="showCompletion"
       :tea-name="teaName"
+      :tea-id="filmTea"
       :liquor-color="infusion.color"
       :recipient-label="recipientLabel"
       @done="completeTea"

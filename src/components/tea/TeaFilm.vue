@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import LiquorTint from "./LiquorTint.vue";
-import liquorFrames from "../../data/teaLiquorFrames.json";
+import completeLiquor from "../../data/teaLiquorFrames.json";
+import { brewFilmAsset, brewFilmShots, loadBrewLiquor, type LiquorFrames } from "../../data/teaFilms";
 import { useSettingsStore } from "../../stores/settingsStore";
+import type { TeaId } from "../../types/game";
 const props = withDefaults(
   defineProps<{
-    clip: "idle" | "scoop" | "pour" | "steep" | "serve" | "complete";
+    clip: "idle" | "scoop" | "pour" | "steep" | "serve" | "complete" | "brew";
     progress?: number;
     liquorColor?: string;
     loop?: boolean;
+    /** The brew film is one per tea: Lin Cheng's hands brewing that tea. */
+    tea?: TeaId;
   }>(),
-  { loop: undefined, progress: undefined, liquorColor: undefined },
+  { loop: undefined, progress: undefined, liquorColor: undefined, tea: "osmanthus" },
 );
 const emit = defineEmits<{ ended: [] }>();
 const settings = useSettingsStore();
@@ -21,13 +25,21 @@ const ready = ref(false);
 const source = ref("");
 const filmFrame = ref(0);
 const liquorFailed = ref(false);
-const liquorFrame = computed(
-  () => liquorFrames.frames[staticMode.value ? 0 : filmFrame.value]!,
+const liquor = shallowRef<LiquorFrames | null>(null);
+const staticMode = computed(
+  () => settings.values.reducedMotion || failed.value,
 );
-const atlasWidth = liquorFrames.cellWidth * liquorFrames.columns;
-const atlasHeight =
-  liquorFrames.cellHeight *
-  Math.ceil(liquorFrames.frames.length / liquorFrames.columns);
+const lastFrame = computed(() => (props.clip === "brew" ? brewFilmShots.at(-1)!.to - 1 : 179));
+// Reduced motion shows the served cup, the brew film's last frame.
+const shownFrame = computed(() =>
+  staticMode.value ? (props.clip === "brew" ? lastFrame.value : 0) : filmFrame.value,
+);
+const liquorFrame = computed(() => liquor.value?.frames[shownFrame.value] ?? null);
+const shot = computed(() =>
+  props.clip === "brew"
+    ? brewFilmShots.find((s) => shownFrame.value < s.to) ?? brewFilmShots.at(-1)!
+    : null,
+);
 let frameHandle = 0,
   rafHandle = 0;
 function stopTracking() {
@@ -36,15 +48,12 @@ function stopTracking() {
   frameHandle = rafHandle = 0;
 }
 function syncFrame(mediaTime = video.value?.currentTime || 0) {
-  filmFrame.value = Math.min(
-    liquorFrames.frames.length - 1,
-    Math.max(0, Math.floor(mediaTime * liquorFrames.fps + 0.001)),
-  );
+  filmFrame.value = Math.min(lastFrame.value, Math.max(0, Math.floor(mediaTime * 30 + 0.001)));
 }
 function trackFrames() {
   stopTracking();
   const player = video.value;
-  if (!player || !props.liquorColor || props.clip !== "complete") return;
+  if (!player || !(props.clip === "brew" || (props.liquorColor && props.clip === "complete"))) return;
   if (player.requestVideoFrameCallback) {
     const next: VideoFrameRequestCallback = (_now, metadata) => {
       syncFrame(metadata.mediaTime);
@@ -61,18 +70,36 @@ function trackFrames() {
 }
 let request: AbortController | undefined;
 let objectUrl = "";
-const staticMode = computed(
-  () => settings.values.reducedMotion || failed.value,
-);
 const looping = computed(
   () => props.loop ?? ["idle", "steep", "complete"].includes(props.clip),
 );
 const asset = computed(() =>
-  ["pour", "complete"].includes(props.clip)
-    ? `${props.clip}-remotion-v1`
-    : props.clip,
+  props.clip === "brew"
+    ? brewFilmAsset(props.tea)
+    : ["pour", "complete"].includes(props.clip)
+      ? `${props.clip}-remotion-v1`
+      : props.clip,
 );
 const poster = computed(() => `/video/tea/${asset.value}-poster.webp`);
+const still = computed(() =>
+  props.clip === "brew" ? `/video/tea/${asset.value}-still.webp` : poster.value,
+);
+// Tint masks: the completion clip's is bundled, the brew films' is fetched.
+watch(
+  [() => props.clip, () => props.liquorColor],
+  async ([clip, color]) => {
+    liquor.value = null;
+    liquorFailed.value = false;
+    if (!color) return;
+    if (clip === "complete") liquor.value = completeLiquor as LiquorFrames;
+    else if (clip === "brew") {
+      const frames = await loadBrewLiquor();
+      if (props.clip === "brew") liquor.value = frames;
+      if (!frames) liquorFailed.value = true;
+    }
+  },
+  { immediate: true },
+);
 let timeout: ReturnType<typeof setTimeout> | undefined;
 function seek() {
   const player = video.value;
@@ -166,19 +193,23 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div class="tea-film" :data-clip="clip" :data-ready="ready">
-    <img v-if="staticMode" :src="poster" alt="暖燈下的茶壺與茶杯" />
+  <div class="tea-film" :data-clip="clip" :data-tea="clip === 'brew' ? tea : undefined" :data-ready="ready">
+    <img
+      v-if="staticMode"
+      :src="still"
+      :alt="clip === 'brew' ? '林澄親手奉上的一杯茶' : '暖燈下的茶壺與茶杯'"
+    />
     <video
       v-else
       ref="video"
-      :key="clip"
+      :key="asset"
       :src="source || undefined"
       :poster="poster"
       :loop="looping"
       muted
       playsinline
       preload="auto"
-      aria-label="製茶動畫"
+      :aria-label="clip === 'brew' ? '林澄親手製茶的影片' : '製茶動畫'"
       @loadeddata="start"
       @seeked="syncFrame()"
       @timeupdate="syncFrame()"
@@ -186,34 +217,45 @@ onBeforeUnmount(() => {
       @ended="emit('ended')"
     ></video>
     <svg
-      v-if="clip === 'complete' && liquorColor && !liquorFailed"
+      v-if="liquor && liquorColor && !liquorFailed"
       class="film-liquor-layer"
       viewBox="0 0 1280 720"
       aria-hidden="true"
-      :data-frame="staticMode ? 0 : filmFrame"
+      :data-frame="shownFrame"
     >
-      <LiquorTint :color="liquorColor" :region="liquorFrame">
+      <LiquorTint :color="liquorColor" :region="liquorFrame ?? undefined">
         <svg
+          v-if="liquorFrame"
           :x="liquorFrame.x"
           :y="liquorFrame.y"
           :width="liquorFrame.width"
           :height="liquorFrame.height"
-          :viewBox="`${(staticMode ? 0 : filmFrame % liquorFrames.columns) * liquorFrames.cellWidth} ${(staticMode ? 0 : Math.floor(filmFrame / liquorFrames.columns)) * liquorFrames.cellHeight} ${liquorFrame.width} ${liquorFrame.height}`"
+          :viewBox="`${liquorFrame.sx} ${liquorFrame.sy} ${liquorFrame.width / liquor.scale} ${liquorFrame.height / liquor.scale}`"
+          preserveAspectRatio="none"
           overflow="hidden"
         >
           <image
-            href="/video/tea/complete-liquor.webp"
-            :width="atlasWidth"
-            :height="atlasHeight"
+            :href="liquor.atlas.file"
+            :width="liquor.atlas.width"
+            :height="liquor.atlas.height"
             @error="liquorFailed = true"
           />
         </svg>
       </LiquorTint>
     </svg>
     <div class="film-caption">
-      <span>{{
+      <ol v-if="shot && !staticMode" class="film-shots" aria-label="製茶影片段落">
+        <li
+          v-for="item in brewFilmShots"
+          :key="item.id"
+          :aria-current="item.id === shot.id ? 'step' : undefined"
+        >
+          {{ item.label }}
+        </li>
+      </ol>
+      <span v-else>{{
         failed
-          ? clip === "complete"
+          ? clip === "complete" || clip === "brew"
             ? "影片暫時無法播放，仍可繼續故事。"
             : "影片暫時無法播放，仍可繼續製茶。"
           : settings.values.reducedMotion

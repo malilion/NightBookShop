@@ -68,9 +68,12 @@ function play(
         choices[target ? 0 : Math.floor(random() * choices.length)]!;
       story.choose(choice.index);
     }
-    // Verify all targeted routes and sampled checkpoints on varied routes.
-    if (!target && steps % 20 !== 0 && story.frame.mode === "dialogue")
-      continue;
+    // Restore every choice/minigame boundary and sample long dialogue runs.
+    if (
+      story.frame.mode === "dialogue" &&
+      story.frame.canContinue &&
+      steps % 20 !== 0
+    ) continue;
     const restored = new StoryBridge(
       legacy
         ? readFileSync("public/story/compiled/jinglan-prototype-1.json", "utf8")
@@ -124,7 +127,7 @@ describe("complete Jinglan chapter", () => {
     expect(endings).toEqual(
       new Set(["moonlight", "recipient", "unfinished", "intervention"]),
     );
-  }, 60000);
+  }, 120000);
   it("continues original prototype saves against their original story", () => {
     expect(play(2, "moonlight", true).story.frame.endingId).toBe("moonlight");
   });

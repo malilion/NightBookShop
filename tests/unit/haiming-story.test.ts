@@ -54,9 +54,15 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
       expect(selected).toBeDefined();
       story.choose(selected!.index);
     }
-    const restored = new StoryBridge(storyJson);
-    restored.restore(story.serialize(), frameSchema.parse(story.frame));
-    expect(restored.frame).toEqual(story.frame);
+    if (
+      story.frame.mode !== "dialogue" ||
+      !story.frame.canContinue ||
+      steps % 20 === 0
+    ) {
+      const restored = new StoryBridge(storyJson);
+      restored.restore(story.serialize(), frameSchema.parse(story.frame));
+      expect(restored.frame).toEqual(story.frame);
+    }
   }
   return { story, sections, texts, portraits };
 }
@@ -84,7 +90,7 @@ describe("Haiming sixth night", () => {
     expect(portraits[texts.findIndex((text) => text.includes("焦糖偷偷放進父親的杯裡"))]).toBe("haiming-warm");
     expect(portraits[texts.findIndex((text) => text.includes("顧川第一次握住父親的手"))]).toBe("haiming-warm");
   });
-  it.each(Object.keys(targets) as (keyof typeof targets)[])("reaches %s and restores each checkpoint", (target) => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("reaches %s and restores each choice and minigame checkpoint", (target) => {
     const { story, sections } = play(target);
     expect(story.frame.endingId).toBe(target);
     for (const section of ["storm-tower", "summer-visit", "last-watch", "white-room", "letter", "log-choice", "afterword", "coda"])

@@ -2,7 +2,14 @@
 import { onMounted, ref } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import TeaFilm from "./TeaFilm.vue";
-defineProps<{ teaName: string; liquorColor: string; recipientLabel: string }>();
+import type { TeaId } from "../../types/game";
+defineProps<{
+  teaName: string;
+  /** Whose brew film plays: the tea that leads this cup. */
+  teaId: TeaId;
+  liquorColor: string;
+  recipientLabel: string;
+}>();
 const emit = defineEmits<{ done: [] }>();
 const settings = useSettingsStore();
 const dialog = ref<HTMLDialogElement>();
@@ -28,7 +35,8 @@ onMounted(() => dialog.value?.showModal());
       <h2 id="tea-completion-title">把這一杯，放到{{ recipientLabel }}面前。</h2>
     </header>
     <TeaFilm
-      clip="complete"
+      clip="brew"
+      :tea="teaId"
       :loop="false"
       :liquor-color="liquorColor"
       @ended="finish"

@@ -59,8 +59,10 @@ export default defineConfig({
           "images/bookmarks/unfinished.webp",
           "images/bookmarks/intervention.webp",
           "images/characters/jinglan.webp",
-          "video/tea/*-poster.webp",
-          "video/tea/complete-liquor.webp",
+          // The served-cup stills and the shared liquor mask keep the brew
+          // films' reduced-motion view offline; films and posters load on demand.
+          "video/tea/brew-*-still.webp",
+          "video/tea/brew-liquor-v1.{webp,json}",
         ],
         maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
       },

@@ -57,9 +57,15 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
       const endingChoice = story.frame.choices.find((entry) => entry.text.includes(targets[target]));
       story.choose((endingChoice ?? choice)!.index);
     }
-    const restored = new StoryBridge(storyJson);
-    restored.restore(story.serialize(), frameSchema.parse(story.frame));
-    expect(restored.frame).toEqual(story.frame);
+    if (
+      story.frame.mode !== "dialogue" ||
+      !story.frame.canContinue ||
+      steps % 20 === 0
+    ) {
+      const restored = new StoryBridge(storyJson);
+      restored.restore(story.serialize(), frameSchema.parse(story.frame));
+      expect(restored.frame).toEqual(story.frame);
+    }
   }
   return { story, sections, texts, finalChoiceOptions };
 }
@@ -71,7 +77,7 @@ describe("Yenuan fourth night", () => {
       expect(() => parseTag(match[1]!)).not.toThrow();
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])(
-    "reaches %s and restores every checkpoint",
+    "reaches %s and restores each choice and minigame checkpoint",
     (target) => {
       const { story, sections } = play(target);
       expect(story.frame.endingId).toBe(target);

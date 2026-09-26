@@ -1406,8 +1406,8 @@ export function createTeaSet(container, W = 1280, H = 720) {
       camera.updateProjectionMatrix();
       return image;
     },
-    renderLiquorFrame(t, clip = "complete") {
-      if (clip === "brew") return brewFilm().renderLiquorMask(renderer, t);
+    renderLiquorFrame(t, clip = "complete", tea = "osmanthus") {
+      if (clip === "brew") return brewFilm().renderLiquorMask(renderer, t, tea);
       setFrame("complete", t);
       return renderLiquorOnly(camera);
     },

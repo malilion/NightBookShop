@@ -1,6 +1,6 @@
 # 夜行書店 · Remotion 製片室
 
-獨立於 Vue 遊戲的 React / Remotion 製片目錄。已提供 `TeaPour` 注水與 `TeaComplete` 完成兩個 composition，都是 1280×720、30 fps、180 格／6 秒。完成動畫以茶杯移近、漣漪漸收、蒸氣和緩慢推鏡呈現，沒有手部模型或音效。其他四段仍保留原流程素材。
+獨立於 Vue 遊戲的 React / Remotion 製片目錄。遊戲現在播放 `TeaBrew`：八種茶各一支、1280×720、30 fps、300 格／10 秒的製茶影片，由林澄的雙手演出取茶、注水、倒茶與奉茶。另保留 `TeaPour` 注水與 `TeaComplete` 單杯完成兩個 composition（180 格／6 秒，沒有手部）作回退；其他四段仍是原流程素材。三者都沒有音軌。
 
 ## 啟動與輸出
 
@@ -20,6 +20,9 @@ npm run video:render -- --publish
 # 茶完成演出
 npm run video:render:complete -- --preview
 npm run video:render:complete -- --publish
+# 各茶種製茶影片：先看每段中間格，再輸出八支並更新遊戲素材
+npm run video:render:brew -- --tea=jasmine --preview
+npm run video:render:brew -- --tea=all --publish
 ```
 
 Studio 預設 http://localhost:3001 。輸出都位於根目錄 `output/remotion/`。`--preview` 只輸出第 0、90、179 格；正式輸出由 Remotion `renderMedia` 製作 H.264，再以 FFmpeg 轉為 VP9 WebM。海報來自第 0 格。
@@ -28,16 +31,32 @@ Studio 預設 http://localhost:3001 。輸出都位於根目錄 `output/remotion
 
 可用 `npm run video:render -- --tea=puer` 或 `--tea=mint` 試製液色版本；目前只有桂花樣片經視覺檢查並接入遊戲，其他茶的產出不能用 `--publish` 覆寫它。
 
+## 各茶種製茶影片（TeaBrew）
+
+| 段落 | 格 | 演出 |
+| --- | --- | --- |
+| 取茶 | 0–74 | 左手扶住該茶的茶罐，右手以筆式握法持茶匙舀茶；傾倒時繞匙柄轉動，茶葉落進壺中 |
+| 注水 | 75–140 | 俯看壺口，銅壺水流注入；乾茶翻轉、舒展成濕葉或浮起的花，湯色由清水轉為該茶的顏色 |
+| 倒茶 | 141–215 | 右手手指穿過壺把、拇指壓在把上提壺傾倒，左手食指按住壺蓋鈕；鏡頭後拉以容納壺與雙手 |
+| 奉茶 | 216–299 | 雙手指尖扶著杯碟後緣，把茶推到訪客面前後抬手離開，該茶的茶香粒子升起 |
+
+- `src/tea-varieties.js`：八種茶的釉色、標籤、乾茶葉形與配色、濕葉或花、側碟、茶香與補光；純資料，遊戲測試會核對茶名與湯色。
+- `src/tea-forms.js`：捲曲球狀烏龍、茉莉龍珠、普洱茶餅碎片、紅茶條索、乾薄荷、洋甘菊花頭、焙茶葉與茶梗、薰衣草花苞、桂花，以及桂花枝、薄荷枝、蜂蜜棒等側碟材料。固定種子；遊戲的茶具素材也共用這些形態。
+- `src/hands.js`：林澄的雙手。手掌、掌骨、十五節指骨、拇指魚際、指節與指腹組成有號距離場，每格在手的座標系內以窄頻 surface nets 重建並投影回表面，手移動時表面不會閃爍。指甲另建曲面；深藍大衣袖、翻邊與米白襯衫袖口沿前臂生成。皮膚以次表面散射近似（光線越過明暗界線，紅色最遠）與手部座標系的細微凹凸著色。左手是右手的鏡像。
+- `src/brew-film.js`：四段鏡頭與動作。茶具複製自 `tea-set.js` 並只保留器身；每格只由 `(t, tea)` 決定，可亂序渲染。
+
+倒茶與奉茶兩段在八種茶完全相同，所以共用一張湯色遮罩：`scripts/render-tea-liquor.mjs --clip=brew` 逐格輸出半解析度遮罩並裝箱成 `public/video/tea/brew-liquor-v1.webp` 與 `.json`，抽樣比對八種茶的遮罩像素完全一致，不一致即中止。發布時每支影片檢查 1280×720、30 fps、10 秒、單檔 2 MiB 以內並全片解碼，另輸出第 0 格海報與最後一格的奉茶靜態畫面 `-still.webp`。
+
 ## 結構
 
-- `src/index.tsx`：註冊 TeaPour 與 TeaComplete composition，集中設定尺寸、幀率與時長。
+- `src/index.tsx`：註冊 TeaPour、TeaComplete 與 TeaBrew composition，集中設定尺寸、幀率與時長。
 - `src/PourFilm.tsx`：以 `useCurrentFrame` 驅動畫面，在 layout effect 完成同步 Three.js 繪圖。只有初始建立場景使用 `delayRender`，沒有自主播放的動畫迴圈。
 - `src/tea-set.js`：從原茶席衍生的獨立場景，保留器具位置；增加環境反射、釉面、曲線水流分段、水珠、漣漪與蒸氣，所有變化由影格計算。
 - `scripts/render-pour.mjs`：bundle、Chromium、Remotion still/video 輸出、轉檔與驗證；使用根目錄既有 Playwright 和 sharp。
 
 ## 遊戲整合
 
-Vue 的 TeaFilm 將 `pour` / `complete` 對應到 `pour-remotion-v1` / `complete-remotion-v1`，仍以原有 Blob 影片播放／定位，不載入 React、Remotion 或 Three.js runtime。0–100% 水量對應 0–6 秒，最後留 0.05 秒避免 seek 到片尾。其餘原始影片保留，可回退。完成演出透過 `TeaCompletion.vue` 原生 dialog 播放一次，`ended`、略過按鈕與 Esc 共用去重的結束回傳；動畫中重整會保留已泡好的茶，可重新奉茶。影片失敗與減少動態時均保留繼續入口。
+Vue 的 TeaFilm 將 `brew` 加上茶種對應到 `brew-<茶種>-v1`，`pour` / `complete` 對應到 `pour-remotion-v1` / `complete-remotion-v1`，仍以原有 Blob 影片播放／定位，不載入 React、Remotion 或 Three.js runtime。0–100% 水量對應 0–6 秒，最後留 0.05 秒避免 seek 到片尾。其餘原始影片保留，可回退。完成演出透過 `TeaCompletion.vue` 原生 dialog 播放一次，`ended`、略過按鈕與 Esc 共用去重的結束回傳；動畫中重整會保留已泡好的茶，可重新奉茶。影片失敗與減少動態時均保留繼續入口。
 
 注水版改善了陶器反光、桌面對比、水流與輸出品質；仍是風格化、懸浮茶器的程序式動畫，沒有手部模型、物理流體模擬或音訊。正式美術方向需看樣片後再延伸。
 

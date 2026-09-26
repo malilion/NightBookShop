@@ -81,12 +81,13 @@ export function createBrewFilm({ scene, camera, props, materials }) {
   const forms = createTeaForms();
 
   // ------------------------------------------------ the tea set, own copies
+  // Keep only the vessel itself: glaze, brass and wood parts are built from
+  // lathe, torus, tube and sphere shapes. Liquids, ripples, leaves and the
+  // prop renders' tea-form groups are replaced by this film's own per tea.
   const strip = (object, names) => {
-    const doomed = [];
-    object.traverse((child) => {
-      if (names.includes(child.name)) doomed.push(child);
-    });
-    doomed.forEach((child) => child.parent.remove(child));
+    for (const child of [...object.children])
+      if (!child.isMesh || child.geometry.type === "BufferGeometry" || names.includes(child.name))
+        object.remove(child);
     return object;
   };
   const pot = strip(props.pot.clone(), ["pot-liquor", "pot-leaf", "pot-ripple"]);
@@ -404,9 +405,12 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     });
     jar.add(jarLeaves);
     spoon.add(spoonLeaves);
-    // Every animated piece keeps its authored scale so frames never compound.
-    for (const piece of [...falling, ...potDry, ...potWet, ...aroma.filter(Boolean)])
+    // Every animated piece keeps its authored scale so frames never compound,
+    // and starts hidden until its shot places it.
+    for (const piece of [...falling, ...potDry, ...potWet, ...aroma.filter(Boolean)]) {
       piece.userData.base = piece.scale.clone();
+      piece.visible = false;
+    }
     const entry = { spec, group, jarLeaves, spoonLeaves, falling, potDry, potWet, sideDish, aroma };
     varieties.set(id, entry);
     return entry;
@@ -419,16 +423,16 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       glaze.color.set(entry.spec.glaze);
       drawLabel(entry.spec.name, entry.spec.glaze);
     }
-    for (const [key, entry] of varieties) {
+    for (const [key, other] of varieties) {
       const on = key === id;
-      entry.group.visible = on;
-      entry.jarLeaves.visible = on;
-      entry.spoonLeaves.visible = on;
-      entry.sideDish.visible = on;
-      entry.potDry.forEach((p) => (p.visible = on));
-      entry.potWet.forEach((p) => (p.visible = on));
+      other.group.visible = on;
+      other.jarLeaves.visible = on;
+      other.spoonLeaves.visible = on;
+      other.sideDish.visible = on;
+      other.potDry.forEach((p) => (p.visible = on));
+      other.potWet.forEach((p) => (p.visible = on));
     }
-    return variety(id);
+    return entry;
   }
 
   // ---------------------------------------------------------------- hands
@@ -519,8 +523,8 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     jarCap.rotation.set(0.02, 0.4, 0);
     const rise = smooth(span(t, 0.12, 0.45)) * (1 - 0.5 * smooth(span(t, 0.7, 1)));
     placeCamera(
-      V(0.3, 2.55, 3.7).lerp(V(0.2, 2.75, 3.85), rise),
-      V(0.14, 0.78, -0.1).lerp(V(0.02, 1.08, -0.12), rise),
+      V(0.3, 2.55, 3.7).lerp(V(0.18, 2.95, 4.05), rise),
+      V(0.14, 0.78, -0.1).lerp(V(-0.02, 1.2, -0.12), rise),
       32,
     );
     // The left hand wraps the caddy's back-right side.
@@ -560,9 +564,17 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       [0.55, V(0.55, -0.22, 0.78)],
       [1, V(0.55, -0.2, 0.8)],
     ]).normalize();
-    const dorsal = V(0, 1, 0).applyAxisAngle(forward, roll);
+    // Tipping turns the hand about the scoop's own handle, so the bowl rolls
+    // in place instead of the hand sweeping around it.
+    const level = V(0, 1, 0).sub(forward.clone().multiplyScalar(forward.y)).normalize();
+    const upright = { ...grips.spoon, forward, dorsal: level };
+    const handle = spoonInHand(upright).axes[2].clone().negate();
+    const basis = new THREE.Matrix4().makeBasis(forward, level, forward.clone().cross(level));
+    const axis = handle.transformDirection(basis);
+    const turned = forward.clone().applyAxisAngle(axis, roll);
+    const dorsal = level.clone().applyAxisAngle(axis, roll);
     // Hold the spoon between the thumb pad and the side of the index finger.
-    const pose = { ...grips.spoon, forward, dorsal, elbow: V(-1.9, 0.75, -2.0), shoulder: V(-1.5, 3.0, -3.4) };
+    const pose = { ...grips.spoon, forward: turned, dorsal, elbow: V(-1.9, 0.75, -2.0), shoulder: V(-1.5, 3.0, -3.4) };
     const spoonFrame = spoonInHand(pose);
     right.visible = true;
     right.setPose({ ...pose, anchor: { part: spoonFrame.bowlModel, world: bowl } });
@@ -777,13 +789,13 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       if (!hand.visible) continue;
       const grip = blendPose(grips.saucer, grips.relaxed, release);
       // Index pads rest on the far rim, a little to each side of the cup.
-      const rim = cup.localToWorld(V(side * 0.47, 0.114, -0.49));
-      rim.add(V(side * (0.08 * release + 0.4 * leave), 0.12 * release + 0.3 * leave, -0.18 * release - 1.3 * leave));
+      const rest = cup.localToWorld(V(side * 0.47, 0.114, -0.49));
+      rest.add(V(side * (0.08 * release + 0.4 * leave), 0.12 * release + 0.3 * leave, -0.18 * release - 1.3 * leave));
       hand.setPose({
         ...grip,
         forward: V(-side * 0.5, -0.32 + release * 0.2, 0.8),
         dorsal: V(side * 0.2, 1, 0.15),
-        anchor: { part: "index.pad", world: rim },
+        anchor: { part: "index.pad", world: rest },
         elbow: V(side * 1.6, 0.75, -2.3),
         shoulder: V(side * 1.45, 3.0, -3.5),
       });
@@ -812,7 +824,8 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     });
     const glint = v.spec.aroma.glint ?? v.spec.aroma.color;
     motes.forEach((mote, i) => {
-      const sprite = kind === "honey" || kind === "ember" || (v.spec.aroma.glint && i % 2 === 0);
+      // A boolean on purpose: three.js only skips objects whose visible is false.
+      const sprite = kind === "honey" || kind === "ember" || (Boolean(v.spec.aroma.glint) && i % 2 === 0);
       const start = 0.45 + noise(i + 13) * 0.4;
       const s = clamp01((t - start) / (kind === "ember" ? 0.35 : 0.55));
       mote.visible = sprite && s > 0 && s < 1;
@@ -847,10 +860,9 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     rim.target.position.set(0, 0.5, 0.2);
   }
 
-  // Where the scoop sits in the right hand: handle between thumb pad and the
-  // side of the index finger, bowl beyond the fingertips.
-  // A pen grip: the handle is pinched by the thumb and index pads, rests on
-  // the side of the middle finger and runs back into the thumb web.
+  // Where the scoop sits in the right hand, a pen grip: the handle is pinched
+  // by the thumb and index pads, rests on the side of the middle finger and
+  // runs back into the thumb web; the bowl reaches past the fingertips.
   function spoonInHand(pose) {
     const probe = right.solve(pose);
     const middle = probe.fingers[1];
@@ -879,12 +891,15 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     };
   }
 
+  const shotAt = (t) => {
+    const frame = Math.round(clamp01(t) * (brewFilm.frames - 1));
+    const shot = brewFilm.shots.find((s) => frame < s.to) ?? brewFilm.shots.at(-1);
+    return { shot, local: (frame - shot.from) / (shot.to - shot.from - 1) };
+  };
   function setFrame(t, tea = "osmanthus") {
     hideAll();
     resetObjects();
-    const frame = Math.round(clamp01(t) * (brewFilm.frames - 1));
-    const shot = brewFilm.shots.find((s) => frame < s.to) ?? brewFilm.shots.at(-1);
-    const local = (frame - shot.from) / (shot.to - shot.from - 1);
+    const { shot, local } = shotAt(t);
     if (shot.id === "scoop") scoopShot(local, tea);
     else if (shot.id === "infuse") infuseShot(local, tea);
     else if (shot.id === "pour") pourShot(local, tea);
@@ -893,8 +908,11 @@ export function createBrewFilm({ scene, camera, props, materials }) {
   }
   // The liquor-only pass: everything else only writes depth, so hands and the
   // stream hide the tea exactly where they cover it.
-  function renderLiquorMask(renderer, t) {
-    setFrame(t, "osmanthus");
+  function renderLiquorMask(renderer, t, tea = "osmanthus") {
+    // No cup of tea on screen: nothing to tint, so skip the render.
+    if (!["pour", "serve"].includes(shotAt(t).shot.id)) return null;
+    setFrame(t, tea);
+    if (!cup.visible || !cupLiquor.visible) return null;
     const states = new Map(),
       sprites = [];
     const background = scene.background;
@@ -917,6 +935,9 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     const color = cupLiquorMaterial.color.clone(),
       map = cupLiquorMaterial.map,
       opacity = cupLiquorMaterial.opacity;
+    // The per-tea accent light must not reach the shared mask.
+    const accentIntensity = accent.intensity;
+    accent.intensity = 0;
     scene.background = null;
     scene.fog = null;
     renderer.setClearColor(0x000000, 0);
@@ -929,6 +950,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     } finally {
       scene.background = background;
       scene.fog = fog;
+      accent.intensity = accentIntensity;
       renderer.setClearColor(clearColor, clearAlpha);
       cupLiquorMaterial.color.copy(color);
       cupLiquorMaterial.map = map;
@@ -937,16 +959,5 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       for (const [sprite, visible] of sprites) sprite.visible = visible;
     }
   }
-  return {
-    root,
-    setFrame,
-    renderLiquorMask,
-    hide() {
-      root.visible = false;
-    },
-    drawLabel,
-    glaze,
-    label,
-    varieties,
-  };
+  return { root, setFrame, renderLiquorMask };
 }

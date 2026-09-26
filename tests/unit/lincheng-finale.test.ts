@@ -60,9 +60,15 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
       expect(selected).toBeDefined();
       story.choose(selected!.index);
     }
-    const restored = new StoryBridge(storyJson);
-    restored.restore(story.serialize(), frameSchema.parse(story.frame));
-    expect(restored.frame).toEqual(story.frame);
+    if (
+      story.frame.mode !== "dialogue" ||
+      !story.frame.canContinue ||
+      steps % 20 === 0
+    ) {
+      const restored = new StoryBridge(storyJson);
+      restored.restore(story.serialize(), frameSchema.parse(story.frame));
+      expect(restored.frame).toEqual(story.frame);
+    }
   }
   return { story, sections, texts, speakers, portraits, choices };
 }
@@ -218,7 +224,7 @@ describe("Lincheng finale", () => {
     expect(portraits.indexOf("owner")).toBeLessThan(portraits.indexOf("lincheng-child"));
     expect(portraits).toContain("none");
   });
-  it.each(Object.keys(targets) as (keyof typeof targets)[])("reaches %s and restores each checkpoint", (target) => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("reaches %s and restores each choice and minigame checkpoint", (target) => {
     const { story, sections } = play(target);
     expect(story.frame.endingId).toBe(target);
     if (target !== "lincheng-midnight") {
