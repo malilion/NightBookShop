@@ -37,14 +37,21 @@ function mix(a: string, b: string, progress: number) {
   );
 }
 export function teaInfusion(
-  draft: Pick<TeaDraft, "teaId" | "seconds" | "leaves" | "water"> & Partial<Pick<TeaDraft, "blackTea">>,
+  draft: Pick<TeaDraft, "teaId" | "seconds" | "leaves" | "water"> & Partial<Pick<TeaDraft, "blackTea" | "blendTeaId" | "blendLeaves">>,
 ) {
   const profile = profiles[draft.teaId];
+  const blendTeaId = draft.blendTeaId !== draft.teaId && (draft.blendLeaves ?? 0) > 0 ? draft.blendTeaId : null;
+  const blendLeaves = blendTeaId ? draft.blendLeaves ?? 0 : 0;
+  const totalLeaves = draft.leaves + blendLeaves;
+  const blendRatio = totalLeaves > 0 ? blendLeaves / totalLeaves : 0;
+  const idealSeconds = teas[draft.teaId].seconds * (1 - blendRatio) + (blendTeaId ? teas[blendTeaId].seconds * blendRatio : 0);
   const ratio =
-    draft.water > 0 && draft.leaves > 0
-      ? Math.max(0, draft.seconds) / teas[draft.teaId].seconds
+    draft.water > 0 && totalLeaves > 0
+      ? Math.max(0, draft.seconds) / idealSeconds
       : 0;
-  const stages = [clearWaterColor, ...profile.colors];
+  const stages = [clearWaterColor, ...profile.colors.map((color, index) =>
+    blendTeaId ? mix(color, profiles[blendTeaId].colors[index]!, blendRatio) : color,
+  )];
   const times = [0, 0.2, 1, 2.4];
   const capped = Math.min(2.4, ratio);
   const index = capped < 0.2 ? 0 : capped < 1 ? 1 : 2;
@@ -60,9 +67,9 @@ export function teaInfusion(
     label:
       blackRatio > 0
         ? draft.water === 0 ? "備好的淡紅茶"
-          : `${ratio < 0.45 ? "淡" : ratio > 1.25 ? "濃" : "透亮"}薄荷紅茶`
+          : `${ratio < 0.45 ? "淡" : ratio > 1.25 ? "濃" : "透亮"}薄荷紅茶${blendTeaId && draft.leaves > 0 ? `與${teas[blendTeaId].name}` : ""}`
         : ratio === 0
         ? "清水初注"
-        : `${ratio < 0.45 ? "淡" : ratio > 1.25 ? "濃" : "透亮"}${profile.name}`,
+        : `${ratio < 0.45 ? "淡" : ratio > 1.25 ? "濃" : "透亮"}${blendTeaId && draft.leaves > 0 ? `${teas[draft.teaId].name}與${teas[blendTeaId].name}` : blendTeaId ? profiles[blendTeaId].name : profile.name}`,
   };
 }

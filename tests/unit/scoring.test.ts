@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { scoreTea } from "../../src/services/teaScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
-import { newLetter } from "../../src/types/game";
-import { newTea } from "../../src/types/game";
+import { newLetter, newTea, teaSchema } from "../../src/types/game";
 describe("minigame results", () => {
   it("uses every tea input and caps score through validated input", () => {
     const ideal = { ...newTea(), leaves: 3, seconds: 45, water: 70 };
@@ -70,6 +69,21 @@ describe("minigame results", () => {
     expect(caramel.emotionalMatch).toBe(100);
     expect(caramel.quality).toBeGreaterThan(plain.quality);
     expect(caramel.garnish).toBe("caramel");
+  });
+  it("weights two selected teas by their actual spoon counts", () => {
+    const base = { ...newTea(), teaId: "osmanthus" as const, blendTeaId: "puer" as const, leaves: 2, blendLeaves: 1, leafOrder: ["osmanthus", "osmanthus", "puer"] as ("osmanthus" | "puer")[], water: 70, temperature: 92, seconds: 50 };
+    const mostlyOsmanthus = scoreTea(base);
+    const mostlyPuer = scoreTea({ ...base, leaves: 1, blendLeaves: 2, leafOrder: ["osmanthus", "puer", "puer"] });
+    expect(mostlyOsmanthus.emotionalMatch).toBe(92);
+    expect(mostlyPuer.emotionalMatch).toBe(83);
+    expect(mostlyOsmanthus.teaId).toBe("osmanthus");
+    expect(mostlyPuer.teaId).toBe("puer");
+    expect(mostlyOsmanthus.quality).toBeGreaterThan(mostlyPuer.quality);
+    expect(mostlyOsmanthus.blendLeaves).toBe(1);
+    const onlySecond = scoreTea({ ...base, leaves: 0, blendLeaves: 3, leafOrder: ["puer", "puer", "puer"] });
+    expect(onlySecond).toMatchObject({ teaId: "puer", primaryTeaId: "puer", blendTeaId: null, blendLeaves: 0, primaryLeaves: 3, emotionalMatch: 75 });
+    expect(() => teaSchema.parse({ ...base, blendLeaves: 4 })).toThrow();
+    expect(() => teaSchema.parse({ ...base, blendTeaId: "osmanthus" })).toThrow();
   });
   it("only understands a complete original letter after observing ink", () => {
     const letter = {

@@ -70,4 +70,15 @@ describe("tea liquor", () => {
     expect(teaInfusion({ ...mint, water: 0, blackTea: 20 }).strength).toBeGreaterThan(0);
     expect(teaInfusion(teaSchema.parse({ ...mint, blackTea: 20 }))).toEqual(mixed);
   });
+  it("mixes the two tea colors and restores their ratio from the draft", () => {
+    const primary = teaInfusion({ ...brew, teaId: "osmanthus", leaves: 3, seconds: 50 });
+    const secondary = teaInfusion({ ...brew, teaId: "puer", leaves: 3, seconds: 50 });
+    const mixed = { ...brew, teaId: "osmanthus" as const, blendTeaId: "puer" as const, leaves: 2, blendLeaves: 1, seconds: 50 };
+    const liquor = teaInfusion(mixed);
+    expect(liquor.color).not.toBe(primary.color);
+    expect(liquor.color).not.toBe(secondary.color);
+    expect(liquor.label).toContain("桂花烏龍與熟普洱");
+    expect(teaInfusion(teaSchema.parse(JSON.parse(JSON.stringify(mixed))))).toEqual(liquor);
+    expect(teaInfusion({ ...mixed, leaves: 0, blendLeaves: 3 }).label).not.toContain("桂花烏龍與熟普洱");
+  });
 });

@@ -513,6 +513,15 @@ button:active:not(:disabled),
   width: 100%;
   margin: 160px auto 0;
 }
+.brew-summary {
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border-left: 2px solid #d9b76d;
+  color: #e9d6b2;
+  background: #d9b76d12;
+  font-size: 14px;
+  line-height: 1.8;
+}
 .speaker-line {
   display: flex;
   align-items: center;
@@ -2495,6 +2504,7 @@ button:active:not(:disabled),
 .tea-garnish .quiet-button { min-height: 44px; justify-self: start; }
 .tea-garnish .quiet-button[aria-pressed="true"] { border-color: #e7bb78; background: #b7783b33; }
 .tea-garnish small { color: #cfc2aa; }
+.tea-recipe-note .tea-blend-hint { margin: 12px 0; padding: 10px 13px; border-left: 2px solid #bda06a; background: #bda06a16; color: #e0d0b5; font-size: 13px; line-height: 1.75; }
 .table-steam {animation:tea-breathe 5s ease-in-out infinite alternate;}@keyframes tea-breathe{from{opacity:.3;transform:translateY(0)}to{opacity:.8;transform:translateY(-8px)}}
 .reduce-motion .table-steam {animation:none;}
 @media(max-width:1050px){.tea-table-layout{grid-template-columns:minmax(0,1fr) 225px;gap:18px}.hands-on-tea{padding:20px}}

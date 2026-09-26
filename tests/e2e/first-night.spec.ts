@@ -96,6 +96,8 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     fullPage: true,
     animations: "disabled",
   });
+  // The tea draft is restored offline; full films are downloaded on demand.
+  await context.setOffline(false);
   await steepAndServe(page, info.project.name === "mobile");
   const completion = page.getByRole("dialog", {
     name: "把這一杯，放到她面前。",
@@ -152,7 +154,6 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     animations: "disabled",
   });
   await expect(completion).not.toBeVisible({ timeout: 12000 });
-  await context.setOffline(false);
   await until(page, "聽她說，那一晚");
   await page.getByRole("button", { name: /聽她說，那一晚/ }).click();
   for (const [choice, scene] of [

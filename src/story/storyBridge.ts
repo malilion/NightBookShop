@@ -1,5 +1,6 @@
 import { Story } from "inkjs";
 import { parseTag } from "./commandParser";
+import { teas } from "../data/catalog";
 import type { ResonanceChapterId, StoryFrame, TeaResult } from "../types/game";
 export class StoryBridge {
   readonly story: Story;
@@ -8,6 +9,7 @@ export class StoryBridge {
     clues: [],
     fragments: [],
     resonanceFragment: null,
+    brewSummary: "",
     text: "",
     speaker: "旁白",
     portrait: "none",
@@ -25,6 +27,7 @@ export class StoryBridge {
   next(): StoryFrame {
     if (this.frame.mode !== "dialogue") return this.frame;
     this.frame.portrait = "none";
+    this.frame.brewSummary = "";
     let text = "";
     while (this.story.canContinue && !text) {
       text = this.story.Continue()?.trim() ?? "";
@@ -83,7 +86,15 @@ export class StoryBridge {
       this.story.variablesState["tea_blend"] = result.blackTea ?? 0;
     if (result.quality >= 90 && resonanceChapter)
       this.frame.resonanceFragment = resonanceChapter;
-    return this.resume("tea_result");
+    const next = this.resume("tea_result");
+    if (result.primaryTeaId && result.blendTeaId && result.blendLeaves && result.primaryLeaves !== undefined) {
+      const first = teas[result.primaryTeaId].name;
+      const second = teas[result.blendTeaId].name;
+      const preparation = `妳把 ${result.primaryLeaves} 匙${first}與 ${result.blendLeaves} 匙${second}放進同一只茶壺。兩種香氣在杯緣相遇。`;
+      this.frame.brewSummary = preparation;
+      return structuredClone(this.frame);
+    }
+    return next;
   }
   finishLetter(result: {
     completion: number;

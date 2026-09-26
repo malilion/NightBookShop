@@ -88,6 +88,7 @@ defineExpose({ reveal, revealing });
 </script>
 <template>
   <section v-if="game.frame" class="dialogue-panel" aria-label="故事對話">
+    <p v-if="game.frame.brewSummary" class="brew-summary">{{ game.frame.brewSummary }}</p>
     <div class="speaker-line">
       <span class="speaker">{{ game.frame.speaker }}</span
       ><span class="speaker-rule"></span><GameIcon name="moon" :size="16" />

@@ -49,3 +49,12 @@ it("Jinglan also recalls a hidden memory when another tea reaches score 90", () 
   expect(story.frame.text).toContain("校刊室裡一張反覆修改的退稿信");
   expect(story.frame.resonanceFragment).toBe("jinglan");
 });
+
+it("shows a two-tea preparation note once before the visitor's response", () => {
+  const story = atTea("main");
+  story.finishTea({ teaId: "osmanthus", primaryTeaId: "osmanthus", blendTeaId: "puer", primaryLeaves: 2, blendLeaves: 1, quality: 96, emotionalMatch: 92 }, "jinglan");
+  expect(story.frame.brewSummary).toContain("2 匙桂花烏龍與 1 匙熟普洱");
+  expect(story.frame.speaker).toBe("旁白");
+  story.next();
+  expect(story.frame.brewSummary).toBe("");
+});

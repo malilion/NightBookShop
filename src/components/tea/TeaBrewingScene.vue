@@ -31,8 +31,18 @@ const board = ref<SVGSVGElement>(),
   message = ref("");
 const layout = computed(() => tableLayout(compact.value));
 const selected = computed(() => teas[draft.teaId]);
+const secondary = computed(() => draft.blendTeaId ? teas[draft.blendTeaId] : null);
+const totalLeaves = computed(() => draft.leaves + draft.blendLeaves);
+const blendRatio = computed(() => totalLeaves.value > 0 ? draft.blendLeaves / totalLeaves.value : 0);
+const idealTemperature = computed(() => Math.round(selected.value.temperature * (1 - blendRatio.value) + (secondary.value?.temperature ?? 0) * blendRatio.value));
+const idealSeconds = computed(() => Math.round(selected.value.seconds * (1 - blendRatio.value) + (secondary.value?.seconds ?? 0) * blendRatio.value));
+const canChooseJar = computed(() => draft.water === 0 && phase.value <= 2);
 const teaName = computed(() =>
-  (game.chapterId === "yenuan" || game.chapterId === "yuhang") && draft.teaId === "hojicha" && draft.garnish === "apple"
+  secondary.value && draft.blendLeaves > 0 && draft.leaves === 0
+    ? secondary.value.name
+    : secondary.value && draft.blendLeaves > 0
+    ? `${selected.value.name}・${secondary.value.name}調和茶`
+    : (game.chapterId === "yenuan" || game.chapterId === "yuhang") && draft.teaId === "hojicha" && draft.garnish === "apple"
     ? "焙茶蘋果茶"
     : game.chapterId === "yuhang" && draft.teaId === "mint" && draft.garnish === "lemon" && draft.blackTea >= 15
     ? "薄荷檸檬紅茶"
@@ -58,7 +68,7 @@ const phase = computed(
       serve: 4,
     })[draft.step],
 );
-const phases = ["選一罐茶", "親手舀茶", "提壺注水", "靜候茶香", "倒茶入杯"];
+const phases = ["選第一罐茶", "舀茶與調配", "提壺注水", "靜候茶香", "倒茶入杯"];
 const held = ref(""),
   heldJar = ref<TeaId | null>(null),
   position = reactive<Point>({ x: 0, y: 0 }),
@@ -109,7 +119,7 @@ const hint = computed(() =>
     : [
         "茶架上的八種香氣，都可以拿下來試試。",
         draft.jarOpen
-          ? "把茶匙拖進茶罐，放開舀起；再拖進茶壺放下。三匙剛好。"
+          ? "把茶匙拖進已開的茶罐舀茶，再放進茶壺；注水前也能選第二罐調配。總共三匙剛好。"
           : "先把茶罐蓋拖開，聞一聞這罐茶。",
         "提起銅水壺，移到壺口上方的虛線圈。水至七分，再把壺蓋蓋好。",
         draft.steepRunning
@@ -163,6 +173,8 @@ function point(event: PointerEvent): Point {
 function home(kind: string): Point {
   if (kind === "jarLid")
     return { x: layout.value.jar.x, y: layout.value.jar.y - 43 };
+  if (kind === "blendJarLid")
+    return { x: layout.value.blendJar.x, y: layout.value.blendJar.y - 43 };
   if (kind === "lid")
     return draft.step === "steep"
       ? { x: layout.value.pot.x, y: layout.value.pot.y - 32 }
@@ -179,11 +191,12 @@ function transform(kind: string) {
   return `translate(${p.x} ${p.y}) rotate(${held.value === kind ? tilt.value : 0})`;
 }
 function allowed(kind: string) {
-  if (kind.startsWith("jar:") || kind === "jarLid") return phase.value <= 1;
-  if (kind === "spoon") return phase.value <= 2 && draft.jarOpen;
+  if (kind.startsWith("jar:") || kind === "jarLid") return canChooseJar.value;
+  if (kind === "blendJarLid") return canChooseJar.value && !!draft.blendTeaId;
+  if (kind === "spoon") return phase.value <= 2 && (draft.jarOpen || draft.blendJarOpen || draft.spoonLoaded);
   if (kind === "kettle") return phase.value === 2;
   if (kind === "lid")
-    return phase.value === 2 && draft.water > 0 && draft.leaves > 0;
+    return phase.value === 2 && draft.water > 0 && totalLeaves.value > 0;
   if (kind === "pot") return phase.value >= 3 && potRemaining.value > 0;
   return false;
 }
@@ -246,38 +259,65 @@ function drop() {
   const kind = held.value;
   if (!kind) return;
   if (heldJar.value && distance(position, layout.value.jar) < 80) {
-    draft.teaId = heldJar.value;
-    draft.garnish = "none";
-    draft.blackTea = 0;
-    draft.step = "leaves";
-    draft.leaves = 0;
-    draft.jarOpen = false;
-    draft.spoonLoaded = false;
-    draft.water = 0;
-    draft.seconds = 0;
-    draft.cupWater = 0;
-    draft.teaLost = 0;
+    Object.assign(draft, {
+      ...newTea(),
+      teaId: heldJar.value,
+      temperature: teas[heldJar.value].temperature,
+      step: "leaves",
+    });
     message.value = `拿下了${selected.value.name}。把蓋子移開，讓香氣出來。`;
+  } else if (heldJar.value && draft.step !== "select" && distance(position, layout.value.blendJar) < 80) {
+    if (heldJar.value === draft.teaId) message.value = "第二罐請選不同的茶葉；想調整濃淡，可以增減同一罐的茶匙。";
+    else {
+      draft.blendTeaId = heldJar.value;
+      draft.blendLeaves = 0;
+      draft.blendJarOpen = false;
+      draft.leafOrder = draft.leafOrder.filter((id) => id === draft.teaId);
+      draft.spoonLoaded = false;
+      draft.spoonTeaId = null;
+      message.value = `第二罐是${secondary.value!.name}。打開罐蓋，分別舀取兩種茶葉。`;
+    }
   } else if (kind === "jarLid" && distance(position, home("jarLid")) > 45) {
     draft.jarOpen = true;
     message.value = selected.value.note;
+  } else if (kind === "blendJarLid" && distance(position, home("blendJarLid")) > 45) {
+    draft.blendJarOpen = true;
+    message.value = secondary.value?.note ?? "第二罐茶已打開。";
   } else if (kind === "spoon") {
     if (distance(position, layout.value.pot) < 80 && draft.spoonLoaded) {
-      if (draft.leaves < 5) {
-        draft.leaves++;
+      if (totalLeaves.value < 5) {
+        const scoopTeaId = draft.spoonTeaId ?? draft.teaId;
+        if (scoopTeaId === draft.blendTeaId) draft.blendLeaves++;
+        else draft.leaves++;
+        draft.leafOrder.push(scoopTeaId);
         draft.spoonLoaded = false;
-        message.value = `壺裡有 ${draft.leaves} 匙茶葉。`;
+        draft.spoonTeaId = null;
+        message.value = `壺裡有 ${totalLeaves.value} 匙茶葉，兩種茶可以調整比例。`;
         draft.step = "water";
       } else message.value = "茶葉已經很多了，先留一點空間。";
-    } else if (distance(position, layout.value.pot) < 80 && draft.leaves > 0) {
-      draft.leaves--;
+    } else if (distance(position, layout.value.pot) < 80 && totalLeaves.value > 0) {
+      const removed = draft.leafOrder.pop() ?? (draft.blendLeaves > 0 ? draft.blendTeaId! : draft.teaId);
+      if (removed === draft.blendTeaId) draft.blendLeaves--;
+      else draft.leaves--;
       draft.spoonLoaded = true;
-      message.value = "取回一匙茶葉。移回茶罐放下，就能調整濃淡。";
-    } else if (distance(position, layout.value.jar) < 80 && draft.jarOpen) {
-      draft.spoonLoaded = !draft.spoonLoaded;
-      message.value = draft.spoonLoaded
-        ? "舀起一匙。移到茶壺裡，再放開。"
-        : "這一匙放回罐裡了。";
+      draft.spoonTeaId = removed;
+      if (totalLeaves.value === 0 && draft.water === 0) draft.step = "leaves";
+      message.value = "取回最後加入的一匙茶葉。移回同一罐放下，就能調整比例。";
+    } else {
+      const scoopTeaId = distance(position, layout.value.jar) < 80 && draft.jarOpen
+        ? draft.teaId
+        : distance(position, layout.value.blendJar) < 80 && draft.blendJarOpen
+          ? draft.blendTeaId
+          : null;
+      if (scoopTeaId && !draft.spoonLoaded) {
+        draft.spoonLoaded = true;
+        draft.spoonTeaId = scoopTeaId;
+        message.value = `舀起一匙${teas[scoopTeaId].name}。移到茶壺裡，再放開。`;
+      } else if (scoopTeaId && draft.spoonTeaId === scoopTeaId) {
+        draft.spoonLoaded = false;
+        draft.spoonTeaId = null;
+        message.value = "這一匙放回原來的茶罐了。";
+      } else if (scoopTeaId) message.value = "這匙茶葉請先放回原來的茶罐。";
     }
   } else if (kind === "lid" && distance(position, layout.value.pot) < 80) {
     draft.step = "steep";
@@ -477,6 +517,10 @@ onBeforeUnmount(() => {
           :class="{ compact }"
           :data-water="draft.water"
           :data-leaves="draft.leaves"
+          :data-jar-open="draft.jarOpen"
+          :data-blend-jar-open="draft.blendJarOpen"
+          :data-blend-leaves="draft.blendLeaves"
+          :data-blend-tea="draft.blendTeaId || ''"
           :data-seconds="draft.seconds"
           :data-liquor-color="infusion.color"
           :data-cup="draft.cupWater"
@@ -616,10 +660,10 @@ onBeforeUnmount(() => {
               role="button"
               tabindex="0"
               :aria-label="`茶罐：${teas[id].name}`"
-              :aria-disabled="phase > 1"
+              :aria-disabled="!canChooseJar"
               :data-tea="id"
               class="tea-draggable shelf-jar"
-              :opacity="heldJar === id ? 0.3 : phase > 1 ? 0.82 : 1"
+              :opacity="heldJar === id ? 0.3 : !canChooseJar ? 0.82 : 1"
               @pointerdown="down($event, 'jar:' + id)"
               @keydown="key($event, 'jar:' + id)"
             >
@@ -658,8 +702,27 @@ onBeforeUnmount(() => {
           >
             把茶罐放在這裡
           </text>
+          <ellipse
+            v-if="draft.step !== 'select' && draft.water === 0"
+            :cx="layout.blendJar.x"
+            :cy="layout.blendJar.y + 42"
+            rx="66"
+            ry="24"
+            fill="#152126"
+            stroke="#bea171"
+            stroke-dasharray="3 5"
+          />
+          <text
+            v-if="draft.step !== 'select' && !draft.blendTeaId && draft.water === 0"
+            :x="layout.blendJar.x"
+            :y="layout.blendJar.y + 88"
+            text-anchor="middle"
+            class="table-label"
+          >
+            第二種茶可放這裡
+          </text>
           <g
-            v-else
+            v-if="draft.step !== 'select'"
             :transform="`translate(${layout.jar.x} ${layout.jar.y})`"
             filter="url(#object-shadow)"
           >
@@ -691,6 +754,34 @@ onBeforeUnmount(() => {
           >
             <TeaObject kind="jarLid" />
           </g>
+          <g
+            v-if="secondary"
+            :transform="`translate(${layout.blendJar.x} ${layout.blendJar.y})`"
+            filter="url(#object-shadow)"
+          >
+            <TeaObject kind="jar" :color="secondary.color" :label="secondary.name" open />
+            <g
+              v-if="!draft.blendJarOpen"
+              :opacity="held === 'blendJarLid' ? 0 : 1"
+              transform="translate(0 -43)"
+              role="button"
+              tabindex="0"
+              aria-label="第二罐茶罐蓋"
+              class="tea-draggable"
+              @pointerdown="down($event, 'blendJarLid')"
+              @keydown="key($event, 'blendJarLid')"
+            >
+              <rect x="-45" y="-22" width="90" height="44" fill="transparent" />
+              <TeaObject kind="jarLid" />
+            </g>
+          </g>
+          <g
+            v-if="draft.blendJarOpen"
+            :transform="`translate(${layout.blendJar.x - 15} ${layout.blendJar.y + 96})`"
+            opacity=".65"
+          >
+            <TeaObject kind="jarLid" />
+          </g>
           <ellipse
             v-if="draft.spilled > 0"
             :cx="layout.pot.x + 90"
@@ -705,6 +796,7 @@ onBeforeUnmount(() => {
             :transform="`translate(${pourAnchor(phase < 3 ? layout.pot : layout.cup, phase < 3 ? 'kettle' : 'pot').x} ${(phase < 3 ? layout.pot : layout.cup).y - 145})`"
             class="pour-target"
             :class="{ matched: locked }"
+            pointer-events="none"
           >
             <circle r="43" />
             <text y="-55" text-anchor="middle">
@@ -806,7 +898,7 @@ onBeforeUnmount(() => {
             <TeaObject
               kind="spoon"
               :loaded="draft.spoonLoaded"
-              :color="selected.color"
+              :color="draft.spoonLoaded && draft.spoonTeaId ? teas[draft.spoonTeaId].color : selected.color"
             />
           </g>
           <g
@@ -839,7 +931,7 @@ onBeforeUnmount(() => {
             <rect x="-40" y="-45" width="80" height="100" fill="transparent" />
             <TeaObject
               kind="hourglass"
-              :fill="Math.min(100, (draft.seconds / selected.seconds) * 100)"
+              :fill="Math.min(100, (draft.seconds / idealSeconds) * 100)"
             />
             <text y="69" text-anchor="middle" class="table-label">
               {{ Math.floor(draft.seconds) }} 秒
@@ -860,6 +952,13 @@ onBeforeUnmount(() => {
           <g
             v-if="held === 'jarLid'"
             :transform="transform('jarLid')"
+            pointer-events="none"
+          >
+            <TeaObject kind="jarLid" />
+          </g>
+          <g
+            v-if="held === 'blendJarLid'"
+            :transform="transform('blendJarLid')"
             pointer-events="none"
           >
             <TeaObject kind="jarLid" />
@@ -913,7 +1012,7 @@ onBeforeUnmount(() => {
             text-anchor="middle"
             class="table-label"
           >
-            {{ draft.leaves }} 匙 · {{ Math.round(draft.water) }}% 水量
+            {{ totalLeaves }} 匙 · {{ Math.round(draft.water) }}% 水量
           </text>
           <text
             :x="layout.cup.x"
@@ -945,7 +1044,7 @@ onBeforeUnmount(() => {
           }}
         </p>
         <h3>
-          {{ draft.step === "select" ? "今晚，什麼香氣？" : selected.name }}
+          {{ draft.step === "select" ? "今晚，什麼香氣？" : teaName }}
         </h3>
         <p>
           {{
@@ -969,7 +1068,7 @@ onBeforeUnmount(() => {
         <dl>
           <div>
             <dt>茶葉</dt>
-            <dd>{{ draft.leaves }} / 3 匙</dd>
+            <dd>{{ totalLeaves }} / 3 匙<small v-if="secondary"> · {{ selected.name }} {{ draft.leaves }}，{{ secondary.name }} {{ draft.blendLeaves }}</small></dd>
           </div>
           <div>
             <dt>水量</dt>
@@ -977,7 +1076,7 @@ onBeforeUnmount(() => {
           </div>
           <div>
             <dt>浸泡</dt>
-            <dd>{{ Math.floor(draft.seconds) }} / {{ selected.seconds }} 秒</dd>
+            <dd>{{ Math.floor(draft.seconds) }} / {{ idealSeconds }} 秒</dd>
           </div>
           <div v-if="draft.water > 0" class="tea-liquor-status">
             <dt>茶湯</dt>
@@ -995,6 +1094,12 @@ onBeforeUnmount(() => {
             <dd>{{ Math.round(draft.spilled) }}%</dd>
           </div>
         </dl>
+        <p v-if="draft.step !== 'select' && draft.water === 0" class="tea-blend-hint">
+          可把另一罐茶放到茶桌的第二個圓墊，打開罐蓋後分別舀取；兩種茶葉共三匙最合適。
+        </p>
+        <p v-if="secondary && draft.blendLeaves > 0" class="tea-blend-hint">
+          兩種茶材各自的份量會改變茶色、合適水溫、浸泡時間與訪客反應。
+        </p>
         <div v-if="game.chapterId === 'yenuan' && draft.step !== 'select' && draft.teaId === 'hojicha'" class="tea-garnish">
           <p>葉暖的焙茶蘋果茶</p>
           <button type="button" class="quiet-button" :aria-pressed="draft.garnish === 'apple'" :disabled="phase > 2" @click="toggleApple">
@@ -1046,15 +1151,15 @@ onBeforeUnmount(() => {
             @change="flush"
         /></label>
         <p class="subtle">
-          {{ selected.name }}：{{ selected.temperature }}°C ·
-          {{ selected.seconds }} 秒<br />沙漏以三倍流速走動。
+          {{ teaName }}：{{ idealTemperature }}°C ·
+          {{ idealSeconds }} 秒<br />沙漏以三倍流速走動。
         </p>
         <p class="tea-action-feedback" role="status">{{ message || hint }}</p>
         <p v-if="draft.step === 'steep'">
           {{
-            draft.seconds < selected.seconds - 8
+            draft.seconds < idealSeconds - 8
               ? "茶香還在慢慢展開。"
-              : draft.seconds < selected.seconds + 10
+              : draft.seconds < idealSeconds + 10
                 ? "香氣正好。可以提壺了。"
                 : "茶湯漸濃，試著收住這一泡。"
           }}
@@ -1078,7 +1183,7 @@ onBeforeUnmount(() => {
             放回。滑鼠提壺時也能用滾輪調整角度。
           </p>
           <p>
-            茶葉太多時，把空茶匙放進壺裡取回一匙，再放回茶罐。水不足可以分次補；壺口未對準或太滿會灑水。離開分頁會停下操作與沙漏，隨時可重新整理茶席。
+            茶葉太多時，把空茶匙放進壺裡取回最後加入的一匙，再放回原來的茶罐。注水前可選第二罐，從兩罐分別舀茶；總量最多五匙。水不足可以分次補；壺口未對準或太滿會灑水。離開分頁會停下操作與沙漏，隨時可重新整理茶席。
           </p>
         </details>
       </aside>

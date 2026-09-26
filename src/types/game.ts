@@ -247,18 +247,28 @@ export const teaSchema = z.object({
     "serve",
   ]),
   teaId: teaIdSchema,
+  blendTeaId: teaIdSchema.nullable().default(null),
   garnish: z.enum(["none", "apple", "lemon", "caramel", "honey"]).default("none"),
   blackTea: z.number().min(0).max(30).default(0),
   leaves: z.number().min(0).max(5),
+  blendLeaves: z.number().min(0).max(5).default(0),
+  leafOrder: z.array(teaIdSchema).max(5).default([]),
   water: z.number().min(0).max(100),
   temperature: z.number().min(60).max(100),
   seconds: z.number().min(0).max(120),
   jarOpen: z.boolean().default(false),
+  blendJarOpen: z.boolean().default(false),
   spoonLoaded: z.boolean().default(false),
+  spoonTeaId: teaIdSchema.nullable().default(null),
   spilled: z.number().min(0).max(200).default(0),
   teaLost: z.number().min(0).max(100).default(0),
   cupWater: z.number().min(0).max(100).default(0),
   steepRunning: z.boolean().default(false),
+}).superRefine((draft, ctx) => {
+  if (draft.leaves + draft.blendLeaves > 5)
+    ctx.addIssue({ code: "custom", path: ["blendLeaves"], message: "兩種茶葉總量不能超過五匙。" });
+  if (draft.blendLeaves > 0 && (!draft.blendTeaId || draft.blendTeaId === draft.teaId))
+    ctx.addIssue({ code: "custom", path: ["blendTeaId"], message: "第二種茶葉必須與第一種不同。" });
 });
 export type TeaDraft = z.infer<typeof teaSchema>;
 export const letterSchema = z.object({
@@ -320,6 +330,7 @@ export const frameSchema = z.object({
   clues: z.array(clueSchema).default([]),
   fragments: z.array(fragmentSchema).default([]),
   resonanceFragment: resonanceChapterSchema.nullable().default(null),
+  brewSummary: z.string().default(""),
   text: z.string(),
   speaker: z.string(),
   portrait: portraitCueSchema.default("none"),
@@ -391,18 +402,27 @@ export interface TeaResult {
   teaId: TeaId;
   garnish?: TeaDraft["garnish"];
   blackTea?: number;
+  primaryTeaId?: TeaId;
+  blendTeaId?: TeaId | null;
+  blendLeaves?: number;
+  primaryLeaves?: number;
 }
 export const newTea = (): TeaDraft => ({
   step: "select",
   teaId: "osmanthus",
+  blendTeaId: null,
   garnish: "none",
   blackTea: 0,
   leaves: 0,
+  blendLeaves: 0,
+  leafOrder: [],
   water: 0,
   temperature: 90,
   seconds: 0,
   jarOpen: false,
+  blendJarOpen: false,
   spoonLoaded: false,
+  spoonTeaId: null,
   spilled: 0,
   teaLost: 0,
   cupWater: 0,

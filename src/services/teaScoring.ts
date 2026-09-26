@@ -32,46 +32,66 @@ const haimingTeaMatch: Partial<Record<TeaId, number>> = {
   puer: 75,
   mint: 40,
 };
+function matchTea(teaId: TeaId, chapterId: string, garnish: TeaDraft["garnish"], blackTea: number) {
+  return (
+    chapterId === "haiming"
+      ? teaId === "hojicha" && garnish !== "caramel"
+        ? 75
+        : haimingTeaMatch[teaId] ?? 55
+      : chapterId === "yuhang"
+      ? teaId === "mint"
+        ? garnish === "lemon" && blackTea >= 15 ? 100
+          : blackTea >= 15 ? 90
+          : garnish === "lemon" ? 85 : 75
+        : teaId === "chamomile" && garnish === "honey" ? 75
+        : teaId === "hojicha" && garnish === "apple" ? 55
+        : yuhangTeaMatch[teaId] ?? 55
+      : chapterId === "yenuan"
+      ? teaId === "hojicha" && garnish !== "apple"
+        ? 75
+        : yenuanTeaMatch[teaId] ?? 55
+      : chapterId === "ruoyin"
+      ? (ruoyinTeaMatch[teaId] ?? 55)
+      : chapterId === "boyan"
+        ? teaId === "chamomile" && garnish !== "honey"
+          ? 75
+          : (boyanTeaMatch[teaId] ?? 55)
+        : teas[teaId].match
+  );
+}
 export function scoreTea(input: TeaDraft, chapterId = "jinglan"): TeaResult {
   const draft = teaSchema.parse(input);
-  const tea = teas[draft.teaId];
-  const emotionalMatch =
-    chapterId === "haiming"
-      ? draft.teaId === "hojicha" && draft.garnish !== "caramel"
-        ? 75
-        : haimingTeaMatch[draft.teaId] ?? 55
-      : chapterId === "yuhang"
-      ? draft.teaId === "mint"
-        ? draft.garnish === "lemon" && draft.blackTea >= 15 ? 100
-          : draft.blackTea >= 15 ? 90
-          : draft.garnish === "lemon" ? 85 : 75
-        : draft.teaId === "chamomile" && draft.garnish === "honey" ? 75
-        : draft.teaId === "hojicha" && draft.garnish === "apple" ? 55
-        : yuhangTeaMatch[draft.teaId] ?? 55
-      : chapterId === "yenuan"
-      ? draft.teaId === "hojicha" && draft.garnish !== "apple"
-        ? 75
-        : yenuanTeaMatch[draft.teaId] ?? 55
-      : chapterId === "ruoyin"
-      ? (ruoyinTeaMatch[draft.teaId] ?? 55)
-      : chapterId === "boyan"
-        ? draft.teaId === "chamomile" && draft.garnish !== "honey"
-          ? 75
-          : (boyanTeaMatch[draft.teaId] ?? 55)
-        : tea.match;
+  const blendTeaId = draft.blendTeaId !== draft.teaId && draft.blendLeaves > 0 ? draft.blendTeaId : null;
+  const blendLeaves = blendTeaId ? draft.blendLeaves : 0;
+  const totalLeaves = draft.leaves + blendLeaves;
+  const blendRatio = totalLeaves > 0 ? blendLeaves / totalLeaves : 0;
+  const primary = teas[draft.teaId];
+  const secondary = blendTeaId ? teas[blendTeaId] : null;
+  const emotionalMatch = Math.round(
+    matchTea(draft.teaId, chapterId, draft.garnish, draft.blackTea) * (1 - blendRatio) +
+      (blendTeaId ? matchTea(blendTeaId, chapterId, "none", 0) * blendRatio : 0),
+  );
+  const idealTemperature = primary.temperature * (1 - blendRatio) + (secondary?.temperature ?? 0) * blendRatio;
+  const idealSeconds = primary.seconds * (1 - blendRatio) + (secondary?.seconds ?? 0) * blendRatio;
+  const dominantTeaId = blendLeaves > draft.leaves ? blendTeaId! : draft.teaId;
+  const activeBlendTeaId = draft.leaves > 0 ? blendTeaId : null;
   return {
-    teaId: draft.teaId,
-    garnish: draft.garnish,
-    blackTea: draft.blackTea,
+    teaId: dominantTeaId,
+    garnish: dominantTeaId === draft.teaId ? draft.garnish : "none",
+    blackTea: dominantTeaId === draft.teaId ? draft.blackTea : 0,
+    primaryTeaId: activeBlendTeaId ? draft.teaId : dominantTeaId,
+    blendTeaId: activeBlendTeaId,
+    blendLeaves: activeBlendTeaId ? blendLeaves : 0,
+    primaryLeaves: activeBlendTeaId ? draft.leaves : totalLeaves,
     emotionalMatch,
     quality: Math.max(
       0,
       Math.round(
         emotionalMatch * 0.4 +
-          fit(draft.leaves, 3, 3) * 0.15 +
-          fit(draft.temperature, tea.temperature, 30) * 0.15 +
+          fit(totalLeaves, 3, 3) * 0.15 +
+          fit(draft.temperature, idealTemperature, 30) * 0.15 +
           fit(draft.water, 70, 70) * 0.1 +
-          fit(draft.seconds, tea.seconds, 60) * 0.2 -
+          fit(draft.seconds, idealSeconds, 60) * 0.2 -
           Math.min(15, draft.spilled * 0.15),
       ),
     ),

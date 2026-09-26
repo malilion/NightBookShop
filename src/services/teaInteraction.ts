@@ -16,6 +16,7 @@ export function tableLayout(compact: boolean) {
     height,
     shelfBottom: compact ? 350 : 210,
     jar: { x: compact ? 95 : 135, y: compact ? 460 : 370 },
+    blendJar: { x: compact ? 270 : 340, y: compact ? 460 : 370 },
     spoon: { x: compact ? 110 : 200, y: compact ? 710 : 580 },
     kettle: { x: compact ? 100 : 180, y: compact ? 610 : 510 },
     pot: { x: compact ? 330 : 545, y: compact ? 590 : 465 },

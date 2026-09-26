@@ -85,6 +85,18 @@ describe("local saves", () => {
     await expect(repo.get("manual-1")).rejects.toThrow();
     expect(await db.saves.count()).toBe(1);
   });
+  it("restores a two-tea draft and defaults older single-tea saves", async () => {
+    const mixed = snapshot();
+    mixed.frame.mode = "tea";
+    mixed.tea = { ...newTea(), step: "water", teaId: "osmanthus", blendTeaId: "puer", leaves: 2, blendLeaves: 1, leafOrder: ["osmanthus", "puer", "osmanthus"], jarOpen: true, blendJarOpen: true };
+    await repo.write(mixed, "manual", 1);
+    expect((await repo.get("manual-1"))?.snapshot.tea).toEqual(mixed.tea);
+    const { blendTeaId: _id, blendLeaves: _leaves, blendJarOpen: _open, spoonTeaId: _spoon, leafOrder: _order, ...oldTea } = newTea();
+    const old = snapshot();
+    await db.saves.put({ id: "manual-2", kind: "manual", updatedAt: new Date().toISOString(), snapshot: { ...old, tea: oldTea } as unknown as GameSnapshot });
+    expect((await repo.get("manual-2"))?.snapshot.tea).toEqual(newTea());
+    void [_id, _leaves, _open, _spoon, _order];
+  });
   it("loads letter drafts saved before rotation and flip were added", async () => {
     const data = snapshot();
     const oldLetter = {
