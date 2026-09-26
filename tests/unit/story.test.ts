@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { parseTag } from "../../src/story/commandParser";
 import { frameSchema } from "../../src/types/game";
+import { supportsMemoryEvidence } from "../../src/data/memoryEvidence";
 const compiled = readFileSync("public/story/compiled/main.json", "utf8");
 function play(
   seed: number,
@@ -72,6 +73,14 @@ function play(
   return { story, sections };
 }
 describe("complete Jinglan chapter", () => {
+  it("shows memory objects only for story versions that contain the interactive hubs", () => {
+    expect(supportsMemoryEvidence("jinglan-chapter-1")).toBe(false);
+    expect(supportsMemoryEvidence("jinglan-chapter-2")).toBe(true);
+    expect(supportsMemoryEvidence("haiming-chapter-3")).toBe(false);
+    expect(supportsMemoryEvidence("haiming-chapter-9")).toBe(true);
+    expect(supportsMemoryEvidence("haiming-chapter-10")).toBe(true);
+    expect(supportsMemoryEvidence("jinglan-prototype-1")).toBe(false);
+  });
   it("all authored tags use the runtime allowlist", () => {
     const source = readFileSync("story/chapters/ch01_jinglan.ink", "utf8");
     for (const match of source.matchAll(/#\s*([^#\n}]+)/g))

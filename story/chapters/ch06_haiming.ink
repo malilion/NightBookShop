@@ -65,7 +65,7 @@ VAR ending_kind = ""
     郵筒邊留著一張北岸燈塔照片。老人看了一眼，又去確認窗框是否關好。 # speaker:旁白
 }
 今晚霧大，燈不能滅。風從東北來，等天亮再換燈芯。 # speaker:顧海明
-他熟練地說完，眼神忽然停住。「這裡是哪裡？我記得剛才還在塔上。」黑貓沒有繞開他，只在椅腳旁坐下。
+他熟練地說完，眼神忽然停住。「這裡是哪裡？我記得剛才還在塔上。」黑貓沒有繞開他，只在椅腳旁坐下。 # speaker:旁白 # portrait:haiming-searching
 我是林澄，這裡是夜行書店。您可以先坐下，看看帶來的日誌。 # speaker:林澄
 * [照他給的步驟一起檢查窗與燈]
     ~ trust += 1
@@ -95,21 +95,21 @@ VAR ending_kind = ""
 {
 - tea_type == "hojicha" && tea_garnish == "caramel":
     ~ trust += 2
-    焙茶與一點鹹甜氣味讓他想起燈塔廚房。顧川小時候來訪，曾把焦糖偷偷放進父親的杯裡，兩人喝了一口都笑了。 # scene:haiming # speaker:顧海明 # section:watch-lamp
+    焙茶與一點鹹甜氣味讓他想起燈塔廚房。顧川小時候來訪，曾把焦糖偷偷放進父親的杯裡，兩人喝了一口都笑了。 # scene:haiming # speaker:顧海明 # section:watch-lamp # portrait:haiming-warm
 - tea_type == "hojicha":
     ~ trust += 1
-    焙茶的烘香使他想起燈塔廚房。小碟裡的海鹽焦糖還沒加入，他說顧川小時候常在這裡翻找點心，想到這裡便先笑了一下。 # scene:haiming # speaker:顧海明 # section:watch-lamp
+    焙茶的烘香使他想起燈塔廚房。小碟裡的海鹽焦糖還沒加入，他說顧川小時候常在這裡翻找點心，想到這裡便先笑了一下。 # scene:haiming # speaker:顧海明 # section:watch-lamp # portrait:haiming-warm
 - tea_type == "puer":
     普洱的木香讓他慢慢坐穩。他說那次海難的事並不好講，仍願意先從風向開始。 # scene:haiming # speaker:顧海明 # section:watch-lamp
 - tea_type == "mint":
-    薄荷讓他短暫清醒，隨即焦急問剛才是否說錯日期。妳把寫有書店名稱的紙留在手邊，說可以再看一次。 # scene:haiming # speaker:旁白 # section:watch-lamp
+    薄荷讓他短暫清醒，隨即焦急問剛才是否說錯日期。妳把寫有書店名稱的紙留在手邊，說可以再看一次。 # scene:haiming # speaker:旁白 # section:watch-lamp # portrait:haiming-searching
 - else:
     他握著杯子，仍記不起今天的日期。妳沒有把這杯茶說成一種治療；今晚只需要先聽清他想留下的話。 # scene:haiming # speaker:旁白 # section:watch-lamp
 }
 {
 - tea_quality >= 90:
     ~ understanding += 1
-    海明記起顧川小時候在塔裡替他擺過兩個杯墊，一個靠窗、一個靠日誌。「他說燈照船，也該照到我們吃飯的桌子。」海明沒有替這句話補上日期，只請妳把它照原樣寫下。 # clue:tower-table # speaker:顧海明
+    海明記起顧川小時候在塔裡替他擺過兩個杯墊，一個靠窗、一個靠日誌。「他說燈照船，也該照到我們吃飯的桌子。」海明沒有替這句話補上日期，只請妳把它照原樣寫下。 # clue:tower-table # speaker:顧海明 # portrait:haiming-warm
 - tea_quality >= 70:
     ~ trust += 1
     茶的溫度剛好，海明把日誌移到能看清的地方。今夜能讀到哪一頁由他決定，妳等他翻開。 # speaker:旁白
@@ -136,7 +136,7 @@ VAR ending_kind = ""
 {
 - lamp_balanced:
     ~ understanding += 2
-    柔光照見他的字，也照見停筆與塗改。海明說自己救過人，也說那時很怕。兩句話可以留在同一頁。 # scene:haiming # speaker:旁白 # section:watch-lamp
+    柔光照見他的字，也照見停筆與塗改。海明說自己救過人，也說那時很怕。兩句話可以留在同一頁。 # scene:haiming # speaker:旁白 # section:watch-lamp # portrait:haiming-warm
 - lamp_brightness > 70:
     ~ intervention += 1
     強光把救援紀錄照得格外漂亮，旁邊寫給兒子的半句話卻更難讀。妳把燈調低一點，等他再指給妳看。 # scene:haiming # speaker:旁白 # section:watch-lamp
@@ -373,7 +373,7 @@ VAR ending_kind = ""
     -> end_hero
 === end_light ===
 顧川來到書店，先讀了父親的原句，又讀到自己的字曾補在日誌旁。海明說他記得風箏，卻記不準那年是哪一天。 # speaker:旁白
-顧川說自己那時等了很久。海明沒有要求他立刻原諒，顧川也沒有把失去的日子改說成沒關係。兩人坐在同一張桌邊，顧川第一次握住父親的手。
+顧川說自己那時等了很久。海明沒有要求他立刻原諒，顧川也沒有把失去的日子改說成沒關係。兩人坐在同一張桌邊，顧川第一次握住父親的手。 # portrait:haiming-warm
 -> light_afterword
 === light_afterword ===
 書籤後記：顧川帶父親回來幾次。有些日子海明能說起風箏，有些日子需要再看住址卡。顧川把日誌與卡放在他容易找到的地方。 # scene:counter # speaker:旁白 # section:afterword

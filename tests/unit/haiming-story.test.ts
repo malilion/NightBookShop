@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-9.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-10.json", "utf8");
+const chapterNine = readFileSync("public/story/compiled/haiming-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/haiming-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/haiming-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/haiming-chapter-5.json", "utf8");
@@ -70,6 +71,12 @@ describe("Haiming sixth night", () => {
     expect(portraits).toContain("owner");
     expect(portraits.indexOf("lincheng-child")).toBeLessThan(portraits.indexOf("owner"));
   });
+  it("uses searching and warm portraits at the matching story beats", () => {
+    const { texts, portraits } = play("haiming-light");
+    expect(portraits[texts.findIndex((text) => text.includes("這裡是哪裡？"))]).toBe("haiming-searching");
+    expect(portraits[texts.findIndex((text) => text.includes("焦糖偷偷放進父親的杯裡"))]).toBe("haiming-warm");
+    expect(portraits[texts.findIndex((text) => text.includes("顧川第一次握住父親的手"))]).toBe("haiming-warm");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("reaches %s and restores each checkpoint", (target) => {
     const { story, sections } = play(target);
     expect(story.frame.endingId).toBe(target);
@@ -100,6 +107,9 @@ describe("Haiming sixth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-seven %s route", (target) => {
     expect(play(target, false, chapterSeven).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-nine %s route", (target) => {
+    expect(play(target, false, chapterNine).story.frame.endingId).toBe(target);
   });
   it("can leave each memory with four paper-boat fragments and no optional clues", () => {
     const { story } = play("haiming-boat", false, compiled, { skipObjects: true });

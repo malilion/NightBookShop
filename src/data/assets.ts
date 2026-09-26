@@ -76,6 +76,8 @@ export const assets = {
     yenuan: "/images/characters/yenuan.webp",
     yuhang: "/images/characters/yuhang.webp",
     haiming: "/images/characters/haiming.webp",
+    haimingSearching: "/images/characters/haiming-searching.webp",
+    haimingWarm: "/images/characters/haiming-warm.webp",
     owner: "/images/characters/owner.webp",
     linchengChild: "/images/characters/lincheng-child.webp",
   },

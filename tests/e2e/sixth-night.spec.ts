@@ -67,6 +67,9 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await page.getByRole("button", { name: "翻開第六夜" }).click();
   await prepareOpening(page);
   await expect(page.locator(".scene-caption small")).toHaveText("第六夜 · 顧海明");
+  await advanceUntil(page, '.character-portrait[data-expression="searching"]');
+  await expect(page.locator('.character-portrait[data-expression="searching"]')).toHaveAttribute("src", "/images/characters/haiming-searching.webp");
+  await page.screenshot({ path: `output/sixth-night-searching-${info.project.name}.png`, animations: "disabled" });
   await advanceUntil(page, ".tea-board");
   const touch = info.project.name === "mobile";
   await prepareLeaves(page, touch, 7);
@@ -79,6 +82,9 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await pour(page, "kettle", 68, touch);
   await steepAndServe(page, touch, "他");
   await page.getByRole("button", { name: /繼續故事/ }).click();
+  await advanceUntil(page, '.character-portrait[data-expression="warm"]');
+  await expect(page.locator('.character-portrait[data-expression="warm"]')).toHaveAttribute("src", "/images/characters/haiming-warm.webp");
+  await page.screenshot({ path: `output/sixth-night-warm-${info.project.name}.png`, animations: "disabled" });
   await advanceUntil(page, ".lamp-panel");
   await page.getByRole("button", { name: "守住柔和的燈光" }).click();
   await page.getByRole("button", { name: "守住柔和的燈光" }).click();

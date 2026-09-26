@@ -1,5 +1,21 @@
 import type { StoryFrame } from "../types/game";
 
+const firstInteractiveMemoryVersion: Record<string, number> = {
+  jinglan: 2,
+  boyan: 4,
+  ruoyin: 4,
+  yenuan: 4,
+  yuhang: 4,
+  haiming: 4,
+  lincheng: 4,
+};
+export function supportsMemoryEvidence(version: string) {
+  const match = /^([a-z]+)-chapter-(\d+)$/.exec(version);
+  if (!match) return false;
+  const first = firstInteractiveMemoryVersion[match[1]!];
+  return first !== undefined && Number(match[2]) >= first;
+}
+
 export type MemorySection = "school" | "hospital" | "platform" | "office" | "clinic" | "train" | "childhood" | "backstage" | "banquet" | "grandstage" | "dawn-kitchen" | "anniversary" | "hospital-return" | "old-oven" | "old-post-office" | "last-bus" | "empty-shop" | "bookshop-door" | "storm-tower" | "summer-visit" | "last-watch" | "white-room" | "hidden-room" | "child-home" | "hidden-envelope";
 export type MemoryObject = {
   label: string;

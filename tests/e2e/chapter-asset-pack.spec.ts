@@ -36,6 +36,8 @@ test("starting a later chapter makes its unvisited memories available offline", 
 
   const chapterImages = [
     "/images/characters/haiming.webp",
+    "/images/characters/haiming-searching.webp",
+    "/images/characters/haiming-warm.webp",
     "/images/characters/yuhang.webp",
     "/images/characters/owner.webp",
     "/images/characters/lincheng-child.webp",

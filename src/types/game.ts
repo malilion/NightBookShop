@@ -44,6 +44,7 @@ export const storyVersionSchema = z.enum([
   "haiming-chapter-7",
   "haiming-chapter-8",
   "haiming-chapter-9",
+  "haiming-chapter-10",
   "lincheng-chapter-1",
   "lincheng-chapter-2",
   "lincheng-chapter-3",
@@ -328,7 +329,7 @@ export const openingSchema = z.object({
   complete: z.boolean(),
 });
 export type OpeningDraft = z.infer<typeof openingSchema>;
-export const portraitCueSchema = z.enum(["none", "owner", "lincheng-child"]);
+export const portraitCueSchema = z.enum(["none", "owner", "lincheng-child", "haiming-searching", "haiming-warm"]);
 export const resonanceChapterSchema = z.enum(["jinglan", "boyan", "ruoyin", "yenuan", "yuhang", "haiming"]);
 export type ResonanceChapterId = z.infer<typeof resonanceChapterSchema>;
 export const frameSchema = z.object({
