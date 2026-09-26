@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-10.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-11.json", "utf8");
+const chapterTen = readFileSync("public/story/compiled/boyan-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/boyan-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/boyan-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/boyan-chapter-6.json", "utf8");
@@ -110,6 +111,9 @@ describe("Boyan second night", () => {
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-nine %s save route", (target) => {
     expect(complete(target, chapterNine).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-ten %s save route", (target) => {
+    expect(complete(target, chapterTen).story.frame.endingId).toBe(target);
+  });
   it("requires an extra dialogue to stop after black tea and lets mint sort without full relief", () => {
     const black = { ...newTea(), teaId: "black" as const, leaves: 3, water: 70, temperature: 95, seconds: 55 };
     const mint = { ...newTea(), teaId: "mint" as const, leaves: 3, water: 70, temperature: 85, seconds: 55 };
@@ -162,6 +166,20 @@ describe("Boyan second night", () => {
     const moonlight = complete("boyan-rest", compiled, { skipObjects: true, previousEnding: "moonlight" });
     expect(intervention.texts.join(" ")).toContain("等柏言自己拿起來");
     expect(moonlight.texts.join(" ")).not.toContain("等柏言自己拿起來");
+  });
+  it.each([
+    ["moonlight", "靜蘭親手摺好的書籤"],
+    ["recipient", "收信的人和寄出的時間"],
+    ["unfinished", "這封信可以先留在這裡"],
+    ["intervention", "不要替柏言拿起筆"],
+  ])("lets %s shape the optional office question and Boyan's first reading", (previousEnding, prompt) => {
+    const asked = complete("boyan-rest", compiled, { previousEnding });
+    const skipped = complete("boyan-rest", compiled, { previousEnding, skipObjects: true });
+    expect(asked.texts.join(" ")).toContain(prompt);
+    expect(asked.texts.join(" ")).toContain("收件人先留白");
+    expect(skipped.texts.join(" ")).not.toContain("收件人先留白");
+    expect(asked.story.frame.endingId).toBe("boyan-rest");
+    expect(skipped.story.frame.endingId).toBe("boyan-rest");
   });
   it("keeps the mother's message separate from work notifications", () => {
     const replied = complete("boyan-rest", compiled, { repliedMother: true });

@@ -6,7 +6,7 @@ import { resonanceFragments } from "../../src/data/resonanceFragments";
 
 const chapters = [
   { id: "jinglan", file: "main", teaId: "osmanthus" },
-  { id: "boyan", file: "boyan-chapter-10", teaId: "chamomile" },
+  { id: "boyan", file: "boyan-chapter-11", teaId: "chamomile" },
   { id: "ruoyin", file: "ruoyin-chapter-9", teaId: "lavender" },
   { id: "yenuan", file: "yenuan-chapter-8", teaId: "hojicha" },
   { id: "yuhang", file: "yuhang-chapter-9", teaId: "mint" },

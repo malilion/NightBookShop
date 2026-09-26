@@ -59,7 +59,8 @@ test("second night can be brewed, assembled, completed and resumed", async ({
     .selectOption("instant");
   await page.getByRole("switch", { name: /減少動態效果/ }).check();
   await page.reload();
-  await page.goto("/#/chapters");
+  await page.getByRole("link", { name: "回到門前" }).click();
+  await page.getByRole("link", { name: "今夜的訪客" }).click();
   await page.getByRole("button", { name: "翻開第二夜" }).click();
   await prepareOpening(page);
   await expect(page.locator(".scene-caption small")).toHaveText(

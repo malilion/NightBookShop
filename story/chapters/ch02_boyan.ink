@@ -25,6 +25,7 @@ VAR read_office_badge = false
 VAR read_workload = false
 VAR read_waiting_number = false
 VAR read_train_map = false
+VAR asked_first_reader = false
 -> arrival
 
 === arrival ===
@@ -180,6 +181,22 @@ VAR read_train_map = false
     妳們把「已完成」、「待他組回覆」與「需要重新指派」分開。這張表沒有替他決定要不要辭職，卻讓他能說出哪些部分確實由自己完成，哪些不能再由他一人承擔。
     柏言在第三欄旁寫了主管的名字，並留下一格空白。他說那格要等明天與人談，不在午夜替全公司做決定。 # speaker:許柏言
     -> office_hub
+* {previous_ending != "" && not asked_first_reader} [問柏言這封信該先讓誰讀]
+    ~ asked_first_reader = true
+    {
+    - previous_ending == "moonlight":
+        妳摸到手冊裡靜蘭親手摺好的書籤，沒有替柏言把那張信遞出去。「這封信，誰先讀比較好？」 # speaker:林澄
+    - previous_ending == "recipient":
+        昨夜那張寫著「可以不回」的短箋還夾在手冊裡。妳問柏言：「收信的人和寄出的時間，想由誰決定？」 # speaker:林澄
+    - previous_ending == "unfinished":
+        妳想起靜蘭留下的空椅子，沒有催柏言立刻填上收件人。「這封信可以先留在這裡。你想先給誰看？」 # speaker:林澄
+    - previous_ending == "intervention":
+        裂開的桂花書籤提醒妳，不要替柏言拿起筆。妳把信紙放在他面前：「要先讓誰讀，由你說。」 # speaker:林澄
+    - else:
+        妳把信紙放在桌上，請柏言先想想要讓誰讀。 # speaker:林澄
+    }
+    「我。」柏言把第一版信上的「各位」蓋住。「至少先讓我知道自己寫了什麼，再決定要不要給主管或我媽看。」 # speaker:許柏言
+    -> office_hub
 * [收好鍵盤下的信紙，走向候診區]
     -> office_desk
 === office_desk ===
@@ -317,6 +334,7 @@ VAR read_train_map = false
     -> letter_invitation
 === letter_invitation ===
 妳們回到書店，柏言自己拿著四片信紙。哪一片先放、哪一句暫時留白，都還是他可以改的事。 # scene:counter # speaker:旁白
+{asked_first_reader:他先把拼好的句子轉向自己，讀過一遍才說：「收件人先留白。我想確定這封信沒有又把自己排到最後。」 # speaker:許柏言}
 * [把四句話拼在一起]
     -> letter_start
 === letter_start ===

@@ -1,0 +1,95 @@
+import { readFileSync } from "node:fs";
+import { expect, test } from "@playwright/test";
+import { StoryBridge } from "../../src/story/storyBridge";
+import { newLetter, newTea, snapshotSchema } from "../../src/types/game";
+
+function officeQuestionSnapshot() {
+  const story = new StoryBridge(readFileSync("public/story/compiled/boyan-chapter-11.json", "utf8"), "recipient");
+  story.next();
+  for (let step = 0; step < 180; step++) {
+    const frame = story.frame;
+    const objects = frame.choices.find((choice) => [
+      "查看識別證背面的便條",
+      "查看第一版信上重複的道歉",
+      "核對排程上重疊的三份工作",
+    ].includes(choice.text));
+    if (frame.section === "office" && frame.choices.some((choice) => choice.text === "問柏言這封信該先讓誰讀") && !objects)
+      return snapshotSchema.parse({
+        version: 1,
+        storyVersion: "boyan-chapter-11",
+        inkState: story.serialize(),
+        frame,
+        tea: newTea(),
+        letter: newLetter(),
+      });
+    if (frame.mode === "tea") story.finishTea({ teaId: "chamomile", quality: 90, emotionalMatch: 90 });
+    else if (frame.canContinue) story.next();
+    else story.choose((objects ?? frame.choices[0])!.index);
+  }
+  throw new Error("Boyan's office question was not reached");
+}
+
+test("second-night crossnight question can be chosen and resumed on both layouts", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/");
+  await page.getByRole("link", { name: "設定" }).click();
+  await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
+  await page.evaluate(async (snapshot) => {
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open("night-bookshop");
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const db = request.result;
+        const transaction = db.transaction("saves", "readwrite");
+        transaction.objectStore("saves").put({ id: "auto-1", kind: "auto", updatedAt: new Date().toISOString(), snapshot });
+        transaction.oncomplete = () => { db.close(); resolve(); };
+        transaction.onerror = () => reject(transaction.error);
+      };
+    });
+  }, officeQuestionSnapshot());
+  await page.goto("/");
+  await page.getByRole("button", { name: "繼續故事" }).click();
+  await expect(page.locator(".memory-evidence-office .memory-object-seen")).toHaveCount(3);
+  await page.getByRole("button", { name: "問柏言這封信該先讓誰讀" }).click();
+  await expect(page.locator(".dialogue-text")).toHaveAttribute("data-full-text", /可以不回/);
+  await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
+  await page.reload();
+  await expect(page.locator(".dialogue-text")).toHaveAttribute("data-full-text", /可以不回/);
+  for (let step = 0; step < 6 && !(await page.locator(".memory-evidence-office").isVisible()); step++)
+    await page.getByRole("button", { name: "繼續", exact: true }).click();
+  await expect(page.locator(".memory-evidence-office")).toBeVisible();
+  await expect(page.getByRole("button", { name: "問柏言這封信該先讓誰讀" })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test("chapter-ten Boyan save still opens its archived story", async ({ page }) => {
+  const story = new StoryBridge(readFileSync("public/story/compiled/boyan-chapter-10.json", "utf8"), "recipient");
+  story.next();
+  story.next();
+  const snapshot = snapshotSchema.parse({
+    version: 1,
+    storyVersion: "boyan-chapter-10",
+    inkState: story.serialize(),
+    frame: story.frame,
+    tea: newTea(),
+    letter: newLetter(),
+  });
+  await page.goto("/");
+  await page.evaluate(async (data) => {
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open("night-bookshop");
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const db = request.result;
+        const transaction = db.transaction("saves", "readwrite");
+        transaction.objectStore("saves").put({ id: "auto-1", kind: "auto", updatedAt: new Date().toISOString(), snapshot: data });
+        transaction.oncomplete = () => { db.close(); resolve(); };
+        transaction.onerror = () => reject(transaction.error);
+      };
+    });
+  }, snapshot);
+  await page.reload();
+  await page.getByRole("button", { name: "繼續故事" }).click();
+  await expect(page.locator(".dialogue-text")).toHaveAttribute("data-full-text", /靜蘭.*短箋副本/);
+});

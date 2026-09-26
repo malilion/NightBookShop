@@ -21,7 +21,7 @@ import { smallTargets } from "./touch-target-helpers";
 
 const chapters = [
   { version: STORY_VERSION, file: "main", tea: "osmanthus", fragments: ["address", "reason", "wait"] },
-  { version: "boyan-chapter-10", file: "boyan-chapter-10", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
+  { version: "boyan-chapter-11", file: "boyan-chapter-11", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
   { version: "ruoyin-chapter-9", file: "ruoyin-chapter-9", tea: "lavender", fragments: ["greeting", "fear", "music"] },
   { version: "yenuan-chapter-8", file: "yenuan-chapter-8", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
   { version: "haiming-chapter-12", file: "haiming-chapter-12", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },

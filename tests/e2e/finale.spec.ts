@@ -6,6 +6,30 @@ import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
+function completedJinglanSave(): GameSnapshot {
+  const story = new StoryBridge(readFileSync("public/story/compiled/main.json", "utf8"));
+  story.next();
+  for (let step = 0; step < 360 && story.frame.mode !== "ending"; step++) {
+    if (story.frame.mode === "tea") story.finishTea({ teaId: "osmanthus", quality: 100, emotionalMatch: 100 });
+    else if (story.frame.mode === "letter") story.finishLetter({ completion: 100, understood: true });
+    else if (story.frame.canContinue) story.next();
+    else {
+      const choice = story.frame.choices.find((entry) => entry.text.includes("陪她寫一封信")) ?? story.frame.choices[0];
+      if (!choice) throw new Error("Jinglan fixture stopped before its ending");
+      story.choose(choice.index);
+    }
+  }
+  if (story.frame.endingId !== "moonlight") throw new Error("Jinglan fixture did not reach her self-letter ending");
+  return snapshotSchema.parse({
+    version: 1,
+    storyVersion: "jinglan-chapter-7",
+    inkState: story.serialize(),
+    frame: story.frame,
+    tea: newTea(),
+    letter: newLetter(),
+  });
+}
+
 function completedHaimingSave(): GameSnapshot {
   const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-12.json", "utf8"));
   story.next();
@@ -65,7 +89,7 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  await page.evaluate(async (chapterSave) => {
+  await page.evaluate(async ({ chapterSave, jinglanSave }) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");
       request.onerror = () => reject(request.error);
@@ -75,11 +99,12 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
         for (const id of ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today", "haiming-light"])
           tx.objectStore("collection").put({ id, unlockedAt: new Date().toISOString() });
         tx.objectStore("saves").put({ id: "chapter-haiming", kind: "chapter", updatedAt: new Date().toISOString(), snapshot: chapterSave });
+        tx.objectStore("saves").put({ id: "chapter-jinglan", kind: "chapter", updatedAt: new Date().toISOString(), snapshot: jinglanSave });
         tx.oncomplete = () => { db.close(); resolve(); };
         tx.onerror = () => reject(tx.error);
       };
     });
-  }, completedHaimingSave());
+  }, { chapterSave: completedHaimingSave(), jinglanSave: completedJinglanSave() });
   await page.getByRole("link", { name: "設定" }).click();
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
   await page.getByRole("switch", { name: /減少動態效果/ }).check();
@@ -138,6 +163,8 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await advanceUntil(page, ".memory-evidence-hidden-room");
   await page.screenshot({ path: `output/finale-hidden-room-objects-${info.project.name}.png`, animations: "disabled" });
   await page.getByRole("button", { name: "探索物件：六格信櫃" }).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="第一格書籤旁"]');
+  await expect(page.locator(".dialogue-text")).toHaveAttribute("data-full-text", /靜蘭寫給年輕自己的信的抄頁/);
   await advanceUntil(page, '.dialogue-text[data-full-text*="兩種筆跡都留在桌上"]');
   await page.screenshot({ path: `output/finale-haiming-letter-${info.project.name}.png`, animations: "disabled" });
   await inspectMemoryObjects(page, "hidden-room", ["門框身高線", "停住的時鐘"]);

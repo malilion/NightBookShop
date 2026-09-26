@@ -75,7 +75,7 @@ test("second-night clinic and train load from the chapter pack offline", async (
   await unlock(page, ["moonlight"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第二夜" }).click();
-  await expectStoryCached(page, "boyan-chapter-10");
+  await expectStoryCached(page, "boyan-chapter-11");
   await expectImagesCached(page, [
     "/images/characters/boyan.webp",
     ...["office", "clinic", "train"].flatMap((scene) => [
@@ -171,7 +171,7 @@ test("finale childhood home loads from the chapter pack offline", async ({ page,
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today", "haiming-light"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開終章" }).click();
-  await expectStoryCached(page, "lincheng-chapter-8");
+  await expectStoryCached(page, "lincheng-chapter-9");
   await expectImagesCached(page, [
     "/images/characters/owner.webp",
     "/images/characters/lincheng-child.webp",

@@ -3,6 +3,11 @@ VAR trust = 0
 VAR understanding = 0
 VAR intervention = 0
 VAR previous_ending = ""
+VAR ending_jinglan = ""
+VAR ending_boyan = ""
+VAR ending_ruoyin = ""
+VAR ending_yenuan = ""
+VAR ending_yuhang = ""
 VAR tea_type = ""
 VAR tea_quality = 0
 VAR tea_emotional_match = 0
@@ -90,6 +95,56 @@ VAR ending_kind = ""
 * {not read_hidden_cabinet} [查看六格信櫃]
     ~ read_hidden_cabinet = true
     靜蘭的校刊夾著若音旋律的四個音。柏言母親留下的舊刊與若音在尾牙演出的節目單疊在一起；食譜卡的郵戳、燈塔照片的月亮又各自接上下一夜。六封信曾從不同的人手中經過。 # speaker:旁白
+    {
+    - ending_jinglan == "moonlight":
+        第一格書籤旁，是靜蘭寫給年輕自己的信的抄頁。她沒有寄走岳川那封，也沒有把後來的幸福從紙上刪掉。 # speaker:旁白
+    - ending_jinglan == "recipient":
+        第一格夾著岳川女兒回寄的校刊照片。靜蘭得到收信的同意，才自己封好那封舊信。 # speaker:旁白
+    - ending_jinglan == "unfinished":
+        第一格只有一張留白的書籤；藍信仍由靜蘭帶回家。妳沒有把空格當成她欠書店的答案。 # speaker:旁白
+    - ending_jinglan == "intervention":
+        第一格書籤有一道裂痕。信雖已寄出，妳還記得靜蘭說過，她本來想自己決定。 # speaker:旁白
+    }
+    {
+    - ending_boyan == "boyan-rest":
+        第二格壓著柏言寫下的回診日期；工作仍在，但他先替身體留出了一個上午。 # speaker:旁白
+    - ending_boyan == "boyan-leave":
+        第二格的履歷第一行還空著。柏言確認生活所需後離開，下一份工作不必由這裡替他填上。 # speaker:旁白
+    - ending_boyan == "boyan-boundary":
+        第二格攤著交接表，責任旁寫了其他人的名字。柏言說出的界線，並沒有讓工作憑空消失。 # speaker:旁白
+    - ending_boyan == "boyan-overwork":
+        第二格有一則亮著的未讀通知。報告已送出，求助的話卻還沒被他說出口。 # speaker:旁白
+    }
+    {
+    - ending_ruoyin == "ruoyin-one":
+        第三格留下那位夜歸聽眾的一句謝謝。若音沒有等掌聲，才拉完最後一小節。 # speaker:旁白
+    - ending_ruoyin == "ruoyin-stage":
+        第三格夾著寄給季晴的信與一張觀眾席票根。若音沒有再讓朋友的舞台替自己評分。 # speaker:旁白
+    - ending_ruoyin == "ruoyin-score":
+        第三格的交換簿添了幾行陌生人的故事。若音仍在寫曲，沒有替那些人指定結局。 # speaker:旁白
+    - ending_ruoyin == "ruoyin-echo":
+        第三格貼著新的比賽海報，樂譜的終止線仍折回舊日的四個音。妳記得她那晚沒有停下來照顧手傷。 # speaker:旁白
+    }
+    {
+    - ending_yenuan == "yenuan-share":
+        第四格的食譜添了葉暖喜歡的柚子，旁邊仍留一小口給母親。兩種味道都在。 # speaker:旁白
+    - ending_yenuan == "yenuan-reopen":
+        第四格記著晨麥重新開門的日期。原來的配方還在，這一次由葉暖親口向常客說起。 # speaker:旁白
+    - ending_yenuan == "yenuan-rest":
+        第四格放著寫有「下週見」的小牌。葉暖的爐火暫停一週，沒有因此把母親忘掉。 # speaker:旁白
+    - ending_yenuan == "yenuan-copy":
+        第四格的配方被描得很深，每個步驟都和照片一樣。葉暖仍怕明天的味道有一點不同。 # speaker:旁白
+    }
+    {
+    - ending_yuhang == "yuhang-today":
+        第五格是雨航親手簽的今日回條。他請了假，重新走到那間空店面前。 # speaker:旁白
+    - ending_yuhang == "yuhang-future":
+        第五格留下下個月的日期與第一箱書的清單。雨航知道可以改變做法，沒有再把一切推給沒有日期的明年。 # speaker:旁白
+    - ending_yuhang == "yuhang-past":
+        第五格放著妹妹的紀念盒；共同開店的夢被他收好，自己的下一條路仍可繼續走。 # speaker:旁白
+    - ending_yuhang == "yuhang-unknown":
+        第五格是仍未簽收的藍信。雨航不在這一夜接受它，妳也不能替他寫上名字。 # speaker:旁白
+    }
     {
     - previous_ending == "haiming-light":
         第六格攤著海明與顧川一起讀過的那頁信，旁邊放著顧川補寫過的日誌。信上的塗改沒有被擦掉；妳讓兩種筆跡都留在桌上。 # speaker:旁白

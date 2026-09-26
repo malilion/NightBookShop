@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref, toRaw } from "vue";
-import { StoryBridge } from "../story/storyBridge";
+import { StoryBridge, type PriorChapterEndings } from "../story/storyBridge";
 import {
   newTea,
   newLetter,
@@ -154,11 +154,17 @@ export const useGameStore = defineStore("game", () => {
       if (prerequisite && !completedChapters.value.has(prerequisite))
         throw new Error("請先完成前一夜，再翻開這一章。");
       const version: StoryVersion =
-        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-10" : chapter === "ruoyin" ? "ruoyin-chapter-9" : chapter === "yenuan" ? "yenuan-chapter-8" : chapter === "yuhang" ? "yuhang-chapter-9" : chapter === "haiming" ? "haiming-chapter-12" : "lincheng-chapter-8";
+        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-11" : chapter === "ruoyin" ? "ruoyin-chapter-9" : chapter === "yenuan" ? "yenuan-chapter-8" : chapter === "yuhang" ? "yuhang-chapter-9" : chapter === "haiming" ? "haiming-chapter-12" : "lincheng-chapter-9";
       const previousEnding = prerequisite
         ? saveList.value.find((save) => save.id === `chapter-${prerequisite}`)?.snapshot.frame.endingId || ""
         : "";
-      bridge = new StoryBridge(await storyJson(version), previousEnding);
+      const priorEndings: PriorChapterEndings = {};
+      if (chapter === "lincheng")
+        for (const visitor of ["jinglan", "boyan", "ruoyin", "yenuan", "yuhang"] as const) {
+          const ending = saveList.value.find((save) => save.id === `chapter-${visitor}`)?.snapshot.frame.endingId;
+          if (ending && chapterForEnding(ending) === visitor) priorEndings[visitor] = ending;
+        }
+      bridge = new StoryBridge(await storyJson(version), previousEnding, priorEndings);
       activeStoryVersion.value = version;
       tea.value = newTea();
       melody.value = newMelody();

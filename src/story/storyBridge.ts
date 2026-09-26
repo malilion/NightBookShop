@@ -2,6 +2,7 @@ import { Story } from "inkjs";
 import { parseTag } from "./commandParser";
 import { teas } from "../data/catalog";
 import type { ResonanceChapterId, StoryFrame, TeaResult } from "../types/game";
+export type PriorChapterEndings = Partial<Record<"jinglan" | "boyan" | "ruoyin" | "yenuan" | "yuhang", string>>;
 export class StoryBridge {
   readonly story: Story;
   frame: StoryFrame = {
@@ -19,10 +20,15 @@ export class StoryBridge {
     canContinue: true,
     endingId: "",
   };
-  constructor(json: string, previousEndingId = "") {
+  constructor(json: string, previousEndingId = "", priorEndings: PriorChapterEndings = {}) {
     this.story = new Story(json);
     if (typeof this.story.variablesState["previous_ending"] === "string")
       this.story.variablesState["previous_ending"] = previousEndingId;
+    for (const [chapter, ending] of Object.entries(priorEndings)) {
+      const variable = `ending_${chapter}`;
+      if (typeof this.story.variablesState[variable] === "string")
+        this.story.variablesState[variable] = ending;
+    }
   }
   next(): StoryFrame {
     if (this.frame.mode !== "dialogue") return this.frame;

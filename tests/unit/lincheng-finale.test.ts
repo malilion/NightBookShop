@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { StoryBridge } from "../../src/story/storyBridge";
+import { StoryBridge, type PriorChapterEndings } from "../../src/story/storyBridge";
 import { parseTag } from "../../src/story/commandParser";
 import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { archiveConnections, connectionBetween, scoreArchive } from "../../src/services/archiveScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-8.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-9.json", "utf8");
+const chapterEight = readFileSync("public/story/compiled/lincheng-chapter-8.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/lincheng-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/lincheng-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/lincheng-chapter-5.json", "utf8");
@@ -26,8 +27,8 @@ const completeArchive = {
   connections: archiveConnections.map((connection) => connection.id),
 };
 
-function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; askOwnerConsent?: boolean } = {}) {
-  const story = new StoryBridge(storyJson, options.previousEnding);
+function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; askOwnerConsent?: boolean; priorEndings?: PriorChapterEndings } = {}) {
+  const story = new StoryBridge(storyJson, options.previousEnding, options.priorEndings);
   story.next();
   const sections = new Set<string>();
   const texts: string[] = [];
@@ -81,10 +82,45 @@ describe("Lincheng finale", () => {
     expect(chapterForVersion("lincheng-chapter-6")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-7")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-8")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-9")).toBe("lincheng");
   });
   it("keeps the previous finale version loadable", () => {
     expect(play("lincheng-dawn", true, chapterSeven).story.frame.endingId).toBe("lincheng-dawn");
+    expect(play("lincheng-dawn", true, chapterEight).story.frame.endingId).toBe("lincheng-dawn");
   });
+  it("reflects each visitor's four first endings in their finale letter slot", () => {
+    const cases = [
+      ["jinglan", "第一格", ["moonlight", "recipient", "unfinished", "intervention"]],
+      ["boyan", "第二格", ["boyan-rest", "boyan-leave", "boyan-boundary", "boyan-overwork"]],
+      ["ruoyin", "第三格", ["ruoyin-one", "ruoyin-stage", "ruoyin-score", "ruoyin-echo"]],
+      ["yenuan", "第四格", ["yenuan-share", "yenuan-reopen", "yenuan-rest", "yenuan-copy"]],
+      ["yuhang", "第五格", ["yuhang-today", "yuhang-future", "yuhang-past", "yuhang-unknown"]],
+    ] as const;
+    for (const [chapter, prefix, endings] of cases) {
+      const replies = endings.map((ending) => {
+        const result = play("lincheng-dawn", true, compiled, { priorEndings: { [chapter]: ending } });
+        expect(result.story.story.variablesState[`ending_${chapter}`]).toBe(ending);
+        const slot = result.texts.filter((text) => text.startsWith(prefix));
+        expect(slot).toHaveLength(1);
+        return slot[0];
+      });
+      expect(new Set(replies).size).toBe(4);
+    }
+    const unseeded = play("lincheng-dawn");
+    expect(unseeded.texts.some((text) => /^[第一二三四五]格/.test(text))).toBe(false);
+    const combined = play("lincheng-dawn", true, compiled, {
+      previousEnding: "haiming-light",
+      priorEndings: {
+        jinglan: "moonlight",
+        boyan: "boyan-rest",
+        ruoyin: "ruoyin-one",
+        yenuan: "yenuan-share",
+        yuhang: "yuhang-today",
+      },
+    });
+    expect(combined.texts.filter((text) => /^第[一二三四五六]格/.test(text))).toHaveLength(6);
+    expect(new StoryBridge(chapterEight, "haiming-light", { jinglan: "moonlight" }).story.variablesState["ending_jinglan"]).toBeNull();
+  }, 60000);
   it("keeps the map hidden until the six-night archive is complete", () => {
     const story = new StoryBridge(compiled);
     story.next();
