@@ -6,7 +6,7 @@ import { StoryBridge } from "../../src/story/storyBridge";
 import { newTea, type TeaDraft, type TeaId, type TeaResult } from "../../src/types/game";
 
 const chapters = [
-  { id: "ruoyin", version: 7, tea: "lavender", garnish: "none", blackTea: 0, nextMode: "melody", hidden: "bus-hum", listening: "tea-breath", mismatch: "tea-score", ask: "今晚最怕錯過哪個時刻" },
+  { id: "ruoyin", version: 8, tea: "lavender", garnish: "none", blackTea: 0, nextMode: "melody", hidden: "bus-hum", listening: "tea-breath", mismatch: "tea-score", ask: "今晚最怕錯過哪個時刻" },
   { id: "yenuan", version: 7, tea: "hojicha", garnish: "apple", blackTea: 0, nextMode: "hearth", hidden: "two-cups-break", listening: "oven-pause", mismatch: "tea-cleanup", ask: "烤箱一安靜下來" },
   { id: "yuhang", version: 8, tea: "mint", garnish: "lemon", blackTea: 20, nextMode: "route", hidden: "sister-route-note", listening: "own-address", mismatch: "delivery-reflex", ask: "若寄給自己" },
   { id: "haiming", version: 10, tea: "hojicha", garnish: "caramel", blackTea: 0, nextMode: "lamp", hidden: "tower-table", listening: "today-page", mismatch: "tea-date", ask: "想保留的原句" },

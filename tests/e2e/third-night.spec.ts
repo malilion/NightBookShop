@@ -120,7 +120,15 @@ test("third night saves the cup motif and both sides of the letter", async ({
   await page.getByRole("button", { name: "從鏡框背後收起第二片信紙" }).click();
   await (await untilChoice(page, "問她想補給季晴")).click();
   await expectMemoryBackground(page, "banquet", info.project.name);
-  await inspectMemoryObjects(page, "banquet", ["企業節目單", "門邊的聽眾", "演出時程"]);
+  await advanceUntil(page, ".memory-evidence-banquet");
+  await page.getByRole("button", { name: "探索物件：企業節目單" }).click();
+  for (let step = 0; step < 5; step++) {
+    if ((await page.locator(".dialogue-text").innerText()).includes("節目單沒有寫他後來的生活")) break;
+    await page.getByRole("button", { name: "繼續", exact: true }).click();
+  }
+  await expect(page.locator(".dialogue-text")).toContainText("節目單沒有寫他後來的生活");
+  await page.screenshot({ path: `output/third-night-program-${info.project.name}.png`, animations: "disabled" });
+  await inspectMemoryObjects(page, "banquet", ["門邊的聽眾", "演出時程"]);
   await page.getByRole("button", { name: "把節目單背面的第三片信紙收好" }).click();
   await (await untilChoice(page, "問那三分鐘")).click();
   await expectMemoryBackground(page, "grandstage", info.project.name);

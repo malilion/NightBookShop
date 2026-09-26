@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-7.json",
+  "public/story/compiled/ruoyin-chapter-8.json",
   "utf8",
 );
+const chapterSeven = readFileSync("public/story/compiled/ruoyin-chapter-7.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/ruoyin-chapter-5.json", "utf8");
 const previousCompiled = readFileSync("public/story/compiled/ruoyin-chapter-1.json", "utf8");
 const chapterTwo = readFileSync("public/story/compiled/ruoyin-chapter-2.json", "utf8");
@@ -130,6 +131,9 @@ describe("Ruoyin third night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-five %s save route", (target) => {
     expect(play(target, true, chapterFive).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-seven %s save route", (target) => {
+    expect(play(target, true, chapterSeven).story.frame.endingId).toBe(target);
+  });
   it("changes all four memory recaps according to inspected evidence", () => {
     const explored = play("ruoyin-stage").texts.join(" ");
     const skipped = play("ruoyin-stage", true, compiled, { skipObjects: true }).texts.join(" ");
@@ -178,11 +182,19 @@ describe("Ruoyin third night", () => {
       rest: "最後一小節留下休止符",
     }[finalBar]);
   });
-  it("carries Boyan's overwork ending into the banquet program response", () => {
-    const overwork = play("ruoyin-stage", true, compiled, { previousEnding: "boyan-overwork" });
-    const rest = play("ruoyin-stage", true, compiled, { previousEnding: "boyan-rest" });
-    expect(overwork.texts.join(" ")).toContain("沒有再把「撐完」當作唯一值得稱讚的事");
-    expect(rest.texts.join(" ")).not.toContain("沒有再把「撐完」當作唯一值得稱讚的事");
+  it.each([
+    ["boyan-rest", "這張節目單不能證明他已經好起來"],
+    ["boyan-leave", "若音不需要替他的空白填上答案"],
+    ["boyan-boundary", "能不能有人與她分擔收尾"],
+    ["boyan-overwork", "沒有再把「撐完」當作唯一值得稱讚的事"],
+  ])("carries the %s ending into the banquet program response", (previousEnding, expected) => {
+    const { texts } = play("ruoyin-stage", true, compiled, { previousEnding });
+    expect(texts.join(" ")).toContain(expected);
+    expect(texts.join(" ")).toContain("被人聽見，不等於往後每一場都得替誰撐到底");
+  });
+  it("does not infer the previous visitor's fate without his chapter ending", () => {
+    const { texts } = play("ruoyin-stage");
+    expect(texts.join(" ")).toContain("節目單沒有寫他後來的生活");
   });
   it("front-only reading cannot qualify for the two-sided ending", () => {
     const { story } = play("ruoyin-stage", false);
