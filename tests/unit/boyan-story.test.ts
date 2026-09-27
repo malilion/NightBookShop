@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-11.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-12.json", "utf8");
+const chapterEleven = readFileSync("public/story/compiled/boyan-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/boyan-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/boyan-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/boyan-chapter-7.json", "utf8");
@@ -26,7 +27,7 @@ const choicesByEnding = {
 function complete(
   target: keyof typeof choicesByEnding,
   storyJson = compiled,
-  options: { skipObjects?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean; orderHandoffFirst?: boolean; teaDraft?: TeaDraft; teaFollowup?: "leave"; teaChoice?: string } = {},
+  options: { skipObjects?: boolean; skipOpening?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean; orderHandoffFirst?: boolean; teaDraft?: TeaDraft; teaFollowup?: "leave"; teaChoice?: string } = {},
 ) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
@@ -34,7 +35,7 @@ function complete(
   const texts: string[] = [];
   let steps = 0;
   while (story.frame.mode !== "ending") {
-    expect(++steps).toBeLessThan(220);
+    expect(++steps).toBeLessThan(280);
     sections.add(story.frame.section);
     texts.push(story.frame.text);
     if (story.frame.mode === "tea") {
@@ -47,7 +48,7 @@ function complete(
     } else if (story.frame.canContinue) {
       story.next();
     } else {
-      const choice = (options.teaChoice ? story.frame.choices.find((entry) => entry.text.includes(options.teaChoice!)) : undefined) ?? (options.teaFollowup === "leave" ? story.frame.choices.find((entry) => entry.text.includes("先讓杯子和手機都留在桌上")) : undefined) ?? (options.orderHandoffFirst ? story.frame.choices.find((entry) => entry.text.includes("先照舊清單排好交接")) : undefined) ?? story.frame.choices.find((entry) =>
+      const choice = (options.teaChoice ? story.frame.choices.find((entry) => entry.text.includes(options.teaChoice!)) : undefined) ?? (options.teaFollowup === "leave" ? story.frame.choices.find((entry) => entry.text.includes("先讓杯子和手機都留在桌上")) : undefined) ?? (options.skipOpening ? story.frame.choices.find((entry) => entry.text.includes("先替他燒水")) : undefined) ?? (options.orderHandoffFirst ? story.frame.choices.find((entry) => entry.text.includes("先照舊清單排好交接")) : undefined) ?? story.frame.choices.find((entry) =>
         entry.text.includes(choicesByEnding[target]),
       ) ?? (options.skipObjects
         ? story.frame.choices.find((entry) => [
@@ -119,6 +120,9 @@ describe("Boyan second night", () => {
   });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-ten %s save route", (target) => {
     expect(complete(target, chapterTen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("preserves the chapter-eleven %s save route", (target) => {
+    expect(complete(target, chapterEleven).story.frame.endingId).toBe(target);
   });
   it("requires an extra dialogue to stop after black tea and lets mint sort without full relief", () => {
     const black = { ...newTea(), teaId: "black" as const, leaves: 3, water: 70, temperature: 95, seconds: 55 };
@@ -207,6 +211,37 @@ describe("Boyan second night", () => {
     const ordered = complete("boyan-rest", compiled, { orderHandoffFirst: true });
     expect(ordered.texts.join(" ")).toContain("交接可以寫，但不能再替我說完全部");
     expect(ordered.story.frame.endingId).toBe("boyan-rest");
+  });
+  it("lets Boyan show the coffee, the unsent drafts and the face-down phone, or skip straight to the kettle", () => {
+    const looked = complete("boyan-rest");
+    const skipped = complete("boyan-rest", compiled, { skipOpening: true });
+    const lookedText = looked.texts.join(" ");
+    const skippedText = skipped.texts.join(" ");
+    expect(lookedText).toContain("我記得價錢，不記得味道");
+    expect(lookedText).toContain("都是辭職信");
+    expect(lookedText).toContain("翻過去就不算在看");
+    expect(lookedText).toContain("這一袋才是診間給的");
+    expect(lookedText).toContain("這次我想讓手也停一下");
+    expect(lookedText).toContain("這杯茶不要求他喝完");
+    expect(skippedText).not.toContain("我記得價錢，不記得味道");
+    expect(skippedText).not.toContain("都是辭職信");
+    expect(skippedText).not.toContain("翻過去就不算在看");
+    expect(skippedText).not.toContain("這一袋才是診間給的");
+    expect(skippedText).not.toContain("這次我想讓手也停一下");
+    expect(skipped.story.frame.endingId).toBe("boyan-rest");
+  });
+  it("softens Boyan's portrait when he names the three drafts", () => {
+    const story = new StoryBridge(compiled);
+    story.next();
+    for (let step = 0; step < 80 && !story.frame.text.includes("都是辭職信"); step++) {
+      if (story.frame.canContinue) story.next();
+      else {
+        const bag = story.frame.choices.find((choice) => choice.text.includes("胃藥"));
+        story.choose((bag ?? story.frame.choices[0])!.index);
+      }
+    }
+    expect(story.frame.text).toContain("都是辭職信");
+    expect(story.frame.portrait).toBe("boyan-soft");
   });
   it("distinguishes urgent recurring symptoms from a later appointment", () => {
     const { texts } = complete("boyan-rest");

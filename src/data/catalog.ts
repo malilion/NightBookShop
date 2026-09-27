@@ -443,7 +443,7 @@ export const chapterForVersion = (version: string) =>
     ? "yenuan"
     : version === "ruoyin-chapter-1" || version === "ruoyin-chapter-2" || version === "ruoyin-chapter-3" || version === "ruoyin-chapter-4" || version === "ruoyin-chapter-5" || version === "ruoyin-chapter-6" || version === "ruoyin-chapter-7" || version === "ruoyin-chapter-8" || version === "ruoyin-chapter-9" || version === "ruoyin-chapter-10"
     ? "ruoyin"
-    : version === "boyan-chapter-1" || version === "boyan-chapter-2" || version === "boyan-chapter-3" || version === "boyan-chapter-4" || version === "boyan-chapter-5" || version === "boyan-chapter-6" || version === "boyan-chapter-7" || version === "boyan-chapter-8" || version === "boyan-chapter-9" || version === "boyan-chapter-10" || version === "boyan-chapter-11"
+    : version === "boyan-chapter-1" || version === "boyan-chapter-2" || version === "boyan-chapter-3" || version === "boyan-chapter-4" || version === "boyan-chapter-5" || version === "boyan-chapter-6" || version === "boyan-chapter-7" || version === "boyan-chapter-8" || version === "boyan-chapter-9" || version === "boyan-chapter-10" || version === "boyan-chapter-11" || version === "boyan-chapter-12"
       ? "boyan"
       : "jinglan";
 export const chapterForEnding = (ending: EndingId) =>

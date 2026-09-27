@@ -6,7 +6,7 @@ import { resonanceFragments } from "../../src/data/resonanceFragments";
 
 const chapters = [
   { id: "jinglan", file: "main", teaId: "osmanthus" },
-  { id: "boyan", file: "boyan-chapter-11", teaId: "chamomile" },
+  { id: "boyan", file: "boyan-chapter-12", teaId: "chamomile" },
   { id: "ruoyin", file: "ruoyin-chapter-10", teaId: "lavender" },
   { id: "yenuan", file: "yenuan-chapter-9", teaId: "hojicha" },
   { id: "yuhang", file: "yuhang-chapter-10", teaId: "mint" },
@@ -16,7 +16,7 @@ const chapters = [
 function atTea(file: string) {
   const story = new StoryBridge(readFileSync(`public/story/compiled/${file}.json`, "utf8"));
   story.next();
-  for (let step = 0; step < 100 && story.frame.mode !== "tea"; step++) {
+  for (let step = 0; step < 140 && story.frame.mode !== "tea"; step++) {
     if (story.frame.canContinue) story.next();
     else story.choose(story.frame.choices[0]!.index);
   }

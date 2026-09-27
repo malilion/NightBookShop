@@ -26,6 +26,10 @@ VAR read_workload = false
 VAR read_waiting_number = false
 VAR read_train_map = false
 VAR asked_first_reader = false
+VAR asked_coffee = false
+VAR asked_bag = false
+VAR asked_phone_down = false
+VAR poured_water = false
 -> arrival
 
 === arrival ===
@@ -54,20 +58,50 @@ VAR asked_first_reader = false
     -> observe
 === observe ===
 他說叫許柏言，三十一歲，是專案經理。這是今晚第三家亮著燈的店，前兩家都要他先買東西。 # scene:boyan # speaker:旁白 # section:listening
-妳看見他公事包的拉鍊沒拉好，裡頭有三張不同日期的紙，還有一板拆過的胃藥。
-* [問他識別證為何仍掛著]
+妳看見他公事包的拉鍊沒拉好，裡頭有三張不同日期的紙，還有一板拆過的胃藥。袖口有一圈乾掉的咖啡，手機則螢幕朝下。
+-> observe_hub
+=== observe_hub ===
+柏言的手還搭在手機邊上。妳可以再看一樣他帶進來的東西，也可以先燒水。 # speaker:旁白
+* {not read_badge} [問他識別證為何仍掛著]
     ~ read_badge = true
     他把識別證翻過來，背面夾著同事寫的「有事找柏言」。他說最近連請假單都有人傳給他簽。 # clue:badge # speaker:許柏言
-    -> observe_more
-* [問他手錶為何停住]
+    -> observe_hub
+* {not read_watch} [問他手錶為何停住]
     ~ read_watch = true
     「上週三，十一點四十七。」他把錶面朝下。「我在公司走廊昏倒，醒來第一句問的是投影片有沒有寄出去。」 # clue:watch # speaker:許柏言
-    -> observe_more
-* [先不追問，替他倒一杯水]
+    -> observe_hub
+* {not asked_coffee} [問袖口那圈冷掉的咖啡]
+    ~ asked_coffee = true
+    袖口的咖啡漬已經乾了，邊緣還黏著便利商店杯套的紙纖維。柏言把袖子往下拉了一點，又停住。 # speaker:旁白
+    「第三杯。前兩杯是為了撐過會議，這一杯我根本沒喝完。」 # speaker:許柏言
+    他說買的時候想著至少吃個飯糰，最後只撕開杯套。妳沒有說他應該吃飯。 # speaker:旁白
+    他看著那圈痕跡，自己補了一句：「我記得價錢，不記得味道。」 # speaker:許柏言
+    -> observe_hub
+* {not asked_bag} [看公事包裡的胃藥和三張日期不同的紙]
+    ~ asked_bag = true
+    妳先問能不能看。他點頭，把拉鍊拉開，沒有把東西倒出來。 # speaker:旁白
+    一板拆過的胃藥壓在三張摺法不同的紙上。日期分別是三週前、上週，和今天凌晨。 # clue:medicine # speaker:旁白
+    「都是辭職信。」他說得很快，像先把這個詞說完，妳就不會再追。「第一張道歉，第二張列交接。第三張我寫到一半，就去改簡報了。」 # speaker:許柏言 # portrait:boyan-soft
+    藥板缺了兩粒。他說那是胃痛時自己買的，不是醫師開的。「我知道這不能代替看診。我只是還沒把『去看』排進任何一張清單。」 # speaker:許柏言
+    妳把紙按原樣蓋好，藥也留在他包裡。今晚要不要談這些，仍由他決定。 # speaker:旁白
+    -> observe_hub
+* {not asked_phone_down} [問他為何把手機翻面，手還是先伸過去]
+    ~ asked_phone_down = true
+    手機螢幕朝下，震動卻一次比一次短。柏言的手在第二次時已經碰到邊框，眼睛還沒跟上。 # speaker:旁白
+    「我告訴自己翻過去就不算在看。」他把手收回來，指節還彎著。「可是身體比我誠實。它覺得每一聲都是有人在等。」 # speaker:許柏言
+    妳問他現在想不想先看是誰。他搖頭。「如果現在看，我就會回。我想先知道，不回的這幾分鐘，事情會不會真的停住。」 # speaker:許柏言
+    -> observe_hub
+* {not poured_water} [先不追問，替他倒一杯水]
+    ~ poured_water = true
     ~ trust += 1
     他喝了兩口，才發現自己一直捏著手機邊框。「它又響了嗎？」妳說沒有。 # speaker:許柏言
+    -> observe_hub
+* [先替他燒水]
     -> observe_more
 === observe_more ===
+{asked_coffee:
+    袖口那圈沒喝完的咖啡還在。這杯茶不要求他喝完，只讓杯子先留在手裡。 # speaker:旁白
+}
 妳想起手冊裡那句「泡茶，傾聽」。今晚這杯茶不能替他完成報告，也不能替他看醫生，卻能讓他有時間把手從手機上移開。 # scene:counter # speaker:旁白 # section:tea
 為柏言泡一杯茶。茶架上有洋甘菊、蜜香紅茶與薄荷，也有其他茶可以選。 # minigame:tea
 -> DONE
@@ -233,6 +267,9 @@ VAR asked_first_reader = false
 * {not read_medicine} [看公事包裡的胃藥]
     ~ read_medicine = true
     他說常拿藥當晚餐後的補救，卻沒有仔細讀過包裝。妳把藥放回袋裡，請他記得向醫師說明症狀。 # clue:medicine # speaker:林澄
+    {asked_bag:
+        他看了一眼，說書店裡那板是自己買的，這一袋才是診間給的。兩樣都還在，不能互相代替。 # speaker:許柏言
+    }
     柏言把藥袋與檢查單放在一起。「我原本以為說了胃痛，胸口那件事就不用講。」 # speaker:許柏言
     藥袋上有開封日期，旁邊是幾張便利商店收據。柏言記得自己哪天又吃了藥，卻想不起來哪天坐下來好好吃過一餐。 # speaker:旁白
     他想把藥袋收進公事包最底層，手停了一下，改放在檢查單旁。這不是用藥袋替自己診斷，而是明天與醫療人員談時，不再漏掉一段他已經注意到的情況。 # speaker:旁白
@@ -277,6 +314,9 @@ VAR asked_first_reader = false
     他先讀同事那則：對方只是在問資料放在哪裡，並沒有要柏言立刻替他完成。共用資料夾的連結早在下午傳過，訊息上的紅點卻讓柏言以為有人正站在座位旁等。 # speaker:旁白
     主管的提醒寫著「方便時確認」，時間卻設在凌晨；柏言說他從來不敢問「方便」是誰的時間。系統未讀數又把兩人的訊息疊在一起，像所有事情都只剩一個截止日。 # speaker:旁白
     「我可以明天告訴他們資料在哪裡，今晚先不替任何人猜下一步。」他把手機放在自己看得到、卻不用一直碰到的地方。 # speaker:許柏言
+    {asked_phone_down:
+        「剛才在書店，我以為翻過去就不算在看。」他看著自己的手。「這次我想讓手也停一下。」 # speaker:許柏言
+    }
     -> train_hub
 * {not read_date} [對照票根與最早草稿的日期]
     ~ read_date = true
