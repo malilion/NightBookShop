@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-12.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-13.json", "utf8");
+const chapterTwelve = readFileSync("public/story/compiled/haiming-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/haiming-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/haiming-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/haiming-chapter-9.json", "utf8");
@@ -24,7 +25,7 @@ const targets = {
   "haiming-hero": "只寄流暢的英雄故事",
 } as const;
 
-function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none"; orderDates?: boolean; reunionChoice?: "flex" } = {}) {
+function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none"; orderDates?: boolean; reunionChoice?: "flex"; prefer?: string } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
   const sections = new Set<string>();
@@ -45,11 +46,12 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
       story.finishLetter({ completion: 100, understood: !polished, alternate: polished });
     } else if (story.frame.canContinue) story.next();
     else {
-      const selected = (options.reunionChoice === "flex" ? story.frame.choices.find((entry) => entry.text.includes("保留改變方法")) : undefined) ?? (options.orderDates ? story.frame.choices.find((entry) => entry.text.includes("先替他排好年份")) : undefined) ?? (options.skipObjects ? story.frame.choices.find((entry) => [
+      const selected = (options.prefer ? story.frame.choices.find((entry) => entry.text.includes(options.prefer!)) : undefined) ?? (options.reunionChoice === "flex" ? story.frame.choices.find((entry) => entry.text.includes("保留改變方法")) : undefined) ?? (options.orderDates ? story.frame.choices.find((entry) => entry.text.includes("先替他排好年份")) : undefined) ?? (options.skipObjects ? story.frame.choices.find((entry) => [
         "從救援圖旁收起第一角紙船",
         "從風箏尾巴收起第二角紙船",
         "從邀請背面收起第三角紙船",
         "從煤油燈內取出最後一角紙船",
+        "泡一杯茶，讓他慢慢想從哪裡開始",
       ].includes(entry.text)) : undefined) ?? story.frame.choices.find((entry) => entry.text.includes(targets[target])) ?? story.frame.choices[0];
       expect(selected).toBeDefined();
       story.choose(selected!.index);
@@ -80,6 +82,32 @@ describe("Haiming sixth night", () => {
     expect(portraits.indexOf("lincheng-child")).toBeLessThan(portraits.indexOf("owner"));
     expect(texts.join(" ")).toContain("妳暫時看不出它們通往哪裡");
     expect(texts.join(" ")).not.toContain("中心是夜行書店");
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-twelve %s route", (target) => {
+    expect(play(target, false, chapterTwelve).story.frame.endingId).toBe(target);
+  });
+  it("lets the opening questions return in the afterwords", () => {
+    const light = play("haiming-light").texts.join(" ");
+    for (const line of ["連我說錯的潮時，他也照抄", "東北風，四到五級", "他小時候還以為蛋本來就是那個顏色", "跟我煎的一樣"])
+      expect(light).toContain(line);
+    expect(play("haiming-voice").texts.join(" ")).toContain("顧川也照抄進日誌");
+    expect(play("haiming-boat").texts.join(" ")).toContain("只問他是怎麼看出來的");
+    expect(play("haiming-hero").texts.join(" ")).toContain("被當作筆誤刪掉了");
+    const skipped = play("haiming-light", false, compiled, { skipObjects: true }).texts.join(" ");
+    expect(skipped).not.toContain("跟我煎的一樣");
+  });
+  it("remembers how Lin Cheng answered when Haiming lost his place", () => {
+    const gentle = play("haiming-light");
+    const gentleText = gentle.texts.join(" ");
+    expect(gentleText).toContain("對，妳剛才說過");
+    expect(gentleText).toContain("不必每次都從頭解釋");
+    expect(gentle.portraits[gentle.texts.findIndex((text) => text.includes("黑貓跳上桌"))]).toBe("haiming-warm");
+    const along = play("haiming-light", false, compiled, { prefer: "順著他說" }).texts.join(" ");
+    expect(along).toContain("像找回一個熟悉的座標");
+    expect(along).not.toContain("不必每次都從頭解釋");
+    const told = play("haiming-light", false, compiled, { prefer: "他剛才已經問過" });
+    expect(told.texts.join(" ")).toContain("別人提醒我忘了的時候");
+    expect(told.story.frame.endingId).toBe("haiming-light");
   });
   it("keeps the previous sixth-night version loadable", () => {
     expect(play("haiming-light", false, chapterEleven).story.frame.endingId).toBe("haiming-light");

@@ -28,6 +28,14 @@ VAR read_watch_photo = false
 VAR read_white_card = false
 VAR read_white_window = false
 VAR read_white_lamp = false
+VAR wrote_shop_name = false
+VAR asked_where_start = false
+VAR tucked_card = false
+VAR asked_hands = false
+VAR asked_sea = false
+VAR asked_morning = false
+VAR reoriented_gently = false
+VAR told_asked_before = false
 VAR ending_kind = ""
 -> arrival
 
@@ -74,18 +82,43 @@ VAR ending_kind = ""
     -> observe
 * [把書店的名字寫在紙上，留在他身邊]
     ~ trust += 1
+    ~ wrote_shop_name = true
     他讀了一遍，放在日誌封面。「謝謝。有時我一轉身，就得重新找起點。」 # speaker:顧海明
     -> observe
 === observe ===
 外套口袋有一張兒子顧川寫的姓名與住址卡，字端正清楚。日誌裡有海明自己的字，也有顧川補寫的頁；兩種字沒有被刻意藏起來。 # scene:haiming # speaker:旁白 # section:observations # clue:address-card # clue:many-hands
 他能說出三十年前某場風暴的風向，卻需要看一眼牆上的鐘，才知道今天是星期幾。煤油燈壞了，玻璃仍沒有一點灰。
 我想趁還記得，給小川留一封信。他總說，我的日誌裡只寫船，沒寫他。 # speaker:顧海明
-* [問他想先說哪一天，不要求按年份排序]
+-> observe_hub
+=== observe_hub ===
+海明把日誌放在膝上，手指按著其中一頁，像怕它被風吹走。 # speaker:旁白
+* {not asked_where_start} [問他想先說哪一天，不要求按年份排序]
+    ~ asked_where_start = true
     ~ understanding += 1
     「他小時候來塔上放風箏那天。」海明想了一會。「不，先說一個暴風夜也好。兩天都在這裡。」 # speaker:顧海明
-    -> tea_start
-* [先替他把住址卡夾回日誌]
+    -> observe_hub
+* {not tucked_card} [先替他把住址卡夾回日誌]
+    ~ tucked_card = true
     他說顧川寫得很清楚。將卡放回後，他不必再用猜測回答妳的問題。 # speaker:旁白
+    -> observe_hub
+* {not asked_hands} [問他日誌裡端正的那幾頁是誰寫的]
+    ~ asked_hands = true
+    「小川。」海明翻到那幾頁。「我寫到一半會停，他就接著寫。」 # speaker:顧海明
+    他指著一行顧川的字：「爸說今天潮很高。」「他寫的是我說的話，不是他自己的。連我說錯的潮時，他也照抄，旁邊再用鉛筆小小地寫上對的。」
+    海明說他以前嫌兒子的字太工整，不像海上的人寫的。如今翻到那幾頁，他會先停下來，讀得比讀自己的字還慢。 # speaker:旁白
+    -> observe_hub
+* {not asked_sea} [請他說說今晚的霧，像在值班時那樣]
+    ~ asked_sea = true
+    ~ trust += 1
+    海明坐直了些。「東北風，四到五級。霧是從海面起來的，不是從山上下來，所以天亮前散不了。」他說得又快又準，像在向下一班交接。 # speaker:顧海明
+    說完，他看向窗外，才發現外面是一條街。「我說得對不對？」妳說霧確實很大。他點點頭，沒有追問是哪一片海。 # speaker:旁白
+    -> observe_hub
+* {not asked_morning} [不問日期，問他今天早上吃了什麼]
+    ~ asked_morning = true
+    海明想了想。「蛋，煎得有點焦。」他說完自己也有些意外。「小川煎的。他說我以前煎的蛋也是焦的，他小時候還以為蛋本來就是那個顏色。」 # speaker:顧海明
+    他記不得那是今天早上還是昨天，卻記得兒子在廚房裡笑了一下。妳沒有替他確認是哪一天。 # speaker:旁白
+    -> observe_hub
+* [泡一杯茶，讓他慢慢想從哪裡開始]
     -> tea_start
 === tea_start ===
 茶架上有炭焙焙茶、熟普洱與薄荷。櫃台還留一小碟海鹽焦糖，海明說燈塔廚房裡偶爾也有這樣的味道。 # scene:counter # speaker:旁白 # section:tea
@@ -258,6 +291,31 @@ VAR ending_kind = ""
     海明把風箏折痕輕輕壓平。他說日誌沒寫的午後，不能因為想不起來，就當它不曾發生。
 }
 * [去最後一次值班]
+    -> fog_interlude
+=== fog_interlude ===
+翻頁時，海明的手停住了。他抬頭看著書店的書架，像第一次看見它們。 # scene:haiming # speaker:旁白 # portrait:haiming-searching
+「對不起。」他壓低聲音，「這裡是哪裡？我是不是該回塔上了？」 # speaker:顧海明
+日誌仍攤在夏天那一頁，風箏尾巴那角紙船還在妳手邊。 # speaker:旁白
+* [指著寫有書店名稱的紙，再說一次]
+    ~ reoriented_gently = true
+    ~ trust += 1
+    {wrote_shop_name:妳指向日誌封面上那張紙。|妳在紙上寫下「夜行書店」和自己的名字，放到他手邊。}海明逐字讀出來，讀到「林澄」時抬頭看妳。「對，妳剛才說過。」 # speaker:旁白
+    他沒有為忘記再道歉一次。妳也沒有提醒他，這是今晚第幾次問。
+    -> fog_after
+* [順著他說，今晚的燈有人守著]
+    ~ trust += 1
+    「今晚的燈有人守著，是可靠的人。」妳說。海明的肩膀鬆了一點。 # speaker:林澄
+    他低頭看了一會日誌，自己開口：「這裡不是塔吧。有茶的味道。是書店？」妳說是。他笑了一下，像找回一個熟悉的座標。 # speaker:旁白
+    -> fog_after
+* [告訴他，他剛才已經問過一次了]
+    ~ told_asked_before = true
+    ~ intervention += 1
+    海明愣了一下，臉慢慢紅了。「是嗎。」他把日誌合上一半。「那我不問了。」 # speaker:顧海明
+    之後好一陣子，他都沒再問任何事，只反覆摸著住址卡的邊。讓他知道自己忘了，並沒有讓他想起來。 # speaker:旁白
+    -> fog_after
+=== fog_after ===
+黑貓跳上桌，把尾巴搭在日誌上。海明順手摸了摸牠，指尖停在最後一次值班的那一頁。 # speaker:旁白 # portrait:haiming-warm
+* [陪他翻到最後一次值班]
     -> last_watch
 === last_watch ===
 最後一次值班前，兒子的婚禮邀請與颱風警報一起送到。海明把邀請放在日誌裡，決定留守燈塔。 # scene:memory # speaker:旁白 # section:last-watch
@@ -308,6 +366,7 @@ VAR ending_kind = ""
 === white_room ===
 沒有海的白色房間裡，海明想像自己有一天忘了燈塔，也認不出兒子。窗外很安靜，記憶沒有像燈光那樣因妳轉動開關便回來。 # scene:memory # speaker:旁白 # section:white-room
 他看向顧川寫的住址卡，說這張紙也許能幫忙，卻不能保證每一天都一樣。
+{told_asked_before:「我最怕的不是忘記。」海明說，「是別人提醒我忘了的時候，臉上的那種表情。」妳想起剛才自己說過的話，沒有替它辯解。 # speaker:顧海明}
 房間裡沒有護士，也沒有一張寫好結局的診斷書。這是海明害怕的未來，不是書店替他看見的預言；他仍坐在今晚的椅子上，還能回答自己想把什麼留給兒子。
 床邊擺著他熟悉的杯子，杯把朝向慣用的手；桌上還有一本空白日誌。他說也許有一天要別人提醒自己喝茶，又問：「那時候我還能不能說，不想聽英雄故事？」
 妳把問題重新說給他聽，沒有急著替未來的顧川回答。海明想了想，說今天先把自己不想被改寫的句子留下；往後需要什麼幫忙，可以讓父子倆在每個當下再談。
@@ -362,6 +421,7 @@ VAR ending_kind = ""
     -> letter_invitation
 === letter_invitation ===
 妳們回到櫃台，燈照著紙船的摺痕。即使四片都拼上，也不能讓海明重過那些錯過的日子；它能讓他用今天還能決定的語氣，把信交給顧川。 # scene:counter # speaker:旁白
+{reoriented_gently:海明把寫著書店名稱的那張紙也夾進日誌。「這張我要留著。小川可以學著這樣寫，不必每次都從頭解釋。」 # speaker:顧海明}
 {asked_earlier_ferry:海明在草稿邊留著「我曾能搭上早班船」。他說這句不能替顧川補回婚禮上的空椅子，卻也不願再把它改寫成「當時沒有別的辦法」。 # speaker:顧海明}
 * [在柔光下拼回四片紙船]
     -> letter_start
@@ -396,6 +456,7 @@ VAR ending_kind = ""
 === light_afterword ===
 書籤後記：顧川帶父親回來幾次。有些日子海明能說起風箏，有些日子需要再看住址卡。顧川把日誌與卡放在他容易找到的地方。 # scene:counter # speaker:旁白 # section:afterword
 那封信仍有塗改與停頓；它不替兩人解決所有往事，卻讓他們知道還能從哪一句開始。
+{asked_morning:有天早上，顧川煎的蛋又焦了。海明看著盤子說：「跟我煎的一樣。」兩個人都笑了。 # speaker:旁白}
 ~ ending_kind = "light"
 -> chapter_coda
 === end_voice ===
@@ -405,6 +466,7 @@ VAR ending_kind = ""
 === voice_afterword ===
 書籤後記：顧川收到聲音航海誌，聽見父親說的不只有英勇事蹟。往後海明忘記某個日期時，他們會一起聽一小段，不要求錄音把記憶變回原樣。 # scene:counter # speaker:旁白 # section:afterword
 錄音裡有海聲，也有廚房裡沒忍住的笑聲。
+{asked_hands:錄音裡父親說錯的潮時，顧川也照抄進日誌，旁邊仍用鉛筆小小地寫上對的。 # speaker:旁白}
 ~ ending_kind = "voice"
 -> chapter_coda
 === end_boat ===
@@ -414,6 +476,7 @@ VAR ending_kind = ""
 === boat_afterword ===
 書籤後記：海明日後有些話說得出來，有些仍留在紙上。顧川陪他去看海，兩人不把每次沉默都當成忘記。 # scene:counter # speaker:旁白 # section:afterword
 那張紙船依然可以打開；何時讀，由海明自己選。
+{asked_sea:在海邊，海明又報了一次風向和霧。顧川沒有糾正，只問他是怎麼看出來的；海明講了很久。 # speaker:旁白}
 ~ ending_kind = "boat"
 -> chapter_coda
 === end_hero ===
@@ -423,6 +486,7 @@ VAR ending_kind = ""
 === hero_afterword ===
 書籤後記：顧川收到傳記，珍惜父親救人的紀錄，也說：「我還是不知道他那時有沒有想回家。」 # scene:counter # speaker:旁白 # section:afterword
 日誌變得整齊，父子間那張空椅子仍沒有名字。
+{asked_hands:傳記裡找不到顧川那幾頁端正的字。那些照抄父親說錯潮時的句子，被當作筆誤刪掉了。 # speaker:旁白}
 ~ ending_kind = "hero"
 -> chapter_coda
 === chapter_coda ===

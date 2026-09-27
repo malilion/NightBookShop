@@ -40,7 +40,7 @@ test("starting a later chapter makes its unvisited memories available offline", 
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第六夜" }).click();
-  await expectStoryCached(page, "haiming-chapter-12");
+  await expectStoryCached(page, "haiming-chapter-13");
 
   const chapterImages = [
     "/images/characters/haiming.webp",
