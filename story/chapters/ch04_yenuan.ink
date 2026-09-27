@@ -27,6 +27,12 @@ VAR read_hospital_bag = false
 VAR read_oven_wait = false
 VAR read_oven_candles = false
 VAR read_oven_note = false
+VAR asked_candles = false
+VAR asked_cat = false
+VAR asked_burn = false
+VAR asked_not_eating = false
+VAR cut_burnt_bread = false
+VAR ate_burnt_bread = false
 VAR recipe_choice = ""
 VAR recipe_sincere = false
 VAR ending_kind = ""
@@ -60,13 +66,36 @@ VAR ending_kind = ""
 黑貓把卡片推回她面前。正面是蘋果麵包配方，「等待二次發酵」被重重劃掉，紙背黏著薄薄的油漬。 # clue:recipe-card
 今天是誰的生日？ # speaker:林澄
 媽媽的。她說完立刻伸手整理麵包籃。「店裡明天還要開門，今晚本來該回去備料。」 # speaker:葉暖
-* [問她為什麼劃掉等待的步驟]
+-> observe_hub
+=== observe_hub ===
+她把麵包排成一列，每一片都切得一樣厚。 # speaker:旁白
+* {not noticed_waiting} [問她為什麼劃掉等待的步驟]
     ~ noticed_waiting = true
     她說最近總等不了。「麵團稍微慢一點，我就想把火開大。可媽媽以前會叫我坐著，陪她喝完一杯茶。」 # speaker:葉暖
-    -> tea_start
-* [問她手上的燙傷是否需要先處理]
+    -> observe_hub
+* {not asked_burn} [問她手上的燙傷是否需要先處理]
+    ~ asked_burn = true
     ~ trust += 1
     她把手從圍裙裡拿出來。「下午碰到烤盤。謝謝妳看見。」她答應等茶泡好，先讓手涼一會。 # speaker:葉暖
+    妳數到手背上三道舊痕。她說烘焙的人都這樣，話說得很快；可那三道痕的位置都一樣，像是同一個動作，在同一個季節裡重複了好幾年。 # speaker:旁白
+    -> observe_hub
+* {not asked_candles} [問口袋裡那盒蠟燭買了多久]
+    ~ asked_candles = true
+    葉暖把盒子往口袋深處推了推。「今年的。每年都買一盒新的，舊的就放在抽屜裡。」 # speaker:葉暖
+    「抽屜裡已經有好幾盒了吧？」她自己先說了，像要趕在妳問之前。「我不是忘記點，是一拿出打火機，就不知道該對誰說生日快樂。」
+    -> observe_hub
+* {not asked_not_eating} [問她替每個人都切了，自己怎麼不吃]
+    ~ asked_not_eating = true
+    她低頭看著手裡的刀，好像這才發現自己一片也沒拿。「做麵包的人，聞一整天就飽了。」 # speaker:葉暖
+    這是她對客人說慣的玩笑。說完她沒有笑，把最邊上那片推到自己面前，還是沒有拿起來。 # speaker:旁白
+    -> observe_hub
+* {not asked_cat} [問她怎麼會跟著一隻貓走到這裡]
+    ~ asked_cat = true
+    「牠從烤箱旁邊叼走食譜卡。」葉暖說得有點不好意思，「我追了三條街。那條路我閉著眼睛都會走，今晚卻多了一個轉角。」 # speaker:葉暖
+    追到門口，她才發現自己沒脫圍裙，也沒關店裡的燈。「我本來拿回卡片就要走。可是聞到這裡有茶香，就想，送點麵包也好。」
+    她瞄了黑貓一眼。黑貓正舔著沾到麵粉的爪子，一點也不像做錯事。 # speaker:旁白
+    -> observe_hub
+* [請她先坐下，妳去泡茶]
     -> tea_start
 === tea_start ===
 妳把茶罐排在烤箱餘溫旁。炭焙焙茶、薰衣草伯爵、蜜香紅茶都在，還有一小碟蘋果乾，可以隨熱水慢慢舒展。 # scene:counter # speaker:旁白 # section:tea
@@ -359,6 +388,31 @@ VAR ending_kind = ""
     -> oven_depart
 === oven_depart ===
 老烤箱沒有重新亮起。葉暖說書店的桌子比較明亮，可以慢慢把正反兩面都排出來。 # scene:yenuan # speaker:旁白
+回到櫃台，麵包籃還在原處。那顆焦掉的麵包仍壓在最底下，今晚第一次沒有被她急著藏得更深。
+-> burnt_bread_hub
+=== burnt_bread_hub ===
+天亮以前，她本來會把它丟掉。 # speaker:旁白
+* {not cut_burnt_bread} [問她願不願意切開那顆焦麵包]
+    ~ cut_burnt_bread = true
+    葉暖猶豫了一下，還是拿起刀。外殼很硬，刀落下時發出乾脆的聲音。 # speaker:旁白
+    裡面沒有焦。蘋果餡熟得剛好，麵包心還是軟的，冒出一小縷熱氣。只有貼著烤盤的那一層黑了。 # speaker:旁白
+    「每年都這樣嗎？」妳問。葉暖盯著切面很久。「我不知道。我從來沒切開過。」 # speaker:葉暖
+    -> bread_taste
+* [讓那顆麵包留在籃底，先拼食譜]
+    -> letter_start
+=== bread_taste ===
+* [遞給她中間最軟的一小片]
+    ~ ate_burnt_bread = true
+    ~ understanding += 1
+    葉暖把那片接過去，放在掌心看了一會，才咬下一小口。 # speaker:旁白
+    「甜的。」她說，聲音有點啞，「比我以為的甜。」她把剩下的也吃完，沒有替焦掉的那層找任何藉口。 # speaker:葉暖
+    -> bread_after
+* [讓她自己決定要不要吃]
+    ~ trust += 1
+    葉暖把兩半麵包並排放著，沒有吃，也沒有收回籃底。「今年先不丟。」她說，「明天早上，我再看看它。」 # speaker:葉暖
+    -> bread_after
+=== bread_after ===
+她把刀擦乾淨放回籃邊，這次沒有急著再切給任何人。 # speaker:旁白
 * [把食譜正反兩面拼起來]
     -> letter_start
 === letter_start ===
@@ -412,6 +466,7 @@ VAR ending_kind = ""
 === share_afterword ===
 書籤後記：晨麥多了一款柚子蘋果麵包。葉暖有時仍會為那晚難過；想起母親時，她會先讓自己坐下吃一片。 # scene:counter # speaker:旁白 # section:afterword
 母親的原配方仍收在店裡，新配方寫在它旁邊。她把兩張卡片都留下。
+{ate_burnt_bread:每年母親生日，她仍會烤一顆原味的蘋果麵包。烤焦了也不再丟；她切開它，先吃中間最軟的那一片。 # speaker:旁白}
 ~ ending_kind = "share"
 -> chapter_coda
 === end_reopen ===
@@ -421,6 +476,7 @@ VAR ending_kind = ""
 === reopen_afterword ===
 書籤後記：蘋果麵包重新放上晨麥的架子。葉暖把母親的名字寫在價牌背面，偶爾會拿給熟客看。 # scene:counter # speaker:旁白 # section:afterword
 她知道自己將來也可以改配方；今天，她先把這個味道好好留下。
+{asked_not_eating:試吃盤上每天都切同樣厚的片數。常客發現，最後一片總是葉暖自己吃掉的。 # speaker:旁白}
 ~ ending_kind = "reopen"
 -> chapter_coda
 === end_rest ===
@@ -430,6 +486,7 @@ VAR ending_kind = ""
 === rest_afterword ===
 書籤後記：一週後她重新打開店門，先整理烤箱，再決定當天做什麼。店仍是她的，休息也由她決定。 # scene:counter # speaker:旁白 # section:afterword
 她還沒烤蘋果麵包，卻不再把空著的那格當成必須補上的缺口。
+{asked_candles:休息那週，她把抽屜裡的蠟燭一盒盒拿出來排在桌上，數了數，比她記得的還多一盒。她沒有點，只把它們收進同一個盒子，寫上母親的名字。 # speaker:旁白}
 ~ ending_kind = "rest"
 -> chapter_coda
 === end_copy ===
@@ -439,10 +496,11 @@ VAR ending_kind = ""
 === copy_afterword ===
 書籤後記：晨麥天天賣出漂亮的蘋果麵包。葉暖每晚重算比例，不讓任何人代做；母親留下的卡片漸漸被翻得起毛。 # scene:counter # speaker:旁白 # section:afterword
 她守住了味道，仍害怕自己一旦停下，就會失去最後能抓住的東西。
+{cut_burnt_bread:母親生日那天，她依舊烤一顆，依舊在天亮前丟掉。書店裡切開過的那一顆，她沒有再切開第二次。 # speaker:旁白}
 ~ ending_kind = "copy"
 -> chapter_coda
 === chapter_coda ===
-葉暖離開後，黑貓把食譜卡帶回櫃台。卡片右下角印著夜行書店的月亮標誌，落款日期卻早於葉暖出生。 # scene:counter # speaker:旁白 # section:coda # clue:moon-card
+葉暖離開後，黑貓把食譜卡帶回櫃台。{asked_cat: 這一次牠沒有叼著卡片跑遠，只把它推到妳手邊。}卡片右下角印著夜行書店的月亮標誌，落款日期卻早於葉暖出生。 # scene:counter # speaker:旁白 # section:coda # clue:moon-card
 妳翻看店員手冊，想起自己很小的時候也曾在這裡看過那枚月亮。桌沿刻著一道淺淺的身高線，旁邊寫著「林澄」。 # clue:childhood-glimpse
 那不是妳第一次走進夜行書店。黑貓用尾巴蓋住日期，像還要等妳自己想起來。
 窗外仍是夜色。妳把食譜卡放進手冊，讓葉暖的那一頁與自己的名字並排。

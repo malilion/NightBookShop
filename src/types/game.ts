@@ -35,6 +35,7 @@ export const storyVersionSchema = z.enum([
   "yenuan-chapter-6",
   "yenuan-chapter-7",
   "yenuan-chapter-8",
+  "yenuan-chapter-9",
   "yuhang-chapter-1",
   "yuhang-chapter-2",
   "yuhang-chapter-3",

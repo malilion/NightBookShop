@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-8.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-9.json", "utf8");
+const chapterEight = readFileSync("public/story/compiled/yenuan-chapter-8.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/yenuan-chapter-7.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/yenuan-chapter-5.json", "utf8");
 const chapterFour = readFileSync("public/story/compiled/yenuan-chapter-4.json", "utf8");
@@ -47,6 +48,8 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
         "收起活動傳單裡的第二片紙",
         "帶著尚未回答的問題走向老烤箱",
         "將第三片食譜收好，回書店",
+        "請她先坐下，妳去泡茶",
+        "讓那顆麵包留在籃底，先拼食譜",
       ].includes(entry.text)) : undefined) ?? story.frame.choices.find((entry) =>
         options.chooseTexts?.some((text) => entry.text.includes(text)),
       ) ?? story.frame.choices.find((entry) =>
@@ -109,6 +112,22 @@ describe("Yenuan fourth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-seven %s route", (target) => {
     expect(play(target, true, chapterSeven).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-eight %s route", (target) => {
+    expect(play(target, true, chapterEight).story.frame.endingId).toBe(target);
+  });
+  it("lets the opening details and the cut burnt bread return in each afterword", () => {
+    const text = (target: keyof typeof targets, options = {}) => play(target, true, compiled, options).texts.join(" ");
+    const share = text("yenuan-share");
+    for (const line of ["同一個季節裡重複了好幾年", "不知道該對誰說生日快樂", "聞一整天就飽了", "我追了三條街", "只把它推到妳手邊", "我從來沒切開過", "比我以為的甜"])
+      expect(share).toContain(line);
+    expect(share).toContain("先吃中間最軟的那一片");
+    expect(text("yenuan-reopen")).toContain("最後一片總是葉暖自己吃掉的");
+    expect(text("yenuan-rest")).toContain("比她記得的還多一盒");
+    expect(text("yenuan-copy")).toContain("沒有再切開第二次");
+    const skipped = play("yenuan-share", true, compiled, { skipObjects: true });
+    expect(skipped.texts.join(" ")).not.toContain("我從來沒切開過");
+    expect(skipped.texts.join(" ")).not.toContain("先吃中間最軟的那一片");
   });
   it("keeps the memory recaps grounded in inspected evidence", () => {
     const explored = play("yenuan-rest").texts.join(" ");

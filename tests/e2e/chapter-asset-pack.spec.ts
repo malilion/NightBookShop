@@ -123,7 +123,7 @@ test("fourth-night memories load from the chapter pack offline", async ({ page, 
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第四夜" }).click();
-  await expectStoryCached(page, "yenuan-chapter-8");
+  await expectStoryCached(page, "yenuan-chapter-9");
   await expectImagesCached(page, [
     "/images/characters/yenuan.webp",
     ...["bakery", "anniversary", "hospital-return", "old-oven"].flatMap((scene) => [
