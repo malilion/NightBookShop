@@ -334,8 +334,10 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   const laterInk = page.getByRole("checkbox", {
     name: "使用多年後補寫的句子",
   });
+  // Seeing the later ink is enough; choosing it instead of her original words
+  // would make the letter not understood and hide the ink question below.
   await expect(laterInk).toBeVisible();
-  await laterInk.check();
+  await expect(laterInk).not.toBeChecked();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: `output/letter-${info.project.name}.png`,
@@ -345,7 +347,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   await page.screenshot({ path: `output/first-night-ink-reflection-${info.project.name}.png`, animations: "disabled" });
   await flush(page);
   await page.reload();
-  await expect(page.getByRole("checkbox", { name: "使用多年後補寫的句子" })).toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "使用多年後補寫的句子" })).not.toBeChecked();
   await page.getByRole("button", { name: "把信交還給她" }).click();
   await until(page, "把兩種墨色分開，問她多年後寫");
   await page.getByRole("button", { name: /把兩種墨色分開，問她多年後寫/ }).click();
