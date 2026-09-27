@@ -417,6 +417,8 @@ button:active:not(:disabled),
   align-items: center;
   padding: 22px 3.5%;
   gap: 25px;
+  /* Bright scenes (the letter desk) sit right behind this small text. */
+  background: linear-gradient(#070b12b8, #070b1200);
 }
 .game-brand {
   font-size: 25px;
@@ -672,6 +674,7 @@ button:active:not(:disabled),
   font-size: 11px;
   letter-spacing: 0.08em;
   color: #d3c1a8;
+  background: linear-gradient(#070b1200, #070b12c8);
 }
 .paper-frame {
   border: 1px solid var(--line);
@@ -1207,7 +1210,7 @@ button:active:not(:disabled),
 }
 .letter-date {
   font-size: 12px;
-  color: #74604a;
+  color: #5e4b37;
   letter-spacing: 0.13em;
   margin-bottom: 4px;
 }
@@ -1861,7 +1864,8 @@ button:active:not(:disabled),
   padding: 13px 0;
 }
 .controls-list dd {
-  color: var(--muted);
+  /* --muted falls to 4.2:1 on this lighter panel; shortcuts are small text. */
+  color: var(--ink);
   margin: 0;
 }
 .controls-list kbd {
