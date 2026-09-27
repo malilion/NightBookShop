@@ -72,6 +72,12 @@ const grips = {
     thumb: [14, 10, 4, 10, 12],
     arch: 0.3,
   },
+  // Lying flat on the counter after serving, fingers loose and straight.
+  flat: {
+    fingers: { index: [6, 8, 4, 3], middle: [6, 9, 4, 0], ring: [8, 10, 5, -3], little: [10, 12, 6, -6] },
+    thumb: [6, 10, 0, 6, 6],
+    arch: 0.12,
+  },
 };
 
 export function createBrewFilm({ scene, camera, props, materials }) {
@@ -772,32 +778,36 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     placeCamera(V(0.05, 1.12, 3.2).lerp(V(0.03, 0.98, 2.72), smoother(t)), V(0, 0.46, 0.1).lerp(V(0, 0.52, 0.3), smooth(t)), 30);
     setCupLevel(1);
     setLiquor(cupLiquorMaterial, v.spec.liquor, 1);
-    const settle = span(t, 0.5, 0.62) * (1 - span(t, 0.62, 0.9));
+    const slosh = span(t, 0.5, 0.62) * (1 - span(t, 0.62, 0.9));
     cupRipples.forEach((ring, i) => {
       const p = (t * 3 + i / 3) % 1;
       ring.position.set(0, 0, 0.003);
       ring.scale.setScalar(0.3 + p * 2.4);
-      ring.material.opacity = (1 - p) * 0.3 * Math.max(settle, carry * (1 - carry) * 2);
+      ring.material.opacity = (1 - p) * 0.3 * Math.max(slosh, carry * (1 - carry) * 2);
     });
+    // Fingertips leave the rim, then both hands draw back and lie flat on the
+    // counter behind the saucer and stay there: nothing pops out of frame.
     const release = smooth(span(t, 0.56, 0.7));
-    const leave = smoother(span(t, 0.64, 0.92));
+    const settle = smoother(span(t, 0.62, 0.9));
     for (const [hand, side] of [
       [right, -1],
       [left, 1],
     ]) {
-      hand.visible = leave < 0.999;
-      if (!hand.visible) continue;
-      const grip = blendPose(grips.saucer, grips.relaxed, release);
+      hand.visible = true;
+      const grip = blendPose(blendPose(grips.saucer, grips.relaxed, release), grips.flat, settle);
       // Index pads rest on the far rim, a little to each side of the cup.
-      const rest = cup.localToWorld(V(side * 0.47, 0.114, -0.49));
-      rest.add(V(side * (0.08 * release + 0.4 * leave), 0.12 * release + 0.3 * leave, -0.18 * release - 1.3 * leave));
+      const rim = cup.localToWorld(V(side * 0.47, 0.114, -0.49));
+      // Clear of the book stack on the left, which reaches x = -1.47.
+      const counter = V(side * 0.95, 0.075, cup.position.z - 1.9);
+      const rest = rim.clone().lerp(counter, settle);
+      rest.y += 0.1 * release * (1 - settle) + 0.14 * Math.sin(settle * Math.PI);
       hand.setPose({
         ...grip,
-        forward: V(-side * 0.5, -0.32 + release * 0.2, 0.8),
-        dorsal: V(side * 0.2, 1, 0.15),
+        forward: V(-side * 0.5, -0.32 + release * 0.2, 0.8).lerp(V(-side * 0.08, -0.04, 1), settle),
+        dorsal: V(side * 0.2, 1, 0.15).lerp(V(0, 1, 0.05), settle),
         anchor: { part: "index.pad", world: rest },
-        elbow: V(side * 1.6, 0.75, -2.3),
-        shoulder: V(side * 1.45, 3.0, -3.5),
+        elbow: V(side * 1.6, 0.75, -2.3).lerp(V(side * 1.35, 0.6, -3.6), settle),
+        shoulder: V(side * 1.45, 3.0, -3.5).lerp(V(side * 1.5, 3.0, -4.3), settle),
       });
     }
     const top = cup.position.clone().add(V(0, 0.56, 0));

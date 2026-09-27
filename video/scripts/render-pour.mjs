@@ -8,9 +8,10 @@ import {
 import { chromium } from "@playwright/test";
 import sharp from "sharp";
 import { mkdir, writeFile, copyFile, stat } from "node:fs/promises";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { brewFilm } from "../src/tea-varieties.js";
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../..",
@@ -48,6 +49,33 @@ const browser = await openBrowser("chrome", {
   browserExecutable: chromium.executablePath(),
   chromiumOptions: { gl: "angle" },
 });
+// On a busy machine the browser occasionally captures a frame at the wrong
+// buffer size, a tiled picture that still decodes cleanly. Inside a shot,
+// consecutive frames change little, so flag any frame far from its
+// predecessor, ignoring the film's planned cuts.
+function misCaptured(file) {
+  const W = 160,
+    H = 90;
+  const { stdout } = spawnSync(
+    "ffmpeg",
+    ["-v", "error", "-i", file, "-vf", `scale=${W}:${H}`, "-pix_fmt", "gray", "-f", "rawvideo", "-"],
+    { maxBuffer: 64 * 1024 * 1024 },
+  );
+  const cuts = new Set(brewFilm.shots.map((shot) => shot.from));
+  const flagged = [];
+  for (let f = 1; f < stdout.length / (W * H); f++) {
+    if (cuts.has(f)) continue;
+    let change = 0;
+    for (let i = 0; i < W * H; i++)
+      change += Math.abs(stdout[f * W * H + i] - stdout[(f - 1) * W * H + i]);
+    if (change / (W * H) > 24) flagged.push(f);
+  }
+  return flagged;
+}
+// One exact frame of a video, decoded in order rather than seeked.
+function extractFrame(file, index, output) {
+  execFileSync("ffmpeg", ["-v", "error", "-i", file, "-vf", `select=eq(n\\,${index})`, "-vsync", "0", "-frames:v", "1", "-pix_fmt", "rgb24", "-y", output]);
+}
 const published = [];
 try {
   for (const tea of teas) {
@@ -90,24 +118,33 @@ try {
     const limit = 2 * 1024 * 1024;
     // Remotion's render is kept as the master; both delivery files encode from it.
     const master = clip === "brew" ? `${base}-master.mp4` : `${base}.mp4`;
-    let reported = -1;
-    if (!encodeOnly) await renderMedia({
-      ...common,
-      outputLocation: master,
-      codec: "h264",
-      crf: clip === "brew" ? 22 : 18,
-      x264Preset: clip === "brew" ? "slow" : undefined,
-      pixelFormat: "yuv420p",
-      imageFormat: "png",
-      concurrency: clip === "brew" ? 4 : 2,
-      onProgress: ({ progress }) => {
-        const tenth = Math.floor(progress * 10);
-        if (tenth > reported) {
-          reported = tenth;
-          console.log(`Rendering ${tea} ${tenth * 10}%`);
-        }
-      },
-    });
+    for (let attempt = 1; ; attempt++) {
+      let reported = -1;
+      if (!encodeOnly)
+        await renderMedia({
+          ...common,
+          outputLocation: master,
+          codec: "h264",
+          crf: clip === "brew" ? 22 : 18,
+          x264Preset: clip === "brew" ? "slow" : undefined,
+          pixelFormat: "yuv420p",
+          imageFormat: "png",
+          // Fewer WebGL pages at once keeps the GPU from dropping frames.
+          concurrency: 2,
+          onProgress: ({ progress }) => {
+            const tenth = Math.floor(progress * 10);
+            if (tenth > reported) {
+              reported = tenth;
+              console.log(`Rendering ${tea} ${tenth * 10}%`);
+            }
+          },
+        });
+      const bad = clip === "brew" ? misCaptured(master) : [];
+      if (!bad.length) break;
+      if (encodeOnly || attempt === 3)
+        throw new Error(`Mis-captured frames in ${tea}: ${bad.join(", ")}`);
+      console.log(`Re-rendering ${tea}; mis-captured frames ${bad.join(", ")}`);
+    }
     if (clip === "brew") {
       await copyFile(master, `${base}.mp4`);
       // A busy tea can push its film past the offline cache limit: step the
@@ -158,13 +195,17 @@ try {
       console.log(`Re-encoding ${tea} WebM at CRF ${crf} to fit the cache limit`);
       webm(crf);
     }
-    await sharp(path.join(out, `${clip}-${tea}-0.png`))
-      .webp({ quality: 88 })
-      .toFile(`${base}-poster.webp`);
+    // Poster and served-cup still come from the checked master itself, so
+    // they always match the film's first and last frames.
+    const first = clip === "brew" ? `${base}-first.png` : path.join(out, `${clip}-${tea}-0.png`);
+    const last = clip === "brew" ? `${base}-last.png` : path.join(out, `${clip}-${tea}-${frames - 1}.png`);
+    if (clip === "brew") {
+      extractFrame(master, 0, first);
+      extractFrame(master, frames - 1, last);
+    }
+    await sharp(first).webp({ quality: 88 }).toFile(`${base}-poster.webp`);
     // Reduced motion shows the served cup, the film's last frame.
-    await sharp(path.join(out, `${clip}-${tea}-${frames - 1}.png`))
-      .webp({ quality: 86 })
-      .toFile(`${base}-still.webp`);
+    await sharp(last).webp({ quality: 86 }).toFile(`${base}-still.webp`);
     const files = [];
     for (const ext of ["mp4", "webm"]) {
       const file = `${base}.${ext}`;

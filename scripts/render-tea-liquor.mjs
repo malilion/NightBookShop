@@ -22,8 +22,9 @@ const specs = {
   },
   brew: {
     frames: 300,
+    // Rendered at full size and stored at half: rendering the mask itself at
+    // half size once produced a whole-frame crop on its first frame.
     scale: 2,
-    renderScale: 2,
     firstVisibleFrame: 141,
     atlas: "brew-liquor-v1.webp",
     // Fetched with the atlas when a brew film opens, not bundled.
@@ -77,14 +78,16 @@ try {
       y = Math.floor(-info.trimOffsetTop / s) * s;
     const width = Math.ceil((-info.trimOffsetLeft + info.width) / s) * s - x,
       height = Math.ceil((-info.trimOffsetTop + info.height) / s) * s - y;
-    if (width > spec.maxCell[0] || height > spec.maxCell[1])
+    const coordinateScale = spec.renderScale ?? 1;
+    // The tea is always a small sliver of the film; a crop the size of the
+    // frame means the mask did not render and would tint the whole picture.
+    if (width * coordinateScale > spec.maxCell[0] || height * coordinateScale > spec.maxCell[1])
       throw new Error(`Unexpected liquor bounds in frame ${i}`);
     const cell = await sharp(buffer)
       .extract({ left: x, top: y, width, height })
       .resize(width / s, height / s, { kernel: "lanczos3" })
       .png()
       .toBuffer();
-    const coordinateScale = spec.renderScale ?? 1;
     frames[i] = {
       x: x * coordinateScale,
       y: y * coordinateScale,
