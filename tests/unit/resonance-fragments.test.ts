@@ -9,7 +9,7 @@ const chapters = [
   { id: "boyan", file: "boyan-chapter-11", teaId: "chamomile" },
   { id: "ruoyin", file: "ruoyin-chapter-9", teaId: "lavender" },
   { id: "yenuan", file: "yenuan-chapter-8", teaId: "hojicha" },
-  { id: "yuhang", file: "yuhang-chapter-9", teaId: "mint" },
+  { id: "yuhang", file: "yuhang-chapter-10", teaId: "mint" },
   { id: "haiming", file: "haiming-chapter-12", teaId: "hojicha" },
 ] as const;
 

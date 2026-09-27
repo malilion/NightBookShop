@@ -437,7 +437,7 @@ export const chapterForVersion = (version: string) =>
     ? "lincheng"
     : version === "haiming-chapter-1" || version === "haiming-chapter-2" || version === "haiming-chapter-3" || version === "haiming-chapter-4" || version === "haiming-chapter-5" || version === "haiming-chapter-6" || version === "haiming-chapter-7" || version === "haiming-chapter-8" || version === "haiming-chapter-9" || version === "haiming-chapter-10" || version === "haiming-chapter-11" || version === "haiming-chapter-12"
     ? "haiming"
-    : version === "yuhang-chapter-1" || version === "yuhang-chapter-2" || version === "yuhang-chapter-3" || version === "yuhang-chapter-4" || version === "yuhang-chapter-5" || version === "yuhang-chapter-6" || version === "yuhang-chapter-7" || version === "yuhang-chapter-8" || version === "yuhang-chapter-9"
+    : version === "yuhang-chapter-1" || version === "yuhang-chapter-2" || version === "yuhang-chapter-3" || version === "yuhang-chapter-4" || version === "yuhang-chapter-5" || version === "yuhang-chapter-6" || version === "yuhang-chapter-7" || version === "yuhang-chapter-8" || version === "yuhang-chapter-9" || version === "yuhang-chapter-10"
     ? "yuhang"
     : version === "yenuan-chapter-1" || version === "yenuan-chapter-2" || version === "yenuan-chapter-3" || version === "yenuan-chapter-4" || version === "yenuan-chapter-5" || version === "yenuan-chapter-6" || version === "yenuan-chapter-7" || version === "yenuan-chapter-8"
     ? "yenuan"

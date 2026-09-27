@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-9.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-10.json", "utf8");
+const chapterNine = readFileSync("public/story/compiled/yuhang-chapter-9.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/yuhang-chapter-8.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/yuhang-chapter-6.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/yuhang-chapter-5.json", "utf8");
@@ -46,6 +47,9 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
         "從假單裡收起第二片信紙",
         "從門縫裡收起第三片信紙",
         "從印章底部收起最後一片紙",
+        "請他先把郵袋放下，茶一會兒就好",
+        "末班車進站，和他一起上車",
+        "走到那間鎖住的店門前",
       ].includes(entry.text)) : undefined) ?? story.frame.choices.find((entry) => options.promiseChoice && entry.text.includes(options.promiseChoice)) ?? story.frame.choices.find((entry) => entry.text.includes(targets[target].choice)) ?? story.frame.choices[0];
       expect(selected).toBeDefined();
       story.choose(selected!.index);
@@ -99,6 +103,26 @@ describe("Yuhang fifth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-eight %s route", (target) => {
     expect(play(target, true, false, chapterEight).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-nine %s route", (target) => {
+    expect(play(target, true, false, chapterNine).story.frame.endingId).toBe(target);
+  });
+  it("carries optional talks at the door, bus stop and shop walk into later scenes", () => {
+    const talked = play("yuhang-today");
+    const skipped = play("yuhang-today", true, false, compiled, { skipObjects: true });
+    const talk = talked.texts.join(" ");
+    for (const line of ["一直停在我撿到它的那場雨裡", "她起頭，我收尾", "晚上的信箱不會", "不排進去，就可以一直說還沒輪到", "我爸那時候問的就是這個吧"])
+      expect(talk).toContain(line);
+    expect(talk).toContain("也許不是每件事，都要由我替她收尾");
+    expect(talk).toContain("終於替自己答了一次");
+    const quiet = skipped.texts.join(" ");
+    expect(quiet).not.toContain("她起頭，我收尾");
+    expect(quiet).not.toContain("終於替自己答了一次");
+    expect(skipped.story.frame.endingId).toBe("yuhang-today");
+  });
+  it("lets the past and refused endings answer the opening questions", () => {
+    expect(play("yuhang-past").texts.join(" ")).toContain("第一次寫給自己");
+    expect(play("yuhang-unknown").texts.join(" ")).toContain("那場雨是哪一天");
   });
   it("allows leaving every memory with four fragments and no optional clues", () => {
     const { story } = play("yuhang-unknown", true, false, compiled, { skipObjects: true });

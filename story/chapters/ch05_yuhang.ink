@@ -30,6 +30,15 @@ VAR read_door_photo = false
 VAR read_door_stamp = false
 VAR read_door_address = false
 VAR compared_postmarks = false
+VAR looked_bag = false
+VAR asked_keyring = false
+VAR asked_home = false
+VAR asked_sister = false
+VAR asked_nightshift = false
+VAR waited_quietly = false
+VAR named_detour = false
+VAR asked_alone = false
+VAR asked_father = false
 VAR promise_frame = ""
 VAR ending_kind = ""
 -> arrival
@@ -63,13 +72,31 @@ VAR ending_kind = ""
 郵袋內的信都乾燥，唯有這封藍色信滲著雨水。袋側派送簿的最後一頁，反覆寫著「明年再開始」。 # scene:yuhang # speaker:旁白 # section:observations # clue:wet-envelope # clue:delivery-ledger
 他的鑰匙圈是一間小書店的木製模型。妳問起回家的方向，他能背出整條街的門牌，卻避開自己的住址。 # clue:wooden-shop
 書店模型的一扇窗還沒刻完。他用拇指擋住那個缺口，報出下一條街的收件戶數，像是多說一個地址，今晚就能少留一點時間給自己。
-* [問那間木製書店是誰做的]
-    ~ trust += 1
-    「妹妹。」他把鑰匙圈放回口袋。「她以前說，我們可以賣書，也可以去旅行。後來她沒能去了。」 # speaker:程雨航
-    -> tea_start
-* [先問派送簿為何停在明年]
+-> observe_hub
+=== observe_hub ===
+他說還要趕下一站，雨衣下擺卻已在門邊積了一小灘水。 # speaker:旁白
+* {not looked_bag} [看看郵袋裡為什麼只有藍色信是濕的]
+    ~ looked_bag = true
+    妳請他打開郵袋。其他信都套著防水袋，依街道順序排得整整齊齊；藍色信卻沒有套子，夾在最底層，像是被人匆忙塞進去。 # speaker:旁白
+    「它每年都會出現。我換過三個郵袋，它還是濕的，好像一直停在我撿到它的那場雨裡。」 # speaker:程雨航
+    他說得很平，像在報一件查不到收件人的郵件。妳注意到，他沒有說那場雨是哪一天。 # speaker:旁白
+    -> observe_hub
+* {not read_ledger} [問派送簿為何停在明年]
     ~ read_ledger = true
     「我寫給自己的備忘。」他合上簿子。「每年換一次年份，算不上什麼大事。」他說完又看了一眼那封信。 # speaker:程雨航
+    合上前，妳瞥見每個「明年」底下都有橡皮擦過的痕跡。被擦掉的不是年份，而是原本寫好的月份與日期。 # speaker:旁白
+    -> observe_hub
+* {not asked_keyring} [問那間木製書店是誰做的]
+    ~ asked_keyring = true
+    ~ trust += 1
+    「妹妹。」他把鑰匙圈放回口袋。「她以前說，我們可以賣書，也可以去旅行。後來她沒能去了。」 # speaker:程雨航
+    -> observe_hub
+* {not asked_home} [問他送完今晚的件以後回哪裡]
+    ~ asked_home = true
+    「回局裡交簿子。」他答得很快。妳再問交完以後呢，他說隔壁區的早班也缺人。 # speaker:程雨航
+    「我住的地方離郵局不遠。」他沒有說出街名。「反正白天只是睡覺，住哪裡都一樣。」 # speaker:程雨航
+    -> observe_hub
+* [請他先把郵袋放下，茶一會兒就好]
     -> tea_start
 === tea_start ===
 妳把茶席移到門邊。薄荷可加檸檬與淡紅茶；洋甘菊旁有蜂蜜，焙茶旁放著蘋果乾。 # scene:counter # speaker:旁白 # section:tea
@@ -201,6 +228,32 @@ VAR ending_kind = ""
 === post_end ===
 郵戳後卡著第一片信紙，正面寫著「明年再開始」。 # fragment:tomorrow # speaker:旁白
 * [搭上末班公車]
+    -> bus_stop
+=== bus_stop ===
+離開舊郵局，街上只剩路燈和積水。雨航說末班車會在下一個站牌停，還要等七分鐘；全城每一班夜車的時刻，他都記得。 # speaker:旁白
+他沒有撐傘，把郵袋抱在胸前替信擋雨。妳站到他身旁，站牌的燈閃了兩下。
+-> bus_stop_hub
+=== bus_stop_hub ===
+雨打在站牌的鐵皮頂上，一陣密，一陣疏。 # speaker:旁白
+* {not asked_sister} [問他妹妹是什麼樣的人]
+    ~ asked_sister = true
+    ~ trust += 1
+    雨航想了很久，像在挑一個不會說錯的形容。「她做事常常只做一半。」說完他自己先笑了，「不是懶。是她每件事做到一半，就會想到更好玩的。」 # speaker:程雨航
+    她學過吉他、報過潛水課，大學念到一半換了系。家裡擔心她定不下來，只有雨航替她記著每件半途的事做到了哪裡。「我以為那是我的工作。她起頭，我收尾。」 # speaker:程雨航
+    「所以她走以後，我一直在收尾。」他看著積水裡的路燈，「可是那間店，她根本還沒起頭。」
+    -> bus_stop_hub
+* {not asked_nightshift} [問他為什麼總是接夜班]
+    ~ asked_nightshift = true
+    「夜班人少，路也空。」他說這是實話，只是不完整。 # speaker:程雨航
+    夜裡沒有人問他週末要去哪裡、最近在忙什麼，收件人也多半睡了。他只要把信放進對的信箱，核對門牌，再走向下一戶。 # speaker:旁白
+    「白天的人會問計畫。」他說，「晚上的信箱不會。」 # speaker:程雨航
+    -> bus_stop_hub
+* {not waited_quietly} [陪他安靜等車]
+    ~ waited_quietly = true
+    妳沒有再問。黑貓不知何時跟了出來，蹲在長椅下舔爪子。 # speaker:旁白
+    過了一會，雨航自己開口：「妳不問我為什麼不回家嗎？」妳說，等他想說的時候再說。他點點頭，把郵袋放到長椅上，第一次讓它離開自己的手。
+    -> bus_stop_hub
+* [末班車進站，和他一起上車]
     -> last_bus
 === last_bus ===
 末班車開過一站又一站，沒有人下車。車窗映出雨航七年間的班表：每次休假剛排好，總有一筆夜班把它蓋掉。 # scene:memory # speaker:旁白 # section:last-bus
@@ -230,6 +283,31 @@ VAR ending_kind = ""
 === bus_end ===
 第二片信紙夾在取消的假單裡。背面筆跡和今年派送簿的字相同。 # fragment:admit # speaker:旁白
 * [去鎖住的空店面]
+    -> shop_walk
+=== shop_walk ===
+末班車停在一條他熟悉的街。雨航下車後走得很慢，比去郵局時慢得多。 # speaker:旁白
+他帶妳多轉了兩個街角，說那邊的騎樓比較不會淋雨；可是那兩個街角都沒有騎樓。
+-> shop_walk_hub
+=== shop_walk_hub ===
+前面的路口亮著紅燈，雨航比燈號更早停下腳步。 # speaker:旁白
+* {not named_detour} [指出他在繞路]
+    ~ named_detour = true
+    ~ understanding += 1
+    雨航沒有否認。「習慣了。送件的時候，這條街我都排在最後，常常排到一半就交班。」 # speaker:程雨航
+    「這七年，我沒把那間店排進任何一條路線，也沒把它從地圖上刪掉。刪掉就像承認不會去；不排進去，就可以一直說還沒輪到。」
+    -> shop_walk_hub
+* {not asked_alone} [問他一個人開店，算不算違背約定]
+    ~ asked_alone = true
+    綠燈亮了，雨航停在斑馬線前沒有走。 # speaker:旁白
+    「如果我開了，店裡每一本書都是我選的。她喜歡的旅遊書我看不懂，她嫌悶的推理小說，我會想擺一整排。」他說，「那就不是我們的店，是我的店。我不知道自己可不可以有一間自己的店。」 # speaker:程雨航
+    妳沒有替他回答可以或不可以。綠燈又閃了一次，他才邁開腳步。 # speaker:旁白
+    -> shop_walk_hub
+* {not asked_father} [問他父親知不知道這個計畫]
+    ~ asked_father = true
+    「我爸聽過。」雨航說，「他送了一輩子信，只問我們打算讓誰休假。妹妹說輪流，我說先別想那麼遠。」 # speaker:程雨航
+    說到這裡，他自己停住了。七年來，他替別人代班、補班、接夜班，從沒輪到過自己。「我爸那時候問的就是這個吧。只是我聽成了一句玩笑。」
+    -> shop_walk_hub
+* [走到那間鎖住的店門前]
     -> empty_shop
 === empty_shop ===
 店門後擺著兩個空書架。租約過了期，鑰匙卻一直掛在雨航身上；他曾想像妹妹會站在哪一邊收銀。 # scene:memory # speaker:旁白 # section:empty-shop
@@ -293,6 +371,8 @@ VAR ending_kind = ""
 === promise_conversation ===
 走回櫃台的路上，雨航把四片紙握在手裡。「她不在了，這封信卻每年都由我重寫。我到底是在守約，還是不敢承認自己也想過別的生活？」 # scene:yuhang # speaker:程雨航 # section:letter
 {compared_postmarks:妳想起老郵局派送簿上相隔許久的兩次日期。雨航說：「我父親能敲第二次門，是因為他沒把第一次沒人簽收當作最後的回答。我也可以問問現在的自己。」 # speaker:程雨航}
+{asked_sister:他想起站牌下說過的話，「她起頭，我收尾」。「也許不是每件事，都要由我替她收尾。」 # speaker:程雨航}
+{asked_alone:他又提起那一整排推理小說，這次沒有說「那就不是我們的店」，只說自己還沒想好該擺在哪一邊。 # speaker:旁白}
 妳沒有妹妹的答案，雨航也還沒有自己的。可以先說出妳在那些地址看見了什麼，再讓他自己決定如何收信。
 * [提醒他，妹妹的計畫原本就容許改動]
     ~ promise_frame = "open"
@@ -354,6 +434,7 @@ VAR ending_kind = ""
 雨航把自己的名字寫在簽收欄，先請了一週假。他知道租約已過期，仍打電話約看那間空店面，想知道現在的自己喜不喜歡它。 # speaker:旁白
 他在妹妹畫的書車旁加上一張市集小桌。「第一步也許不用是一間店。」
 他在休假單上寫的是自己的名字與日期，沒有把妹妹的名字填成理由。同事問他要去哪裡，他說先去看幾本書，然後看看自己想留下來還是繼續走。
+{asked_father:代理人欄裡，他寫下同事的名字。父親當年那句「誰來休假」，他終於替自己答了一次。 # speaker:旁白}
 -> today_afterword
 === today_afterword ===
 書籤後記：假期裡，雨航整理出妹妹留下的書，帶幾本去市集。他還沒有決定要開哪一家店，卻開始和人聊每本書從哪裡來。 # scene:counter # speaker:旁白 # section:afterword
@@ -378,6 +459,7 @@ VAR ending_kind = ""
 === past_afterword ===
 書籤後記：他請了三天假，搭車到海邊。回來後仍送信，也開始學攝影；那不是妹妹替他選的路，是他自己想走的。 # scene:counter # speaker:旁白 # section:afterword
 紀念盒放在家裡，不再跟著郵袋每晚出門。
+{asked_home:他在新信的寄件人欄寫下自己住處的街名與門牌。那個地址他背了七年，今天第一次寫給自己。 # speaker:旁白}
 ~ ending_kind = "past"
 -> chapter_coda
 === end_unknown ===
@@ -388,6 +470,7 @@ VAR ending_kind = ""
 === unknown_afterword ===
 書籤後記：此後每晚，那封藍色信仍出現在郵袋最底下。雨航知道它在，卻一次次先送完別人的信。 # scene:counter # speaker:旁白 # section:afterword
 有一天他也許會停下；今晚他仍把自己的地址留白。
+{looked_bag:郵袋底層那封信依舊沒有套上防水袋。雨航每次摸到它，都會想起有人問過，那場雨是哪一天。 # speaker:旁白}
 ~ ending_kind = "unknown"
 -> chapter_coda
 === chapter_coda ===
