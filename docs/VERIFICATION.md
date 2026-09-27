@@ -512,3 +512,4 @@
 - 遊戲的 React / Remotion / Three.js 製片依賴未納入 runtime；PWA 預快取約 3.91 MiB。
 - 更新的是注水一段，其他五段保持原版。新版遊戲素材：`public/video/tea/pour-remotion-v1.*`；驗證明細：`output/remotion/pour-osmanthus-validation.json`。
 - 第六夜新版 `haiming-chapter-13` 加入開場觀察與中途迷失方向的三種回應，回響出現在白色房間、拼信前及四種後記。單元測試核對新版與舊版路線、三種回應各自的後續、略過時不出現；桌機／手機 Chromium 的第六夜、終章接續、替代結局、素材包與觸控尺寸共 64 項通過。
+- 第三夜新版 `ruoyin-chapter-10` 加入開場五項可問的觀察，回響出現在最後一小節與四種後記。單元測試核對新版與舊版路線、回響出現與略過時不出現；桌機／手機 Chromium 的第三、四夜流程、替代結局、素材包與觸控尺寸共 52 項通過。

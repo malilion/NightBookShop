@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-9.json",
+  "public/story/compiled/ruoyin-chapter-10.json",
   "utf8",
 );
+const chapterNine = readFileSync("public/story/compiled/ruoyin-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/ruoyin-chapter-7.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/ruoyin-chapter-8.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/ruoyin-chapter-5.json", "utf8");
@@ -148,6 +149,20 @@ describe("Ruoyin third night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-eight %s save route", (target) => {
     expect(play(target, true, chapterEight).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-nine %s save route", (target) => {
+    expect(play(target, true, chapterNine).story.frame.endingId).toBe(target);
+  });
+  it("lets the opening details return at the last bar and in the afterwords", () => {
+    const one = play("ruoyin-one").texts.join(" ");
+    for (const line of ["座位圖一格一格變灰", "我前一晚自己改了三次編曲", "每次寫到那裡，我都會回頭去改第一個音", "那片空白第一次有了要落筆的地方", "寫著一間小咖啡館的名字"])
+      expect(one).toContain(line);
+    expect(play("ruoyin-stage").texts.join(" ")).toContain("後來便忘了數");
+    expect(play("ruoyin-score").texts.join(" ")).toContain("先把那段故事記進簿子");
+    expect(play("ruoyin-echo").texts.join(" ")).toContain("一直在等對方拉錯");
+    const quiet = play("ruoyin-stage", true, compiled, { excludedChoices: ["演出頁面", "演出標籤", "最後那一大片空白"] }).texts.join(" ");
+    expect(quiet).not.toContain("後來便忘了數");
+    expect(quiet).not.toContain("那片空白第一次有了要落筆的地方");
   });
   it("changes all four memory recaps according to inspected evidence", () => {
     const explored = play("ruoyin-stage").texts.join(" ");

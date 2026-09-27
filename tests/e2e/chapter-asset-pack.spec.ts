@@ -99,7 +99,7 @@ test("third-night memories load from the chapter pack offline", async ({ page, c
   await unlock(page, ["moonlight", "boyan-rest"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第三夜" }).click();
-  await expectStoryCached(page, "ruoyin-chapter-9");
+  await expectStoryCached(page, "ruoyin-chapter-10");
   await expectImagesCached(page, [
     "/images/characters/ruoyin.webp",
     ...["practice-room", "backstage", "banquet", "grandstage"].flatMap((scene) => [

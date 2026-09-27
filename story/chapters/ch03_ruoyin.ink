@@ -28,6 +28,10 @@ VAR final_bar_sincere = false
 VAR score_rain = false
 VAR score_person = false
 VAR score_rest = false
+VAR asked_ticket = false
+VAR asked_phone = false
+VAR asked_labels = false
+VAR asked_blank_bar = false
 VAR ending_kind = ""
 -> arrival
 
@@ -59,12 +63,35 @@ VAR ending_kind = ""
 === observe ===
 她摘下琴盒的舊貼紙。底下露出音樂院的徽章，旁邊壓著一張泛黃的比賽票根。左手拇指不自覺地按著虎口。 # scene:ruoyin # speaker:旁白 # section:listening
 手機裡收藏了季晴近期演出的頁面，購票欄卻一直空著。季晴曾是她在音樂院最親近的朋友，現在每張海報上都有她的名字。
-* [問她左手是否還痛]
+-> observe_hub
+=== observe_hub ===
+若音把琴弓橫放在膝上，等妳開口，又像希望妳什麼都別問。 # speaker:旁白
+* {not read_injury} [問她左手是否還痛]
     ~ read_injury = true
     她說天冷時會麻，長時間練琴也會痛。「醫師說得很清楚。我那時只聽見不能照原來的方式練。」 # clue:injury # speaker:沈若音
-    -> tea_start
-* [問她那張舊票是誰的]
+    -> observe_hub
+* {not asked_ticket} [問她那張舊票是誰的]
+    ~ asked_ticket = true
     她把票翻過來。背面有季晴的字：「等我們一起站上那個舞台。」她說兩人後來真的去過，只是走向了不同的出口。 # clue:concert-ticket # speaker:沈若音
+    -> observe_hub
+* {not asked_phone} [問她收藏了演出頁面，為什麼沒買票]
+    ~ asked_phone = true
+    若音把手機螢幕朝下蓋在琴盒上。「每一場我都收藏了。開賣那天我會設鬧鐘，鬧鐘響了，我就看著座位圖一格一格變灰。」 # speaker:沈若音
+    「我不是買不起。我是怕坐在台下，聽到一半會開始數她換弓的位置，數我會在哪裡拉錯。」她笑了一下，「聽別人的音樂會聽成一場考試，很累。」
+    -> observe_hub
+* {not asked_labels} [問她琴盒上那些演出標籤]
+    ~ asked_labels = true
+    ~ trust += 1
+    若音用指甲沿著一張標籤的邊緣刮了刮，沒有撕下來。「婚禮、尾牙、飯店大廳、新店開幕。一年大概一百多場。」 # speaker:沈若音
+    她說同學聽到會替她惋惜，她就先開玩笑，說自己是全城最會拉〈卡農〉的人。「可是有些場子我很喜歡。有一對新人請我拉他們阿嬤以前唱的歌，我前一晚自己改了三次編曲。」
+    她說完停住，像不確定這件事能不能算數。 # speaker:旁白
+    -> observe_hub
+* {not asked_blank_bar} [看看她樂譜最後那一大片空白]
+    ~ asked_blank_bar = true
+    未完成的樂譜攤在琴盒蓋上。前面的音符密密麻麻，擦了又寫；最後一小節卻乾乾淨淨，連一個鉛筆點都沒有。 # speaker:旁白
+    「那一格我從來沒寫過。」若音說，「每次寫到那裡，我都會回頭去改第一個音。好像只要開頭夠好，結尾就會自己出現。」 # speaker:沈若音
+    -> observe_hub
+* [先替她泡一杯茶]
     -> tea_start
 === tea_start ===
 妳替她找了一張不會碰到琴弓的桌子。茶架上有薰衣草伯爵、桂花烏龍、蜜香紅茶，也有別的茶可以試。 # scene:counter # speaker:旁白 # section:tea
@@ -388,6 +415,7 @@ VAR ending_kind = ""
     -> final_bar_choice
 === final_bar_choice ===
 若音把譜紙轉向自己。「這三種寫法都可以是我的。我要知道的是，今晚哪一種最貼近我說過的話。」 # speaker:沈若音 # section:finalbar
+{asked_blank_bar:她這次沒有回頭去改第一個音。鉛筆直接停在最後那一格上，那片空白第一次有了要落筆的地方。 # speaker:旁白}
 * [回到最初的四個音]
     ~ final_bar = "return"
     ~ final_bar_sincere = heard_rain || score_rain
@@ -434,6 +462,7 @@ VAR ending_kind = ""
 === one_afterword ===
 書籤後記：若音後來偶爾在小場地演出。她仍會想起舊比賽，也仍須照顧手的狀況，但不再要求每一場都回答她的人生是否成功。 # scene:counter # speaker:旁白 # section:afterword
 那首曲子有了名字，叫〈三分鐘〉。樂譜上保留了雨聲的空拍，演出時她會先等一下，再落弓。
+{asked_labels:琴盒上的商演標籤她一張也沒撕。最新一張貼在最上面，寫著一間小咖啡館的名字。 # speaker:旁白}
 ~ ending_kind = "one"
 -> chapter_coda
 === end_stage ===
@@ -443,6 +472,7 @@ VAR ending_kind = ""
 === stage_afterword ===
 書籤後記：季晴回了一張演出邀請。若音坐在觀眾席，聽完整場，謝幕後兩人才在走廊裡見面。 # scene:counter # speaker:旁白 # section:afterword
 她們沒有把那次爭吵說成誤會，只是第一次聽彼此把話講完。
+{asked_phone:那張票是她自己在開賣那天買的。鬧鐘響了，她沒有只看著座位圖變灰。演出中她數過一次季晴換弓的位置，後來便忘了數。 # speaker:旁白}
 ~ ending_kind = "stage"
 -> chapter_coda
 === end_score ===
@@ -452,6 +482,7 @@ VAR ending_kind = ""
 === score_afterword ===
 書籤後記：有人的信只有一句話，有人寫滿十頁。若音替他們寫短短的旋律，也把自己寫不出的日子留在簿子裡。 # scene:counter # speaker:旁白 # section:afterword
 簿子漸漸厚了，沒有一頁標著「重新成為獨奏家」。
+{asked_labels:她仍接婚禮和尾牙。遇到有人請她拉家人以前唱的歌，她會先把那段故事記進簿子，再動手改編曲。 # speaker:旁白}
 ~ ending_kind = "score"
 -> chapter_coda
 === end_echo ===
@@ -461,6 +492,7 @@ VAR ending_kind = ""
 === echo_afterword ===
 書籤後記：她帶傷參賽，取得名次。海報重新貼上她的名字，某個雨夜，她又把那首未完成曲拉到最後一小節。 # scene:counter # speaker:旁白 # section:afterword
 終止線後面仍是開頭的四個音。掌聲響起，她卻想不起自己上一次沒有痛地拉琴，是什麼時候。
+{asked_phone:季晴來聽了那場比賽。若音在台上數著台下的換弓，數到最後，發現自己一直在等對方拉錯。 # speaker:旁白}
 ~ ending_kind = "echo"
 -> chapter_coda
 === chapter_coda ===
