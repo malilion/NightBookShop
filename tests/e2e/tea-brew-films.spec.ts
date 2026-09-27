@@ -121,6 +121,32 @@ test("reduced motion shows the same tea's served cup, still tinted", async ({ pa
   await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
 });
 
+// Each garnish the story counts has its own film; its still shows it on the saucer.
+for (const { tea, garnish } of [
+  { tea: "hojicha", garnish: "apple" },
+  { tea: "hojicha", garnish: "caramel" },
+  { tea: "mint", garnish: "lemon" },
+  { tea: "chamomile", garnish: "honey" },
+] as const) {
+  test(`serving ${tea} with ${garnish} selects its garnish film and still`, async ({ page }) => {
+    const { snapshot } = atTea({ teaId: tea, garnish });
+    const completion = await serve(page, snapshot, true);
+    await expect(completion.locator(".tea-film")).toHaveAttribute("data-garnish", garnish);
+    await expect(completion.locator(".tea-film img")).toHaveAttribute("src", `/video/tea/brew-${tea}-${garnish}-v1-still.webp`);
+    await expect(completion.locator(".film-liquor-layer")).toHaveAttribute("data-frame", "299");
+    await completion.getByRole("button", { name: "繼續故事", exact: true }).click();
+    await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
+  });
+}
+
+test("a garnish that a blend outweighs plays the leading tea's own film", async ({ page }) => {
+  // Lemon in mint, but two spoons of black tea lead the cup: the story drops the lemon.
+  const { snapshot } = atTea({ teaId: "mint", leaves: 1, garnish: "lemon", blendTeaId: "black", blendLeaves: 2 });
+  const completion = await serve(page, snapshot, true);
+  await expect(completion.locator(".tea-film")).toHaveAttribute("data-garnish", "none");
+  await expect(completion.locator(".tea-film img")).toHaveAttribute("src", "/video/tea/brew-black-v1-still.webp");
+});
+
 test("a film that cannot load never holds the story back", async ({ page }) => {
   await page.route("**/video/**", (route) => route.abort());
   const { snapshot } = atTea({ teaId: "jasmine", temperature: 80, seconds: 30 });

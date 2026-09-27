@@ -16,12 +16,16 @@ export type Tea =
   | "chamomile"
   | "lavender"
   | "hojicha";
+export type Garnish = "none" | "apple" | "caramel" | "lemon" | "honey";
 export function PourFilm({
   tea = "osmanthus",
   clip = "pour",
+  garnish = "none",
 }: {
   tea?: Tea;
   clip?: "pour" | "complete" | "brew";
+  /** Brew films only: what goes into the pot and onto the saucer. */
+  garnish?: Garnish;
 }) {
   const frame = useCurrentFrame();
   const { width, height, durationInFrames } = useVideoConfig();
@@ -37,9 +41,9 @@ export function PourFilm({
     };
   }, [width, height]);
   useLayoutEffect(() => {
-    scene.current?.setFrame(clip, frame / (durationInFrames - 1), tea);
+    scene.current?.setFrame(clip, frame / (durationInFrames - 1), tea, garnish);
     continueRender(handle);
-  }, [frame, durationInFrames, tea, clip, handle]);
+  }, [frame, durationInFrames, tea, clip, garnish, handle]);
   return (
     <AbsoluteFill style={{ background: "#171c29" }}>
       <div ref={mount} style={{ width, height }} />

@@ -1,7 +1,9 @@
 // The per-tea brew film: Lin Cheng's hands scoop this tea from its caddy, the
 // water opens it in the pot, she pours it into the cup and sets the cup down
 // in front of the visitor with both hands. Four shots cut on action; every
-// frame is a pure function of (t, tea) so Remotion can render out of order.
+// frame is a pure function of (t, tea, garnish) so Remotion can render out of
+// order. A garnish drops into the pot while the water opens the leaves, and
+// another waits on the saucer when the cup is served.
 import * as THREE from "three";
 import { createHand, anchorPoint, handPoses } from "./hands.js";
 import { createTeaForms, noise } from "./tea-forms.js";
@@ -235,12 +237,12 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       }
     return points.at(-1)[0];
   };
+  // The cup lathe's own inner wall: a wider disc near the foot would show
+  // its edge through the wall.
   const cupInside = [
     [0.23, 0.15],
-    [0.3, 0.2],
     [0.335, 0.28],
-    [0.35, 0.42],
-    [0.363, 0.54],
+    [0.365, 0.56],
   ];
   const potInside = [
     [0.4, 0.16],
@@ -441,6 +443,149 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     return entry;
   }
 
+  // -------------------------------------------------------------- garnishes
+  // Built on first use. The saucer's piece stays low beside the cup, below
+  // its mouth, so it never covers the tea and the shared liquor mask holds.
+  const honeyThread = createStream(
+    new THREE.MeshPhysicalMaterial({
+      color: "#f0a830",
+      roughness: 0.1,
+      clearcoat: 1,
+      emissive: "#7a4208",
+      emissiveIntensity: 0.35,
+      transparent: true,
+      opacity: 0.94,
+    }),
+    18,
+  );
+  const garnishes = new Map();
+  function garnishFor(kind) {
+    if (garnishes.has(kind)) return garnishes.get(kind);
+    // The dipper held over the pot has no bead: its honey runs as a thread.
+    const inPot = kind === "honey" ? forms.honeyDipper(false) : forms.garnish(kind);
+    pot.add(inPot);
+    const onSaucer = forms.garnish(kind);
+    cup.add(onSaucer);
+    const ripples = Array.from({ length: 3 }, () => {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(1, 0.025, 6, 48),
+        new THREE.MeshBasicMaterial({ color: "#fff1d0", transparent: true, opacity: 0, depthWrite: false }),
+      );
+      ring.rotation.x = -Math.PI / 2;
+      pot.add(ring);
+      return ring;
+    });
+    // Honey spreads where the thread meets the surface.
+    const pool = new THREE.Mesh(new THREE.CircleGeometry(1, 40), forms.honeyMaterial().clone());
+    pool.material.transparent = true;
+    pool.material.depthWrite = false;
+    pool.rotation.x = -Math.PI / 2;
+    pot.add(pool);
+    const entry = { kind, inPot, onSaucer, ripples, pool };
+    garnishes.set(kind, entry);
+    hideGarnishes();
+    return entry;
+  }
+  function hideGarnishes() {
+    honeyThread.update(V(0, 0, 0), V(0, -1, 0), 0, 0, 0, 0);
+    for (const entry of garnishes.values()) {
+      // The caramel's salt melts in the pot; bring it back for the next frame.
+      entry.inPot.traverse((child) => (child.visible = true));
+      entry.inPot.visible = entry.onSaucer.visible = entry.pool.visible = false;
+      entry.ripples.forEach((ring) => (ring.visible = false));
+      entry.inPot.scale.set(1, 1, 1);
+      entry.inPot.rotation.set(0, 0, 0);
+    }
+  }
+  // Rest the garnish on the saucer's front-left, clear of the handle and of
+  // the fingers on the far rim: slices lean on the cup, the caramel sits and
+  // the dipper lies across the rim.
+  function placeOnSaucer(kind) {
+    const piece = garnishFor(kind).onSaucer;
+    piece.visible = true;
+    const phi = -0.8;
+    const out = V(Math.sin(phi), 0, Math.cos(phi));
+    if (kind === "apple" || kind === "lemon") {
+      piece.position.copy(out.clone().multiplyScalar(0.46)).setY(0.18);
+      piece.rotation.set(0, 0, 0);
+      // Tip the face up and out, its top edge against the cup.
+      piece.rotateY(phi);
+      piece.rotateX(0.95);
+      piece.rotateY(kind === "apple" ? 0.6 : 0.2);
+    } else if (kind === "caramel") {
+      piece.position.copy(out.clone().multiplyScalar(0.5)).setY(0.071 + 0.052);
+      piece.rotation.set(0, 0.5, 0);
+    } else {
+      // Head on the saucer, the handle over the rim toward the visitor.
+      piece.position.copy(out.clone().multiplyScalar(0.5)).setY(0.108);
+      piece.rotation.set(0, phi - Math.PI / 2 + 0.3, 0);
+    }
+  }
+  // The pot's garnish in the infuse shot: a slice or the caramel drops in
+  // once the water is flowing; honey threads down from a dipper at the end.
+  function garnishInPot(kind, t, level, swirl) {
+    const g = garnishFor(kind);
+    if (kind === "honey") {
+      const arrive = smooth(span(t, 0.42, 0.56));
+      const head = V(0.2, level + 0.34 + (1 - arrive) * 0.9, -0.1).add(V(0.5, 0, -0.35).multiplyScalar(1 - arrive));
+      const dipper = g.inPot;
+      dipper.visible = true;
+      // Held head down, the handle rising up and back out of frame.
+      dipper.position.copy(head);
+      dipper.rotation.set(0, 0, 0);
+      dipper.rotateY(0.6);
+      dipper.rotateZ(1.2);
+      dipper.rotateX(t * 5);
+      dipper.updateMatrix();
+      const tip = V(-0.13, 0, 0).applyMatrix4(dipper.matrix).add(pot.position);
+      const flow = span(t, 0.54, 0.62);
+      const landing = honeyThread.update(tip, V(0, -1, 0), level + pot.position.y + 0.004, t * 0.2, 0.007, flow);
+      if (landing) {
+        const spread = smooth(span(t, 0.58, 1));
+        g.pool.visible = spread > 0;
+        g.pool.position.set(landing.x - pot.position.x, level + 0.003, landing.z - pot.position.z);
+        g.pool.scale.setScalar(0.012 + spread * 0.075);
+        g.pool.material.opacity = 0.85 - spread * 0.3;
+      }
+      return;
+    }
+    const drop = 0.3,
+      land = 0.37;
+    if (t < drop) return;
+    const piece = g.inPot;
+    piece.visible = true;
+    const a = 0.5 + swirl * 0.3,
+      rr = 0.2;
+    const x = Math.cos(a) * rr,
+      z = -Math.sin(a) * rr;
+    const since = t - land;
+    if (since < 0) {
+      // Falling in from above the frame, tumbling a little.
+      const s = span(t, drop, land);
+      piece.position.set(x, level + 0.7 * (1 - s * s), z);
+      piece.rotation.set(0.9 * (1 - s), a, 0.5 * (1 - s));
+    } else if (kind === "caramel") {
+      // Sinks slowly, melting into the tea as it goes.
+      const sink = smooth(since / 0.6);
+      piece.position.set(x, mix(level - 0.02, level - 0.07, sink), z);
+      piece.rotation.set(0, a + since * 0.6, 0);
+      piece.scale.setScalar(mix(1, 0.38, smooth(span(t, 0.45, 1))));
+      piece.getObjectByName("salt").visible = false;
+    } else {
+      // Bobs, settles and floats with the swirling leaves.
+      const settle = Math.exp(-since * 9);
+      piece.position.set(x, level + 0.004 + Math.sin(since * 40) * 0.012 * settle, z);
+      piece.rotation.set(Math.sin(since * 34) * 0.25 * settle, a * 1.5, Math.cos(since * 30) * 0.18 * settle);
+    }
+    g.ripples.forEach((ring, i) => {
+      const p = (since - i * 0.05) / 0.35;
+      ring.visible = p > 0 && p < 1;
+      ring.position.set(x, level + 0.004, z);
+      ring.scale.setScalar(0.06 + p * 0.3);
+      ring.material.opacity = (1 - p) * 0.5;
+    });
+  }
+
   // ---------------------------------------------------------------- hands
   const handScale = 0.92;
   const right = createHand(root, { side: "right", scale: handScale });
@@ -474,6 +619,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     smoke.forEach((s) => (s.visible = false));
     right.visible = false;
     left.visible = false;
+    hideGarnishes();
     accent.intensity = 0;
     rim.intensity = 0;
     for (const entry of varieties.values())
@@ -618,7 +764,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
   }
 
   // Shot 2 — 注水: water opens the leaves and the colour blooms.
-  function infuseShot(t, tea) {
+  function infuseShot(t, tea, garnish) {
     const v = showVariety(tea);
     pot.visible = true;
     pot.position.set(0, 0.09, 0);
@@ -670,6 +816,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
       ring.scale.setScalar(0.25 + p * 1.6);
       ring.material.opacity = (1 - p) * 0.35 * flow;
     });
+    if (garnish !== "none") garnishInPot(garnish, t, level, swirl);
     riseSteam(V(0, level + 0.09, 0), t, smooth(span(t, 0.2, 0.6)), 0.2, 1.1);
     accent.color.set(v.spec.accent);
     accent.position.set(0.5, 1.6, 0.6);
@@ -679,7 +826,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
   // Shot 3 — 倒茶: right hand lifts the pot, left index keeps the lid.
   const potRest = V(-0.62, 0.09, 0.06);
   const cupSpot = V(0.72, 0.085, 0.06);
-  function pourShot(t, tea) {
+  function pourShot(t, tea, garnish) {
     const v = showVariety(tea);
     pot.visible = lid.visible = cup.visible = dish.visible = jar.visible = true;
     capOnJar.visible = true;
@@ -709,6 +856,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     lid.position.set(0, 0.79, 0);
     pot.add(lid);
     cup.position.copy(cupSpot);
+    if (garnish !== "none") placeOnSaucer(garnish);
     dish.position.set(1.52, 0.055, -0.78);
     jar.position.set(-1.55, 0.08, -1.25);
     jar.rotation.y = 0.35;
@@ -762,7 +910,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
   }
 
   // Shot 4 — 奉茶: both hands set the cup down in front of the visitor.
-  function serveShot(t, tea) {
+  function serveShot(t, tea, garnish) {
     const v = showVariety(tea);
     cup.visible = dish.visible = jar.visible = true;
     capOnJar.visible = true;
@@ -772,6 +920,7 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     const cupAt = V(0, 0.085, mix(-0.7, 0.3, carry));
     cup.position.copy(cupAt);
     cup.rotation.y = mix(0.3, 0, carry);
+    if (garnish !== "none") placeOnSaucer(garnish);
     dish.position.set(1.42, 0.055, 0.18);
     jar.position.set(-2.05, 0.08, -0.35);
     jar.rotation.y = 0.5;
@@ -906,22 +1055,22 @@ export function createBrewFilm({ scene, camera, props, materials }) {
     const shot = brewFilm.shots.find((s) => frame < s.to) ?? brewFilm.shots.at(-1);
     return { shot, local: (frame - shot.from) / (shot.to - shot.from - 1) };
   };
-  function setFrame(t, tea = "osmanthus") {
+  function setFrame(t, tea = "osmanthus", garnish = "none") {
     hideAll();
     resetObjects();
     const { shot, local } = shotAt(t);
     if (shot.id === "scoop") scoopShot(local, tea);
-    else if (shot.id === "infuse") infuseShot(local, tea);
-    else if (shot.id === "pour") pourShot(local, tea);
-    else serveShot(local, tea);
+    else if (shot.id === "infuse") infuseShot(local, tea, garnish);
+    else if (shot.id === "pour") pourShot(local, tea, garnish);
+    else serveShot(local, tea, garnish);
     return shot.id;
   }
   // The liquor-only pass: everything else only writes depth, so hands and the
   // stream hide the tea exactly where they cover it.
-  function renderLiquorMask(renderer, t, tea = "osmanthus") {
+  function renderLiquorMask(renderer, t, tea = "osmanthus", garnish = "none") {
     // No cup of tea on screen: nothing to tint, so skip the render.
     if (!["pour", "serve"].includes(shotAt(t).shot.id)) return null;
-    setFrame(t, tea);
+    setFrame(t, tea, garnish);
     if (!cup.visible || !cupLiquor.visible) return null;
     const states = new Map(),
       sprites = [];

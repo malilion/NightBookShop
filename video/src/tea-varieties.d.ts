@@ -20,3 +20,8 @@ export declare const brewFilm: {
   frames: number;
   shots: { id: string; label: string; from: number; to: number }[];
 };
+export type BrewFilmGarnish = "apple" | "caramel" | "lemon" | "honey";
+export declare const brewFilmGarnishes: Record<
+  BrewFilmGarnish,
+  { name: string; teas: ("osmanthus" | "puer" | "mint" | "jasmine" | "black" | "chamomile" | "lavender" | "hojicha")[] }
+>;

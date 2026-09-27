@@ -22,7 +22,8 @@ function Root() {
         durationInFrames={180}
         defaultProps={{ tea: "osmanthus" as const, clip: "complete" as const }}
       />
-      {/* Lin Cheng's hands brew one tea: scoop, infuse, pour and serve. */}
+      {/* Lin Cheng's hands brew one tea: scoop, infuse, pour and serve,
+          with an optional garnish (see brewFilmGarnishes). */}
       <Composition
         id="TeaBrew"
         component={PourFilm}
@@ -30,7 +31,7 @@ function Root() {
         height={720}
         fps={brewFilm.fps}
         durationInFrames={brewFilm.frames}
-        defaultProps={{ tea: "osmanthus" as const, clip: "brew" as const }}
+        defaultProps={{ tea: "osmanthus" as const, clip: "brew" as const, garnish: "none" as const }}
       />
     </>
   );

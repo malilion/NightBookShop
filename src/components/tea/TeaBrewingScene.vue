@@ -48,6 +48,8 @@ const scored = computed(() => scoreTea(draft, game.chapterId));
 const quality = computed(() => scored.value.quality);
 // The brew film follows the tea the story answers to: the larger share.
 const filmTea = computed(() => scored.value.teaId);
+// Its garnish too: one added to a tea that a blend outweighs is not shown.
+const filmGarnish = computed(() => scored.value.garnish ?? "none");
 function flush() {
   if (game.frame?.mode === "tea") game.updateTea({ ...draft });
 }
@@ -306,6 +308,7 @@ function restart() {
       v-if="showCompletion"
       :tea-name="teaName"
       :tea-id="filmTea"
+      :garnish="filmGarnish"
       :liquor-color="infusion.color"
       :recipient-label="recipientLabel"
       @done="completeTea"

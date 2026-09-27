@@ -23,6 +23,7 @@ npm run video:render:complete -- --publish
 # 各茶種製茶影片：先看每段中間格，再輸出八支並更新遊戲素材
 npm run video:render:brew -- --tea=jasmine --preview
 npm run video:render:brew -- --tea=all --publish
+npm run video:render:brew -- --garnish=all --publish
 ```
 
 Studio 預設 http://localhost:3001 。輸出都位於根目錄 `output/remotion/`。`--preview` 只輸出第 0、90、179 格；正式輸出由 Remotion `renderMedia` 製作 H.264，再以 FFmpeg 轉為 VP9 WebM。海報來自第 0 格。
@@ -43,9 +44,10 @@ Studio 預設 http://localhost:3001 。輸出都位於根目錄 `output/remotion
 - `src/tea-varieties.js`：八種茶的釉色、標籤、乾茶葉形與配色、濕葉或花、側碟、茶香與補光；純資料，遊戲測試會核對茶名與湯色。
 - `src/tea-forms.js`：捲曲球狀烏龍、茉莉龍珠、普洱茶餅碎片、紅茶條索、乾薄荷、洋甘菊花頭、焙茶葉與茶梗、薰衣草花苞、桂花，以及桂花枝、薄荷枝、蜂蜜棒等側碟材料。固定種子；遊戲的茶具素材也共用這些形態。
 - `src/hands.js`：林澄的雙手。手掌、掌骨、十五節指骨、拇指魚際、指節與指腹組成有號距離場，每格在手的座標系內以窄頻 surface nets 重建並投影回表面，手移動時表面不會閃爍。指甲另建曲面；深藍大衣袖、翻邊與米白襯衫袖口沿前臂生成。皮膚以次表面散射近似（光線越過明暗界線，紅色最遠）與手部座標系的細微凹凸著色。左手是右手的鏡像。
-- `src/brew-film.js`：四段鏡頭與動作。茶具複製自 `tea-set.js` 並只保留器身；每格只由 `(t, tea)` 決定，可亂序渲染。
+- `src/brew-film.js`：四段鏡頭與動作。茶具複製自 `tea-set.js` 並只保留器身；每格只由 `(t, tea, garnish)` 決定，可亂序渲染。有配料時，注水段讓蘋果乾、檸檬片或海鹽焦糖落進壺中（蜂蜜改由蜂蜜棒垂下細流），倒茶與奉茶段在杯碟左前方放另一份，高度低於杯口。
+- 配料影片：`src/tea-varieties.js` 的 `brewFilmGarnishes` 列出故事提供的四種組合（焙茶＋蘋果乾、焙茶＋海鹽焦糖、薄荷＋檸檬、洋甘菊＋蜂蜜），`src/tea-forms.js` 的 `garnish()` 建出蘋果乾圈、檸檬片、海鹽焦糖與蜂蜜棒；切片的切面以畫布繪製。遊戲的 `src/data/teaFilms.ts` 保留同一份清單，由單元測試核對。
 
-倒茶與奉茶兩段在八種茶完全相同，所以共用一張湯色遮罩：`scripts/render-tea-liquor.mjs --clip=brew` 逐格輸出半解析度遮罩並裝箱成 `public/video/tea/brew-liquor-v1.webp` 與 `.json`，抽樣比對八種茶的遮罩像素完全一致，不一致即中止。Remotion 以兩頁並行渲染，輸出保留為 `output/remotion/brew-<茶種>-master.mp4`。繁忙的電腦偶爾會讓瀏覽器以錯誤的緩衝大小擷取一格，畫面變成拼貼卻仍能正常解碼；發布前會逐格比對相鄰影格，鏡頭內變化遠超正常動作（刻意的三個剪接點除外）即自動重新渲染，最多三次。MP4 與 WebM 都由母片編碼，超過單檔 2 MiB 時逐步提高 CRF 重編。每支影片檢查 1280×720、30 fps、10 秒並全片解碼，第 0 格海報與最後一格的奉茶靜態畫面 `-still.webp` 也直接取自母片。只想重新編碼既有母片時加 `--encode-only`；`--tea` 可用逗號列出多種茶。
+倒茶與奉茶兩段在八種茶完全相同，所以共用一張湯色遮罩：`scripts/render-tea-liquor.mjs --clip=brew` 逐格輸出半解析度遮罩並裝箱成 `public/video/tea/brew-liquor-v1.webp` 與 `.json`，抽樣比對八種茶與四支配料影片的遮罩像素完全一致，不一致即中止。Remotion 以兩頁並行渲染，輸出保留為 `output/remotion/brew-<茶種>-master.mp4`。繁忙的電腦偶爾會讓瀏覽器以錯誤的緩衝大小擷取一格，畫面變成拼貼卻仍能正常解碼；發布前會逐格比對相鄰影格，鏡頭內變化遠超正常動作（刻意的三個剪接點除外）即自動重新渲染，最多三次。MP4 與 WebM 都由母片編碼，超過單檔 2 MiB 時逐步提高 CRF 重編。每支影片檢查 1280×720、30 fps、10 秒並全片解碼，第 0 格海報與最後一格的奉茶靜態畫面 `-still.webp` 也直接取自母片。只想重新編碼既有母片時加 `--encode-only`；`--tea` 可用逗號列出多種茶。配料影片用 `--garnish=<配料|all>`（可再以 `--tea` 篩選），輸出 `brew-<茶種>-<配料>`；`--frames=0,108,299` 可只預覽指定影格。
 
 ## 結構
 

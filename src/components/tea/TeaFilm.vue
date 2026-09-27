@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import LiquorTint from "./LiquorTint.vue";
 import completeLiquor from "../../data/teaLiquorFrames.json";
-import { brewFilmAsset, brewFilmShots, loadBrewLiquor, type LiquorFrames } from "../../data/teaFilms";
+import { brewFilmAsset, brewFilmShots, loadBrewLiquor, type LiquorFrames, type TeaGarnish } from "../../data/teaFilms";
 import { useSettingsStore } from "../../stores/settingsStore";
 import type { TeaId } from "../../types/game";
 const props = withDefaults(
@@ -13,8 +13,10 @@ const props = withDefaults(
     loop?: boolean;
     /** The brew film is one per tea: Lin Cheng's hands brewing that tea. */
     tea?: TeaId;
+    /** A garnish in the cup picks that tea's garnish film, when there is one. */
+    garnish?: TeaGarnish;
   }>(),
-  { loop: undefined, progress: undefined, liquorColor: undefined, tea: "osmanthus" },
+  { loop: undefined, progress: undefined, liquorColor: undefined, tea: "osmanthus", garnish: "none" },
 );
 const emit = defineEmits<{ ended: [] }>();
 const settings = useSettingsStore();
@@ -75,7 +77,7 @@ const looping = computed(
 );
 const asset = computed(() =>
   props.clip === "brew"
-    ? brewFilmAsset(props.tea)
+    ? brewFilmAsset(props.tea, props.garnish)
     : ["pour", "complete"].includes(props.clip)
       ? `${props.clip}-remotion-v1`
       : props.clip,
@@ -193,7 +195,13 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div class="tea-film" :data-clip="clip" :data-tea="clip === 'brew' ? tea : undefined" :data-ready="ready">
+  <div
+    class="tea-film"
+    :data-clip="clip"
+    :data-tea="clip === 'brew' ? tea : undefined"
+    :data-garnish="clip === 'brew' ? garnish : undefined"
+    :data-ready="ready"
+  >
     <img
       v-if="staticMode"
       :src="still"

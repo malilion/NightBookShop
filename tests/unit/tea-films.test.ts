@@ -3,9 +3,9 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { teaLiquorColors, teas } from "../../src/data/catalog";
 import completeLiquor from "../../src/data/teaLiquorFrames.json";
-import { brewFilmPath, brewFilmShots, type LiquorFrames } from "../../src/data/teaFilms";
+import { brewFilmAsset, brewFilmGarnishes, brewFilmPath, brewFilmShots, type LiquorFrames } from "../../src/data/teaFilms";
 import type { TeaId } from "../../src/types/game";
-import { brewFilm, brewFilmTeas } from "../../video/src/tea-varieties.js";
+import { brewFilm, brewFilmGarnishes as filmGarnishes, brewFilmTeas } from "../../video/src/tea-varieties.js";
 
 const teaIds = Object.keys(teas) as TeaId[];
 const publicFile = (url: string) => new URL(`../../public${url}`, import.meta.url);
@@ -61,6 +61,33 @@ describe("per-tea brew films", () => {
       // Every film fits the offline cache's per-file limit.
       expect(statSync(file).size).toBeLessThanOrEqual(2 * 1024 * 1024);
     }
+  });
+
+  it("keeps the game's garnish films in step with the authored ones", () => {
+    expect(Object.fromEntries(Object.entries(filmGarnishes).map(([id, { teas }]) => [id, teas]))).toEqual(brewFilmGarnishes);
+  });
+
+  it.each([
+    ["hojicha", "apple"],
+    ["hojicha", "caramel"],
+    ["mint", "lemon"],
+    ["chamomile", "honey"],
+  ] as const)("publishes a %s film with its %s garnish", (tea, garnish) => {
+    const asset = brewFilmAsset(tea, garnish);
+    expect(asset).toBe(`brew-${tea}-${garnish}-v1`);
+    for (const suffix of [".mp4", ".webm", "-poster.webp", "-still.webp"]) {
+      const file = publicFile(`/video/tea/${asset}${suffix}`);
+      expect(existsSync(file), `${asset}${suffix}`).toBe(true);
+      expect(statSync(file).size).toBeLessThanOrEqual(2 * 1024 * 1024);
+    }
+  });
+
+  it("uses the base film for combinations without an authored garnish scene", () => {
+    expect(brewFilmAsset("jasmine", "honey")).toBe("brew-jasmine-v1");
+    expect(brewFilmAsset("black", "caramel")).toBe("brew-black-v1");
+    // The story only offers lemon with mint; a blend led by black tea drops it.
+    expect(brewFilmAsset("black", "lemon")).toBe("brew-black-v1");
+    expect(brewFilmAsset("hojicha")).toBe("brew-hojicha-v1");
   });
 
   it("shares one liquor mask that covers only the pour and serve shots", async () => {

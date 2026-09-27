@@ -1,4 +1,4 @@
-import type { TeaId } from "../types/game";
+import type { TeaDraft, TeaId } from "../types/game";
 
 // Per-frame liquor masks for a film, packed into one WebP atlas. x/y/width/
 // height are video pixels; sx/sy locate the cell in the atlas, stored at
@@ -29,9 +29,25 @@ export const brewFilmShots = [
   { id: "serve", label: "奉茶", from: 216, to: 300 },
 ] as const;
 
-/** A tea's brew film under /video/tea/; add .mp4, .webm, -poster.webp or -still.webp. */
-export const brewFilmAsset = (tea: TeaId) => `brew-${tea}-v1`;
-export const brewFilmPath = (tea: TeaId) => `/video/tea/${brewFilmAsset(tea)}`;
+export type TeaGarnish = TeaDraft["garnish"];
+// Garnishes with their own film, and the teas the story offers them with.
+// Mirrors video/src/tea-varieties.js; a unit test keeps the two in step.
+export const brewFilmGarnishes: Record<Exclude<TeaGarnish, "none">, readonly TeaId[]> = {
+  apple: ["hojicha"],
+  caramel: ["hojicha"],
+  lemon: ["mint"],
+  honey: ["chamomile"],
+};
+
+/**
+ * A cup's brew film under /video/tea/; add .mp4, .webm, -poster.webp or
+ * -still.webp. A garnish the tea has a film for picks that film; any other
+ * garnish plays the tea's own.
+ */
+export const brewFilmAsset = (tea: TeaId, garnish: TeaGarnish = "none") =>
+  garnish !== "none" && brewFilmGarnishes[garnish].includes(tea) ? `brew-${tea}-${garnish}-v1` : `brew-${tea}-v1`;
+export const brewFilmPath = (tea: TeaId, garnish: TeaGarnish = "none") =>
+  `/video/tea/${brewFilmAsset(tea, garnish)}`;
 
 // Every tea's film shares one mask: the pour and serve shots are identical.
 let brewLiquor: Promise<LiquorFrames | null> | null = null;

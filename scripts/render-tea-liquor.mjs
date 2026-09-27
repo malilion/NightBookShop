@@ -3,6 +3,7 @@ import { chromium } from "@playwright/test";
 import { createServer } from "vite";
 import sharp from "sharp";
 import { mkdir, writeFile } from "node:fs/promises";
+import { brewFilmGarnishes } from "../video/src/tea-varieties.js";
 
 // Liquor-only masks for a film, frame by frame, packed into one WebP atlas.
 // Each mask uses the same geometry, camera and timeline as the Remotion film,
@@ -59,10 +60,7 @@ try {
   for (let i = 0; i < spec.frames; i++) {
     if (i < (spec.firstVisibleFrame ?? 0)) continue;
     if (i % 30 === 0) console.log(`Liquor mask ${i}/${spec.frames}`);
-    const uri = await page.evaluate(
-      ([t, clip, renderScale]) => window.renderLiquorFrame(t, clip, "osmanthus", renderScale),
-      [i / (spec.frames - 1), clip, spec.renderScale ?? 1],
-    );
+    const uri = await page.evaluate(([t, clip]) => window.renderLiquorFrame(t, clip), [i / (spec.frames - 1), clip]);
     // null: the film has no cup on screen in this frame.
     const buffer = uri && Buffer.from(uri.split(",")[1], "base64");
     if (!buffer || (await sharp(buffer).stats()).channels[3].max === 0) {
@@ -72,49 +70,44 @@ try {
     const { info } = await sharp(buffer)
       .trim({ threshold: 1 })
       .toBuffer({ resolveWithObject: true });
-    // Brew masks render at half resolution, which is already the atlas scale.
-    const s = spec.renderScale ? 1 : spec.scale;
+    const s = spec.scale;
     const x = Math.floor(-info.trimOffsetLeft / s) * s,
       y = Math.floor(-info.trimOffsetTop / s) * s;
     const width = Math.ceil((-info.trimOffsetLeft + info.width) / s) * s - x,
       height = Math.ceil((-info.trimOffsetTop + info.height) / s) * s - y;
-    const coordinateScale = spec.renderScale ?? 1;
     // The tea is always a small sliver of the film; a crop the size of the
     // frame means the mask did not render and would tint the whole picture.
-    if (width * coordinateScale > spec.maxCell[0] || height * coordinateScale > spec.maxCell[1])
+    if (width > spec.maxCell[0] || height > spec.maxCell[1])
       throw new Error(`Unexpected liquor bounds in frame ${i}`);
     const cell = await sharp(buffer)
       .extract({ left: x, top: y, width, height })
       .resize(width / s, height / s, { kernel: "lanczos3" })
       .png()
       .toBuffer();
-    frames[i] = {
-      x: x * coordinateScale,
-      y: y * coordinateScale,
-      width: width * coordinateScale,
-      height: height * coordinateScale,
-    };
+    frames[i] = { x, y, width, height };
     cells.push({ index: i, input: cell, width: width / s, height: height / s });
   }
-  // One mask serves every tea only if no tea's props or aroma ever cover the
-  // cup: sample the tinted frames for all eight and require identical pixels.
+  // One mask serves every film only if no tea's props or aroma, and no
+  // garnish on the saucer, ever cover the cup: sample the tinted frames for
+  // all eight teas and every garnish film and require identical pixels.
   if (clip === "brew") {
-    const teas = ["puer", "mint", "jasmine", "black", "chamomile", "lavender", "hojicha"];
+    const films = [
+      ...["puer", "mint", "jasmine", "black", "chamomile", "lavender", "hojicha"].map((tea) => [tea, "none"]),
+      ...Object.entries(brewFilmGarnishes).flatMap(([garnish, { teas }]) => teas.map((tea) => [tea, garnish])),
+    ];
     const tinted = frames.flatMap((frame, i) => (frame ? [i] : []));
     for (const i of tinted.filter((_, n) => n % 30 === 0 || n === tinted.length - 1)) {
-      const reference = await page.evaluate(
-        ([t, clip, renderScale]) => window.renderLiquorFrame(t, clip, "osmanthus", renderScale),
-        [i / (spec.frames - 1), clip, spec.renderScale ?? 1],
-      );
-      for (const tea of teas) {
+      const reference = await page.evaluate(([t, clip]) => window.renderLiquorFrame(t, clip), [i / (spec.frames - 1), clip]);
+      for (const [tea, garnish] of films) {
         const uri = await page.evaluate(
-          ([t, clip, tea, renderScale]) => window.renderLiquorFrame(t, clip, tea, renderScale),
-          [i / (spec.frames - 1), clip, tea, spec.renderScale ?? 1],
+          ([t, clip, tea, garnish]) => window.renderLiquorFrame(t, clip, tea, garnish),
+          [i / (spec.frames - 1), clip, tea, garnish],
         );
-        if (uri !== reference) throw new Error(`Liquor mask differs for ${tea} at frame ${i}`);
+        const film = garnish === "none" ? tea : `${tea} with ${garnish}`;
+        if (uri !== reference) throw new Error(`Liquor mask differs for ${film} at frame ${i}`);
       }
     }
-    console.log("Liquor masks identical across all eight teas");
+    console.log(`Liquor masks identical across all ${films.length + 1} brew films`);
   }
   // Shelf packing: fill rows left to right, in frame order.
   const maxWidth = 4096;

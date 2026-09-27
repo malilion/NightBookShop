@@ -98,6 +98,17 @@ export const brewFilmTeas = {
   },
 };
 
+// Garnishes the story lets Lin Cheng add, and the teas whose films show
+// them: each tea is the only one the story offers that garnish with. The
+// garnish goes into the pot as the water opens the leaves, and another waits
+// on the saucer when the cup is served.
+export const brewFilmGarnishes = {
+  apple: { name: "蘋果乾", teas: ["hojicha"] },
+  caramel: { name: "海鹽焦糖", teas: ["hojicha"] },
+  lemon: { name: "檸檬片", teas: ["mint"] },
+  honey: { name: "蜂蜜", teas: ["chamomile"] },
+};
+
 // Frames at 30 fps. The four shots are cut on action; shots three and four
 // are identical across teas, so one liquor mask serves every film.
 export const brewFilm = {

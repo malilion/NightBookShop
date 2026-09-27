@@ -11,7 +11,7 @@ import { mkdir, writeFile, copyFile, stat } from "node:fs/promises";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { brewFilm } from "../src/tea-varieties.js";
+import { brewFilm, brewFilmGarnishes } from "../src/tea-varieties.js";
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../..",
@@ -29,13 +29,28 @@ const publish = process.argv.includes("--publish");
 const encodeOnly = process.argv.includes("--encode-only");
 if (encodeOnly && clip !== "brew") throw new Error("--encode-only needs --clip=brew");
 const allTeas = ["osmanthus", "puer", "mint", "jasmine", "black", "chamomile", "lavender", "hojicha"];
-const teaArg = option("tea") || "osmanthus";
-// Brew films take one tea, a comma-separated list or "all".
-const teas = clip !== "brew" ? [teaArg] : teaArg === "all" ? allTeas : teaArg.split(",");
+const teaArg = option("tea");
+const garnishArg = option("garnish");
+if (garnishArg && clip !== "brew") throw new Error("--garnish needs --clip=brew");
+// Brew films take one tea, a comma-separated list or "all". With --garnish
+// (one garnish or "all") they are the authored garnish films instead; --tea
+// then narrows them.
+const teas =
+  clip !== "brew" ? [teaArg || "osmanthus"] : teaArg === "all" || (garnishArg && !teaArg) ? allTeas : (teaArg || "osmanthus").split(",");
 for (const tea of teas)
   if (!(clip === "brew" ? allTeas : ["osmanthus", "puer", "mint"]).includes(tea))
     throw new Error(`Unknown tea ${tea}`);
-if (publish && clip !== "brew" && teaArg !== "osmanthus")
+if (garnishArg && garnishArg !== "all" && !brewFilmGarnishes[garnishArg])
+  throw new Error(`Unknown garnish ${garnishArg}`);
+const films = !garnishArg
+  ? teas.map((tea) => ({ tea, garnish: "none" }))
+  : Object.entries(brewFilmGarnishes)
+      .filter(([garnish]) => garnishArg === "all" || garnish === garnishArg)
+      .flatMap(([garnish, { teas: authored }]) =>
+        authored.filter((tea) => teas.includes(tea)).map((tea) => ({ tea, garnish })),
+      );
+if (!films.length) throw new Error("No authored film matches --tea and --garnish");
+if (publish && clip !== "brew" && teas[0] !== "osmanthus")
   throw new Error(
     "Only the approved osmanthus sample can replace the game asset",
   );
@@ -78,8 +93,10 @@ function extractFrame(file, index, output) {
 }
 const published = [];
 try {
-  for (const tea of teas) {
-    const inputProps = { tea, clip };
+  for (const { tea, garnish } of films) {
+    const inputProps = { tea, clip, garnish };
+    // A garnish film is named for both: brew-hojicha-apple.
+    const film = garnish === "none" ? tea : `${tea}-${garnish}`;
     // Building a tea's set and hands takes a while on the first frame,
     // longer still on a busy machine.
     const timeoutInMilliseconds = 120000;
@@ -100,21 +117,24 @@ try {
       timeoutInMilliseconds,
     };
     // The brew film is checked at the middle of each of its four shots.
-    const stills =
-      clip === "brew" ? [0, 37, 108, 178, 258, frames - 1] : [0, 90, frames - 1];
+    const stills = option("frames")
+      ? option("frames").split(",").map(Number)
+      : clip === "brew"
+        ? [0, 37, 108, 178, 258, frames - 1]
+        : [0, 90, frames - 1];
     for (const frame of encodeOnly ? [] : stills) {
       await renderStill({
         ...common,
         frame,
-        output: path.join(out, `${clip}-${tea}-${frame}.png`),
+        output: path.join(out, `${clip}-${film}-${frame}.png`),
         imageFormat: "png",
       });
     }
     if (preview) {
-      console.log(`Preview frames for ${tea}: ${stills.join(", ")}`);
+      console.log(`Preview frames for ${film}: ${stills.join(", ")}`);
       continue;
     }
-    const base = path.join(out, `${clip}-${tea}`);
+    const base = path.join(out, `${clip}-${film}`);
     const limit = 2 * 1024 * 1024;
     // Remotion's render is kept as the master; both delivery files encode from it.
     const master = clip === "brew" ? `${base}-master.mp4` : `${base}.mp4`;
@@ -135,22 +155,22 @@ try {
             const tenth = Math.floor(progress * 10);
             if (tenth > reported) {
               reported = tenth;
-              console.log(`Rendering ${tea} ${tenth * 10}%`);
+              console.log(`Rendering ${film} ${tenth * 10}%`);
             }
           },
         });
       const bad = clip === "brew" ? misCaptured(master) : [];
       if (!bad.length) break;
       if (encodeOnly || attempt === 3)
-        throw new Error(`Mis-captured frames in ${tea}: ${bad.join(", ")}`);
-      console.log(`Re-rendering ${tea}; mis-captured frames ${bad.join(", ")}`);
+        throw new Error(`Mis-captured frames in ${film}: ${bad.join(", ")}`);
+      console.log(`Re-rendering ${film}; mis-captured frames ${bad.join(", ")}`);
     }
     if (clip === "brew") {
       await copyFile(master, `${base}.mp4`);
       // A busy tea can push its film past the offline cache limit: step the
       // rate factor up from the master until the MP4 fits.
       for (let crf = 24; (await stat(`${base}.mp4`)).size > limit && crf <= 30; crf += 2) {
-        console.log(`Re-encoding ${tea} MP4 at CRF ${crf} to fit the cache limit`);
+        console.log(`Re-encoding ${film} MP4 at CRF ${crf} to fit the cache limit`);
         execFileSync("ffmpeg", [
           "-y",
           "-v",
@@ -192,13 +212,13 @@ try {
       ]);
     webm(clip === "brew" ? 33 : 30);
     for (let crf = 35; clip === "brew" && (await stat(`${base}.webm`)).size > limit && crf <= 41; crf += 2) {
-      console.log(`Re-encoding ${tea} WebM at CRF ${crf} to fit the cache limit`);
+      console.log(`Re-encoding ${film} WebM at CRF ${crf} to fit the cache limit`);
       webm(crf);
     }
     // Poster and served-cup still come from the checked master itself, so
     // they always match the film's first and last frames.
-    const first = clip === "brew" ? `${base}-first.png` : path.join(out, `${clip}-${tea}-0.png`);
-    const last = clip === "brew" ? `${base}-last.png` : path.join(out, `${clip}-${tea}-${frames - 1}.png`);
+    const first = clip === "brew" ? `${base}-first.png` : path.join(out, `${clip}-${film}-0.png`);
+    const last = clip === "brew" ? `${base}-last.png` : path.join(out, `${clip}-${film}-${frames - 1}.png`);
     if (clip === "brew") {
       extractFrame(master, 0, first);
       extractFrame(master, frames - 1, last);
@@ -231,9 +251,9 @@ try {
         stream.r_frame_rate !== "30/1" ||
         Math.abs(Number(info.format.duration) - seconds) > 0.05
       )
-        throw new Error(`Unexpected media format: ${tea} ${ext}`);
+        throw new Error(`Unexpected media format: ${film} ${ext}`);
       if (Number(info.format.size) > limit)
-        throw new Error(`Film exceeds offline cache limit: ${tea} ${ext}`);
+        throw new Error(`Film exceeds offline cache limit: ${film} ${ext}`);
       execFileSync("ffmpeg", ["-v", "error", "-i", file, "-f", "null", "-"]);
       files.push({ file: path.basename(file), ...info });
     }
@@ -244,6 +264,7 @@ try {
           composition: compositionId,
           remotion: "4.0.526",
           tea,
+          garnish,
           frames,
           files,
         },
@@ -253,7 +274,7 @@ try {
     );
     if (publish) {
       const dest = path.join(root, "public/video/tea");
-      const name = clip === "brew" ? `brew-${tea}-v1` : `${clip}-remotion-v1`;
+      const name = clip === "brew" ? `brew-${film}-v1` : `${clip}-remotion-v1`;
       // Publish only after every output passes metadata and full decode validation.
       for (const ext of ["mp4", "webm"])
         await copyFile(`${base}.${ext}`, path.join(dest, `${name}.${ext}`));

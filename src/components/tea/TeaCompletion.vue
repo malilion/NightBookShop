@@ -2,11 +2,14 @@
 import { onMounted, ref } from "vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import TeaFilm from "./TeaFilm.vue";
+import type { TeaGarnish } from "../../data/teaFilms";
 import type { TeaId } from "../../types/game";
 defineProps<{
   teaName: string;
   /** Whose brew film plays: the tea that leads this cup. */
   teaId: TeaId;
+  /** The garnish the story counts in this cup. */
+  garnish: TeaGarnish;
   liquorColor: string;
   recipientLabel: string;
 }>();
@@ -37,6 +40,7 @@ onMounted(() => dialog.value?.showModal());
     <TeaFilm
       clip="brew"
       :tea="teaId"
+      :garnish="garnish"
       :loop="false"
       :liquor-color="liquorColor"
       @ended="finish"

@@ -1052,11 +1052,11 @@ export function createTeaSet(container, W = 1280, H = 720) {
       props: { pot, lid, cup, jar, jarLid, spoon, kettle },
       materials: { jarGlaze, cream },
     }));
-  function setFrame(clip, t, tea = "osmanthus") {
+  function setFrame(clip, t, tea = "osmanthus", garnish = "none") {
     t = clamp(t);
     if (clip === "brew") {
       scene.fog = null;
-      brewFilm().setFrame(t, tea);
+      brewFilm().setFrame(t, tea, garnish);
       renderer.render(scene, camera);
       return;
     }
@@ -1406,8 +1406,8 @@ export function createTeaSet(container, W = 1280, H = 720) {
       camera.updateProjectionMatrix();
       return image;
     },
-    renderLiquorFrame(t, clip = "complete", tea = "osmanthus") {
-      if (clip === "brew") return brewFilm().renderLiquorMask(renderer, t, tea);
+    renderLiquorFrame(t, clip = "complete", tea = "osmanthus", garnish = "none") {
+      if (clip === "brew") return brewFilm().renderLiquorMask(renderer, t, tea, garnish);
       setFrame("complete", t);
       return renderLiquorOnly(camera);
     },

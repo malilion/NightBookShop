@@ -355,6 +355,265 @@ export function createTeaForms() {
   }
 
   // The side dish: what the tea is made of, fresh or as it came from the tin.
+  // A walnut honey dipper along x: grooved head at -x, handle towards +x,
+  // the head coated in honey with a bead hanging below it.
+  const honeyMaterial = () =>
+    material("honey", () =>
+      new THREE.MeshPhysicalMaterial({ color: "#e7a02f", roughness: 0.08, transmission: 0.35, thickness: 0.05, clearcoat: 1, emissive: colour("#6b3a08"), emissiveIntensity: 0.25 }),
+    );
+  function honeyDipper(bead = true) {
+    const dipper = new THREE.Group();
+    const wood = material("dipper", () => new THREE.MeshStandardMaterial({ color: "#8a5a32", roughness: 0.55 }));
+    const handle = mesh(geometry("dipper-handle", () => new THREE.CylinderGeometry(0.012, 0.015, 0.36, 12)), wood);
+    handle.rotation.z = Math.PI / 2;
+    handle.position.x = 0.12;
+    dipper.add(handle);
+    for (let i = 0; i < 4; i++) {
+      const ridge = mesh(geometry("dipper-ridge", () => new THREE.TorusGeometry(0.028, 0.009, 8, 20)), wood);
+      ridge.rotation.y = Math.PI / 2;
+      ridge.position.x = -0.07 - i * 0.022;
+      dipper.add(ridge);
+    }
+    const coat = mesh(geometry("honey-coat", () => new THREE.CylinderGeometry(0.033, 0.036, 0.07, 18)), honeyMaterial());
+    coat.rotation.z = Math.PI / 2;
+    coat.position.x = -0.1;
+    dipper.add(coat);
+    if (bead) {
+      const drop = mesh(geometry("honey-drop", () => new THREE.SphereGeometry(0.02, 14, 10)), honeyMaterial());
+      drop.position.set(-0.11, -0.03, 0);
+      drop.scale.set(1, 1.3, 1);
+      dipper.add(drop);
+    }
+    return dipper;
+  }
+
+  // ------------------------------------------------------------ garnishes
+  // What the story lets Lin Cheng add to a pot: a dried apple ring, a lemon
+  // wheel, a cube of sea-salt caramel or honey from a dipper. Slices are thin
+  // extrusions with a painted face; the face canvas spans [-span, span].
+  function faceTexture(key, span, draw) {
+    return material(`face-${key}`, () => {
+      const size = 512;
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      // Draw in the slice's own units, y up, as the geometry's cap UVs are.
+      ctx.translate(size / 2, size / 2);
+      ctx.scale(size / (2 * span), -size / (2 * span));
+      draw(ctx);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = 4;
+      texture.repeat.set(1 / (2 * span), 1 / (2 * span));
+      texture.offset.set(0.5, 0.5);
+      return texture;
+    });
+  }
+  function sliceGeometry(key, edge, hole, thickness) {
+    return geometry(`slice-${key}`, () => {
+      const outline = (path, radius, steps, reverse) => {
+        for (let i = 0; i <= steps; i++) {
+          const a = ((reverse ? -i : i) / steps) * Math.PI * 2;
+          const r = radius(a);
+          if (i === 0) path.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+          else path.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        }
+      };
+      const shape = new THREE.Shape();
+      outline(shape, edge, 120, false);
+      if (hole) {
+        const path = new THREE.Path();
+        outline(path, hole, 48, true);
+        shape.holes.push(path);
+      }
+      const bevel = thickness * 0.3;
+      const g = new THREE.ExtrudeGeometry(shape, {
+        depth: thickness - 2 * bevel,
+        bevelEnabled: true,
+        bevelThickness: bevel,
+        bevelSize: bevel,
+        bevelSegments: 2,
+        curveSegments: 1,
+      });
+      g.translate(0, 0, -(thickness - 2 * bevel) / 2);
+      // Lie flat, face up.
+      g.rotateX(-Math.PI / 2);
+      return g;
+    });
+  }
+  const appleEdge = (a) => 0.13 * (1 + 0.035 * Math.sin(5 * a + 0.7) + 0.02 * Math.sin(11 * a + 2.1) + 0.012 * Math.sin(23 * a));
+  const appleHole = (a) => 0.03 * (1 + 0.12 * Math.sin(3 * a + 1));
+  function appleRing() {
+    const face = faceTexture("apple", 0.14, (c) => {
+      const path = (radius, steps = 120) => {
+        c.beginPath();
+        for (let i = 0; i <= steps; i++) {
+          const a = (i / steps) * Math.PI * 2;
+          c.lineTo(Math.cos(a) * radius(a), Math.sin(a) * radius(a));
+        }
+        c.closePath();
+      };
+      // Pale dried flesh, warmer and darker toward the peel.
+      const flesh = c.createRadialGradient(0, 0, 0.02, 0, 0, 0.13);
+      flesh.addColorStop(0, "#f1dcaa");
+      flesh.addColorStop(0.6, "#e6c083");
+      flesh.addColorStop(1, "#d3a262");
+      c.fillStyle = flesh;
+      c.fillRect(-0.14, -0.14, 0.28, 0.28);
+      // Wrinkles run out from the core as the ring dried.
+      for (let i = 0; i < 70; i++) {
+        const a = noise(i + 3) * Math.PI * 2,
+          r0 = 0.05 + noise(i + 5) * 0.03,
+          r1 = r0 + 0.03 + noise(i + 7) * 0.05;
+        c.strokeStyle = `rgba(150, 92, 40, ${0.12 + noise(i + 9) * 0.2})`;
+        c.lineWidth = 0.0015 + noise(i + 11) * 0.002;
+        c.beginPath();
+        c.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
+        c.quadraticCurveTo(Math.cos(a + 0.08) * (r0 + r1) / 2, Math.sin(a + 0.08) * (r0 + r1) / 2, Math.cos(a) * r1, Math.sin(a) * r1);
+        c.stroke();
+      }
+      // The five-lobed seed star around the cored centre.
+      c.fillStyle = "rgba(176, 116, 52, 0.55)";
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2 + 0.4;
+        c.beginPath();
+        c.ellipse(Math.cos(a) * 0.045, Math.sin(a) * 0.045, 0.022, 0.009, a, 0, Math.PI * 2);
+        c.fill();
+      }
+      c.strokeStyle = "rgba(160, 104, 46, 0.5)";
+      c.lineWidth = 0.002;
+      path((a) => 0.058 + 0.008 * Math.sin(5 * a + 0.4));
+      c.stroke();
+      // Red-brown peel around the rim.
+      c.strokeStyle = "#7e2a1c";
+      c.lineWidth = 0.014;
+      path((a) => appleEdge(a) + 0.002);
+      c.stroke();
+      c.strokeStyle = "#b7783b";
+      c.lineWidth = 0.005;
+      path((a) => appleEdge(a) - 0.008);
+      c.stroke();
+      for (let i = 0; i < 160; i++) {
+        const a = noise(i + 40) * Math.PI * 2,
+          r = 0.03 + Math.sqrt(noise(i + 41)) * 0.09;
+        c.fillStyle = `rgba(120, 70, 30, ${noise(i + 42) * 0.25})`;
+        c.fillRect(Math.cos(a) * r, Math.sin(a) * r, 0.002, 0.002);
+      }
+    });
+    const faceMaterial = material("apple-face", () => new THREE.MeshStandardMaterial({ map: face, roughness: 0.8 }));
+    const peel = material("apple-peel", () => new THREE.MeshStandardMaterial({ color: "#8a3c24", roughness: 0.7 }));
+    return mesh(sliceGeometry("apple", appleEdge, appleHole, 0.012), [faceMaterial, peel]);
+  }
+  function lemonWheel() {
+    const face = faceTexture("lemon", 0.13, (c) => {
+      const disc = (r, fill) => {
+        c.fillStyle = fill;
+        c.beginPath();
+        c.arc(0, 0, r, 0, Math.PI * 2);
+        c.fill();
+      };
+      disc(0.13, "#e2ae22");
+      disc(0.118, "#f2c93c");
+      disc(0.11, "#fbf1cf");
+      const segments = 9;
+      for (let i = 0; i < segments; i++) {
+        const a0 = (i / segments) * Math.PI * 2 + 0.035,
+          a1 = ((i + 1) / segments) * Math.PI * 2 - 0.035;
+        const pulp = c.createRadialGradient(0, 0, 0.01, 0, 0, 0.1);
+        pulp.addColorStop(0, "#fbef9e");
+        pulp.addColorStop(1, "#f2d24f");
+        c.fillStyle = pulp;
+        c.beginPath();
+        c.moveTo(Math.cos((a0 + a1) / 2) * 0.016, Math.sin((a0 + a1) / 2) * 0.016);
+        c.arc(0, 0, 0.1, a0, a1);
+        c.closePath();
+        c.fill();
+        // Juice vesicles, long and radial.
+        for (let j = 0; j < 26; j++) {
+          const a = a0 + noise(i * 31 + j) * (a1 - a0),
+            r = 0.025 + noise(i * 31 + j + 7) * 0.07;
+          c.strokeStyle = `rgba(255, 250, 215, ${0.25 + noise(i * 31 + j + 3) * 0.35})`;
+          c.lineWidth = 0.0022;
+          c.beginPath();
+          c.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+          c.lineTo(Math.cos(a) * (r + 0.012), Math.sin(a) * (r + 0.012));
+          c.stroke();
+        }
+      }
+      disc(0.016, "#fdf3d2");
+      // Two pale seeds near the centre.
+      c.fillStyle = "#efe0ad";
+      for (const a of [0.9, 3.6]) {
+        c.beginPath();
+        c.ellipse(Math.cos(a) * 0.035, Math.sin(a) * 0.035, 0.011, 0.005, a, 0, Math.PI * 2);
+        c.fill();
+      }
+    });
+    const faceMaterial = material("lemon-face", () =>
+      new THREE.MeshPhysicalMaterial({ map: face, roughness: 0.32, clearcoat: 0.6, clearcoatRoughness: 0.2, emissive: colour("#f5dc6a"), emissiveIntensity: 0.06 }),
+    );
+    const rind = material("lemon-rind", () => new THREE.MeshStandardMaterial({ color: "#e8b92f", roughness: 0.42 }));
+    return mesh(sliceGeometry("lemon", () => 0.126, null, 0.013), [faceMaterial, rind]);
+  }
+  // A soft-edged cube of caramel with flakes of sea salt on top.
+  function caramel() {
+    const group = new THREE.Group();
+    const g = geometry("caramel", () => {
+      const half = 0.065,
+        round = 0.018;
+      const box = new THREE.BoxGeometry(2 * half, 1.6 * half, 2 * half, 6, 6, 6);
+      const p = box.attributes.position;
+      const v = new THREE.Vector3(),
+        inner = new THREE.Vector3();
+      const limit = new THREE.Vector3(half - round, 0.8 * half - round, half - round);
+      for (let i = 0; i < p.count; i++) {
+        v.fromBufferAttribute(p, i);
+        inner.copy(v).clamp(limit.clone().negate(), limit);
+        const out = v.clone().sub(inner);
+        if (out.lengthSq() > 0) v.copy(inner).add(out.normalize().multiplyScalar(round));
+        p.setXYZ(i, v.x, v.y, v.z);
+      }
+      box.computeVertexNormals();
+      return box;
+    });
+    group.add(
+      mesh(
+        g,
+        material("caramel", () =>
+          new THREE.MeshPhysicalMaterial({ color: "#a4652f", roughness: 0.24, clearcoat: 1, clearcoatRoughness: 0.12, emissive: colour("#4a2206"), emissiveIntensity: 0.2 }),
+        ),
+      ),
+    );
+    const salt = material("salt", () => new THREE.MeshStandardMaterial({ color: "#f7f4ee", roughness: 0.35 }));
+    const flakes = new THREE.Group();
+    for (let i = 0; i < 9; i++) {
+      const flake = mesh(geometry("salt-flake", () => new THREE.BoxGeometry(1, 1, 1)), salt);
+      flake.scale.set(0.012 + noise(i + 71) * 0.01, 0.004, 0.009 + noise(i + 72) * 0.008);
+      flake.position.set((noise(i + 73) - 0.5) * 0.09, 0.053, (noise(i + 74) - 0.5) * 0.09);
+      flake.rotation.set((noise(i + 75) - 0.5) * 0.5, noise(i + 76) * 3, (noise(i + 77) - 0.5) * 0.5);
+      flakes.add(flake);
+    }
+    flakes.name = "salt";
+    group.add(flakes);
+    return group;
+  }
+  // One garnish, lying as it would on a saucer: slices flat, the dipper
+  // along x with its head at -x.
+  function garnish(kind) {
+    switch (kind) {
+      case "apple":
+        return appleRing();
+      case "lemon":
+        return lemonWheel();
+      case "caramel":
+        return caramel();
+      case "honey":
+        return honeyDipper();
+      default:
+        throw new Error(`Unknown garnish ${kind}`);
+    }
+  }
+
   function dish(spec) {
     const group = new THREE.Group();
     const add = (object, x, y, z) => {
@@ -428,29 +687,7 @@ export function createTeaForms() {
       }
       case "honey": {
         // A walnut honey dipper resting on the dish, a bead of honey at its tip.
-        const dipper = new THREE.Group();
-        const wood = material("dipper", () => new THREE.MeshStandardMaterial({ color: "#8a5a32", roughness: 0.55 }));
-        const handle = mesh(geometry("dipper-handle", () => new THREE.CylinderGeometry(0.012, 0.015, 0.36, 12)), wood);
-        handle.rotation.z = Math.PI / 2;
-        handle.position.x = 0.12;
-        dipper.add(handle);
-        for (let i = 0; i < 4; i++) {
-          const ridge = mesh(geometry("dipper-ridge", () => new THREE.TorusGeometry(0.028, 0.009, 8, 20)), wood);
-          ridge.rotation.y = Math.PI / 2;
-          ridge.position.x = -0.07 - i * 0.022;
-          dipper.add(ridge);
-        }
-        const honey = material("honey", () =>
-          new THREE.MeshPhysicalMaterial({ color: "#e7a02f", roughness: 0.08, transmission: 0.35, thickness: 0.05, clearcoat: 1, emissive: colour("#6b3a08"), emissiveIntensity: 0.25 }),
-        );
-        const coat = mesh(geometry("honey-coat", () => new THREE.CylinderGeometry(0.033, 0.036, 0.07, 18)), honey);
-        coat.rotation.z = Math.PI / 2;
-        coat.position.x = -0.1;
-        dipper.add(coat);
-        const drop = mesh(geometry("honey-drop", () => new THREE.SphereGeometry(0.02, 14, 10)), honey);
-        drop.position.set(-0.11, -0.03, 0);
-        drop.scale.set(1, 1.3, 1);
-        dipper.add(drop);
+        const dipper = honeyDipper();
         add(dipper, 0.02, 0.15, 0).rotation.set(0.1, 0.5, 0.12);
         scatter(12, (i) => strip(i + 50, spec.leafColors, i % 3 === 0), 0.18, 0.12);
         break;
@@ -511,5 +748,5 @@ export function createTeaForms() {
     }
   }
 
-  return { dry, wet, dish, aroma, extra, leaf, floret };
+  return { dry, wet, dish, aroma, extra, leaf, floret, garnish, honeyDipper, honeyMaterial };
 }

@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { gzipSync } from "node:zlib";
+import { brewFilmGarnishes } from "../video/src/tea-varieties.js";
 
 const dist = new URL("../dist/", import.meta.url);
 const sw = readFileSync(new URL("sw.js", dist), "utf8");
@@ -12,9 +13,13 @@ if (precached.length < 30) throw new Error("無法讀取 PWA 預快取清單。�
 const size = (url) => statSync(new URL(url, dist)).size;
 const precacheBytes = precached.reduce((sum, url) => sum + size(url), 0);
 const imageBytes = size("images/rain-street.webp");
-// The story plays one brew film per tea when a cup is served.
+// The story plays one brew film per tea when a cup is served, or that tea's
+// garnish film when the cup carries one.
 const teaIds = ["osmanthus", "puer", "mint", "jasmine", "black", "chamomile", "lavender", "hojicha"];
-const activeTeaClips = teaIds.map((id) => `brew-${id}-v1`);
+const activeTeaClips = [
+  ...teaIds.map((id) => `brew-${id}-v1`),
+  ...Object.entries(brewFilmGarnishes).flatMap(([garnish, { teas }]) => teas.map((id) => `brew-${id}-${garnish}-v1`)),
+];
 const teaClipBytes = activeTeaClips.flatMap((clip) =>
   ["mp4", "webm"].map((extension) => ({
     file: `video/tea/${clip}.${extension}`,
@@ -52,7 +57,7 @@ if (precached.some((url) => url.startsWith("story/compiled/") && url !== "story/
   throw new Error("後期章節故事應在章節啟動時下載。");
 if (precached.some((url) => url.startsWith("video/tea/") && /\.(mp4|webm)$/.test(url)))
   throw new Error("完整製茶影片不應進入安裝預快取。");
-for (const url of [...teaIds.map((id) => `video/tea/brew-${id}-v1-still.webp`), "video/tea/brew-liquor-v1.webp", "video/tea/brew-liquor-v1.json"])
+for (const url of [...activeTeaClips.map((clip) => `video/tea/${clip}-still.webp`), "video/tea/brew-liquor-v1.webp", "video/tea/brew-liquor-v1.json"])
   if (!precached.includes(url)) throw new Error(`減少動態的奉茶畫面未預快取：${url}`);
 if (precached.some((url) => url.startsWith("images/memory-white-room")))
   throw new Error("後期章節圖片應在章節啟動時下載。");
