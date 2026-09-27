@@ -28,6 +28,12 @@ VAR read_envelope_wishes = false
 VAR read_envelope_height = false
 VAR read_envelope_ink = false
 VAR demanded_exit_answer = false
+VAR let_owner_observe = false
+VAR obs_badge = false
+VAR obs_cups = false
+VAR obs_door = false
+VAR thought_mother = false
+VAR thought_father = false
 VAR ending_kind = ""
 -> threshold
 
@@ -70,7 +76,41 @@ VAR ending_kind = ""
 - else:
     這杯茶是妳自己選的。水溫與時間不必剛好對應任何訪客；杯口的暖意是此刻真實的。 # scene:lincheng # speaker:旁白 # section:archive
 }
-六張紙背相互重疊，店主沒有替妳指出那些摺痕通往哪裡。妳逐一翻看，確認每位訪客留下的不是同一個答案。
+-> seat_observed
+=== seat_observed ===
+店主在櫃台另一側坐下，隔著茶杯看妳。那是妳這六夜一直坐的位置。 # speaker:旁白 # portrait:owner
+妳每次都先看客人的手，再決定要不要開口。我可以也這樣看妳一次嗎？妳可以說不。 # speaker:店主 # portrait:owner
+* [點頭，讓他說他看見了什麼]
+    ~ let_owner_observe = true
+    -> observed_hub
+* [請他先別說，妳想直接看六夜的紙]
+    ~ trust += 1
+    「好。」店主把視線移回自己的杯子。妳發現被人問過「可不可以」之後再拒絕，比想像中容易。 # speaker:旁白 # portrait:owner
+    -> archive_start
+=== observed_hub ===
+店主說得很慢，每說一件就停下來，等妳決定要不要回答。 # speaker:旁白 # portrait:owner
+* {not obs_badge} [他說妳一直用拇指按著徽章的邊]
+    ~ obs_badge = true
+    妳低頭，才發現拇指真的按在月亮的尖角上，按出一道淺紅的印子。 # speaker:旁白
+    「六夜都這樣。」妳說，「好像只要按著，就記得自己還在上班，還有事要做。」 # speaker:林澄
+    店主沒有叫妳放開，只說那枚徽章不會因為妳鬆手就掉下去。 # speaker:旁白 # portrait:owner
+    -> observed_hub
+* {not obs_cups} [他說妳洗好了六位客人的杯子，自己的卻最後才拿]
+    ~ obs_cups = true
+    妳想起葉暖替每個人切麵包，自己一口也不吃；想起柏言替整個部門接下報告。妳曾在心裡替他們難過，卻沒發現自己每晚也是最後一個坐下。 # speaker:旁白
+    「我以為那是店員該做的。」妳說。店主說：「店員該做的，是先讓自己能坐得住。」 # speaker:林澄
+    -> observed_hub
+* {not obs_door} [他說妳坐下以後，第一眼看的是門]
+    ~ obs_door = true
+    ~ understanding += 1
+    「我想確定它還能開。」妳說得比自己預期的快。 # speaker:林澄
+    第一夜，妳推過那扇玻璃門，推不動。那之後的每一夜，妳都會在客人進來前看它一眼，好像只要確認它關著，就不必去想自己為什麼走不了。 # speaker:旁白
+    店主沒有替門辯解。「今天它能開。妳可以隨時去試。」妳沒有起身，但肩膀鬆了一點。 # speaker:旁白 # portrait:owner
+    -> observed_hub
+* [夠了，先看六夜留下的紙]
+    -> archive_start
+=== archive_start ===
+六張紙背相互重疊，店主沒有替妳指出那些摺痕通往哪裡。妳逐一翻看，確認每位訪客留下的不是同一個答案。 # speaker:旁白
 把六夜的線索攤開，找出地圖真正的中心。 # minigame:archive
 -> DONE
 === archive_result ===
@@ -206,6 +246,19 @@ VAR ending_kind = ""
     -> home_end
 === home_end ===
 第一片紙在妳兒時外套裡。「我把那封信藏起來」寫得很用力。 # fragment:kept # speaker:旁白
+-> home_after
+=== home_after ===
+房子裡的燈一盞盞暗下來。妳還站在門邊，想起那晚以後的許多年。 # speaker:旁白
+* {not thought_mother} [想想後來有沒有問過母親那一晚]
+    ~ thought_mother = true
+    妳沒有問過。每年過年，妳們一起包餃子，談工作、談天氣、談姨媽家那台總是太吵的冰箱，就是沒談過那一夜。 # speaker:旁白
+    妳一直以為不提是體貼她。站在這間房子裡，妳才想到，她也許同樣以為不提是在體貼妳。
+    -> home_after
+* {not thought_father} [想想父親後來收到過什麼]
+    ~ thought_father = true
+    父親後來搬到另一座城市，每年寄一張卡片，字總是很少。妳一直以為那是他不擅長說話。 # speaker:旁白
+    他從來不知道有一封信沒有送到。妳也從來沒問過，他那時有沒有等過回音。
+    -> home_after
 * [走到童年的夜行書店]
     -> hidden_envelope
 === hidden_envelope ===
@@ -288,10 +341,13 @@ VAR ending_kind = ""
 === end_dawn ===
 妳把四片信放進自己的口袋，摘下月亮徽章。店主把門打開；這一次，門內沒有任何聲音催妳回頭。 # speaker:旁白
 早晨的街道跟妳記得的一樣，也有妳以往沒看過的細節。那封兒時沒交出去的信不能重寄，但妳可以重新跟母親談談那段日子，也可以選擇先去吃早餐。
+{obs_door:妳走過門檻，沒有回頭確認它還開著。 # speaker:旁白}
+{thought_mother:妳想起過年的餃子。也許今年，可以在包到一半時先問一句：「那天晚上，妳怕不怕？」 # speaker:旁白}
 -> dawn_afterword
 === dawn_afterword ===
 書籤後記：林澄回到自己的生活。有些晚上仍想起那封信，也會想起書店裡六個人各自走出門的樣子。 # scene:counter # speaker:旁白 # section:afterword
 她偶爾能在需要時找到書店，進門坐一會；不再需要靠忘記才能離開。
+{thought_father:父親的下一張卡片寄來時，她回了一封比平常長的信。信裡沒有提那一晚，只問他那座城市冬天冷不冷。 # speaker:旁白}
 ~ ending_kind = "dawn"
 -> chapter_coda
 === end_keeper ===
@@ -301,6 +357,7 @@ VAR ending_kind = ""
 === keeper_afterword ===
 書籤後記：林澄成為下一任守夜人。有時她需要休息，便把茶席收好、讓門關一晚；她不再把照顧所有人當成離開自己的理由。 # scene:counter # speaker:旁白 # section:afterword
 有人帶著未寫完的信來時，她會先問對方願不願意坐下。
+{obs_cups:每晚開門以前，她會先替自己倒一杯茶，再去洗客人的杯子。 # speaker:旁白}
 ~ ending_kind = "keeper"
 -> chapter_coda
 === end_shelf ===
@@ -310,6 +367,7 @@ VAR ending_kind = ""
 === shelf_afterword ===
 書籤後記：林澄回到日常。她記得書店的路，卻沒有每晚都去；某些記憶仍像信封裡的空白，不妨礙她往前生活。 # scene:counter # speaker:旁白 # section:afterword
 那封信留在書架上，名字朝外，等她哪天想再讀。
+{obs_badge:沒有了徽章，她的拇指在口袋裡空了好幾天。後來她發現，自己不按著什麼，也能記得接下來要做的事。 # speaker:旁白}
 ~ ending_kind = "shelf"
 -> chapter_coda
 === end_midnight ===

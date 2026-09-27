@@ -7,7 +7,8 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-9.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-10.json", "utf8");
+const chapterNine = readFileSync("public/story/compiled/lincheng-chapter-9.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/lincheng-chapter-8.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/lincheng-chapter-7.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/lincheng-chapter-6.json", "utf8");
@@ -56,6 +57,8 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
         "帶著看到的線索回到櫃台",
         "從兒時外套裡收起第一片信紙",
         "從高高的櫃台下收起另外兩片信紙",
+        "請他先別說，妳想直接看六夜的紙",
+        "走到童年的夜行書店",
       ].includes(entry.text)) : undefined) ?? story.frame.choices.find((entry) => entry.text.includes(targets[target])) ?? story.frame.choices[0];
       expect(selected).toBeDefined();
       story.choose(selected!.index);
@@ -89,6 +92,23 @@ describe("Lincheng finale", () => {
     expect(chapterForVersion("lincheng-chapter-7")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-8")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-9")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-10")).toBe("lincheng");
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-nine %s route loadable", (target) => {
+    expect(play(target, true, chapterNine).story.frame.endingId).toBe(target);
+  });
+  it("lets the owner observe Lin Cheng only with her consent, and remembers it", () => {
+    const dawn = play("lincheng-dawn").texts.join(" ");
+    for (const line of ["拇指真的按在月亮的尖角上", "自己每晚也是最後一個坐下", "我想確定它還能開", "那天晚上，妳怕不怕", "比平常長的信", "沒有回頭確認它還開著"])
+      expect(dawn).toContain(line);
+    expect(play("lincheng-keeper").texts.join(" ")).toContain("會先替自己倒一杯茶");
+    expect(play("lincheng-shelf").texts.join(" ")).toContain("拇指在口袋裡空了好幾天");
+    const declined = play("lincheng-dawn", true, compiled, { skipObjects: true });
+    const declinedText = declined.texts.join(" ");
+    expect(declinedText).toContain("被人問過「可不可以」之後再拒絕");
+    expect(declinedText).not.toContain("我想確定它還能開");
+    expect(declinedText).not.toContain("那天晚上，妳怕不怕");
+    expect(declined.story.frame.endingId).toBe("lincheng-dawn");
   });
   it("keeps the previous finale version loadable", () => {
     expect(play("lincheng-dawn", true, chapterSeven).story.frame.endingId).toBe("lincheng-dawn");

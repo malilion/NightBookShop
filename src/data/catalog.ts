@@ -433,7 +433,7 @@ export const previousChapter: Record<
   lincheng: "haiming",
 };
 export const chapterForVersion = (version: string) =>
-  version === "lincheng-chapter-1" || version === "lincheng-chapter-2" || version === "lincheng-chapter-3" || version === "lincheng-chapter-4" || version === "lincheng-chapter-5" || version === "lincheng-chapter-6" || version === "lincheng-chapter-7" || version === "lincheng-chapter-8" || version === "lincheng-chapter-9"
+  version === "lincheng-chapter-1" || version === "lincheng-chapter-2" || version === "lincheng-chapter-3" || version === "lincheng-chapter-4" || version === "lincheng-chapter-5" || version === "lincheng-chapter-6" || version === "lincheng-chapter-7" || version === "lincheng-chapter-8" || version === "lincheng-chapter-9" || version === "lincheng-chapter-10"
     ? "lincheng"
     : version === "haiming-chapter-1" || version === "haiming-chapter-2" || version === "haiming-chapter-3" || version === "haiming-chapter-4" || version === "haiming-chapter-5" || version === "haiming-chapter-6" || version === "haiming-chapter-7" || version === "haiming-chapter-8" || version === "haiming-chapter-9" || version === "haiming-chapter-10" || version === "haiming-chapter-11" || version === "haiming-chapter-12" || version === "haiming-chapter-13"
     ? "haiming"
