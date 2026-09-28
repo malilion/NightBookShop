@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { StoryBridge, type PriorChapterEndings } from "../../src/story/storyBridge";
 import { parseTag } from "../../src/story/commandParser";
-import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
+import { frameSchema, newLetter, type LetterDraft, type TeaId } from "../../src/types/game";
 import { archiveConnections, connectionBetween, scoreArchive } from "../../src/services/archiveScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-10.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-11.json", "utf8");
+const chapterTen = readFileSync("public/story/compiled/lincheng-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/lincheng-chapter-9.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/lincheng-chapter-8.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/lincheng-chapter-7.json", "utf8");
@@ -28,9 +29,10 @@ const completeArchive = {
   connections: archiveConnections.map((connection) => connection.id),
 };
 
-function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; askOwnerConsent?: boolean; priorEndings?: PriorChapterEndings } = {}) {
+function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; askOwnerConsent?: boolean; priorEndings?: PriorChapterEndings; teaId?: TeaId; teaQuality?: number; refusal?: string[] } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding, options.priorEndings);
   story.next();
+  const refusal = [...(options.refusal ?? [])];
   const sections = new Set<string>();
   const texts: string[] = [];
   const speakers: string[] = [];
@@ -45,7 +47,7 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
     portraits.push(story.frame.portrait);
     choices.push(...story.frame.choices.map((entry) => entry.text));
     if (story.frame.mode === "tea")
-      story.finishTea({ teaId: "osmanthus", quality: 90, emotionalMatch: 100 });
+      story.finishTea({ teaId: options.teaId ?? "osmanthus", quality: options.teaQuality ?? 90, emotionalMatch: 100 });
     else if (story.frame.mode === "archive")
       story.finishArchive(scoreArchive(completeArchive));
     else if (story.frame.mode === "letter") {
@@ -53,7 +55,8 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
       story.finishLetter({ completion: fullLetter ? 100 : 50, understood: fullLetter });
     } else if (story.frame.canContinue) story.next();
     else {
-      const selected = (options.askOwnerConsent ? story.frame.choices.find((entry) => entry.text.includes("童年的保管請求")) : undefined) ?? (options.skipObjects ? story.frame.choices.find((entry) => [
+      const refusalStep = refusal[0] && story.frame.choices.some((entry) => entry.text.includes(refusal[0]!)) ? refusal.shift() : undefined;
+      const selected = (refusalStep ? story.frame.choices.find((entry) => entry.text.includes(refusalStep)) : undefined) ?? (options.askOwnerConsent ? story.frame.choices.find((entry) => entry.text.includes("童年的保管請求")) : undefined) ?? (options.skipObjects ? story.frame.choices.find((entry) => [
         "帶著看到的線索回到櫃台",
         "從兒時外套裡收起第一片信紙",
         "從高高的櫃台下收起另外兩片信紙",
@@ -93,6 +96,51 @@ describe("Lincheng finale", () => {
     expect(chapterForVersion("lincheng-chapter-8")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-9")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-10")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-11")).toBe("lincheng");
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-ten %s route loadable", (target) => {
+    expect(play(target, true, chapterTen).story.frame.endingId).toBe(target);
+  });
+  it("answers each of the eight teas Lin Cheng can brew for herself", () => {
+    const teaIds: TeaId[] = ["osmanthus", "puer", "mint", "jasmine", "black", "chamomile", "lavender", "hojicha"];
+    const replies = teaIds.map((teaId) => {
+      const { texts } = play("lincheng-dawn", true, compiled, { teaId, skipObjects: true });
+      const start = texts.findIndex((text) => text.includes("慢慢泡一杯"));
+      const end = texts.findIndex((text) => text.includes("店主在櫃台另一側坐下"));
+      return texts.slice(start + 1, end).join(" ");
+    });
+    expect(new Set(replies).size).toBe(8);
+    expect(replies[3]).toContain("六位訪客沒有一個人選過這罐");
+    expect(replies[4]).toContain("這杯茶可以提神，但今晚不用拿它撐過什麼");
+  });
+  it("notices whether Lin Cheng brewed for herself slowly or in a hurry", () => {
+    const careful = play("lincheng-dawn", true, compiled, { teaQuality: 95, skipObjects: true }).texts.join(" ");
+    const rushed = play("lincheng-dawn", true, compiled, { teaQuality: 40, skipObjects: true }).texts.join(" ");
+    const plain = play("lincheng-dawn", true, compiled, { teaQuality: 70, skipObjects: true }).texts.join(" ");
+    expect(careful).toContain("第一次照自己的節奏泡完一杯");
+    expect(rushed).toContain("這一杯不必端給任何人");
+    expect(rushed).not.toContain("第一次照自己的節奏泡完一杯");
+    expect(plain).not.toContain("這一杯不必端給任何人");
+    expect(plain).not.toContain("第一次照自己的節奏泡完一杯");
+  });
+  it("lets Lin Cheng try the door and read the notes before refusing, and remembers both", () => {
+    const refused = play("lincheng-midnight", true, compiled, { refusal: ["拒絕坐下，繼續替別人", "問他那張椅子", "試試它能不能打開", "翻看六位訪客的手記", "仍然拒絕坐下"] });
+    const text = refused.texts.join(" ");
+    expect(refused.choices).toContain("仍然拒絕坐下，繼續替別人整理故事");
+    for (const line of ["我不會替妳推過來", "門就開了一道縫", "六個人都坐下過", "所以這一次留下，不是誰把妳關在裡面", "只有最底下那一封，還沒有椅子"])
+      expect(text).toContain(line);
+    expect(refused.sections.has("self-letter")).toBe(false);
+    expect(refused.story.frame.endingId).toBe("lincheng-midnight");
+    const direct = play("lincheng-midnight");
+    expect(direct.texts.join(" ")).not.toContain("不是誰把妳關在裡面");
+    expect(direct.story.frame.endingId).toBe("lincheng-midnight");
+  });
+  it("lets Lin Cheng change her mind after refusing and sit down after all", () => {
+    const changed = play("lincheng-dawn", true, compiled, { refusal: ["拒絕坐下，繼續替別人", "問他那張椅子", "還是坐下"] });
+    const text = changed.texts.join(" ");
+    expect(text).toContain("黑貓從椅面跳開，把位置讓給妳");
+    expect(changed.sections.has("self-letter")).toBe(true);
+    expect(changed.story.frame.endingId).toBe("lincheng-dawn");
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-nine %s route loadable", (target) => {
     expect(play(target, true, chapterNine).story.frame.endingId).toBe(target);

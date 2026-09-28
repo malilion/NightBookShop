@@ -250,7 +250,11 @@ test("refusing the visitor seat reaches the endless midnight ending", async ({ p
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開終章" }).click();
   await prepareOpening(page);
-  await (await untilChoice(page, "拒絕坐下")).click();
+  await (await untilChoice(page, "拒絕坐下，繼續替別人")).click();
+  await (await untilChoice(page, "試試它能不能打開")).click();
+  await expect(page.locator(".dialogue-text")).toHaveAttribute("data-full-text", /門就開了一道縫/);
+  await page.reload();
+  await (await untilChoice(page, "仍然拒絕坐下")).click();
   await advanceUntil(page, ".ending-panel");
   await expect(page.getByRole("heading", { name: "不會天亮的書店" })).toBeVisible();
   await page.screenshot({ path: `output/finale-midnight-${info.project.name}.png`, fullPage: true, animations: "disabled" });

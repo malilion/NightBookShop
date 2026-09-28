@@ -34,6 +34,9 @@ VAR obs_cups = false
 VAR obs_door = false
 VAR thought_mother = false
 VAR thought_father = false
+VAR refuse_asked_chair = false
+VAR refuse_tried_door = false
+VAR refuse_read_notes = false
 VAR ending_kind = ""
 -> threshold
 
@@ -60,6 +63,31 @@ VAR ending_kind = ""
 * [拒絕坐下，繼續替別人整理故事]
     ~ intervention += 1
     妳把椅子推回原位，說還有六份手記要整理。店主沒有攔妳，黑貓只是把自己的尾巴從手冊第一頁移開。 # speaker:旁白
+    -> refuse_hub
+=== refuse_hub ===
+店主沒有把椅子收走，也沒有再推過來。妳站在櫃台後，手邊還有一點時間。 # speaker:旁白 # portrait:owner
+* {not refuse_asked_chair} [問他那張椅子會一直留著嗎]
+    ~ refuse_asked_chair = true
+    「會留著。」店主說。「我不會替妳推過來，也不會替妳收走。」 # speaker:店主 # portrait:owner
+    黑貓跳上椅面，轉了兩圈，坐在徽章旁邊。牠沒有看妳，好像只是替那個位置占著，等誰都可以。 # speaker:旁白
+    -> refuse_hub
+* {not refuse_tried_door} [走到玻璃門邊，試試它能不能打開]
+    ~ refuse_tried_door = true
+    妳握住門把，這次沒有用力，門就開了一道縫。外頭的石板路是濕的，空氣裡有早班公車的柴油味。 # speaker:旁白
+    第一夜妳推了兩下，門紋絲不動。今天它開著，妳卻自己把它帶上了。鎖舌扣回去的聲音很輕。
+    「我只是想知道。」妳對著門說。店主沒有回答，也沒有把這件事記進手冊。 # speaker:林澄
+    -> refuse_hub
+* {not refuse_read_notes} [翻看六位訪客的手記，不碰自己的信]
+    ~ refuse_read_notes = true
+    妳一頁頁翻過去：靜蘭坐在椅子前緣，柏言把手機翻面，若音把琴盒放在腳邊，葉暖先替別人切麵包，雨航把郵袋抱在膝上，海明說他怕自己忘記。 # speaker:旁白
+    六個人都坐下過。有人坐得很久，有人一直想站起來，可他們都在那張椅子上待到把話說出口。
+    妳把手記合上，壓在自己那封信上面。 # speaker:旁白
+    -> refuse_hub
+* [還是坐下，先替自己泡一杯茶]
+    ~ sat_down = true
+    妳把椅子拉回來，坐下的動作比想像中慢。{refuse_asked_chair:黑貓從椅面跳開，把位置讓給妳。}店主點點頭，把茶席推到妳這一側。 # speaker:旁白 # portrait:owner
+    -> self_tea
+* [仍然拒絕坐下，繼續替別人整理故事]
     -> end_midnight
 === self_tea ===
 茶席還在原處。妳可以拿任何一罐茶；這次沒有人等著妳判斷他的情緒，也沒有哪一種香氣能替妳決定要想起什麼。 # scene:counter # speaker:旁白 # section:tea
@@ -69,12 +97,34 @@ VAR ending_kind = ""
 {
 - tea_type == "osmanthus":
     靜蘭杯裡的桂花香回來了。妳記得她說，幸福與遺憾能同時存在；今天也許不用立刻替自己選一種心情。 # scene:lincheng # speaker:旁白 # section:archive
+- tea_type == "puer":
+    熟普洱沉在杯底，顏色深得看不見葉子。妳想起靜蘭說過，喝了不心慌；以前有話說不出口，她就一直喝水。 # scene:lincheng # speaker:旁白 # section:archive
+    妳喝了一口，沒有急著把杯子喝空。今晚妳想留一點位置給還沒說的話。
+- tea_type == "mint":
+    薄荷的涼味先到舌尖。雨航那晚也喝過一杯，說像半夜騎車時灌進領口的風，冷，但讓人醒著。 # scene:lincheng # speaker:旁白 # section:archive
+    妳發現自己也一直醒著。六夜都醒著，只是從沒問過自己為什麼不睡。
+- tea_type == "jasmine":
+    茉莉的香氣在杯口散開。六位訪客沒有一個人選過這罐，它在茶架上放了六夜，罐蓋上的灰都還是完整的。 # scene:lincheng # speaker:旁白 # section:archive
+    這一杯不讓妳想起任何人。妳捧著它，才想到自己其實不知道自己喜歡什麼茶。
+- tea_type == "black":
+    蜜香紅茶很濃。妳記得柏言喝了這一種，手又伸回筆電；妳端起杯子時，眼睛也先看向桌上那疊還沒整理的手記。 # scene:lincheng # speaker:旁白 # section:archive
+    妳把手記推遠一點。這杯茶可以提神，但今晚不用拿它撐過什麼。
+- tea_type == "chamomile":
+    洋甘菊的氣味很淡，像晾在陽台一整天的被子。柏言喝這杯時說不出哪裡好，只說胸口沒有那麼緊。 # scene:lincheng # speaker:旁白 # section:archive
+    妳沒有替這杯茶找理由。胸口鬆了一點，就先讓它鬆著。
 - tea_type == "lavender":
     若音的茶有淡淡花香。八音盒的四個音響過，最後一拍終於落下。 # scene:lincheng # speaker:旁白 # section:archive
 - tea_type == "hojicha":
     焙茶讓妳想起葉暖的爐火與海明的燈。留住熱度不需要把火開到最旺。 # scene:lincheng # speaker:旁白 # section:archive
 - else:
     這杯茶是妳自己選的。水溫與時間不必剛好對應任何訪客；杯口的暖意是此刻真實的。 # scene:lincheng # speaker:旁白 # section:archive
+}
+{
+- tea_quality >= 90:
+    妳注意到自己泡得很慢。注水時沒有抬頭看門，也沒有在心裡替下一位客人數時間；這是六夜以來，妳第一次照自己的節奏泡完一杯。 # speaker:旁白
+- tea_quality < 50:
+    水倒得急，茶有點澀。妳下意識想倒掉重泡，手伸到一半才想起，這一杯不必端給任何人。 # speaker:旁白
+    妳把它喝了一口。澀味留在舌根，妳沒有替它道歉。
 }
 -> seat_observed
 === seat_observed ===
@@ -373,10 +423,12 @@ VAR ending_kind = ""
 === end_midnight ===
 妳把訪客席推回去，替下一個尚未到來的人擺好茶杯。店主問妳是否確定；妳說今晚還能先處理別人的事。 # scene:lincheng # speaker:旁白 # section:dawn-choice
 鐘聲響過十二下，又從第一下開始。門鈴終於響了，妳起身去開門，沒有再看那封寫給自己的信。
+{refuse_tried_door:妳知道那扇門能開。所以這一次留下，不是誰把妳關在裡面。 # speaker:旁白}
 -> midnight_afterword
 === midnight_afterword ===
 書籤後記：夜行書店仍在午夜開門。林澄接待了許多訪客，手冊一頁頁變厚，寫給自己的那封信一直留在櫃台最底下。 # scene:counter # speaker:旁白 # section:afterword
 黑貓偶爾會坐到那張空椅子上。今夜，她還沒願意坐過去。
+{refuse_read_notes:她的手記越寫越厚，每一頁都有人坐下過。只有最底下那一封，還沒有椅子。 # speaker:旁白}
 ~ ending_kind = "midnight"
 -> chapter_coda
 === chapter_coda ===
