@@ -32,6 +32,10 @@ VAR asked_ticket = false
 VAR asked_phone = false
 VAR asked_labels = false
 VAR asked_blank_bar = false
+VAR asked_corridor_tree = false
+VAR heard_rankings = false
+VAR asked_plan_hand = false
+VAR left_plan_blanks = false
 VAR ending_kind = ""
 -> arrival
 
@@ -122,15 +126,53 @@ VAR ending_kind = ""
 - else:
     茶有些澀，若音立刻說自己也常把拍子拉錯，像要替杯子接受一次評分。妳請她不用替這杯茶辯護；她才發現，自己連休息時都在等一句「夠好」。 # clue:tea-score # speaker:旁白
 }
--> tea_aftercare
+-> tea_mood
 === tea_followup ===
 若音喝了幾口，仍把杯子放在琴盒旁。若想知道她為何一直看時鐘，可以請她多說一句，也可以陪她先聽完杯緣的餘音。 # speaker:旁白
 * [問她今晚最怕錯過哪個時刻]
     ~ trust += 1
     「沒有演出要趕。我怕的是停下來以後，連自己喜歡哪個音都認不出來。」她說，這比錯過下一班車更讓她不安。 # clue:tea-breath # speaker:沈若音
-    -> tea_aftercare
+    -> tea_mood
 * [先陪她聽完杯緣的餘音]
     她沒有立刻答話，只把琴盒推遠一點。「我可以先聽，再決定要不要拉。」 # speaker:沈若音
+    -> tea_mood
+=== tea_mood ===
+{
+- tea_type == "osmanthus":
+    -> osmanthus_rankings
+- tea_type == "black":
+    -> black_plan
+- else:
+    -> tea_aftercare
+}
+=== osmanthus_rankings ===
+她又說起音樂院那年的名次：誰進了決賽，誰拿到交換名額，誰後來簽了經紀公司。每個名字後面都跟著一個數字。 # speaker:旁白
+說到窗外那棵樹時，她停了一下，像那是一個不該出現在名單裡的東西。
+* [問她，走廊窗外那棵樹是什麼樣子]
+    ~ asked_corridor_tree = true
+    ~ trust += 1
+    「桂花。考試週剛好開花。」若音想了想，「香味會從琴房的窗縫飄進來。我那時候只顧著聽隔壁拉得比我快，忘了自己也會把窗推開一點。」 # speaker:沈若音
+    她把杯子轉了半圈。「原來那條走廊，不是只有分數。」 # speaker:沈若音
+    -> tea_aftercare
+* [陪她把名單念完，不打斷]
+    ~ heard_rankings = true
+    ~ understanding += 1
+    她一路念到最後一個名字，才說出自己的：「第七名。」念完她笑了一下。「從來沒有人問過我第七名的事，只有我自己每年都在問。」 # speaker:沈若音
+    妳沒有替那個數字說好話。她把名單念完，第一次聽見它原來那麼短。 # speaker:旁白
+    -> tea_aftercare
+=== black_plan ===
+紅茶讓她坐直了。若音從琴盒側袋拿出筆，在節目單背面寫：每天練六小時、三個月後報名、半年後回到大賽。 # speaker:旁白
+她寫得很快，左手一直壓著紙角，沒有握筆。那張計畫裡，沒有一行寫到她的手。
+* [看著她壓紙的左手，問她寫計畫時會不會痛]
+    ~ asked_plan_hand = true
+    ~ trust += 1
+    她把左手收到桌下。「寫字就會。」停了一會，她又說：「所以我先寫計畫。寫完，就好像已經練過了一樣。」 # speaker:沈若音
+    妳沒有叫她把計畫撕掉。她自己在「六小時」旁邊畫了一個問號。 # speaker:旁白
+    -> tea_aftercare
+* [陪她把計畫寫完，只在每一行後面留一格空白]
+    ~ left_plan_blanks = true
+    若音看著那些空格。「這格要寫什麼？」 # speaker:沈若音
+    「寫那天的手怎麼樣。」妳說。她握著筆很久，一格也沒填，卻也沒有把它們劃掉。 # speaker:林澄
     -> tea_aftercare
 === tea_aftercare ===
 茶匙碰到杯緣，發出四個高低不同的音。若音放下茶杯，低聲說：「那是我小時候寫的開頭。」
@@ -255,6 +297,18 @@ VAR ending_kind = ""
     妳不替季晴回答會不會原諒。若音把未寫完的道歉留在信上，決定等讀完背面，再想要不要寄。 # speaker:旁白
     -> backstage_depart
 === backstage_depart ===
+{
+- heard_rankings:
+    鏡子旁的名單上，她的舊號碼後面寫著「7」。若音想起剛才在書店念完的那串名字，這次沒有再從第一名數下來。 # speaker:旁白
+- asked_corridor_tree:
+    鏡子映著後台的窗。若音說，比賽那天走廊外的桂花應該也開著；她只記得季晴的名次，不記得自己有沒有聞到。 # speaker:沈若音
+}
+{
+- asked_plan_hand:
+    她從琴盒裡翻出書店那張計畫，在畫了問號的「六小時」旁邊，補上一行小字：先問醫師。 # speaker:旁白
+- left_plan_blanks:
+    她想起計畫表上那些空格，在第一格寫下今晚的手：有點緊，還能握弓。 # speaker:旁白
+}
 化妝間的燈逐一熄滅。若音把票放進琴盒，沒再用那張票替自己量出與季晴的距離。 # speaker:旁白
 * [陪她走進散場後的宴會廳]
     -> banquet
@@ -463,6 +517,7 @@ VAR ending_kind = ""
 書籤後記：若音後來偶爾在小場地演出。她仍會想起舊比賽，也仍須照顧手的狀況，但不再要求每一場都回答她的人生是否成功。 # scene:counter # speaker:旁白 # section:afterword
 那首曲子有了名字，叫〈三分鐘〉。樂譜上保留了雨聲的空拍，演出時她會先等一下，再落弓。
 {asked_labels:琴盒上的商演標籤她一張也沒撕。最新一張貼在最上面，寫著一間小咖啡館的名字。 # speaker:旁白}
+{asked_plan_hand:她現在的練習表第一欄不是時數，是手的狀況。痛的日子，她只拉那四個音。 # speaker:旁白}
 ~ ending_kind = "one"
 -> chapter_coda
 === end_stage ===
@@ -472,6 +527,7 @@ VAR ending_kind = ""
 === stage_afterword ===
 書籤後記：季晴回了一張演出邀請。若音坐在觀眾席，聽完整場，謝幕後兩人才在走廊裡見面。 # scene:counter # speaker:旁白 # section:afterword
 她們沒有把那次爭吵說成誤會，只是第一次聽彼此把話講完。
+{asked_corridor_tree:散場後，兩人沿著音樂廳外的人行道走了一段。路邊有一棵桂花，她們都沒有提起那年的名次。 # speaker:旁白}
 {asked_phone:那張票是她自己在開賣那天買的。鬧鐘響了，她沒有只看著座位圖變灰。演出中她數過一次季晴換弓的位置，後來便忘了數。 # speaker:旁白}
 ~ ending_kind = "stage"
 -> chapter_coda
@@ -492,6 +548,8 @@ VAR ending_kind = ""
 === echo_afterword ===
 書籤後記：她帶傷參賽，取得名次。海報重新貼上她的名字，某個雨夜，她又把那首未完成曲拉到最後一小節。 # scene:counter # speaker:旁白 # section:afterword
 終止線後面仍是開頭的四個音。掌聲響起，她卻想不起自己上一次沒有痛地拉琴，是什麼時候。
+{heard_rankings:成績公布那天，她排在第二。她第一個找的，仍是其他人的名字排在哪裡。 # speaker:旁白}
+{left_plan_blanks:書店那張計畫表的空格，她一直沒有填。比賽前一晚，她把它們全塗成了練習時數。 # speaker:旁白}
 {asked_phone:季晴來聽了那場比賽。若音在台上數著台下的換弓，數到最後，發現自己一直在等對方拉錯。 # speaker:旁白}
 ~ ending_kind = "echo"
 -> chapter_coda

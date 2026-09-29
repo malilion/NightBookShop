@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-10.json",
+  "public/story/compiled/ruoyin-chapter-11.json",
   "utf8",
 );
+const chapterTen = readFileSync("public/story/compiled/ruoyin-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/ruoyin-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/ruoyin-chapter-7.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/ruoyin-chapter-8.json", "utf8");
@@ -152,6 +153,40 @@ describe("Ruoyin third night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-nine %s save route", (target) => {
     expect(play(target, true, chapterNine).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-ten %s save route", (target) => {
+    expect(play(target, true, chapterTen).story.frame.endingId).toBe(target);
+  });
+  it("lets osmanthus tea pull her into rankings and remembers how they were met", () => {
+    const tree = play("ruoyin-stage", true, compiled, { teaId: "osmanthus", chooseTexts: ["窗外那棵樹是什麼樣子"] }).texts.join(" ");
+    expect(tree).toContain("每個名字後面都跟著一個數字");
+    expect(tree).toContain("原來那條走廊，不是只有分數");
+    expect(tree).toContain("不記得自己有沒有聞到");
+    expect(tree).toContain("路邊有一棵桂花");
+    const ranks = play("ruoyin-echo", true, compiled, { teaId: "osmanthus", chooseTexts: ["把名單念完"] });
+    const said = ranks.texts.join(" ");
+    expect(said).toContain("「第七名。」");
+    expect(said).toContain("這次沒有再從第一名數下來");
+    expect(said).toContain("她排在第二");
+    expect(said).not.toContain("路邊有一棵桂花");
+    expect(ranks.story.frame.endingId).toBe("ruoyin-echo");
+  });
+  it("lets black tea turn to a comeback plan without the hand, and carries the answer on", () => {
+    const hand = play("ruoyin-one", true, compiled, { teaId: "black", chooseTexts: ["寫計畫時會不會痛"] });
+    const asked = hand.texts.join(" ");
+    expect(asked).toContain("沒有一行寫到她的手");
+    expect(asked).toContain("寫完，就好像已經練過了一樣");
+    expect(asked).toContain("先問醫師");
+    expect(asked).toContain("第一欄不是時數，是手的狀況");
+    expect(hand.story.frame.endingId).toBe("ruoyin-one");
+    const blanks = play("ruoyin-echo", true, compiled, { teaId: "black", chooseTexts: ["留一格空白"] }).texts.join(" ");
+    expect(blanks).toContain("一格也沒填，卻也沒有把它們劃掉");
+    expect(blanks).toContain("有點緊，還能握弓");
+    expect(blanks).toContain("全塗成了練習時數");
+    expect(blanks).not.toContain("先問醫師");
+    const lavender = play("ruoyin-echo").texts.join(" ");
+    for (const line of ["每個名字後面都跟著一個數字", "沒有一行寫到她的手", "她排在第二", "全塗成了練習時數"])
+      expect(lavender).not.toContain(line);
   });
   it("lets the opening details return at the last bar and in the afterwords", () => {
     const one = play("ruoyin-one").texts.join(" ");
