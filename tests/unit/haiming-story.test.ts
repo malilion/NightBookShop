@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-13.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-14.json", "utf8");
+const chapterThirteen = readFileSync("public/story/compiled/haiming-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/haiming-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/haiming-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/haiming-chapter-10.json", "utf8");
@@ -25,7 +26,7 @@ const targets = {
   "haiming-hero": "只寄流暢的英雄故事",
 } as const;
 
-function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none"; orderDates?: boolean; reunionChoice?: "flex"; prefer?: string } = {}) {
+function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none"; orderDates?: boolean; reunionChoice?: "flex"; prefer?: string; teaId?: "hojicha" | "puer" | "mint" } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
   const sections = new Set<string>();
@@ -38,7 +39,7 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
     texts.push(story.frame.text);
     portraits.push(story.frame.portrait);
     if (story.frame.mode === "tea")
-      story.finishTea({ teaId: "hojicha", garnish: options.garnish ?? "caramel", quality: 100, emotionalMatch: 100 });
+      story.finishTea({ teaId: options.teaId ?? "hojicha", garnish: options.garnish ?? (options.teaId && options.teaId !== "hojicha" ? "none" : "caramel"), quality: 100, emotionalMatch: 100 });
     else if (story.frame.mode === "lamp")
       story.finishLamp(scoreLamp({ turns: ["steady", "steady", "steady"] }));
     else if (story.frame.mode === "letter") {
@@ -70,6 +71,40 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
 }
 
 describe("Haiming sixth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-thirteen %s route", (target) => {
+    expect(play(target, false, chapterThirteen).story.frame.endingId).toBe(target);
+  });
+  it("lets pu-erh steady him for the wreck and remembers how it was heard", () => {
+    const wind = play("haiming-voice", false, compiled, { teaId: "puer" }).texts.join(" ");
+    expect(wind).toContain("妳想聽哪一種");
+    expect(wind).toContain("最後那一下，是從這些慢慢來的");
+    expect(wind).toContain("正好接上他說過的每一陣風");
+    expect(wind).toContain("聽到第三遍才明白");
+    const stops = play("haiming-light", false, compiled, { teaId: "puer", prefer: "通常講到哪裡就停" });
+    const told = stops.texts.join(" ");
+    expect(told).toContain("「後面是醫院。」");
+    expect(told).toContain("往下移到醫院的號碼");
+    expect(told).toContain("「然後我才去醫院。」");
+    expect(told).not.toContain("正好接上他說過的每一陣風");
+    expect(stops.story.frame.endingId).toBe("haiming-light");
+  });
+  it("lets mint sharpen his worry about dates and carries the answer into the fog", () => {
+    const dated = play("haiming-boat", false, compiled, { teaId: "mint" });
+    const written = dated.texts.join(" ");
+    expect(written).toContain("是不是說錯了");
+    expect(written).toContain("寫著，就不用一直問了");
+    expect(written).toContain("背面寫著今天的日期和一個「晴」");
+    expect(written).toContain("旁邊寫了顧川的名字");
+    expect(dated.story.frame.endingId).toBe("haiming-boat");
+    const allowed = play("haiming-hero", true, compiled, { teaId: "mint", prefer: "說錯日期也沒關係" }).texts.join(" ");
+    expect(allowed).toContain("說錯了，燈也不會滅嗎");
+    expect(allowed).toContain("那我問一下，應該也可以");
+    expect(allowed).toContain("比較像我");
+    expect(allowed).not.toContain("寫著，就不用一直問了");
+    const hojicha = play("haiming-voice").texts.join(" ");
+    for (const line of ["妳想聽哪一種", "是不是說錯了", "正好接上他說過的每一陣風", "那我問一下，應該也可以"])
+      expect(hojicha).not.toContain(line);
+  });
   it("uses only supported story tags", () => {
     const source = readFileSync("story/chapters/ch06_haiming.ink", "utf8");
     for (const match of source.matchAll(/#\s*([^#\n}]+)/g))
