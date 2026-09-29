@@ -111,6 +111,7 @@ test("second-night opening observations can be asked, skipped and resumed on bot
     await page.getByRole("button", { name: "繼續", exact: true }).click();
   }
   await expect(page.locator(".dialogue-text")).toHaveAttribute("data-full-text", /我記得價錢，不記得味道/);
+  await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
   await page.reload();
   await expect(page.locator(".dialogue-text")).toHaveAttribute("data-full-text", /我記得價錢，不記得味道/);
   for (let step = 0; step < 6 && !(await page.getByRole("button", { name: "看公事包裡的胃藥和三張日期不同的紙" }).isVisible()); step++)
@@ -124,6 +125,7 @@ test("second-night opening observations can be asked, skipped and resumed on bot
   }
   await expect(page.locator(".dialogue-text")).toHaveAttribute("data-full-text", /都是辭職信/);
   await expect(page.locator(".character-portrait")).toHaveAttribute("src", /boyan-soft/);
+  await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
   await page.reload();
   await expect(page.locator(".character-portrait")).toHaveAttribute("src", /boyan-soft/);
   for (let step = 0; step < 8 && !(await page.getByRole("button", { name: "先替他燒水" }).isVisible()); step++)
