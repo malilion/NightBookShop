@@ -22,7 +22,7 @@ function completedJinglanSave(): GameSnapshot {
   if (story.frame.endingId !== "moonlight") throw new Error("Jinglan fixture did not reach her self-letter ending");
   return snapshotSchema.parse({
     version: 1,
-    storyVersion: "jinglan-chapter-7",
+    storyVersion: "jinglan-chapter-8",
     inkState: story.serialize(),
     frame: story.frame,
     tea: newTea(),

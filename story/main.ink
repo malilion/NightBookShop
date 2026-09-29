@@ -30,6 +30,10 @@ VAR read_poem = false
 VAR heard_father = false
 VAR respected_pause = false
 VAR addressed_self = false
+VAR heard_teaching = false
+VAR asked_not_ready = false
+VAR warmed_water = false
+VAR kept_short = false
 VAR afterword_kind = ""
 INCLUDE chapters/ch01_jinglan.ink
 -> prologue

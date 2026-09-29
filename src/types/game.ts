@@ -1,7 +1,8 @@
 import { z } from "zod";
-export const STORY_VERSION = "jinglan-chapter-7";
+export const STORY_VERSION = "jinglan-chapter-8";
 export const storyVersionSchema = z.enum([
   STORY_VERSION,
+  "jinglan-chapter-7",
   "jinglan-chapter-6",
   "jinglan-chapter-5",
   "jinglan-chapter-4",

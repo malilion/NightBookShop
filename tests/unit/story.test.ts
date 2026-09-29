@@ -162,6 +162,60 @@ describe("complete Jinglan chapter", () => {
     const previous = readFileSync("public/story/compiled/jinglan-chapter-6.json", "utf8");
     expect(play(2, "moonlight", false, previous).story.frame.endingId).toBe("moonlight");
   });
+  it("continues chapter-seven saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-7.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
+  it("lets pu-erh walk around the platform before reaching it", () => {
+    const route = (target: string, prefer: string) => {
+      const story = new StoryBridge(compiled);
+      story.next();
+      const texts: string[] = [];
+      for (let steps = 0; story.frame.mode !== "ending"; steps++) {
+        expect(steps).toBeLessThan(600);
+        texts.push(story.frame.text);
+        if (story.frame.mode === "tea") story.finishTea({ teaId: prefer.startsWith("mint:") ? "mint" : "puer", quality: 100, emotionalMatch: 100 });
+        else if (story.frame.mode === "letter") story.finishLetter({ completion: 100, understood: true, alternate: false });
+        else if (story.frame.canContinue) story.next();
+        else {
+          const want = prefer.replace(/^mint:/, "");
+          const desired = { moonlight: "陪她寫一封信", recipient: "問她，是否願意", unfinished: "把信交還給她，今晚", intervention: "替她把信寄出" }[target]!;
+          const choice = story.frame.choices.find((c) => c.text.includes(want))
+            ?? story.frame.choices.find((c) => c.text.includes(desired))
+            ?? story.frame.choices.find((c) => c.text.includes("仍替她封口"))
+            ?? story.frame.choices[0]!;
+          story.choose(choice.index);
+        }
+      }
+      return { ending: story.frame.endingId, text: texts.join(" ") };
+    };
+    const teaching = route("moonlight", "聽她先說教書的事");
+    expect(teaching.ending).toBe("moonlight");
+    expect(teaching.text).toContain("我自己沒走，就想讓他們走");
+    expect(teaching.text).toContain("自己那一篇，一直沒交");
+    expect(teaching.text).toContain("他叫陳岳川");
+    const notReady = route("unfinished", "是不是還沒準備好");
+    expect(notReady.ending).toBe("unfinished");
+    expect(notReady.text).toContain("我繞了四十年");
+    expect(notReady.text).toContain("可是我人已經在這裡了");
+    expect(notReady.text).toContain("一個我答應過要去送他的人");
+    expect(notReady.text).not.toContain("自己那一篇，一直沒交");
+    const water = route("recipient", "mint:換一杯熱開水");
+    expect(water.ending).toBe("recipient");
+    expect(water.text).toContain("這茶有點冷");
+    expect(water.text).toContain("剛才那杯熱水，比它好");
+    expect(water.text).toContain("她倒了一杯白開水坐在窗邊");
+    const short = route("moonlight", "mint:今晚少說一點");
+    expect(short.ending).toBe("moonlight");
+    expect(short.text).toContain("那我先說一半");
+    expect(short.text).toContain("她其實已經把行李收好");
+    expect(short.text).toContain("今晚我本來只打算說一半");
+    expect(short.text).not.toContain("剛才那杯熱水，比它好");
+    const osmanthus = play(1, "moonlight").texts.join(" ");
+    for (const line of ["我教了三十一年國文", "這茶有點冷", "可是我人已經在這裡了", "今晚我本來只打算說一半"])
+      expect(osmanthus).not.toContain(line);
+  });
   it("lets Jinglan describe her family's objection without erasing her own choice", () => {
     const explored = play(1, "moonlight").texts.join(" ");
     const skipped = play(1, "moonlight", false, compiled, "explore", false, undefined, true);
