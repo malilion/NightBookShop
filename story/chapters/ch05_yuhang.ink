@@ -44,6 +44,7 @@ VAR rested_on_shift = false
 VAR asked_dream_station = false
 VAR walked_to_door = false
 VAR finished_cup = false
+VAR told_recipe = false
 VAR ending_kind = ""
 -> arrival
 
@@ -240,7 +241,7 @@ VAR ending_kind = ""
 === post_ledger_reflect ===
 {
 - previous_ending == "yenuan-share":
-    妳想起葉暖曾把原配方重新放上架，也說出母親的名字。雨航指出簿上第二次派送的簽收欄：「她現在願意讓別人知道這張卡從哪裡來了。」 # speaker:旁白
+    妳想起葉暖烤出柚子蘋果麵包，替母親留了一口。雨航指出簿上第二次派送的簽收欄：「卡片送回去以後，她做出了卡片上沒有的味道。」 # speaker:旁白
     他沒有說那是父親替她做出的決定；父親當年只留下再次送達的機會。
 - previous_ending == "yenuan-reopen":
     妳記得晨麥第一爐重新出爐的日期。雨航比對派送簿，發現父親將卡片交還後，仍隔了很久，葉暖才自己定下重新開店的那天。 # speaker:旁白
@@ -427,6 +428,27 @@ VAR ending_kind = ""
 {asked_sister:他想起站牌下說過的話，「她起頭，我收尾」。「也許不是每件事，都要由我替她收尾。」 # speaker:程雨航}
 {asked_alone:他又提起那一整排推理小說，這次沒有說「那就不是我們的店」，只說自己還沒想好該擺在哪一邊。 # speaker:旁白}
 妳沒有妹妹的答案，雨航也還沒有自己的。可以先說出妳在那些地址看見了什麼，再讓他自己決定如何收信。
+-> promise_choices
+=== promise_choices ===
+* {previous_ending != "" && not told_recipe} [告訴他，上一夜有人帶著母親的食譜來過]
+    ~ told_recipe = true
+    ~ understanding += 1
+    妳說起那張由他父親代送、沒有年份郵戳的食譜卡。雨航聽到「程先生代送」時抬起頭。 # speaker:旁白
+    {
+    - previous_ending == "yenuan-share":
+        她在母親的配方旁邊加了柚子，兩張卡都留著。妳說，她沒有把哪一張當成背叛。 # speaker:林澄
+        雨航想了一下。「兩張都留著。那妹妹的明信片旁邊，也可以放一張我自己的。」 # speaker:程雨航
+    - previous_ending == "yenuan-reopen":
+        她照母親的比例重新上架，也知道以後可以改。妳說，照原樣做一次，不等於從此只能照原樣。 # speaker:林澄
+        「先做一次她想的。」雨航慢慢說，「再看我自己想不想改。」 # speaker:程雨航
+    - previous_ending == "yenuan-rest":
+        她讓店休息一週，門上寫著「下週見」。妳說，停下來也是她自己決定的。 # speaker:林澄
+        雨航看著手裡的信。「我從來沒讓那間店休息過。我只是一直沒去。」 # speaker:程雨航
+    - else:
+        她每一克都照母親的配方量，連烤盤位置也照舊。妳說，味道守住了，她卻越來越怕變。 # speaker:林澄
+        雨航沉默了很久。「我照明信片過了七年。」他說，「好像也是這樣。」 # speaker:程雨航
+    }
+    -> promise_choices
 * [提醒他，妹妹的計畫原本就容許改動]
     ~ promise_frame = "open"
     ~ trust += 1
@@ -487,6 +509,7 @@ VAR ending_kind = ""
 雨航把自己的名字寫在簽收欄，先請了一週假。他知道租約已過期，仍打電話約看那間空店面，想知道現在的自己喜不喜歡它。 # speaker:旁白
 他在妹妹畫的書車旁加上一張市集小桌。「第一步也許不用是一間店。」
 他在休假單上寫的是自己的名字與日期，沒有把妹妹的名字填成理由。同事問他要去哪裡，他說先去看幾本書，然後看看自己想留下來還是繼續走。
+{told_recipe:他後來去了一趟晨麥，買了一個蘋果麵包。付錢時他說家父以前替這裡送過信，葉暖愣了一下，多切了一片給他。 # speaker:旁白}
 {asked_father:代理人欄裡，他寫下同事的名字。父親當年那句「誰來休假」，他終於替自己答了一次。 # speaker:旁白}
 -> today_afterword
 === today_afterword ===
@@ -527,6 +550,7 @@ VAR ending_kind = ""
 書籤後記：此後每晚，那封藍色信仍出現在郵袋最底下。雨航知道它在，卻一次次先送完別人的信。 # scene:counter # speaker:旁白 # section:afterword
 有一天他也許會停下；今晚他仍把自己的地址留白。
 {walked_to_door:他還是會在話說到家的時候站起來。只是有幾次，他握著門把站一會，又自己坐回去。 # speaker:旁白}
+{told_recipe:他記得書店說起的那張食譜卡。父親送過兩次才送到；他自己的這封，還一次都沒有讓它送到。 # speaker:旁白}
 {looked_bag:郵袋底層那封信依舊沒有套上防水袋。雨航每次摸到它，都會想起有人問過，那場雨是哪一天。 # speaker:旁白}
 ~ ending_kind = "unknown"
 -> chapter_coda

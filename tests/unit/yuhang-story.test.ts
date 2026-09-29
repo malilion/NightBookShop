@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-11.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-12.json", "utf8");
+const chapterEleven = readFileSync("public/story/compiled/yuhang-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/yuhang-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/yuhang-chapter-9.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/yuhang-chapter-8.json", "utf8");
@@ -110,6 +111,27 @@ describe("Yuhang fifth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-ten %s route", (target) => {
     expect(play(target, true, false, chapterTen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-eleven %s route", (target) => {
+    expect(play(target, true, false, chapterEleven).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["yenuan-share", "兩張都留著。那妹妹的明信片旁邊"],
+    ["yenuan-reopen", "再看我自己想不想改"],
+    ["yenuan-rest", "我只是一直沒去"],
+    ["yenuan-copy", "我照明信片過了七年"],
+  ])("lets %s return before the letter and at the bakery", (previousEnding, answer) => {
+    const today = play("yuhang-today", true, false, compiled, { previousEnding, chooseTexts: ["上一夜有人帶著母親的食譜來過"] }).texts.join(" ");
+    expect(today).toContain("程先生代送");
+    expect(today).toContain(answer);
+    expect(today).toContain("多切了一片給他");
+  });
+  it("keeps the recipe story optional and lets the refused ending remember it", () => {
+    expect(play("yuhang-unknown", true, false, compiled, { previousEnding: "yenuan-rest", chooseTexts: ["上一夜有人帶著母親的食譜來過"] }).texts.join(" ")).toContain("還一次都沒有讓它送到");
+    const skipped = play("yuhang-today", true, false, compiled, { previousEnding: "yenuan-rest", promiseChoice: "妹妹的計畫原本就容許改動" });
+    expect(skipped.texts.join(" ")).not.toContain("多切了一片給他");
+    expect(skipped.story.frame.endingId).toBe("yuhang-today");
+    expect(play("yuhang-today").story.frame.choices).toEqual([]);
   });
   it("lets him wake from the honeyed chamomile dream and carries the answer on", () => {
     const rested = play("yuhang-today", true, false, compiled, { teaId: "chamomile", garnish: "honey" }).texts.join(" ");

@@ -39,6 +39,7 @@ VAR tidied_together = false
 VAR took_cloth = false
 VAR recipe_choice = ""
 VAR recipe_sincere = false
+VAR asked_last_line = false
 VAR ending_kind = ""
 -> arrival
 
@@ -485,6 +486,29 @@ VAR ending_kind = ""
 }
 食譜最後一格還空著。葉暖拿起筆，卻先看了一眼籃底那顆焦掉的麵包。「我想把它填完。但我得先知道，是為了媽媽，還是怕再做錯一次。」 # speaker:葉暖
 {compared_performances:她想起招牌角落那顆畫歪的蘋果，把筆尖停在空格上。「那天我不敢讓店停，現在我可以先想清楚要寫什麼。」 # speaker:葉暖}
+{
+- previous_ending == "ruoyin-one":
+    妳想起若音只為一個人拉完的最後一小節。最後一格，也不必寫給滿座的客人。 # speaker:旁白
+- previous_ending == "ruoyin-stage":
+    妳想起若音坐在台下，把季晴的演出聽完才起身。最後一格可以先聽完別人的味道，再寫自己的。 # speaker:旁白
+- previous_ending == "ruoyin-score":
+    若音的交換簿裡，有人只留下一句話。最後一格也不必寫得很長。 # speaker:旁白
+- previous_ending == "ruoyin-echo":
+    妳想起若音的終止線後面，仍是開頭的四個音。照原樣寫回去，未必就是回來了。 # speaker:旁白
+}
+-> recipe_question
+=== recipe_question ===
+* {previous_ending != "" && not asked_last_line} [問她，最後一格想寫給誰吃]
+    ~ asked_last_line = true
+    ~ understanding += 1
+    葉暖把筆放在空格上方。「以前都寫給客人。媽媽寫的那幾行，是寫給我的。」 # speaker:葉暖
+    {
+    - previous_ending == "ruoyin-echo":
+        她停了一下，又說：「如果我照抄她的最後一行，是不是就不用決定了？」妳沒有回答，她自己把筆收回來。 # speaker:葉暖
+    - else:
+        「那這一格，」她說，「我想寫給明天早上的我。她也會餓。」 # speaker:葉暖
+    }
+    -> recipe_question
 * [問她想留下哪一口，讓自己也能吃下去]
     ~ recipe_sincere = true
     葉暖把筆放下。「我可以記得她，也可以承認我還想吃新的味道。留一口給她以前，我想先替自己留一口。」 # speaker:葉暖
@@ -521,6 +545,7 @@ VAR ending_kind = ""
 === share_afterword ===
 書籤後記：晨麥多了一款柚子蘋果麵包。葉暖有時仍會為那晚難過；想起母親時，她會先讓自己坐下吃一片。 # scene:counter # speaker:旁白 # section:afterword
 母親的原配方仍收在店裡，新配方寫在它旁邊。她把兩張卡片都留下。
+{asked_last_line:新配方卡的最後一行寫著：「給早上的自己，先吃一片。」字比其他幾行小。 # speaker:旁白}
 {ate_burnt_bread:每年母親生日，她仍會烤一顆原味的蘋果麵包。烤焦了也不再丟；她切開它，先吃中間最軟的那一片。 # speaker:旁白}
 ~ ending_kind = "share"
 -> chapter_coda
@@ -554,6 +579,7 @@ VAR ending_kind = ""
 === copy_afterword ===
 書籤後記：晨麥天天賣出漂亮的蘋果麵包。葉暖每晚重算比例，不讓任何人代做；母親留下的卡片漸漸被翻得起毛。 # scene:counter # speaker:旁白 # section:afterword
 她守住了味道，仍害怕自己一旦停下，就會失去最後能抓住的東西。
+{asked_last_line:她在書店說過，最後一格想寫給明天早上的自己。後來那一格仍照母親的字描滿，沒有留給她。 # speaker:旁白}
 {cut_burnt_bread:母親生日那天，她依舊烤一顆，依舊在天亮前丟掉。書店裡切開過的那一顆，她沒有再切開第二次。 # speaker:旁白}
 ~ ending_kind = "copy"
 -> chapter_coda

@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-14.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-15.json", "utf8");
+const chapterFourteen = readFileSync("public/story/compiled/haiming-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/haiming-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/haiming-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/haiming-chapter-11.json", "utf8");
@@ -73,6 +74,29 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
 describe("Haiming sixth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-thirteen %s route", (target) => {
     expect(play(target, false, chapterThirteen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-fourteen %s route", (target) => {
+    expect(play(target, target === "haiming-hero", chapterFourteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["yuhang-today", "那我這封，我自己交給小川"],
+    ["yuhang-future", "我沒有七年。我寫明天"],
+    ["yuhang-past", "寄回過去的，小川收不到"],
+    ["yuhang-unknown", "不要讓它繞一輩子"],
+  ])("lets %s shape how Haiming will hand over the letter", (previousEnding, answer) => {
+    const light = play("haiming-light", false, compiled, { previousEnding, prefer: "這封信要自己交" }).texts.join(" ");
+    expect(light).toContain("寫給自己的藍色信");
+    expect(light).toContain(answer);
+    expect(light).toContain("父子的手在紙船的摺痕上碰了一下");
+  });
+  it("carries the delivery answer into the other afterwords and stays optional", () => {
+    const options = { previousEnding: "yuhang-today", prefer: "這封信要自己交" };
+    expect(play("haiming-voice", false, compiled, options).texts.join(" ")).toContain("把收件人的名字念了兩遍");
+    expect(play("haiming-boat", false, compiled, options).texts.join(" ")).toContain("他還沒交出去");
+    expect(play("haiming-hero", true, compiled, options).texts.join(" ")).toContain("最後寄出傳記的，是妳");
+    const first = play("haiming-light").texts.join(" ");
+    expect(first).not.toContain("寫給自己的藍色信");
+    expect(first).not.toContain("父子的手在紙船的摺痕上碰了一下");
   });
   it("lets pu-erh steady him for the wreck and remembers how it was heard", () => {
     const wind = play("haiming-voice", false, compiled, { teaId: "puer" }).texts.join(" ");

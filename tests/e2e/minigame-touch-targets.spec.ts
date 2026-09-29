@@ -6,10 +6,10 @@ import { smallTargets } from "./touch-target-helpers";
 
 const cases = [
   { name: "通知", version: "boyan-chapter-12", mode: "notifications", selector: ".notification-panel", action: ".notification-card button" },
-  { name: "旋律", version: "ruoyin-chapter-11", mode: "melody", selector: ".melody-panel", action: ".melody-key" },
-  { name: "爐火", version: "yenuan-chapter-10", mode: "hearth", selector: ".hearth-panel", action: ".hearth-actions button" },
-  { name: "投遞", version: "yuhang-chapter-11", mode: "route", selector: ".route-panel", action: ".route-actions button" },
-  { name: "守燈", version: "haiming-chapter-14", mode: "lamp", selector: ".lamp-panel", action: ".lamp-actions button" },
+  { name: "旋律", version: "ruoyin-chapter-12", mode: "melody", selector: ".melody-panel", action: ".melody-key" },
+  { name: "爐火", version: "yenuan-chapter-11", mode: "hearth", selector: ".hearth-panel", action: ".hearth-actions button" },
+  { name: "投遞", version: "yuhang-chapter-12", mode: "route", selector: ".route-panel", action: ".route-actions button" },
+  { name: "守燈", version: "haiming-chapter-15", mode: "lamp", selector: ".lamp-panel", action: ".lamp-actions button" },
   { name: "地圖", version: "lincheng-chapter-12", mode: "archive", selector: ".archive-panel", action: ".archive-record" },
 ] as const;
 

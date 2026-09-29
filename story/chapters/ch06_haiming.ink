@@ -40,6 +40,7 @@ VAR heard_wind_first = false
 VAR asked_where_stops = false
 VAR wrote_today_date = false
 VAR allowed_wrong_dates = false
+VAR asked_who_delivers = false
 VAR ending_kind = ""
 -> arrival
 
@@ -478,6 +479,23 @@ VAR ending_kind = ""
 妳們回到櫃台，燈照著紙船的摺痕。即使四片都拼上，也不能讓海明重過那些錯過的日子；它能讓他用今天還能決定的語氣，把信交給顧川。 # scene:counter # speaker:旁白
 {reoriented_gently:海明把寫著書店名稱的那張紙也夾進日誌。「這張我要留著。小川可以學著這樣寫，不必每次都從頭解釋。」 # speaker:顧海明}
 {asked_earlier_ferry:海明在草稿邊留著「我曾能搭上早班船」。他說這句不能替顧川補回婚禮上的空椅子，卻也不願再把它改寫成「當時沒有別的辦法」。 # speaker:顧海明}
+-> letter_ready
+=== letter_ready ===
+* {previous_ending != "" && not asked_who_delivers} [問海明，這封信要自己交，還是請人送]
+    ~ asked_who_delivers = true
+    ~ understanding += 1
+    妳說起前一晚來過的送信人，他背著一封寫給自己的藍色信。 # speaker:旁白
+    {
+    - previous_ending == "yuhang-today":
+        他最後在簽收欄寫了自己的名字。海明聽完點頭：「自己的信，自己簽。那我這封，我自己交給小川。」 # speaker:顧海明
+    - previous_ending == "yuhang-future":
+        他把信寄到七年後，又先寫下下個月的日期。海明笑了一下：「我沒有七年。我寫明天。」 # speaker:顧海明
+    - previous_ending == "yuhang-past":
+        他把信放進妹妹的紀念盒，給自己另寫了一封。海明看著紙船：「寄回過去的，小川收不到。他在現在。」 # speaker:顧海明
+    - else:
+        他沒有簽收，那封信明天還會在郵袋底。海明沉默了一會：「那我這封，不要讓它繞一輩子。我自己交。」 # speaker:顧海明
+    }
+    -> letter_ready
 * [在柔光下拼回四片紙船]
     -> letter_start
 === letter_start ===
@@ -512,6 +530,7 @@ VAR ending_kind = ""
 書籤後記：顧川帶父親回來幾次。有些日子海明能說起風箏，有些日子需要再看住址卡。顧川把日誌與卡放在他容易找到的地方。 # scene:counter # speaker:旁白 # section:afterword
 那封信仍有塗改與停頓；它不替兩人解決所有往事，卻讓他們知道還能從哪一句開始。
 {asked_where_stops:顧川問起那艘船。海明講到船看見岸，停了一下，接著說：「然後我才去醫院。」 # speaker:旁白}
+{asked_who_delivers:那封信是海明親手交的。顧川接過時，父子的手在紙船的摺痕上碰了一下。 # speaker:旁白}
 {asked_morning:有天早上，顧川煎的蛋又焦了。海明看著盤子說：「跟我煎的一樣。」兩個人都笑了。 # speaker:旁白}
 ~ ending_kind = "light"
 -> chapter_coda
@@ -522,6 +541,7 @@ VAR ending_kind = ""
 === voice_afterword ===
 書籤後記：顧川收到聲音航海誌，聽見父親說的不只有英勇事蹟。往後海明忘記某個日期時，他們會一起聽一小段，不要求錄音把記憶變回原樣。 # scene:counter # speaker:旁白 # section:afterword
 錄音裡有海聲，也有廚房裡沒忍住的笑聲。
+{asked_who_delivers:錄音帶是海明自己拿去郵局寄的。櫃台的人問要不要掛號，他說要，還把收件人的名字念了兩遍。 # speaker:旁白}
 {heard_wind_first:錄音開頭是一段很長的風向與浪高。顧川沒有快轉，聽到第三遍才明白，父親是在讓他一起站到那晚的窗前。 # speaker:旁白}
 {asked_hands:錄音裡父親說錯的潮時，顧川也照抄進日誌，旁邊仍用鉛筆小小地寫上對的。 # speaker:旁白}
 ~ ending_kind = "voice"
@@ -533,6 +553,7 @@ VAR ending_kind = ""
 === boat_afterword ===
 書籤後記：海明日後有些話說得出來，有些仍留在紙上。顧川陪他去看海，兩人不把每次沉默都當成忘記。 # scene:counter # speaker:旁白 # section:afterword
 那張紙船依然可以打開；何時讀，由海明自己選。
+{asked_who_delivers:紙船還在他手裡。他說過要自己交；只是那天在海邊，他還沒交出去，顧川也沒有伸手要。 # speaker:旁白}
 {wrote_today_date:從海邊回來，海明在杯墊背面寫下那天的日期，旁邊寫了顧川的名字。 # speaker:旁白}
 {asked_sea:在海邊，海明又報了一次風向和霧。顧川沒有糾正，只問他是怎麼看出來的；海明講了很久。 # speaker:旁白}
 ~ ending_kind = "boat"
@@ -544,6 +565,7 @@ VAR ending_kind = ""
 === hero_afterword ===
 書籤後記：顧川收到傳記，珍惜父親救人的紀錄，也說：「我還是不知道他那時有沒有想回家。」 # scene:counter # speaker:旁白 # section:afterword
 日誌變得整齊，父子間那張空椅子仍沒有名字。
+{asked_who_delivers:海明說過這封信要自己交。最後寄出傳記的，是妳。 # speaker:旁白}
 {allowed_wrong_dates:傳記裡每個日期都查證過。海明讀完說：「那晚我說錯的那幾個，比較像我。」 # speaker:旁白}
 {asked_hands:傳記裡找不到顧川那幾頁端正的字。那些照抄父親說錯潮時的句子，被當作筆誤刪掉了。 # speaker:旁白}
 ~ ending_kind = "hero"

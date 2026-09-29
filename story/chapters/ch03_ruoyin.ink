@@ -36,6 +36,7 @@ VAR asked_corridor_tree = false
 VAR heard_rankings = false
 VAR asked_plan_hand = false
 VAR left_plan_blanks = false
+VAR asked_share_load = false
 VAR ending_kind = ""
 -> arrival
 
@@ -388,6 +389,16 @@ VAR ending_kind = ""
     ~ read_grand_score = true
     最後一行只寫了前四個音，後面全是擦掉的痕跡。若音說：「我一直以為停下來，就代表我再也寫不出下一個音。」 # speaker:沈若音
     妳把樂譜放回她面前，讓她自己決定要不要再拉一次。 # speaker:旁白
+    {
+    - previous_ending == "boyan-rest":
+        她握弓的手有點抖。妳想起柏言把回診排在報告前面；那一晚，他也是先承認自己累了，才決定明天要做什麼。 # speaker:旁白
+    - previous_ending == "boyan-leave":
+        妳想起柏言寫下的那張空白履歷。他還沒想好下一份工作，只先承認這一份不能再照原樣做下去。 # speaker:旁白
+    - previous_ending == "boyan-boundary":
+        妳想起柏言交接表上多出的那行別人的筆跡。有些重量要先說出口，旁邊的人才接得住。 # speaker:旁白
+    - previous_ending == "boyan-overwork":
+        妳想起柏言在書店送出報告，回診那格仍空著。那時妳說先做完比較安心；他點頭的樣子，和若音現在握弓的手很像。 # speaker:旁白
+    }
     -> grandstage_score
 * {not read_grand_exit} [查看側門透進的那道燈光]
     ~ read_grand_exit = true
@@ -397,6 +408,19 @@ VAR ending_kind = ""
 * [帶著琴盒回書店，拼起信的兩面]
     -> grandstage_end
 === grandstage_score ===
+* {not asked_share_load} [問她，手累的時候，有沒有哪一段能交給別人]
+    ~ asked_share_load = true
+    ~ understanding += 1
+    「二重奏的時候可以。」若音想了很久。「可是獨奏的譜上，每一個音都寫著我的名字。」 # speaker:沈若音
+    {
+    - previous_ending == "boyan-boundary":
+        妳說起有人把工作界線寫進交接表，另一個人就把那一行接了過去。若音笑了一下：「那我至少可以在譜上標出，哪裡需要鋼琴多撐一點。」 # speaker:沈若音
+    - previous_ending == "boyan-overwork":
+        妳說起一個人在深夜把報告送出，回診卻一直空著。妳沒有說他錯了，只說那天妳也勸他先做完。若音看著自己的手：「那我不要再請妳勸我了。」 # speaker:沈若音
+    - else:
+        她把譜翻到最長的那一段，在旁邊畫了一個小小的逗號。「這裡，也許可以讓鋼琴先走。」 # speaker:沈若音
+    }
+    -> grandstage_score
 * [先請她休息，等她想好再碰琴弓]
     ~ trust += 1
     她放下弓，聽見自己的呼吸。「原來休止符也能寫進去。」 # speaker:沈若音
@@ -516,6 +540,7 @@ VAR ending_kind = ""
 === one_afterword ===
 書籤後記：若音後來偶爾在小場地演出。她仍會想起舊比賽，也仍須照顧手的狀況，但不再要求每一場都回答她的人生是否成功。 # scene:counter # speaker:旁白 # section:afterword
 那首曲子有了名字，叫〈三分鐘〉。樂譜上保留了雨聲的空拍，演出時她會先等一下，再落弓。
+{asked_share_load:〈三分鐘〉的譜上留著一個鉛筆畫的記號。演出到那裡，鋼琴會先走一小段，她的左手在琴頸上歇一拍。 # speaker:旁白}
 {asked_labels:琴盒上的商演標籤她一張也沒撕。最新一張貼在最上面，寫著一間小咖啡館的名字。 # speaker:旁白}
 {asked_plan_hand:她現在的練習表第一欄不是時數，是手的狀況。痛的日子，她只拉那四個音。 # speaker:旁白}
 ~ ending_kind = "one"
@@ -548,6 +573,7 @@ VAR ending_kind = ""
 === echo_afterword ===
 書籤後記：她帶傷參賽，取得名次。海報重新貼上她的名字，某個雨夜，她又把那首未完成曲拉到最後一小節。 # scene:counter # speaker:旁白 # section:afterword
 終止線後面仍是開頭的四個音。掌聲響起，她卻想不起自己上一次沒有痛地拉琴，是什麼時候。
+{asked_share_load:比賽曲沒有伴奏可以分擔。她在書店譜上畫過的那個記號，比賽前被她自己擦掉了。 # speaker:旁白}
 {heard_rankings:成績公布那天，她排在第二。她第一個找的，仍是其他人的名字排在哪裡。 # speaker:旁白}
 {left_plan_blanks:書店那張計畫表的空格，她一直沒有填。比賽前一晚，她把它們全塗成了練習時數。 # speaker:旁白}
 {asked_phone:季晴來聽了那場比賽。若音在台上數著台下的換弓，數到最後，發現自己一直在等對方拉錯。 # speaker:旁白}

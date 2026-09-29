@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-10.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-11.json", "utf8");
+const chapterTen = readFileSync("public/story/compiled/yenuan-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/yenuan-chapter-9.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/yenuan-chapter-8.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/yenuan-chapter-7.json", "utf8");
@@ -119,6 +120,26 @@ describe("Yenuan fourth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-nine %s route", (target) => {
     expect(play(target, true, chapterNine).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-ten %s route", (target) => {
+    expect(play(target, true, chapterTen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["ruoyin-one", "不必寫給滿座的客人", "寫給明天早上的我"],
+    ["ruoyin-stage", "先聽完別人的味道", "寫給明天早上的我"],
+    ["ruoyin-score", "不必寫得很長", "寫給明天早上的我"],
+    ["ruoyin-echo", "未必就是回來了", "是不是就不用決定了"],
+  ])("lets %s return at the recipe's last line", (previousEnding, reflection, answer) => {
+    const share = play("yenuan-share", true, compiled, { previousEnding }).texts.join(" ");
+    expect(share).toContain(reflection);
+    expect(share).toContain(answer);
+    expect(share).toContain("給早上的自己，先吃一片");
+  });
+  it("keeps the last-line question optional and absent without a previous night", () => {
+    expect(play("yenuan-copy", true, compiled, { previousEnding: "ruoyin-one" }).texts.join(" ")).toContain("沒有留給她");
+    const first = play("yenuan-share");
+    expect(first.texts.join(" ")).not.toContain("給早上的自己，先吃一片");
+    expect(first.story.frame.endingId).toBe("yenuan-share");
   });
   it("lets lavender tea tell the night as someone else's story until the hospital", () => {
     const stranger = play("yenuan-reopen", true, compiled, { teaId: "lavender", chooseTexts: ["那個女兒後來怎麼了"] }).texts.join(" ");

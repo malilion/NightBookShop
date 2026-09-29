@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-11.json",
+  "public/story/compiled/ruoyin-chapter-12.json",
   "utf8",
 );
+const chapterEleven = readFileSync("public/story/compiled/ruoyin-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/ruoyin-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/ruoyin-chapter-9.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/ruoyin-chapter-7.json", "utf8");
@@ -156,6 +157,31 @@ describe("Ruoyin third night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-ten %s save route", (target) => {
     expect(play(target, true, chapterTen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("preserves the chapter-eleven %s save route", (target) => {
+    expect(play(target, true, chapterEleven).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["boyan-rest", "先承認自己累了", "讓鋼琴先走"],
+    ["boyan-leave", "空白履歷", "讓鋼琴先走"],
+    ["boyan-boundary", "旁邊的人才接得住", "哪裡需要鋼琴多撐一點"],
+    ["boyan-overwork", "回診那格仍空著", "那我不要再請妳勸我了"],
+  ])("lets %s return on the grand stage and in the answer about sharing the load", (previousEnding, reflection, answer) => {
+    const route = play("ruoyin-one", true, compiled, { previousEnding }).texts.join(" ");
+    expect(route).toContain(reflection);
+    expect(route).toContain(answer);
+    expect(route).toContain("她的左手在琴頸上歇一拍");
+  });
+  it("keeps the sharing question optional and lets the echo ending erase the mark", () => {
+    const echo = play("ruoyin-echo", true, compiled, { previousEnding: "boyan-rest" }).texts.join(" ");
+    expect(echo).toContain("被她自己擦掉了");
+    const skipped = play("ruoyin-one", true, compiled, { previousEnding: "boyan-rest", skipScoreTable: true, chooseTexts: ["先請她休息"] });
+    const quiet = skipped.texts.join(" ");
+    expect(quiet).toContain("先承認自己累了");
+    expect(quiet).not.toContain("讓鋼琴先走");
+    expect(quiet).not.toContain("她的左手在琴頸上歇一拍");
+    expect(skipped.story.frame.endingId).toBe("ruoyin-one");
+    expect(play("ruoyin-one").texts.join(" ")).not.toContain("先承認自己累了");
   });
   it("lets osmanthus tea pull her into rankings and remembers how they were met", () => {
     const tree = play("ruoyin-stage", true, compiled, { teaId: "osmanthus", chooseTexts: ["窗外那棵樹是什麼樣子"] }).texts.join(" ");
