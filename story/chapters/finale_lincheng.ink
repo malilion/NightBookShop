@@ -37,6 +37,9 @@ VAR thought_father = false
 VAR refuse_asked_chair = false
 VAR refuse_tried_door = false
 VAR refuse_read_notes = false
+VAR overstep_count = 0
+VAR owned_overstep = false
+VAR named_own_choices = false
 VAR ending_kind = ""
 -> threshold
 
@@ -354,6 +357,48 @@ VAR ending_kind = ""
 - previous_ending == "haiming-hero":
     妳想到自己曾把海明的猶豫修成好看的傳記，顧川卻仍找不到父親真正要說的話。妳對店主說：「別替我刪去難看的句子。」 # speaker:林澄
 }
+~ overstep_count = 0
+{ending_jinglan == "intervention": 
+    ~ overstep_count += 1
+}
+{ending_boyan == "boyan-overwork": 
+    ~ overstep_count += 1
+}
+{ending_ruoyin == "ruoyin-echo": 
+    ~ overstep_count += 1
+}
+{ending_yenuan == "yenuan-copy": 
+    ~ overstep_count += 1
+}
+{ending_yuhang == "yuhang-unknown": 
+    ~ overstep_count += 1
+}
+{previous_ending == "haiming-hero": 
+    ~ overstep_count += 1
+}
+-> owner_choice
+=== owner_choice ===
+店主等著。他沒有催妳原諒，也沒有把道歉收回去。 # speaker:旁白
+* {overstep_count > 0 && not owned_overstep} [告訴店主，自己也曾替訪客做過決定]
+    ~ owned_overstep = true
+    ~ understanding += 1
+    妳把六夜的書籤一張張想過去，停在那幾張有裂痕或太平整的上面。 # speaker:旁白
+    {ending_jinglan == "intervention":妳替靜蘭封了口，她說過「等等」。 # speaker:林澄}
+    {ending_boyan == "boyan-overwork":妳告訴柏言先把報告做完，他聽起來像終於接到熟悉的指令。 # speaker:林澄}
+    {ending_ruoyin == "ruoyin-echo":妳勸若音帶著舊傷回到比賽，她說「好」，妳沒問那是答應誰。 # speaker:林澄}
+    {ending_yenuan == "yenuan-copy":妳要葉暖一筆不改地照舊做，她從此不敢讓麵包有一點不同。 # speaker:林澄}
+    {ending_yuhang == "yuhang-unknown":妳說雨航的信是地址寫錯，他就不必再看簽收欄。 # speaker:林澄}
+    {previous_ending == "haiming-hero":妳把海明的猶豫刪成一份整齊的傳記。 # speaker:林澄}
+    我不是要拿這些抵掉你的道歉。只是你說不該讓我以為沒有選擇的時候，我想起我也這樣對過別人。 # speaker:林澄
+    店主點頭，過了一會才說：「那妳也知道，被替決定的人，事情也許辦成了，自己卻少了一塊。」他沒有說妳因此比較懂他，也沒有說妳因此該原諒。 # speaker:店主 # portrait:owner
+    -> owner_choice
+* {overstep_count == 0 && not named_own_choices} [告訴店主，六位訪客都是自己做的決定]
+    ~ named_own_choices = true
+    ~ trust += 1
+    靜蘭自己封口，柏言自己決定明天，若音自己挑最後一小節，葉暖、雨航、海明也都是。妳只是在旁邊泡茶。 # speaker:林澄
+    所以我也想要一樣的待遇。你可以陪我，可以等我，但我的信，要我自己拆。 # speaker:林澄
+    店主把手從信封上收回，放到桌子自己那一側。「好。」 # speaker:店主 # portrait:owner
+    -> owner_choice
 * [讓他把手冊最後一頁交給妳]
     ~ trust += 1
     他把紙放在桌面，不伸手替妳翻。上面寫著：「保管不等於擁有。取回與否，應由寫信的人決定。」 # clue:hidden-page # speaker:旁白
@@ -397,6 +442,7 @@ VAR ending_kind = ""
 === dawn_afterword ===
 書籤後記：林澄回到自己的生活。有些晚上仍想起那封信，也會想起書店裡六個人各自走出門的樣子。 # scene:counter # speaker:旁白 # section:afterword
 她偶爾能在需要時找到書店，進門坐一會；不再需要靠忘記才能離開。
+{owned_overstep:她有時仍想替別人把事情辦完。想起那一夜，她會先問一句：「要我幫忙，還是要我等？」 # speaker:旁白}
 {thought_father:父親的下一張卡片寄來時，她回了一封比平常長的信。信裡沒有提那一晚，只問他那座城市冬天冷不冷。 # speaker:旁白}
 ~ ending_kind = "dawn"
 -> chapter_coda
@@ -408,6 +454,8 @@ VAR ending_kind = ""
 書籤後記：林澄成為下一任守夜人。有時她需要休息，便把茶席收好、讓門關一晚；她不再把照顧所有人當成離開自己的理由。 # scene:counter # speaker:旁白 # section:afterword
 有人帶著未寫完的信來時，她會先問對方願不願意坐下。
 {obs_cups:每晚開門以前，她會先替自己倒一杯茶，再去洗客人的杯子。 # speaker:旁白}
+{owned_overstep:手冊第一頁多了一行她自己的字：「寄信以前，請讓寫信的人親自封口。也包括我。」 # speaker:旁白}
+{named_own_choices:有客人問她該怎麼辦時，她會把筆放在對方那一側的桌上。 # speaker:旁白}
 ~ ending_kind = "keeper"
 -> chapter_coda
 === end_shelf ===
@@ -417,6 +465,7 @@ VAR ending_kind = ""
 === shelf_afterword ===
 書籤後記：林澄回到日常。她記得書店的路，卻沒有每晚都去；某些記憶仍像信封裡的空白，不妨礙她往前生活。 # scene:counter # speaker:旁白 # section:afterword
 那封信留在書架上，名字朝外，等她哪天想再讀。
+{named_own_choices:信留在書架上，是她自己放的。店主沒有替她挑位置。 # speaker:旁白}
 {obs_badge:沒有了徽章，她的拇指在口袋裡空了好幾天。後來她發現，自己不按著什麼，也能記得接下來要做的事。 # speaker:旁白}
 ~ ending_kind = "shelf"
 -> chapter_coda

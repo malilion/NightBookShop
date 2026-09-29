@@ -7,7 +7,8 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-11.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-12.json", "utf8");
+const chapterEleven = readFileSync("public/story/compiled/lincheng-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/lincheng-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/lincheng-chapter-9.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/lincheng-chapter-8.json", "utf8");
@@ -80,6 +81,35 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
 }
 
 describe("Lincheng finale", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eleven %s route readable", (target) => {
+    expect(play(target, true, chapterEleven).story.frame.endingId).toBe(target);
+  });
+  it("lets Lin Cheng own every visitor she decided for when the owner apologizes", () => {
+    const overstepped = {
+      jinglan: "intervention", boyan: "boyan-overwork", ruoyin: "ruoyin-echo", yenuan: "yenuan-copy", yuhang: "yuhang-unknown",
+    };
+    const keeper = play("lincheng-keeper", true, compiled, { priorEndings: overstepped, previousEnding: "haiming-hero", refusal: ["自己也曾替訪客做過決定"] });
+    const said = keeper.texts.join(" ");
+    for (const line of ["妳替靜蘭封了口", "先把報告做完", "帶著舊傷回到比賽", "一筆不改地照舊做", "地址寫錯", "刪成一份整齊的傳記", "自己卻少了一塊", "也包括我。"])
+      expect(said).toContain(line);
+    expect(keeper.choices).not.toContain("告訴店主，六位訪客都是自己做的決定");
+    expect(keeper.story.frame.endingId).toBe("lincheng-keeper");
+    const one = play("lincheng-dawn", true, compiled, { priorEndings: { jinglan: "moonlight", boyan: "boyan-rest", ruoyin: "ruoyin-echo", yenuan: "yenuan-share", yuhang: "yuhang-today" }, previousEnding: "haiming-light", refusal: ["自己也曾替訪客做過決定"] }).texts.join(" ");
+    expect(one).toContain("帶著舊傷回到比賽");
+    expect(one).not.toContain("妳替靜蘭封了口");
+    expect(one).toContain("要我幫忙，還是要我等？");
+  });
+  it("lets a finale with no overstepped visitor ask for the same treatment", () => {
+    const clean = { jinglan: "moonlight", boyan: "boyan-rest", ruoyin: "ruoyin-one", yenuan: "yenuan-share", yuhang: "yuhang-today" };
+    const shelf = play("lincheng-shelf", true, compiled, { priorEndings: clean, previousEnding: "haiming-light", refusal: ["六位訪客都是自己做的決定"] });
+    const said = shelf.texts.join(" ");
+    expect(said).toContain("我的信，要我自己拆");
+    expect(said).toContain("店主沒有替她挑位置");
+    expect(shelf.choices).not.toContain("告訴店主，自己也曾替訪客做過決定");
+    const quiet = play("lincheng-shelf", true, compiled, { priorEndings: clean, previousEnding: "haiming-light", refusal: ["讓他把手冊最後一頁交給妳"] }).texts.join(" ");
+    expect(quiet).not.toContain("我的信，要我自己拆");
+    expect(quiet).not.toContain("店主沒有替她挑位置");
+  });
   it("keeps the previous finale save version loadable", () => {
     const story = new StoryBridge(previousCompiled);
     story.next();
