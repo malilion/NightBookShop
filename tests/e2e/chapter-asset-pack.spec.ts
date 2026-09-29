@@ -147,7 +147,7 @@ test("fifth-night memories load from the chapter pack offline", async ({ page, c
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第五夜" }).click();
-  await expectStoryCached(page, "yuhang-chapter-10");
+  await expectStoryCached(page, "yuhang-chapter-11");
   await expectImagesCached(page, [
     "/images/characters/yuhang.webp",
     ...["post-office", "last-bus", "empty-shop", "bookshop-door"].flatMap((scene) => [

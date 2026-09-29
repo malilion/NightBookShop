@@ -40,6 +40,10 @@ VAR named_detour = false
 VAR asked_alone = false
 VAR asked_father = false
 VAR promise_frame = ""
+VAR rested_on_shift = false
+VAR asked_dream_station = false
+VAR walked_to_door = false
+VAR finished_cup = false
 VAR ending_kind = ""
 -> arrival
 
@@ -140,7 +144,7 @@ VAR ending_kind = ""
 - else:
     雨航只喝一口，便問是不是該把茶送去別桌。他連不是郵件的杯子也想替人送達，卻一直不肯看信封上自己的姓名。 # clue:delivery-reflex # speaker:旁白
 }
--> tea_aftercare
+-> tea_mood
 === tea_followup ===
 雨航把杯子放在郵袋旁，身體卻仍朝向門。妳可以問他自己的住址，或讓他先看清那封信的收件欄。 # speaker:旁白
 * [問他若寄給自己會寫哪個住址]
@@ -149,6 +153,43 @@ VAR ending_kind = ""
     -> tea_aftercare
 * [讓他先看清信的收件欄]
     他把信翻正，承認上面寫的是自己的名字。「地址等我想好再填。」 # speaker:程雨航
+    -> tea_mood
+=== tea_mood ===
+{
+- tea_type == "chamomile" && tea_garnish == "honey":
+    -> chamomile_wake
+- tea_type == "hojicha":
+    -> hojicha_leave
+- else:
+    -> tea_aftercare
+}
+=== chamomile_wake ===
+雨航醒來時先摸郵袋，像怕它在夢裡被人拿走。「我睡著了？」他低頭看錶，「我在班上從來不睡。」 # speaker:程雨航
+派送簿上那行剛寫下的字還沒乾。他看著它，一時不確定該先道歉，還是先把夢記完。 # speaker:旁白
+* [告訴他，睡著的這幾分鐘沒有漏掉任何一封信]
+    ~ rested_on_shift = true
+    ~ trust += 1
+    他還是把郵袋打開，一封一封點過，數目沒有少。「原來停下來，信也還在。」他說得很慢，像第一次核對這件事。 # speaker:程雨航
+    -> tea_aftercare
+* [問他夢裡的車站是哪一站]
+    ~ asked_dream_station = true
+    ~ understanding += 1
+    「不是任何一條線上的站。」雨航閉了一下眼睛。「月台很短，只有一張長椅。她沒有上車，也沒有叫我上車，只是坐著等我自己決定。」 # speaker:程雨航
+    他把「沒有叫我上車」也寫進派送簿，寫在妹妹那句話下面。 # speaker:旁白
+    -> tea_aftercare
+=== hojicha_leave ===
+焙茶的味道讓書店像晚飯後的餐桌。雨航說到家裡的廚房，忽然站起來扣上郵袋。「差不多了，我還有一區沒送。」 # speaker:程雨航
+他的杯子還剩一半。茶的熱氣還在，他人已經朝門口走了兩步。 # speaker:旁白
+* [讓他走到門口，不攔他]
+    ~ walked_to_door = true
+    ~ trust += 1
+    雨航握住門把，門外的雨聲一下子變大。他站了一會，沒有推門，自己走回來坐下。 # speaker:旁白
+    「我每次話說到家，就想走。」他把郵袋放回椅腳，「不是因為還有信。是因為家那一站，我不知道要怎麼下車。」 # speaker:程雨航
+    -> tea_aftercare
+* [請他把茶喝完再走，路線不會跑掉]
+    ~ finished_cup = true
+    他猶豫了一下，坐回來把剩下的半杯喝完。杯底有一點茶渣，他盯著看。 # speaker:旁白
+    「家裡的茶，我好像都只喝到一半就出門。」他把空杯推回妳面前，這次沒有急著站起來。 # speaker:程雨航
     -> tea_aftercare
 === tea_aftercare ===
 藍色信的地址又變了。郵戳、雨痕與字跡分別指向一處地方；桌面像城市地圖一樣展開。
@@ -282,11 +323,23 @@ VAR ending_kind = ""
     -> bus_end
 === bus_end ===
 第二片信紙夾在取消的假單裡。背面筆跡和今年派送簿的字相同。 # fragment:admit # speaker:旁白
+{
+- asked_dream_station:
+    車窗外閃過一座很短的月台，只有一張長椅。雨航認出那是夢裡的站。他沒有下車，只在派送簿上記下：那一站沒有站名，也沒有人催他。 # speaker:旁白
+- rested_on_shift:
+    車廂搖了一下，雨航的眼皮也跟著垂下。他沒有硬撐，只把郵袋放在腿上。「書店裡睡過一次，信都還在。」 # speaker:程雨航
+}
 * [去鎖住的空店面]
     -> shop_walk
 === shop_walk ===
 末班車停在一條他熟悉的街。雨航下車後走得很慢，比去郵局時慢得多。 # speaker:旁白
 他帶妳多轉了兩個街角，說那邊的騎樓比較不會淋雨；可是那兩個街角都沒有騎樓。
+{
+- walked_to_door:
+    走到第二個街角，他停下來，像剛才在書店握著門把那樣站了一會，然後自己轉回正確的方向。 # speaker:旁白
+- finished_cup:
+    他說剛才那杯茶喝完了，現在手裡是空的，比較不會想找理由轉彎。說完他又轉錯了一次，自己笑了。 # speaker:旁白
+}
 -> shop_walk_hub
 === shop_walk_hub ===
 前面的路口亮著紅燈，雨航比燈號更早停下腳步。 # speaker:旁白
@@ -439,6 +492,8 @@ VAR ending_kind = ""
 === today_afterword ===
 書籤後記：假期裡，雨航整理出妹妹留下的書，帶幾本去市集。他還沒有決定要開哪一家店，卻開始和人聊每本書從哪裡來。 # scene:counter # speaker:旁白 # section:afterword
 夜班照舊有人接手。他第一次把休假的日期寫進簿裡，沒有塗掉。
+{rested_on_shift:休假第一天他睡到中午。醒來先摸床邊，才想起那裡沒有郵袋。 # speaker:旁白}
+{finished_cup:那天早上，他在家把一杯焙茶喝完才出門。杯子洗好，倒扣在妹妹以前用的那只旁邊。 # speaker:旁白}
 ~ ending_kind = "today"
 -> chapter_coda
 === end_future ===
@@ -459,6 +514,7 @@ VAR ending_kind = ""
 === past_afterword ===
 書籤後記：他請了三天假，搭車到海邊。回來後仍送信，也開始學攝影；那不是妹妹替他選的路，是他自己想走的。 # scene:counter # speaker:旁白 # section:afterword
 紀念盒放在家裡，不再跟著郵袋每晚出門。
+{asked_dream_station:海邊車站的月台很短，只有一張長椅。他在那裡坐了一會，沒有等任何人，才起身去看海。 # speaker:旁白}
 {asked_home:他在新信的寄件人欄寫下自己住處的街名與門牌。那個地址他背了七年，今天第一次寫給自己。 # speaker:旁白}
 ~ ending_kind = "past"
 -> chapter_coda
@@ -470,6 +526,7 @@ VAR ending_kind = ""
 === unknown_afterword ===
 書籤後記：此後每晚，那封藍色信仍出現在郵袋最底下。雨航知道它在，卻一次次先送完別人的信。 # scene:counter # speaker:旁白 # section:afterword
 有一天他也許會停下；今晚他仍把自己的地址留白。
+{walked_to_door:他還是會在話說到家的時候站起來。只是有幾次，他握著門把站一會，又自己坐回去。 # speaker:旁白}
 {looked_bag:郵袋底層那封信依舊沒有套上防水袋。雨航每次摸到它，都會想起有人問過，那場雨是哪一天。 # speaker:旁白}
 ~ ending_kind = "unknown"
 -> chapter_coda

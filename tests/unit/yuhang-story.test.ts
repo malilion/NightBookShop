@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-10.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-11.json", "utf8");
+const chapterTen = readFileSync("public/story/compiled/yuhang-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/yuhang-chapter-9.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/yuhang-chapter-8.json", "utf8");
 const chapterSix = readFileSync("public/story/compiled/yuhang-chapter-6.json", "utf8");
@@ -23,7 +24,7 @@ const targets = {
   "yuhang-unknown": { stamp: "none", choice: "拒絕簽收" },
 } as const;
 
-function play(target: keyof typeof targets, fullLetter = true, detour = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; teaId?: "mint" | "chamomile" | "hojicha"; garnish?: TeaDraft["garnish"]; blackTea?: number; promiseChoice?: string; deferPostmarkComparison?: boolean } = {}) {
+function play(target: keyof typeof targets, fullLetter = true, detour = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; teaId?: "mint" | "chamomile" | "hojicha"; garnish?: TeaDraft["garnish"]; blackTea?: number; promiseChoice?: string; deferPostmarkComparison?: boolean; chooseTexts?: string[] } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
   const sections = new Set<string>();
@@ -50,7 +51,7 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
         "請他先把郵袋放下，茶一會兒就好",
         "末班車進站，和他一起上車",
         "走到那間鎖住的店門前",
-      ].includes(entry.text)) : undefined) ?? story.frame.choices.find((entry) => options.promiseChoice && entry.text.includes(options.promiseChoice)) ?? story.frame.choices.find((entry) => entry.text.includes(targets[target].choice)) ?? story.frame.choices[0];
+      ].includes(entry.text)) : undefined) ?? story.frame.choices.find((entry) => options.chooseTexts?.some((text) => entry.text.includes(text))) ?? story.frame.choices.find((entry) => options.promiseChoice && entry.text.includes(options.promiseChoice)) ?? story.frame.choices.find((entry) => entry.text.includes(targets[target].choice)) ?? story.frame.choices[0];
       expect(selected).toBeDefined();
       story.choose(selected!.index);
     }
@@ -106,6 +107,42 @@ describe("Yuhang fifth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-nine %s route", (target) => {
     expect(play(target, true, false, chapterNine).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-ten %s route", (target) => {
+    expect(play(target, true, false, chapterTen).story.frame.endingId).toBe(target);
+  });
+  it("lets him wake from the honeyed chamomile dream and carries the answer on", () => {
+    const rested = play("yuhang-today", true, false, compiled, { teaId: "chamomile", garnish: "honey" }).texts.join(" ");
+    expect(rested).toContain("我在班上從來不睡");
+    expect(rested).toContain("原來停下來，信也還在");
+    expect(rested).toContain("書店裡睡過一次，信都還在");
+    expect(rested).toContain("休假第一天他睡到中午");
+    const station = play("yuhang-past", true, false, compiled, { teaId: "chamomile", garnish: "honey", chooseTexts: ["夢裡的車站是哪一站"] });
+    const asked = station.texts.join(" ");
+    expect(asked).toContain("她沒有上車，也沒有叫我上車");
+    expect(asked).toContain("認出那是夢裡的站");
+    expect(asked).toContain("沒有等任何人，才起身去看海");
+    expect(asked).not.toContain("原來停下來，信也還在");
+    expect(station.story.frame.endingId).toBe("yuhang-past");
+    const plain = play("yuhang-today", true, false, compiled, { teaId: "chamomile", garnish: "none" }).texts.join(" ");
+    expect(plain).not.toContain("我在班上從來不睡");
+  });
+  it("lets hojicha send him toward the door and remembers whether he stayed for the cup", () => {
+    const door = play("yuhang-unknown", true, false, compiled, { teaId: "hojicha", garnish: "none" });
+    const walked = door.texts.join(" ");
+    expect(walked).toContain("他的杯子還剩一半");
+    expect(walked).toContain("家那一站，我不知道要怎麼下車");
+    expect(walked).toContain("自己轉回正確的方向");
+    expect(walked).toContain("握著門把站一會，又自己坐回去");
+    expect(door.story.frame.endingId).toBe("yuhang-unknown");
+    const cup = play("yuhang-today", true, false, compiled, { teaId: "hojicha", garnish: "apple", chooseTexts: ["把茶喝完再走"] }).texts.join(" ");
+    expect(cup).toContain("家裡的茶，我好像都只喝到一半就出門");
+    expect(cup).toContain("現在手裡是空的");
+    expect(cup).toContain("在家把一杯焙茶喝完才出門");
+    expect(cup).not.toContain("家那一站，我不知道要怎麼下車");
+    const mint = play("yuhang-today").texts.join(" ");
+    for (const line of ["他的杯子還剩一半", "我在班上從來不睡", "現在手裡是空的", "休假第一天他睡到中午"])
+      expect(mint).not.toContain(line);
   });
   it("carries optional talks at the door, bus stop and shop walk into later scenes", () => {
     const talked = play("yuhang-today");
