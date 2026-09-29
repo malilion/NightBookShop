@@ -33,6 +33,10 @@ VAR asked_burn = false
 VAR asked_not_eating = false
 VAR cut_burnt_bread = false
 VAR ate_burnt_bread = false
+VAR told_as_stranger = false
+VAR tried_first_person = false
+VAR tidied_together = false
+VAR took_cloth = false
 VAR recipe_choice = ""
 VAR recipe_sincere = false
 VAR ending_kind = ""
@@ -129,15 +133,54 @@ VAR ending_kind = ""
 - else:
     茶太濃，她已經拿起抹布，說要替妳重泡一杯。妳看見她不是嫌這杯茶，而是把每次不如預期都當成自己該補做的工作。 # clue:tea-cleanup # speaker:旁白
 }
--> tea_aftercare
+-> tea_mood
 === tea_followup ===
 葉暖接受了茶，眼睛卻仍盯著烤箱。妳可以問她為何不能等麵包慢慢發起來，也可以先讓她把杯子握暖。 # speaker:旁白
 * [問她烤箱一安靜下來會想起什麼]
     ~ trust += 1
     「我會想起媽媽說『再等一下』。以前我以為她只是在教我做麵包。」葉暖望著焦黑的表面，沒有急著把它藏回籃底。 # clue:oven-pause # speaker:葉暖
-    -> tea_aftercare
+    -> tea_mood
 * [先讓她把杯子握暖]
     她坐了一會，才說：「我們不用趕在茶涼之前，把每件事都講完。」 # speaker:葉暖
+    -> tea_mood
+=== tea_mood ===
+{
+- tea_type == "lavender":
+    -> lavender_story
+- tea_type == "black":
+    -> black_tidy
+- else:
+    -> tea_aftercare
+}
+=== lavender_story ===
+薰衣草的氣味讓她的肩膀鬆下來。葉暖開口時，卻像在說隔壁街的事：「有個麵包師的女兒，答應媽媽週年活動一結束就回家。」 # speaker:葉暖
+她說得很平穩，平穩得像在念別人的訂單。說到「那個女兒」時，她的手指在杯緣停了一下。 # speaker:旁白
+* [問她，那個女兒後來怎麼了]
+    ~ told_as_stranger = true
+    ~ trust += 1
+    「客人很多，她每次都說再五分鐘。」葉暖看著茶面。「故事裡的人，我可以說她做錯了。說成是別人，我就不用決定要不要原諒她。」 # speaker:葉暖
+    妳沒有替她把「她」改成「我」。黑貓在爐邊翻了個身，讓那個女兒暫時留在故事裡。 # speaker:旁白
+    -> tea_aftercare
+* [輕聲問她，能不能試著用「我」說一句]
+    ~ tried_first_person = true
+    ~ understanding += 1
+    她張口，先說了一個「我」，後面的字沒有跟上來。妳沒有等她補完，把茶往她手邊推近一點。 # speaker:旁白
+    「我……說了再五分鐘。」她把句子說完，自己先愣住。「就這一句。其他的，先讓我慢一點。」 # speaker:葉暖
+    -> tea_aftercare
+=== black_tidy ===
+紅茶還冒著熱氣，她已經把麵包屑掃進掌心，又拿起抹布擦同一塊櫃台。「店裡的東西一亂，我就沒辦法好好說話。」 # speaker:葉暖
+抹布經過妳的茶杯三次，杯底下那圈水痕早就乾了。 # speaker:旁白
+* [拿起另一塊抹布，陪她一起擦]
+    ~ tidied_together = true
+    ~ trust += 1
+    妳們一人擦一邊。她手上沒停，話卻比剛才多：「週年那天我也是這樣，一直擦、一直補貨。手一停，我就會看見手機。」 # speaker:葉暖
+    擦到櫃台中間，兩塊抹布碰在一起。她看著那塊早就乾淨的木頭，自己把抹布摺好放下。「好像擦不出更多東西了。」 # speaker:旁白
+    -> tea_aftercare
+* [把抹布收走，請她先坐下]
+    ~ took_cloth = true
+    ~ understanding += 1
+    葉暖讓妳把抹布拿走，坐下後兩隻手不知道該放哪裡，只好握住杯子。「手不忙的時候，」她說，「我就只剩下那天晚上。」 # speaker:葉暖
+    妳沒有叫她把那晚放下。她握著燙手的杯子坐了一會，發現櫃台沒有因為沒人擦就亂掉。 # speaker:旁白
     -> tea_aftercare
 === tea_aftercare ===
 她指著牆邊的小烤爐。「妳們店裡也有爐。火若開太大，外皮先焦；等太久又會涼。」
@@ -282,6 +325,12 @@ VAR ending_kind = ""
     葉暖說出熟客、隔壁店主和能輪班的學徒，說到學徒時停了停。「那晚我以為只有我能做。現在不能再讓這句話替我決定每一天。」 # speaker:葉暖
     -> anniversary_depart
 === anniversary_depart ===
+{
+- tidied_together:
+    她發現自己正把傳單的摺痕來回壓平，像剛才在書店擦那塊早就乾淨的櫃台。她停下手，讓傳單留著皺摺。 # speaker:旁白
+- took_cloth:
+    她的手空著。剛才在書店，手不忙的時候也沒有什麼被弄亂；她沒有再去撫平傳單。 # speaker:旁白
+}
 隊伍的聲音退遠。葉暖把手機放進自己的口袋，說想親自看看那天以後留下的東西。 # speaker:旁白
 * [陪她走到醫院走廊]
     -> hospital
@@ -328,6 +377,12 @@ VAR ending_kind = ""
     紙袋還留著麵包與紙巾。她沒有播放語音，妳也沒有拿袋裡的東西猜母親最後想說的話。 # speaker:旁白
 - else:
     語音和長椅下的紙袋都還沒看完。葉暖仍能帶著問題離開走廊，不必為了繼續故事而重聽她尚未準備好的聲音。 # speaker:旁白
+}
+{
+- told_as_stranger:
+    「剛才在書店，我說的是『那個女兒』。」她看著空長椅。「走到這裡，我說不下去別人的故事了。是我遲到的，也是我在想她。」 # speaker:葉暖
+- tried_first_person:
+    她想起在書店只說得出一句的那個「我」。這次她沒有停在「再五分鐘」：「是我遲到了。我也是一直在想她的人。」 # speaker:葉暖
 }
 * [問她若不靠責備，還想用什麼記得母親]
     「她切蘋果時會留最薄的一片給我。」葉暖說。「有時我想起來的不是醫院，是清晨桌上的那兩只杯子。」 # speaker:葉暖
@@ -477,6 +532,7 @@ VAR ending_kind = ""
 書籤後記：蘋果麵包重新放上晨麥的架子。葉暖把母親的名字寫在價牌背面，偶爾會拿給熟客看。 # scene:counter # speaker:旁白 # section:afterword
 她知道自己將來也可以改配方；今天，她先把這個味道好好留下。
 {asked_not_eating:試吃盤上每天都切同樣厚的片數。常客發現，最後一片總是葉暖自己吃掉的。 # speaker:旁白}
+{told_as_stranger:有熟客問起那年的週年活動。她起頭說「有個麵包師的女兒」，說到一半停下來，改口：「是我。」 # speaker:旁白}
 ~ ending_kind = "reopen"
 -> chapter_coda
 === end_rest ===
@@ -486,6 +542,8 @@ VAR ending_kind = ""
 === rest_afterword ===
 書籤後記：一週後她重新打開店門，先整理烤箱，再決定當天做什麼。店仍是她的，休息也由她決定。 # scene:counter # speaker:旁白 # section:afterword
 她還沒烤蘋果麵包，卻不再把空著的那格當成必須補上的缺口。
+{tidied_together:休息的第一天，她還是把店裡擦了一遍。擦到第二遍，她想起書店那塊早就乾淨的櫃台，把抹布掛回去。 # speaker:旁白}
+{took_cloth:那一週她練習讓手空著。沒有麵團可揉的早上，她坐著把一杯茶喝完，店也沒有因此亂掉。 # speaker:旁白}
 {asked_candles:休息那週，她把抽屜裡的蠟燭一盒盒拿出來排在桌上，數了數，比她記得的還多一盒。她沒有點，只把它們收進同一個盒子，寫上母親的名字。 # speaker:旁白}
 ~ ending_kind = "rest"
 -> chapter_coda

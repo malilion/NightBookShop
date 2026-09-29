@@ -23,7 +23,7 @@ const chapters = [
   { version: STORY_VERSION, file: "main", tea: "osmanthus", fragments: ["address", "reason", "wait"] },
   { version: "boyan-chapter-12", file: "boyan-chapter-12", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
   { version: "ruoyin-chapter-10", file: "ruoyin-chapter-10", tea: "lavender", fragments: ["greeting", "fear", "music"] },
-  { version: "yenuan-chapter-9", file: "yenuan-chapter-9", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
+  { version: "yenuan-chapter-10", file: "yenuan-chapter-9", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
   { version: "haiming-chapter-13", file: "haiming-chapter-13", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
 ] as const satisfies readonly { version: StoryVersion; file: string; tea: TeaId; fragments: readonly string[] }[];
 const endings = [

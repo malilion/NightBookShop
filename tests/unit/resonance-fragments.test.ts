@@ -8,7 +8,7 @@ const chapters = [
   { id: "jinglan", file: "main", teaId: "osmanthus" },
   { id: "boyan", file: "boyan-chapter-12", teaId: "chamomile" },
   { id: "ruoyin", file: "ruoyin-chapter-10", teaId: "lavender" },
-  { id: "yenuan", file: "yenuan-chapter-9", teaId: "hojicha" },
+  { id: "yenuan", file: "yenuan-chapter-10", teaId: "hojicha" },
   { id: "yuhang", file: "yuhang-chapter-10", teaId: "mint" },
   { id: "haiming", file: "haiming-chapter-13", teaId: "hojicha" },
 ] as const;

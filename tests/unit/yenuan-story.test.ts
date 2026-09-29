@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-9.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-10.json", "utf8");
+const chapterNine = readFileSync("public/story/compiled/yenuan-chapter-9.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/yenuan-chapter-8.json", "utf8");
 const chapterSeven = readFileSync("public/story/compiled/yenuan-chapter-7.json", "utf8");
 const chapterFive = readFileSync("public/story/compiled/yenuan-chapter-5.json", "utf8");
@@ -21,7 +22,7 @@ const targets = {
   "yenuan-copy": "完全複製母親的麵包",
 } as const;
 
-function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "apple" | "none"; chooseTexts?: string[] } = {}) {
+function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "apple" | "none"; teaId?: "hojicha" | "lavender" | "black"; chooseTexts?: string[] } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
   const sections = new Set<string>();
@@ -35,7 +36,7 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
     if (story.frame.text.includes("烤箱還有餘溫"))
       finalChoiceOptions = story.frame.choices.map((choice) => choice.text);
     if (story.frame.mode === "tea")
-      story.finishTea({ teaId: "hojicha", garnish: options.garnish ?? "apple", quality: 100, emotionalMatch: 100 });
+      story.finishTea({ teaId: options.teaId ?? "hojicha", garnish: options.garnish ?? (options.teaId && options.teaId !== "hojicha" ? "none" : "apple"), quality: 100, emotionalMatch: 100 });
     else if (story.frame.mode === "hearth")
       story.finishHearth(scoreHearth({ responses: ["wait", "ask", "wait"] }));
     else if (story.frame.mode === "letter") {
@@ -115,6 +116,42 @@ describe("Yenuan fourth night", () => {
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-eight %s route", (target) => {
     expect(play(target, true, chapterEight).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("restores the chapter-nine %s route", (target) => {
+    expect(play(target, true, chapterNine).story.frame.endingId).toBe(target);
+  });
+  it("lets lavender tea tell the night as someone else's story until the hospital", () => {
+    const stranger = play("yenuan-reopen", true, compiled, { teaId: "lavender", chooseTexts: ["那個女兒後來怎麼了"] }).texts.join(" ");
+    expect(stranger).toContain("有個麵包師的女兒");
+    expect(stranger).toContain("說成是別人，我就不用決定要不要原諒她");
+    expect(stranger).toContain("我說不下去別人的故事了");
+    expect(stranger).toContain("改口：「是我。」");
+    const firstPerson = play("yenuan-reopen", true, compiled, { teaId: "lavender", chooseTexts: ["試著用「我」說一句"] });
+    const said = firstPerson.texts.join(" ");
+    expect(said).toContain("「我……說了再五分鐘。」");
+    expect(said).toContain("這次她沒有停在「再五分鐘」");
+    expect(said).not.toContain("改口：「是我。」");
+    expect(firstPerson.story.frame.endingId).toBe("yenuan-reopen");
+    const hojicha = play("yenuan-reopen").texts.join(" ");
+    expect(hojicha).not.toContain("有個麵包師的女兒");
+    expect(hojicha).not.toContain("我說不下去別人的故事了");
+  });
+  it("lets black tea send Yenuan tidying, and remembers how the cloth was answered", () => {
+    const together = play("yenuan-rest", true, compiled, { teaId: "black", chooseTexts: ["陪她一起擦"] }).texts.join(" ");
+    expect(together).toContain("抹布經過妳的茶杯三次");
+    expect(together).toContain("好像擦不出更多東西了");
+    expect(together).toContain("讓傳單留著皺摺");
+    expect(together).toContain("把抹布掛回去");
+    const seated = play("yenuan-rest", true, compiled, { teaId: "black", chooseTexts: ["把抹布收走"] });
+    const quiet = seated.texts.join(" ");
+    expect(quiet).toContain("我就只剩下那天晚上");
+    expect(quiet).toContain("她沒有再去撫平傳單");
+    expect(quiet).toContain("那一週她練習讓手空著");
+    expect(quiet).not.toContain("把抹布掛回去");
+    expect(seated.story.frame.endingId).toBe("yenuan-rest");
+    const hojicha = play("yenuan-rest").texts.join(" ");
+    expect(hojicha).not.toContain("抹布經過妳的茶杯三次");
+    expect(hojicha).not.toContain("讓手空著");
   });
   it("lets the opening details and the cut burnt bread return in each afterword", () => {
     const text = (target: keyof typeof targets, options = {}) => play(target, true, compiled, options).texts.join(" ");
