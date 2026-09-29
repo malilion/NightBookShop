@@ -20,6 +20,7 @@ export const storyVersionSchema = z.enum([
   "boyan-chapter-10",
   "boyan-chapter-11",
   "boyan-chapter-12",
+  "boyan-chapter-13",
   "ruoyin-chapter-1",
   "ruoyin-chapter-2",
   "ruoyin-chapter-3",

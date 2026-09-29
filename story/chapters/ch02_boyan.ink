@@ -30,6 +30,7 @@ VAR asked_coffee = false
 VAR asked_bag = false
 VAR asked_phone_down = false
 VAR poured_water = false
+VAR told_old_letter = false
 -> arrival
 
 === arrival ===
@@ -375,6 +376,23 @@ VAR poured_water = false
 === letter_invitation ===
 妳們回到書店，柏言自己拿著四片信紙。哪一片先放、哪一句暫時留白，都還是他可以改的事。 # scene:counter # speaker:旁白
 {asked_first_reader:他先把拼好的句子轉向自己，讀過一遍才說：「收件人先留白。我想確定這封信沒有又把自己排到最後。」 # speaker:許柏言}
+-> letter_ready
+=== letter_ready ===
+* {previous_ending != "" && not told_old_letter} [告訴他，昨晚有位客人的信放了五十年]
+    ~ told_old_letter = true
+    ~ understanding += 1
+    柏言停下手。「五十年？」他看了看自己那三張草稿的日期，最早的一張也不過三週。 # speaker:許柏言
+    {
+    - previous_ending == "moonlight":
+        妳說她最後沒有寄那封舊信，先寫了一封給二十四歲的自己。柏言想了一下：「那我這封，也可以先寄一份給自己。明天早上讀過，再決定寄不寄給主管。」 # speaker:許柏言
+    - previous_ending == "recipient":
+        妳說她先寫短箋，問收信的人願不願意收。柏言點頭：「我可以先問主管什麼時候方便談，不要又在半夜直接寄出去。」 # speaker:許柏言
+    - previous_ending == "unfinished":
+        妳說她把信帶回家，還沒決定。柏言看著信紙：「不寄也是一種決定。可是我的身體，大概沒辦法等五十年。」 # speaker:許柏言
+    - else:
+        妳說那封信最後是妳替她封口的，她說過「等等」。柏言看了妳一眼，把信紙往自己那邊挪了一點：「那這封，我自己來。」 # speaker:許柏言
+    }
+    -> letter_ready
 * [把四句話拼在一起]
     -> letter_start
 === letter_start ===
@@ -415,6 +433,7 @@ VAR poured_water = false
 書籤後記：幾週後，柏言帶著修好的手錶路過書店。他的工作沒有一夜改變，但他和醫師談過胸悶，也和主管重新分配了值班。 # scene:counter # speaker:旁白 # section:afterword
 他把晚餐放在桌上，說自己仍會緊張，只是不再把那份緊張當作必須立刻打開電腦的命令。
 有幾次新工作又被排到他的名字下，他拿出那張分過欄的排程，和團隊討論誰能接。手錶走得準了，柏言也沒有要求自己從此每次都能說得一樣穩。
+{told_old_letter:請假信是回診那天早上寄的。寄出前，他先把副本寄給自己，在捷運上讀了一遍。 # speaker:旁白}
 -> coda_rest
 === leave ===
 柏言沒有立刻按下寄出。他在紙背寫下存款可以撐多久、誰願意幫忙，以及看診後需要哪些安排。 # scene:boyan # speaker:旁白
@@ -428,6 +447,7 @@ VAR poured_water = false
 書籤後記：柏言就醫、休息後提出離職。他的履歷第一行沒有立刻填上新職稱，而是寫了想重新學的事。 # scene:counter # speaker:旁白 # section:afterword
 母親仍問他什麼時候找工作。他沒有每次都答得好，卻開始能說：「先讓我把身體照顧好。」
 舊同事偶爾問他某份檔案在哪，他會回覆自己知道的路徑，也能說下一步該問現在負責的人。空白履歷沒有替他省掉現實的計算，卻讓他不再把每一次求助都當成失敗。
+{told_old_letter:離職信沒有在半夜寄出。他等到早上，喝完一杯茶，才按下送出。 # speaker:旁白}
 -> coda_leave
 === boundary ===
 他把信題改為「工作負荷與人力安排」。交接清單留在附件，第一段先寫目前無法再單獨承擔的項目。 # scene:boyan # speaker:旁白
@@ -440,6 +460,7 @@ VAR poured_water = false
 書籤後記：談話並不輕鬆。主管起初說「大家都辛苦」，柏言拿出清單，說明哪些工作需要新的負責人。 # scene:counter # speaker:旁白 # section:afterword
 他保留了回診時間，沒有用下一次升遷的承諾抵掉它。
 有兩項工作被重派，另一項還需要爭取人手。柏言沒把那次會議說成一次就解決了所有事；他把未定的事項寫進紀錄，約好下次再核對。
+{told_old_letter:那份說明他沒有用郵件丟過去，而是先約了時間，當面交到主管手上。 # speaker:旁白}
 -> coda_boundary
 === overwork ===
 他點點頭，像終於聽到熟悉的指令。電腦其實仍沒有電，他用手機把報告最後三頁寫完。 # scene:boyan # speaker:旁白
@@ -451,6 +472,7 @@ VAR poured_water = false
 書籤後記：主管在群組裡稱讚柏言可靠。那則訊息底下，很快又排進下一份工作。 # scene:counter # speaker:旁白 # section:afterword
 他的錶仍停在 23:47。妳把那晚的茶方夾在書頁裡，旁邊留下一行提醒：若胸悶持續或再次昏厥，應立即尋求醫療協助。
 柏言看見提醒，沒有說自己已經好了；他只說知道這句話是寫給自己的。書店仍留著那張未寄出的請假草稿，下一次要不要打開，由他決定。
+{told_old_letter:報告寄出了，那封信還在草稿匣。他說過身體沒辦法等五十年；草稿的建立日期，已經又過了一週。 # speaker:旁白}
 -> coda_overwork
 === coda_rest ===
 妳翻開手冊，發現一張空白頁上多了一行字：「已收存第二位訪客的故事。」 # section:coda # speaker:旁白

@@ -75,7 +75,7 @@ test("second-night clinic and train load from the chapter pack offline", async (
   await unlock(page, ["moonlight"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第二夜" }).click();
-  await expectStoryCached(page, "boyan-chapter-12");
+  await expectStoryCached(page, "boyan-chapter-13");
   await expectImagesCached(page, [
     "/images/characters/boyan.webp",
     ...["office", "clinic", "train"].flatMap((scene) => [

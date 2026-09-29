@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-12.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-13.json", "utf8");
+const chapterTwelve = readFileSync("public/story/compiled/boyan-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/boyan-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/boyan-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/boyan-chapter-9.json", "utf8");
@@ -74,6 +75,29 @@ function complete(
 }
 
 describe("Boyan second night", () => {
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-twelve %s route", (target) => {
+    expect(complete(target, chapterTwelve).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["moonlight", "先寄一份給自己"],
+    ["recipient", "先問主管什麼時候方便談"],
+    ["unfinished", "我的身體，大概沒辦法等五十年"],
+    ["intervention", "那這封，我自己來"],
+  ])("lets Jinglan's %s ending shape how Boyan sends his letter", (previousEnding, answer) => {
+    const route = complete("boyan-rest", compiled, { previousEnding, teaChoice: "放了五十年" }).texts.join(" ");
+    expect(route).toContain("最早的一張也不過三週");
+    expect(route).toContain(answer);
+    expect(route).toContain("先把副本寄給自己，在捷運上讀了一遍");
+  });
+  it("carries the fifty-year letter into each afterword and keeps it optional", () => {
+    const options = { previousEnding: "moonlight", teaChoice: "放了五十年" };
+    expect(complete("boyan-leave", compiled, options).texts.join(" ")).toContain("喝完一杯茶，才按下送出");
+    expect(complete("boyan-boundary", compiled, options).texts.join(" ")).toContain("當面交到主管手上");
+    expect(complete("boyan-overwork", compiled, options).texts.join(" ")).toContain("已經又過了一週");
+    const first = complete("boyan-rest").texts.join(" ");
+    expect(first).not.toContain("最早的一張也不過三週");
+    expect(first).not.toContain("在捷運上讀了一遍");
+  });
   it("compiles only supported story tags", () => {
     const source = readFileSync("story/chapters/ch02_boyan.ink", "utf8");
     for (const match of source.matchAll(/#\s*([^#\n}]+)/g))
