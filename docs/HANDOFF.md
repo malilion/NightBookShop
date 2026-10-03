@@ -87,6 +87,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - **可略過的追問**模式：在結局選單或段落選單中放 `* {條件 && not 已問} [選項]`，內容結束後 `-> xxx_return`（一行過場）再回到選單。結局選項放在同一選單裡，玩家隨時能直接選結局。
 - **後記回響**：追問設一個變數，在相關結局的 `*_afterword` 用 `{變數:一句話}` 或 `{變數 == "值":一句話}` 留下痕跡。條件只依實際發生過的事，不要讓後記與結局矛盾。
 - **前夜回應**：`previous_ending` 是前一夜的首次結局。第二至六夜各有抵達、中段、後段三處回應。更早各夜的首次結局由 `gameStore` 傳入；章節 Ink 宣告 `VAR ending_jinglan = ""`（或 boyan、ruoyin、yenuan、yuhang）才會收到。目前第三夜讀 `ending_jinglan`、第六夜讀 `ending_jinglan` 與 `ending_ruoyin`，終章讀五夜全部。
+- **訪客反問**：六夜各有一段訪客反問林澄（答案存在 `lincheng_destination`、`lincheng_shift`、`lincheng_paused`、`lincheng_mother`、`lincheng_card`、`lincheng_fear`）。終章由 `gameStore` 從章節存檔的 Ink 狀態讀出（`storyBridge.ts` 的 `visitorQuestionVariables`、`readInkString`），宣告同名變數即可收到。林澄的回答只能用序章與終章已有的設定，不可提前揭露童年那封信。
 - 主題底線：泡茶不取代醫療；柏言的胸悶與昏厥一律引導就醫。不讓林澄替訪客決定成為「正確答案」。
 - 每次只改一個主題，一次一個提交。提交訊息用英文、祈使句，說明玩家可見的變化，最後一行是 `New story version xxx-chapter-N; -M stays for existing saves.`，再加 `Co-Authored-By` 行。
 
@@ -149,6 +150,9 @@ AI 可直接做：
 
 | 提交 | 內容 |
 | --- | --- |
+| `edf9c1d` | 終章 `lincheng-chapter-15`：讀完信後回答六夜的反問；`gameStore` 從章節存檔傳入回答 |
+| `228c10c` | 第一、二、三、四、六夜的訪客反問（`jinglan-chapter-9`、`boyan-chapter-15`、`ruoyin-chapter-14`、`yenuan-chapter-13`、`haiming-chapter-19`） |
+| `6b1e3d7` | 第五夜 `yuhang-chapter-14`：雨航問林澄有沒有沒回的信（第一段訪客反問） |
 | `3dd18ca` | 終章 `lincheng-chapter-13`：拼信後可問店主那晚有沒有人抱過林澄、補完或保留貓腳印壓住的第三行 |
 | `2283365` | 第二、五、六夜拼信後的可選追問（七章拼信後至此都有可選談話）；20 種替代結局從開場玩到結局的瀏覽器測試；「顯示全文」點擊的時序修正 |
 | `6e37dd8` | 經由「四個音」的非相鄰前夜回應（第三夜回應靜蘭、第六夜回應若音）；`gameStore` 把更早各夜的結局傳給每一章 |
