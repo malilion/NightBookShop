@@ -8,7 +8,7 @@ const cases = [
   { name: "通知", version: "boyan-chapter-14", mode: "notifications", selector: ".notification-panel", action: ".notification-card button" },
   { name: "旋律", version: "ruoyin-chapter-13", mode: "melody", selector: ".melody-panel", action: ".melody-key" },
   { name: "爐火", version: "yenuan-chapter-12", mode: "hearth", selector: ".hearth-panel", action: ".hearth-actions button" },
-  { name: "投遞", version: "yuhang-chapter-13", mode: "route", selector: ".route-panel", action: ".route-actions button" },
+  { name: "投遞", version: "yuhang-chapter-14", mode: "route", selector: ".route-panel", action: ".route-actions button" },
   { name: "守燈", version: "haiming-chapter-18", mode: "lamp", selector: ".lamp-panel", action: ".lamp-actions button" },
   { name: "地圖", version: "lincheng-chapter-14", mode: "archive", selector: ".archive-panel", action: ".archive-record" },
 ] as const;

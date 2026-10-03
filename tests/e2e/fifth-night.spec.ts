@@ -150,6 +150,7 @@ test("fifth night restores the route and letter stamp before Yuhang signs today"
   await (await untilChoice(page, "替別人蓋過幾次章")).click();
   await (await untilChoice(page, "今天自己簽收")).click();
   await advanceUntil(page, '.dialogue-text[data-full-text*="和紙巾上那一枚是同一個紅色"]');
+  await advanceUntil(page, '.dialogue-text[data-full-text*="那張卡片，回了嗎？不回也沒關係，地址還對就好"]');
   await advanceUntil(page, ".ending-panel");
   await expect(page.getByRole("heading", { name: "今日簽收" })).toBeVisible();
   await page.getByRole("button", { name: /守夜手記/ }).click();

@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-13.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-14.json", "utf8");
+const chapterThirteen = readFileSync("public/story/compiled/yuhang-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/yuhang-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/yuhang-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/yuhang-chapter-10.json", "utf8");
@@ -71,6 +72,33 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
 }
 
 describe("Yuhang fifth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-thirteen %s route readable", (target) => {
+    expect(play(target, true, false, chapterThirteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["yuhang-today", "父親每年寄來", "在確認那個地址還對", "地址還對就好"],
+    ["yuhang-future", "父親每年寄來", "在確認那個地址還對", "回給誰、回不回"],
+    ["yuhang-past", "父親每年寄來", "在確認那個地址還對", "這裡的地址也還對"],
+    ["yuhang-unknown", "父親每年寄來", "在確認那個地址還對", "連地址都還沒寫"],
+    ["yuhang-today", "今晚先送他的信", "妳跟我一樣。先送別人的", "先送別人信的店員"],
+    ["yuhang-future", "今晚先送他的信", "妳跟我一樣。先送別人的", "希望她那時已經送了"],
+    ["yuhang-past", "今晚先送他的信", "妳跟我一樣。先送別人的", "沒有寫是誰說的"],
+    ["yuhang-unknown", "今晚先送他的信", "妳跟我一樣。先送別人的", "像在等誰先開口"],
+  ] as const)("lets Yuhang ask Lin Cheng about an unanswered letter before %s (%s)", (target, answer, reply, afterword) => {
+    const run = play(target, true, false, compiled, { chooseTexts: ["陪他安靜等車", "聽他問妳一個問題", answer] });
+    const texts = run.texts.join(" ");
+    expect(texts).toContain("卻沒回的信");
+    expect(texts).toContain(reply);
+    expect(texts).toContain(afterword);
+    expect(texts).toContain(answer.startsWith("父親") ? "家裡抽屜那疊卡片" : "自己那一頁仍是空的");
+    expect(run.story.frame.endingId).toBe(target);
+  });
+  it("keeps Yuhang's question until he has waited quietly", () => {
+    const texts = play("yuhang-today", true, false, compiled, { skipObjects: true }).texts.join(" ");
+    expect(texts).not.toContain("卻沒回的信");
+    expect(texts).not.toContain("家裡抽屜那疊卡片");
+    expect(texts).not.toContain("自己那一頁仍是空的");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twelve %s route readable", (target) => {
     expect(play(target, true, false, chapterTwelve).story.frame.endingId).toBe(target);
   });

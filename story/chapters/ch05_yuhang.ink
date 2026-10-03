@@ -48,6 +48,7 @@ VAR told_recipe = false
 VAR sister_word = ""
 VAR tried_stamp = false
 VAR key_choice = ""
+VAR lincheng_card = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -298,6 +299,22 @@ VAR ending_kind = ""
     妳沒有再問。黑貓不知何時跟了出來，蹲在長椅下舔爪子。 # speaker:旁白
     過了一會，雨航自己開口：「妳不問我為什麼不回家嗎？」妳說，等他想說的時候再說。他點點頭，把郵袋放到長椅上，第一次讓它離開自己的手。
     -> bus_stop_hub
+* {waited_quietly && lincheng_card == ""} [聽他問妳一個問題]
+    站牌的燈又閃了一下。雨航看著長椅上的郵袋，說送了七年信，最常遇到的不是查無此人，是收件的人明明在，卻一直沒有回。 # speaker:旁白
+    「妳呢？」他轉過頭，「妳有沒有一封一直收到、卻沒回的信？」 # speaker:程雨航
+    ** [告訴他，父親每年寄來一張字很少的卡片]
+        ~ lincheng_card = "told"
+        ~ trust += 1
+        妳說父親住在另一座城市，每年寄一張卡片，字總是很少。妳都收著，一張也沒回。 # speaker:林澄
+        雨航沒有說妳該回。他想了想，說寄件的人每年都寫同一個地址，有時不是因為沒話說，是在確認那個地址還對。 # speaker:旁白
+        「收得到，就表示人還在那裡。」他說，「至少寄的人是這樣想的。」 # speaker:程雨航
+        -> bus_stop_hub
+    ** [告訴他，今晚先送他的信]
+        ~ lincheng_card = "kept"
+        妳說今晚要送的是他的信，妳的可以晚一點。 # speaker:林澄
+        雨航看了妳一會，笑了，笑得有點累。「妳跟我一樣。先送別人的。」 # speaker:程雨航
+        他沒有追問，只把郵袋往旁邊挪，讓長椅空出一個位置。「那我也不催妳。等妳想送的時候再說。」 # speaker:旁白
+        -> bus_stop_hub
 * [末班車進站，和他一起上車]
     -> last_bus
 === last_bus ===
@@ -561,6 +578,8 @@ VAR ending_kind = ""
 {tried_stamp:簽收欄那一格，他蓋得很正，和紙巾上那一枚是同一個紅色。 # speaker:旁白}
 {key_choice == "return":看店面那天，房東用自己的鑰匙開了門。雨航說這次是來看的，不是來收尾的。 # speaker:旁白}
 {key_choice == "keep":看店面那天，他用口袋裡那把鑰匙開門。門這次沒有卡住。 # speaker:旁白}
+{lincheng_card == "told":他寄回書店的明信片背面多了一行小字：「那張卡片，回了嗎？不回也沒關係，地址還對就好。」 # speaker:旁白}
+{lincheng_card == "kept":他寄回書店的明信片寫給「先送別人信的店員」。上面沒有問題，只寫他今天先送了自己的。 # speaker:旁白}
 ~ ending_kind = "today"
 -> chapter_coda
 === end_future ===
@@ -575,6 +594,8 @@ VAR ending_kind = ""
 {sister_word == "spoken":七年後的信裡，他也寫了那把吉他：還沒賣，弦換過了。 # speaker:旁白}
 {tried_stamp:他把紙巾上那枚章剪下來，夾進寄往七年後的信封，讓那時的自己認得。 # speaker:旁白}
 {key_choice == "return":鑰匙寄回房東了。他在信裡寫：如果七年後還想要一間店，就重新去問。 # speaker:旁白}
+{lincheng_card == "told":寄往七年後的信封裡，他另外夾了一張空白卡片，寫明給書店的店員：回給誰、回不回，都由她決定。 # speaker:旁白}
+{lincheng_card == "kept":他在給七年後自己的信末多寫一句：站牌下那位店員也還沒送出自己的信，希望她那時已經送了。 # speaker:旁白}
 ~ ending_kind = "future"
 -> chapter_coda
 === end_past ===
@@ -591,6 +612,8 @@ VAR ending_kind = ""
 {tried_stamp:紙巾上那枚章，他夾在新信的第一頁。 # speaker:旁白}
 {key_choice == "keep":鑰匙仍掛在鑰匙圈上，和木製書店一起。他沒打算再開那扇門，只是還不想拿下來。 # speaker:旁白}
 {key_choice == "return":鑰匙寄回去那天，他順路去了海邊車站。信封投進郵筒的聲音，比他想像中輕。 # speaker:旁白}
+{lincheng_card == "told":在海邊他買了兩張明信片。一張寄給自己，另一張寄到書店，只寫：「這裡的地址也還對。」 # speaker:旁白}
+{lincheng_card == "kept":在海邊的長椅上，他想起有人說過「今晚先送你的」。他把那句話寫進新信，沒有寫是誰說的。 # speaker:旁白}
 ~ ending_kind = "past"
 -> chapter_coda
 === end_unknown ===
@@ -608,6 +631,8 @@ VAR ending_kind = ""
 {sister_word == "spoken":那句關於吉他的話，他後來沒有再說過。吉他仍靠在衣櫃旁。 # speaker:旁白}
 {tried_stamp:那張蓋過他名字的紙巾留在櫃台上。黑貓有時睡在上面。 # speaker:旁白}
 {key_choice == "keep":鑰匙還在圈上。他每次掏鑰匙開家門，都會先碰到它。 # speaker:旁白}
+{lincheng_card == "told":他對妳說過，寄件的人每年寫同一個地址，是在確認它還對。他自己那封，連地址都還沒寫。 # speaker:旁白}
+{lincheng_card == "kept":他說過妳跟他一樣先送別人的。後來每晚送完最後一戶，他都在路燈下停一會，像在等誰先開口。 # speaker:旁白}
 ~ ending_kind = "unknown"
 -> chapter_coda
 === chapter_coda ===
@@ -615,6 +640,12 @@ VAR ending_kind = ""
 書架上那封五十年前的信、柏言的七年前草稿、葉暖母親更早的食譜，如今都指向這個不守時間順序的地址。
 {compared_postmarks:妳在手冊旁畫下兩道郵戳。一道記著送達，另一道記著再次詢問；它們沒有替任何收件人寫下回答。 # speaker:旁白}
 妳想起手冊的第一頁：店員也要留下自己的故事。黑貓盯著妳，像在等妳承認已知道自己該寫給誰。
+{
+- lincheng_card == "told":
+    妳想起家裡抽屜那疊卡片。最上面那張是今年的，字一樣少；妳不知道該回什麼，只知道那個地址還對。 # speaker:旁白
+- lincheng_card == "kept":
+    雨航那句「先送別人的」還在耳邊。妳把今晚的郵戳描好，手冊上自己那一頁仍是空的。 # speaker:旁白
+}
 窗外仍是夜。妳沒有替雨航留下簽名，只把那枚郵戳描進手冊。
 -> final_bookmark
 === final_bookmark ===

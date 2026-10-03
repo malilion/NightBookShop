@@ -107,7 +107,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 | 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-14` |
 | 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-13` |
 | 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-12` |
-| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-13` |
+| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-14` |
 | 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-18` |
 | 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-14` |
 
