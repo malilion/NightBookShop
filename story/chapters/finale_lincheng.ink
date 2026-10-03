@@ -40,6 +40,11 @@ VAR refuse_read_notes = false
 VAR overstep_count = 0
 VAR owned_overstep = false
 VAR named_own_choices = false
+VAR asked_embrace = false
+VAR embrace_kind = ""
+VAR read_blank = false
+VAR read_ink_line = false
+VAR ink_word = ""
 VAR ending_kind = ""
 -> threshold
 
@@ -425,6 +430,53 @@ VAR ending_kind = ""
 }
 店門仍在妳面前。六夜的手記留在書架上，徽章放在妳與店主之間；從哪一側拿起，終於由妳決定。
 {demanded_exit_answer:妳想起第一夜推不開的玻璃門。今天它開著，妳可以讀完信再走，也可以把信留下；這一次不需要替店主的決定辯護。 # speaker:旁白}
+-> dawn_choice
+=== dawn_return ===
+信還在杯旁，店門也還開著。 # speaker:旁白
+-> dawn_choice
+=== dawn_choice ===
+* {letter_understood && not asked_embrace} [問店主，那晚有沒有人抱過妳]
+    ~ asked_embrace = true
+    ~ trust += 1
+    那天晚上，有人抱過我嗎？ # speaker:林澄
+    店主想了很久。「沒有。我給妳倒了一杯溫開水，讓黑貓睡在妳腳邊。我那時以為，不碰妳才是尊重妳。」 # speaker:店主 # portrait:owner
+    妳想起靜蘭說到月台時，妳把紙巾放在桌角，手收回自己這一側。六夜裡妳遞過許多杯茶，沒有一次先問對方，要不要被抱一下。 # speaker:旁白
+    ** [請店主現在抱妳一下]
+        ~ embrace_kind = "owner"
+        可以抱一下嗎？不用很久。 # speaker:林澄
+        店主先問妳要站著還是坐著，才繞過櫃台。那個擁抱比妳想像中短，手臂也有點僵，像他同樣很久沒這樣做過。 # speaker:旁白
+        這樣就夠了。不是因為它補回了那一晚，而是這一次妳先說出口，也有人聽見。
+        -> dawn_return
+    ** [說妳想把這個擁抱留給母親]
+        ~ embrace_kind = "mother"
+        不用了。這一個，我想留著回去問我媽。 # speaker:林澄
+        店主沒有勸。他把妳的杯子往妳那邊推近一點，像在說這個答案也算數。 # speaker:旁白
+        -> dawn_return
+    ** [把黑貓抱到腿上]
+        ~ embrace_kind = "cat"
+        黑貓本來就在椅邊繞。妳把牠抱起來，牠只掙了一下，便在妳腿上找好位置，暖得像那晚腳邊的那一團。 # speaker:旁白
+        妳不必今晚就決定要向誰要這個擁抱。先讓自己被一點重量壓住，也是一種開始。
+        -> dawn_return
+* {not letter_understood && not read_blank} [看看信上還空著的地方]
+    ~ read_blank = true
+    ~ understanding += 1
+    空著的格子沒有撕過的痕跡。紙還在，字也許也還在，只是今晚妳沒有把它們翻到正面。 # speaker:旁白
+    妳想起六夜裡那些沒寫滿的信：訪客走的時候，空白也一起被帶走，沒有人因此說那封信是假的。
+    -> dawn_return
+* {read_envelope_ink && not read_ink_line} [再看一次被貓腳印壓住的那一筆]
+    ~ read_ink_line = true
+    半枚腳印仍在紙角，正好壓在兩個願望下面。腳印底下是第三行的開頭，只寫了半個「我」字。 # speaker:旁白
+    小時候的妳替爸爸許了一個願，替媽媽許了一個願；第三行才剛要寫到自己，就被貓踩住了。
+    ** [讓那一行繼續空著]
+        ~ ink_word = "blank"
+        妳沒有替它補字。那一行停在半個「我」，至少那晚已經有人開始提到自己。 # speaker:旁白
+        -> dawn_return
+    ** [用現在的筆跡在旁邊補完它]
+        ~ ink_word = "self"
+        ~ understanding += 1
+        妳向店主借了筆，在腳印旁邊用小一號的字寫：「我也想被好好照顧。」新舊兩種筆跡並排，看得出隔了很多年。 # speaker:旁白
+        店主看了一眼，沒有說寫得對不對。「這一行是妳現在寫的。我會記得，不把它當成那時的妳。」 # speaker:店主 # portrait:owner
+        -> dawn_return
 * {letter_understood && archive_complete} [取回記憶，摘下徽章，在天亮後走出書店]
     ~ remembered_all = true
     -> end_dawn
@@ -444,6 +496,10 @@ VAR ending_kind = ""
 她偶爾能在需要時找到書店，進門坐一會；不再需要靠忘記才能離開。
 {owned_overstep:她有時仍想替別人把事情辦完。想起那一夜，她會先問一句：「要我幫忙，還是要我等？」 # speaker:旁白}
 {thought_father:父親的下一張卡片寄來時，她回了一封比平常長的信。信裡沒有提那一晚，只問他那座城市冬天冷不冷。 # speaker:旁白}
+{embrace_kind == "mother":那年過年包餃子時，她問母親那一晚怕不怕。母親說怕，手上的麵粉還沒拍掉，就先抱了她。 # speaker:旁白}
+{embrace_kind == "owner":她回書店坐坐時，店主仍會先問一句：「今天要站著，還是坐著？」 # speaker:旁白}
+{embrace_kind == "cat":黑貓有時跟她走到街口，看她過了馬路，才自己回去。 # speaker:旁白}
+{ink_word == "self":那張新舊筆跡並排的信紙，她夾在每天用的筆記本裡。 # speaker:旁白}
 ~ ending_kind = "dawn"
 -> chapter_coda
 === end_keeper ===
@@ -456,6 +512,9 @@ VAR ending_kind = ""
 {obs_cups:每晚開門以前，她會先替自己倒一杯茶，再去洗客人的杯子。 # speaker:旁白}
 {owned_overstep:手冊第一頁多了一行她自己的字：「寄信以前，請讓寫信的人親自封口。也包括我。」 # speaker:旁白}
 {named_own_choices:有客人問她該怎麼辦時，她會把筆放在對方那一側的桌上。 # speaker:旁白}
+{asked_embrace:有訪客哭的時候，她不再只把紙巾放在桌角。她會先問：「要不要抱一下，還是我坐在這裡就好？」 # speaker:旁白}
+{embrace_kind == "mother":休店的那一晚，她回家陪母親包餃子，終於問了那一夜的事。 # speaker:旁白}
+{ink_word == "self":每位訪客的手記頁底，她都留一行空白，請對方寫一句給自己的話。 # speaker:旁白}
 ~ ending_kind = "keeper"
 -> chapter_coda
 === end_shelf ===
@@ -467,6 +526,10 @@ VAR ending_kind = ""
 那封信留在書架上，名字朝外，等她哪天想再讀。
 {named_own_choices:信留在書架上，是她自己放的。店主沒有替她挑位置。 # speaker:旁白}
 {obs_badge:沒有了徽章，她的拇指在口袋裡空了好幾天。後來她發現，自己不按著什麼，也能記得接下來要做的事。 # speaker:旁白}
+{read_blank:那封信的空格還在。她經過書架時不急著翻開，知道空白不等於丟了。 # speaker:旁白}
+{ink_word == "blank":信上第三行仍停在半個「我」字。她想，等哪天知道後面要寫什麼，再回來寫。 # speaker:旁白}
+{ink_word == "self":信上多了一行現在的字，和童年的筆跡並排放在書架上。 # speaker:旁白}
+{embrace_kind == "mother":她沒有每晚去書店，卻在某個週末回家，讓母親抱了一下。兩個人都沒說是為了哪一晚。 # speaker:旁白}
 ~ ending_kind = "shelf"
 -> chapter_coda
 === end_midnight ===

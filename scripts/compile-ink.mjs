@@ -8,7 +8,7 @@ for (const [source, output] of [
   ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-11.json"],
   ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-12.json"],
   ["story/chapters/ch06_haiming.ink", "haiming-chapter-15.json"],
-  ["story/chapters/finale_lincheng.ink", "lincheng-chapter-12.json"],
+  ["story/chapters/finale_lincheng.ink", "lincheng-chapter-13.json"],
 ]) {
   const file = resolve(source);
   const issues = [];

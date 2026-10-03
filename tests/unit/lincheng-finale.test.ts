@@ -7,7 +7,8 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-12.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-13.json", "utf8");
+const chapterTwelve = readFileSync("public/story/compiled/lincheng-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/lincheng-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/lincheng-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/lincheng-chapter-9.json", "utf8");
@@ -84,6 +85,42 @@ describe("Lincheng finale", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eleven %s route readable", (target) => {
     expect(play(target, true, chapterEleven).story.frame.endingId).toBe(target);
   });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twelve %s route readable", (target) => {
+    expect(play(target, true, chapterTwelve).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["請店主現在抱妳一下", "lincheng-dawn", "今天要站著，還是坐著？"],
+    ["說妳想把這個擁抱留給母親", "lincheng-dawn", "就先抱了她"],
+    ["把黑貓抱到腿上", "lincheng-dawn", "看她過了馬路"],
+    ["請店主現在抱妳一下", "lincheng-keeper", "要不要抱一下，還是我坐在這裡就好？"],
+    ["說妳想把這個擁抱留給母親", "lincheng-shelf", "讓母親抱了一下"],
+  ] as const)("lets Lin Cheng ask whether anyone held her that night, then %s before %s", (answer, target, afterword) => {
+    const run = play(target, true, compiled, { refusal: ["那晚有沒有人抱過妳", answer] });
+    const said = run.texts.join(" ");
+    expect(said).toContain("不碰妳才是尊重妳");
+    expect(said).toContain(afterword);
+    expect(said).toContain("信還在杯旁");
+    expect(run.story.frame.endingId).toBe(target);
+  });
+  it("lets Lin Cheng leave the pawprinted line blank or finish it in her own hand", () => {
+    const blank = play("lincheng-shelf", true, compiled, { refusal: ["被貓腳印壓住的那一筆", "讓那一行繼續空著"] }).texts.join(" ");
+    expect(blank).toContain("只寫了半個「我」字");
+    expect(blank).toContain("再回來寫");
+    expect(blank).not.toContain("我也想被好好照顧");
+    const self = play("lincheng-keeper", true, compiled, { refusal: ["被貓腳印壓住的那一筆", "用現在的筆跡在旁邊補完它"] }).texts.join(" ");
+    expect(self).toContain("我也想被好好照顧");
+    expect(self).toContain("寫一句給自己的話");
+    const skipped = play("lincheng-dawn", true, compiled, { skipObjects: true });
+    expect(skipped.choices).not.toContain("再看一次被貓腳印壓住的那一筆");
+    expect(skipped.texts.join(" ")).not.toContain("信還在杯旁");
+  });
+  it("offers an unfinished letter its blank spaces instead of the embrace question", () => {
+    const run = play("lincheng-shelf", false, compiled, { refusal: ["看看信上還空著的地方"] });
+    const said = run.texts.join(" ");
+    expect(run.choices).not.toContain("問店主，那晚有沒有人抱過妳");
+    expect(said).toContain("空白不等於丟了");
+    expect(run.story.frame.endingId).toBe("lincheng-shelf");
+  });
   it("lets Lin Cheng own every visitor she decided for when the owner apologizes", () => {
     const overstepped = {
       jinglan: "intervention", boyan: "boyan-overwork", ruoyin: "ruoyin-echo", yenuan: "yenuan-copy", yuhang: "yuhang-unknown",
@@ -127,6 +164,8 @@ describe("Lincheng finale", () => {
     expect(chapterForVersion("lincheng-chapter-9")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-10")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-11")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-12")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-13")).toBe("lincheng");
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-ten %s route loadable", (target) => {
     expect(play(target, true, chapterTen).story.frame.endingId).toBe(target);

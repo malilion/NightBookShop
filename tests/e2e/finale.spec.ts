@@ -211,9 +211,13 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await page.getByRole("button", { name: "把信放在自己面前" }).click();
   await advanceUntil(page, '.dialogue-text[data-full-text*="這一次不需要替店主的決定辯護"]');
   await page.screenshot({ path: `output/finale-choice-boundary-${info.project.name}.png`, animations: "disabled" });
+  await (await untilChoice(page, "問店主，那晚有沒有人抱過妳")).click();
+  await (await untilChoice(page, "請店主現在抱妳一下")).click();
   const dawnChoice = await untilChoice(page, "取回記憶");
   await expect(page.getByRole("button", { name: /把信合起來，回到櫃台/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /那晚有沒有人抱過妳/ })).toHaveCount(0);
   await dawnChoice.click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="今天要站著，還是坐著？"]');
   await advanceUntil(page, ".ending-panel");
   await expect(page.getByRole("heading", { name: "天亮以後" })).toBeVisible();
   await page.getByRole("button", { name: /守夜手記/ }).click();
