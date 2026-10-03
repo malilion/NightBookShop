@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref, toRaw } from "vue";
-import { StoryBridge, type PriorChapterEndings } from "../story/storyBridge";
+import { StoryBridge, readInkString, visitorQuestionVariables, type PriorChapterEndings } from "../story/storyBridge";
 import {
   newTea,
   newLetter,
@@ -154,7 +154,7 @@ export const useGameStore = defineStore("game", () => {
       if (prerequisite && !completedChapters.value.has(prerequisite))
         throw new Error("請先完成前一夜，再翻開這一章。");
       const version: StoryVersion =
-        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-15" : chapter === "ruoyin" ? "ruoyin-chapter-14" : chapter === "yenuan" ? "yenuan-chapter-13" : chapter === "yuhang" ? "yuhang-chapter-14" : chapter === "haiming" ? "haiming-chapter-19" : "lincheng-chapter-14";
+        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-15" : chapter === "ruoyin" ? "ruoyin-chapter-14" : chapter === "yenuan" ? "yenuan-chapter-13" : chapter === "yuhang" ? "yuhang-chapter-14" : chapter === "haiming" ? "haiming-chapter-19" : "lincheng-chapter-15";
       const previousEnding = prerequisite
         ? saveList.value.find((save) => save.id === `chapter-${prerequisite}`)?.snapshot.frame.endingId || ""
         : "";
@@ -166,7 +166,15 @@ export const useGameStore = defineStore("game", () => {
         const ending = saveList.value.find((save) => save.id === `chapter-${visitor}`)?.snapshot.frame.endingId;
         if (ending && chapterForEnding(ending) === visitor) priorEndings[visitor] = ending;
       }
-      bridge = new StoryBridge(await storyJson(version), previousEnding, priorEndings);
+      // 終章讀各夜章節存檔裡林澄對訪客反問的回答。
+      const carriedAnswers: Record<string, string> = {};
+      if (chapter === "lincheng")
+        for (const [visitor, variable] of Object.entries(visitorQuestionVariables)) {
+          const inkState = saveList.value.find((save) => save.id === `chapter-${visitor}`)?.snapshot.inkState;
+          const answer = inkState ? readInkString(inkState, variable) : "";
+          if (answer) carriedAnswers[variable] = answer;
+        }
+      bridge = new StoryBridge(await storyJson(version), previousEnding, priorEndings, carriedAnswers);
       activeStoryVersion.value = version;
       tea.value = newTea();
       melody.value = newMelody();

@@ -3,6 +3,24 @@ import { parseTag } from "./commandParser";
 import { teas } from "../data/catalog";
 import type { ResonanceChapterId, StoryFrame, TeaResult } from "../types/game";
 export type PriorChapterEndings = Partial<Record<"jinglan" | "boyan" | "ruoyin" | "yenuan" | "yuhang", string>>;
+/** 各夜訪客反問林澄時，林澄的回答存在哪個 Ink 變數；終章宣告同名變數即可讀到。 */
+export const visitorQuestionVariables = {
+  jinglan: "lincheng_destination",
+  boyan: "lincheng_shift",
+  ruoyin: "lincheng_paused",
+  yenuan: "lincheng_mother",
+  yuhang: "lincheng_card",
+  haiming: "lincheng_fear",
+} as const;
+/** 從序列化的 Ink 狀態讀出字串變數；沒有設定過或格式不符時回傳空字串。 */
+export function readInkString(inkState: string, name: string): string {
+  try {
+    const value = (JSON.parse(inkState) as { variablesState?: Record<string, unknown> }).variablesState?.[name];
+    return typeof value === "string" && value.startsWith("^") ? value.slice(1) : "";
+  } catch {
+    return "";
+  }
+}
 export class StoryBridge {
   readonly story: Story;
   frame: StoryFrame = {
@@ -20,7 +38,7 @@ export class StoryBridge {
     canContinue: true,
     endingId: "",
   };
-  constructor(json: string, previousEndingId = "", priorEndings: PriorChapterEndings = {}) {
+  constructor(json: string, previousEndingId = "", priorEndings: PriorChapterEndings = {}, carriedStrings: Record<string, string> = {}) {
     this.story = new Story(json);
     if (typeof this.story.variablesState["previous_ending"] === "string")
       this.story.variablesState["previous_ending"] = previousEndingId;
@@ -29,6 +47,9 @@ export class StoryBridge {
       if (typeof this.story.variablesState[variable] === "string")
         this.story.variablesState[variable] = ending;
     }
+    for (const [variable, value] of Object.entries(carriedStrings))
+      if (typeof this.story.variablesState[variable] === "string")
+        this.story.variablesState[variable] = value;
   }
   next(): StoryFrame {
     if (this.frame.mode !== "dialogue") return this.frame;

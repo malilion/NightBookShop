@@ -215,11 +215,17 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await page.screenshot({ path: `output/finale-choice-boundary-${info.project.name}.png`, animations: "disabled" });
   await (await untilChoice(page, "問店主，那晚有沒有人抱過妳")).click();
   await (await untilChoice(page, "請店主現在抱妳一下")).click();
+  // 靜蘭與海明的章節存檔裡，林澄回答過「走回住處」與「怕想起來」。
+  await (await untilChoice(page, "回答六夜裡訪客問過妳的問題")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="很久沒想過自己要去哪裡"]');
+  await advanceUntil(page, '.dialogue-text[data-full-text*="現在妳想起來了，燈還亮著"]');
   const dawnChoice = await untilChoice(page, "取回記憶");
+  await expect(page.getByRole("button", { name: /回答六夜裡訪客問過妳的問題/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /把信合起來，回到櫃台/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /那晚有沒有人抱過妳/ })).toHaveCount(0);
   await dawnChoice.click();
   await advanceUntil(page, '.dialogue-text[data-full-text*="今天要站著，還是坐著？"]');
+  await advanceUntil(page, '.dialogue-text[data-full-text*="有幾題的答案，後來又改過"]');
   await advanceUntil(page, ".ending-panel");
   await expect(page.getByRole("heading", { name: "天亮以後" })).toBeVisible();
   await page.getByRole("button", { name: /守夜手記/ }).click();

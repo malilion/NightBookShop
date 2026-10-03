@@ -52,6 +52,13 @@ VAR flipped_yenuan = false
 VAR flipped_yuhang = false
 VAR flipped_haiming = false
 VAR flipped_count = 0
+VAR lincheng_destination = ""
+VAR lincheng_shift = ""
+VAR lincheng_paused = ""
+VAR lincheng_mother = ""
+VAR lincheng_card = ""
+VAR lincheng_fear = ""
+VAR answered_visitors = false
 VAR ending_kind = ""
 -> threshold
 
@@ -585,6 +592,10 @@ VAR ending_kind = ""
         妳向店主借了筆，在腳印旁邊用小一號的字寫：「我也想被好好照顧。」新舊兩種筆跡並排，看得出隔了很多年。 # speaker:旁白
         店主看了一眼，沒有說寫得對不對。「這一行是妳現在寫的。我會記得，不把它當成那時的妳。」 # speaker:店主 # portrait:owner
         -> dawn_return
+* {letter_understood && not answered_visitors && (lincheng_destination != "" || lincheng_shift != "" || lincheng_paused != "" || lincheng_mother != "" || lincheng_card != "" || lincheng_fear != "")} [回答六夜裡訪客問過妳的問題]
+    ~ answered_visitors = true
+    ~ understanding += 1
+    -> visitor_answers
 * {letter_understood && archive_complete} [取回記憶，摘下徽章，在天亮後走出書店]
     ~ remembered_all = true
     -> end_dawn
@@ -593,6 +604,46 @@ VAR ending_kind = ""
     -> end_keeper
 * [承認那段過去，讓信暫留書架，帶著未完的記憶離開]
     -> end_shelf
+=== visitor_answers ===
+六夜裡，妳一直是問問題的人。可是也有人反問過妳；那時妳答得很短，或把問題推回去。現在信讀完了，妳一題一題想。 # speaker:旁白
+{
+- lincheng_destination == "home":
+    靜蘭問過妳今晚本來要去哪裡。妳說要走回住處。其實這幾年，妳每晚都只是走回去，很久沒想過自己要去哪裡。 # speaker:旁白
+- lincheng_destination == "unsure":
+    靜蘭說白卷可以晚交，名字要先寫上。妳在自己那封信的最上方，用現在的筆跡寫下「林澄」。 # speaker:旁白
+}
+{
+- lincheng_shift == "locked":
+    柏言要妳天亮後先讓一個人知道妳在哪裡。那時第一個想到的號碼，妳現在知道是誰的：是母親。 # speaker:旁白
+- lincheng_shift == "fine":
+    柏言聽得出妳的「還好」。這一次妳對店主說：「我不太好。可是我想慢慢好起來。」 # speaker:林澄
+}
+{
+- lincheng_paused == "moon":
+    若音問妳停下過什麼。妳不再畫月亮，是搬家那一年，也是藏起那封信的那一年。 # speaker:旁白
+- lincheng_paused == "unsure":
+    若音說想不起來也像休止符。妳現在想起來了；那一拍停了很多年，下一拍落在這裡。 # speaker:旁白
+}
+{
+- lincheng_mother == "dumplings":
+    葉暖說，手忙的時候有些話比較說得出口。妳想到過年包餃子時，或許可以問母親那一晚。 # speaker:旁白
+- lincheng_mother == "rarely":
+    葉暖說，打電話就說今天吃了什麼。妳今晚喝了一杯自己泡的茶；這可以是第一句。 # speaker:旁白
+}
+{
+- lincheng_card == "told":
+    雨航說，寄件的人每年寫同一個地址，是在確認那個地址還對。父親不知道有一封信沒送到。今年的卡片，妳想回一句。 # speaker:旁白
+- lincheng_card == "kept":
+    雨航說妳跟他一樣，先送別人的。今晚妳送出的，是寫給自己的那一封。 # speaker:旁白
+}
+{
+- lincheng_fear == "remember":
+    妳對海明說過，怕的是想起來。現在妳想起來了，燈還亮著，妳也還坐在這裡。 # speaker:旁白
+- lincheng_fear == "guests":
+    海明借妳的鉛筆還在口袋裡。妳用它在信紙邊上寫：「我也是這幾晚的客人。」 # speaker:旁白
+}
+店主一直沒有插話。妳說完，他把手冊翻到新的一頁，推到妳面前，沒有說要寫什麼。 # speaker:旁白
+-> dawn_return
 === end_dawn ===
 妳把四片信放進自己的口袋，摘下月亮徽章。店主把門打開；這一次，門內沒有任何聲音催妳回頭。 # speaker:旁白
 早晨的街道跟妳記得的一樣，也有妳以往沒看過的細節。那封兒時沒交出去的信不能重寄，但妳可以重新跟母親談談那段日子，也可以選擇先去吃早餐。
@@ -609,6 +660,8 @@ VAR ending_kind = ""
 {embrace_kind == "cat":黑貓有時跟她走到街口，看她過了馬路，才自己回去。 # speaker:旁白}
 {ink_word == "self":那張新舊筆跡並排的信紙，她夾在每天用的筆記本裡。 # speaker:旁白}
 {flipped_count == 6:她把六張書籤的影本夾在筆記本最後幾頁。有些晚上睡不著，她會翻一張，想想那個人現在在哪裡。 # speaker:旁白}
+{answered_visitors:訪客問過她的那幾個問題，她寫在同一頁上，每題底下留著回答。有幾題的答案，後來又改過。 # speaker:旁白}
+{answered_visitors && lincheng_card == "told":她回了父親今年的卡片，只有一行：「地址還對。」 # speaker:旁白}
 ~ ending_kind = "dawn"
 -> chapter_coda
 === end_keeper ===
@@ -625,6 +678,7 @@ VAR ending_kind = ""
 {embrace_kind == "mother":休店的那一晚，她回家陪母親包餃子，終於問了那一夜的事。 # speaker:旁白}
 {ink_word == "self":每位訪客的手記頁底，她都留一行空白，請對方寫一句給自己的話。 # speaker:旁白}
 {flipped_count == 6:她把六張書籤釘在櫃台後的牆上。新來的客人問那是什麼，她說：「之前坐過這張椅子的人。」 # speaker:旁白}
+{answered_visitors:有客人反問起她的事時，她不再說「今晚先說你的」。她會先回答一句，再把話還給對方。 # speaker:旁白}
 ~ ending_kind = "keeper"
 -> chapter_coda
 === end_shelf ===
@@ -641,6 +695,7 @@ VAR ending_kind = ""
 {ink_word == "self":信上多了一行現在的字，和童年的筆跡並排放在書架上。 # speaker:旁白}
 {embrace_kind == "mother":她沒有每晚去書店，卻在某個週末回家，讓母親抱了一下。兩個人都沒說是為了哪一晚。 # speaker:旁白}
 {flipped_count == 6:她沒有帶走六張書籤。它們跟她的信放在同一層書架，名字朝外。 # speaker:旁白}
+{answered_visitors:六夜裡被問過的那些問題，她回答了想得到的幾題。其餘的，跟信一起留在書架上。 # speaker:旁白}
 ~ ending_kind = "shelf"
 -> chapter_coda
 === end_midnight ===
@@ -653,6 +708,7 @@ VAR ending_kind = ""
 黑貓偶爾會坐到那張空椅子上。今夜，她還沒願意坐過去。
 {refuse_read_notes:她的手記越寫越厚，每一頁都有人坐下過。只有最底下那一封，還沒有椅子。 # speaker:旁白}
 {flipped_count == 6:她把六張書籤翻過一遍又一遍。自己的那張一直在最底下，她沒有翻開過。 # speaker:旁白}
+{lincheng_destination != "" || lincheng_shift != "" || lincheng_paused != "" || lincheng_mother != "" || lincheng_card != "" || lincheng_fear != "":訪客們問過她的那幾個問題，她都記得。只是每次有人再問起，她仍說：「今晚先說你的。」 # speaker:旁白}
 ~ ending_kind = "midnight"
 -> chapter_coda
 === chapter_coda ===

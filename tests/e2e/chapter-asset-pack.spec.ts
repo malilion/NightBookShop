@@ -171,7 +171,7 @@ test("finale childhood home loads from the chapter pack offline", async ({ page,
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today", "haiming-light"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開終章" }).click();
-  await expectStoryCached(page, "lincheng-chapter-14");
+  await expectStoryCached(page, "lincheng-chapter-15");
   await expectImagesCached(page, [
     "/images/characters/owner.webp",
     "/images/characters/lincheng-child.webp",

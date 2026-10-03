@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { StoryBridge, type PriorChapterEndings } from "../../src/story/storyBridge";
+import { StoryBridge, readInkString, visitorQuestionVariables, type PriorChapterEndings } from "../../src/story/storyBridge";
 import { parseTag } from "../../src/story/commandParser";
 import { frameSchema, newLetter, type LetterDraft, type TeaId } from "../../src/types/game";
 import { archiveConnections, connectionBetween, scoreArchive } from "../../src/services/archiveScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-14.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-15.json", "utf8");
+const chapterFourteen = readFileSync("public/story/compiled/lincheng-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/lincheng-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/lincheng-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/lincheng-chapter-11.json", "utf8");
@@ -32,8 +33,8 @@ const completeArchive = {
   connections: archiveConnections.map((connection) => connection.id),
 };
 
-function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; askOwnerConsent?: boolean; priorEndings?: PriorChapterEndings; teaId?: TeaId; teaQuality?: number; refusal?: string[] } = {}) {
-  const story = new StoryBridge(storyJson, options.previousEnding, options.priorEndings);
+function play(target: keyof typeof targets, fullLetter = true, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; askOwnerConsent?: boolean; priorEndings?: PriorChapterEndings; teaId?: TeaId; teaQuality?: number; refusal?: string[]; carried?: Record<string, string> } = {}) {
+  const story = new StoryBridge(storyJson, options.previousEnding, options.priorEndings, options.carried);
   story.next();
   const refusal = [...(options.refusal ?? [])];
   const sections = new Set<string>();
@@ -82,7 +83,62 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
   return { story, sections, texts, speakers, portraits, choices };
 }
 
+const firstAnswers = { lincheng_destination: "home", lincheng_shift: "locked", lincheng_paused: "moon", lincheng_mother: "dumplings", lincheng_card: "told", lincheng_fear: "remember" };
+const secondAnswers = { lincheng_destination: "unsure", lincheng_shift: "fine", lincheng_paused: "unsure", lincheng_mother: "rarely", lincheng_card: "kept", lincheng_fear: "guests" };
+
 describe("Lincheng finale", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fourteen %s route readable", (target) => {
+    expect(play(target, true, chapterFourteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    [firstAnswers, ["很久沒想過自己要去哪裡", "是母親", "也是藏起那封信的那一年", "可以問母親那一晚", "今年的卡片，妳想回一句", "現在妳想起來了，燈還亮著"]],
+    [secondAnswers, ["用現在的筆跡寫下「林澄」", "我不太好。可是我想慢慢好起來", "下一拍落在這裡", "這可以是第一句", "寫給自己的那一封", "我也是這幾晚的客人"]],
+  ] as const)("lets Lin Cheng answer the six visitors' questions after reading her letter", (carried, lines) => {
+    const run = play("lincheng-dawn", true, compiled, { carried, refusal: ["回答六夜裡訪客問過妳的問題"] });
+    const said = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe("lincheng-dawn");
+    expect(said).toContain("妳一直是問問題的人");
+    for (const line of lines) expect(said).toContain(line);
+    expect(said).toContain("有幾題的答案，後來又改過");
+    if (carried.lincheng_card === "told") expect(said).toContain("只有一行：「地址還對。」");
+    else expect(said).not.toContain("只有一行：「地址還對。」");
+  });
+  it.each([
+    ["lincheng-keeper", "她會先回答一句，再把話還給對方"],
+    ["lincheng-shelf", "其餘的，跟信一起留在書架上"],
+  ] as const)("carries the answered questions into %s", (target, afterword) => {
+    const said = play(target, true, compiled, { carried: firstAnswers, refusal: ["回答六夜裡訪客問過妳的問題"] }).texts.join(" ");
+    expect(said).toContain(afterword);
+  });
+  it("answers only the questions that were actually asked", () => {
+    const said = play("lincheng-dawn", true, compiled, { carried: { lincheng_card: "kept" }, refusal: ["回答六夜裡訪客問過妳的問題"] }).texts.join(" ");
+    expect(said).toContain("寫給自己的那一封");
+    expect(said).not.toContain("很久沒想過自己要去哪裡");
+    expect(said).not.toContain("現在妳想起來了，燈還亮著");
+  });
+  it("hides the answers when no visitor asked, or when the letter was left unread", () => {
+    expect(play("lincheng-dawn").choices).not.toContain("回答六夜裡訪客問過妳的問題");
+    expect(play("lincheng-shelf", false, compiled, { carried: firstAnswers }).choices).not.toContain("回答六夜裡訪客問過妳的問題");
+  });
+  it("remembers the unanswered questions in the midnight afterword", () => {
+    const said = play("lincheng-midnight", true, compiled, { carried: { lincheng_fear: "guests" } }).texts.join(" ");
+    expect(said).toContain("今晚先說你的");
+    expect(play("lincheng-midnight").texts.join(" ")).not.toContain("今晚先說你的");
+  });
+  it("reads each night's answer back from a finished chapter save", () => {
+    const sources = {
+      jinglan: "main.json", boyan: "boyan-chapter-15.json", ruoyin: "ruoyin-chapter-14.json",
+      yenuan: "yenuan-chapter-13.json", yuhang: "yuhang-chapter-14.json", haiming: "haiming-chapter-19.json",
+    } as const;
+    for (const [visitor, variable] of Object.entries(visitorQuestionVariables)) {
+      const chapter = new StoryBridge(readFileSync(`public/story/compiled/${sources[visitor as keyof typeof sources]}`, "utf8"));
+      chapter.next();
+      expect(readInkString(chapter.serialize(), variable)).toBe("");
+      chapter.story.variablesState[variable] = "answered";
+      expect(readInkString(chapter.serialize(), variable)).toBe("answered");
+    }
+    expect(readInkString("not json", "lincheng_card")).toBe("");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eleven %s route readable", (target) => {
     expect(play(target, true, chapterEleven).story.frame.endingId).toBe(target);
   });
