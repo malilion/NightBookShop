@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-13.json",
+  "public/story/compiled/ruoyin-chapter-14.json",
   "utf8",
 );
+const chapterThirteen = readFileSync("public/story/compiled/ruoyin-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/ruoyin-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/ruoyin-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/ruoyin-chapter-10.json", "utf8");
@@ -102,6 +103,33 @@ function play(
 }
 
 describe("Ruoyin third night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-thirteen %s route readable", (target) => {
+    expect(play(target, true, chapterThirteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["ruoyin-one", "常畫月亮", "要不要畫一個", "雲旁邊多了一個歪歪的月亮"],
+    ["ruoyin-stage", "常畫月亮", "要不要畫一個", "一個很多年沒畫的人"],
+    ["ruoyin-score", "常畫月亮", "要不要畫一個", "黑貓的爪印旁邊"],
+    ["ruoyin-echo", "常畫月亮", "要不要畫一個", "沒有抄過去"],
+    ["ruoyin-one", "想不起來有什麼停下的", "可能只是還沒到下一拍", "那個說想不起來的店員"],
+    ["ruoyin-stage", "想不起來有什麼停下的", "可能只是還沒到下一拍", "她先對一個店員說過"],
+    ["ruoyin-score", "想不起來有什麼停下的", "可能只是還沒到下一拍", "給還想不起來的人"],
+    ["ruoyin-echo", "想不起來有什麼停下的", "可能只是還沒到下一拍", "她那陣子畫過的唯一一個"],
+  ] as const)("lets Ruoyin ask what Lin Cheng stopped doing before %s (%s)", (target, answer, reply, afterword) => {
+    const run = play(target, true, compiled, { finalBar: "rest", chooseTexts: [answer] });
+    const texts = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(texts).toContain("後來停下來的事");
+    expect(texts).toContain(reply);
+    expect(texts).toContain(afterword);
+    expect(texts).toContain(answer === "常畫月亮" ? "彎的方向卻一樣" : "夾在第一頁旁");
+  });
+  it("keeps Ruoyin's question until she has talked about resting her hand", () => {
+    const texts = play("ruoyin-one", true, compiled, { skipScoreTable: true }).texts.join(" ");
+    expect(texts).not.toContain("後來停下來的事");
+    expect(texts).not.toContain("彎的方向卻一樣");
+    expect(texts).not.toContain("夾在第一頁旁");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twelve %s route readable", (target) => {
     expect(play(target, true, chapterTwelve).story.frame.endingId).toBe(target);
   });

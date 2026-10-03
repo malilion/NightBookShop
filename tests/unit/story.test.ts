@@ -167,6 +167,52 @@ describe("complete Jinglan chapter", () => {
     for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
       expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
   });
+  it("continues chapter-eight saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-8.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["moonlight", "走回住處", "有地方要回去", "有沒有回家換衣服"],
+    ["recipient", "走回住處", "有地方要回去", "有沒有帶傘"],
+    ["unfinished", "走回住處", "有地方要回去", "會記掛很久"],
+    ["intervention", "走回住處", "有地方要回去", "在妳替她封口以前說的"],
+    ["moonlight", "說不上來", "自己那一篇交白卷", "名字要先寫上"],
+    ["recipient", "說不上來", "自己那一篇交白卷", "也還沒交自己那一篇"],
+    ["unfinished", "說不上來", "自己那一篇交白卷", "那是她那晚對一個店員說過的話"],
+    ["intervention", "說不上來", "自己那一篇交白卷", "自己那一篇仍是白卷"],
+  ])("lets Jinglan ask where Lin Cheng was going before %s (%s)", (target, answer, reply, afterword) => {
+    const story = new StoryBridge(compiled);
+    story.next();
+    const texts: string[] = [];
+    const desired = { moonlight: "陪她寫一封信", recipient: "問她，是否願意", unfinished: "把信交還給她，今晚", intervention: "替她把信寄出" }[target]!;
+    for (let steps = 0; story.frame.mode !== "ending"; steps++) {
+      expect(steps).toBeLessThan(600);
+      texts.push(story.frame.text);
+      if (story.frame.mode === "tea") story.finishTea({ teaId: "osmanthus", quality: 100, emotionalMatch: 100 });
+      else if (story.frame.mode === "letter") story.finishLetter({ completion: 100, understood: true, alternate: false });
+      else if (story.frame.canContinue) story.next();
+      else {
+        const choices = story.frame.choices;
+        const choice = choices.find((c) => c.text.includes("聽她問起妳的事") || c.text.includes(answer))
+          ?? choices.find((c) => c.text.includes(desired))
+          ?? choices.find((c) => c.text.includes("仍替她封口"))
+          ?? choices[0]!;
+        story.choose(choice.index);
+      }
+    }
+    const text = texts.join(" ");
+    expect(story.frame.endingId).toBe(target);
+    expect(text).toContain("妳今晚本來要去哪裡");
+    expect(text).toContain(reply);
+    expect(text).toContain(afterword);
+    expect(text).toContain(answer === "走回住處" ? "等妳天亮回去開" : "像也在等一個人先把名字寫上");
+  });
+  it("leaves Jinglan's question out when the player goes straight to her decision", () => {
+    const text = play(2, "moonlight", false, compiled, "skip").texts.join(" ");
+    expect(text).not.toContain("妳今晚本來要去哪裡");
+    expect(text).not.toContain("等妳天亮回去開");
+  });
   it("lets pu-erh walk around the platform before reaching it", () => {
     const route = (target: string, prefer: string) => {
       const story = new StoryBridge(compiled);

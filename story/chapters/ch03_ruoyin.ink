@@ -39,6 +39,7 @@ VAR left_plan_blanks = false
 VAR asked_share_load = false
 VAR ending_jinglan = ""
 VAR told_jinglan_notes = false
+VAR lincheng_paused = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -506,6 +507,22 @@ VAR ending_kind = ""
         妳說那封信最後是妳替她封口的，她說過「等等」。若音把鉛筆握緊了一點，又放鬆：「那最後一小節，請讓我自己寫。」 # speaker:沈若音
     }
     -> score_table_hub
+* {score_rest && lincheng_paused == ""} [聽她反問妳停下過什麼]
+    若音的手還平放在譜紙邊。她看了看妳，像在看一個坐錯位置的聽眾。 # speaker:旁白
+    「一直是我在說。妳呢？妳有沒有一件小時候很喜歡、後來停下來的事？」 # speaker:沈若音
+    ** [說小時候常畫月亮，搬家以後就沒再畫]
+        ~ lincheng_paused = "moon"
+        ~ trust += 1
+        妳說小時候常在紙角畫月亮，課本、作業簿，連媽媽的購物清單都有。搬家以後，不知道為什麼就沒再畫了。 # speaker:林澄
+        若音低頭看杯底那枚小月亮，沒有說像不像。「我的四個音也停了十幾年。」 # speaker:沈若音
+        她把譜紙的角落推到妳面前，連同鉛筆。「要不要畫一個？不用畫好。」妳畫了，比杯底那個歪得多。她看了一眼，說留著。 # speaker:旁白
+        -> score_table_hub
+    ** [說妳想不起來有什麼停下的]
+        ~ lincheng_paused = "unsure"
+        妳想了一會，說想不起來。好像有，又好像只是一直沒有開始。 # speaker:林澄
+        若音點點頭。「想不起來也像休止符。不一定是結束，可能只是還沒到下一拍。」 # speaker:沈若音
+        她在譜紙最邊上畫了一個休止符，沿著摺線撕下那一小角，遞給妳。 # speaker:旁白
+        -> score_table_hub
 * [把鉛筆交回若音，聽她決定最後一小節]
     -> final_bar_choice
 === final_bar_choice ===
@@ -561,6 +578,8 @@ VAR ending_kind = ""
 {asked_labels:琴盒上的商演標籤她一張也沒撕。最新一張貼在最上面，寫著一間小咖啡館的名字。 # speaker:旁白}
 {asked_plan_hand:她現在的練習表第一欄不是時數，是手的狀況。痛的日子，她只拉那四個音。 # speaker:旁白}
 {told_jinglan_notes:她後來在譜紙角落寫了一行小字：「給第一晚也聽見的人。」 # speaker:旁白}
+{lincheng_paused == "moon":〈三分鐘〉的譜角，雲旁邊多了一個歪歪的月亮。重抄過幾次，她都照樣畫上。 # speaker:旁白}
+{lincheng_paused == "unsure":演出時，她在空拍那裡等一下。有時會想起書店裡那個說想不起來的店員。 # speaker:旁白}
 ~ ending_kind = "one"
 -> chapter_coda
 === end_stage ===
@@ -573,6 +592,8 @@ VAR ending_kind = ""
 {asked_corridor_tree:散場後，兩人沿著音樂廳外的人行道走了一段。路邊有一棵桂花，她們都沒有提起那年的名次。 # speaker:旁白}
 {asked_phone:那張票是她自己在開賣那天買的。鬧鐘響了，她沒有只看著座位圖變灰。演出中她數過一次季晴換弓的位置，後來便忘了數。 # speaker:旁白}
 {told_jinglan_notes:寄給季晴的信裡，她提到一位也聽過這四個音的老師。她沒寫名字，只寫：「她也在等最後一個音。」 # speaker:旁白}
+{lincheng_paused == "moon":季晴問她譜角那個歪月亮是誰畫的。若音說，是一個很多年沒畫的人。 # speaker:旁白}
+{lincheng_paused == "unsure":她在給季晴的信裡寫：休止符不一定是結束。這句話，她先對一個店員說過。 # speaker:旁白}
 ~ ending_kind = "stage"
 -> chapter_coda
 === end_score ===
@@ -584,6 +605,8 @@ VAR ending_kind = ""
 簿子漸漸厚了，沒有一頁標著「重新成為獨奏家」。
 {asked_labels:她仍接婚禮和尾牙。遇到有人請她拉家人以前唱的歌，她會先把那段故事記進簿子，再動手改編曲。 # speaker:旁白}
 {told_jinglan_notes:她替普通人寫的第一首曲子，開頭仍是那四個音。她說是借來的，借給所有沒聽完的人。 # speaker:旁白}
+{lincheng_paused == "moon":交換簿第一頁，黑貓的爪印旁邊，是那個歪歪的月亮。 # speaker:旁白}
+{lincheng_paused == "unsure":簿子最後留了一頁空白，標題寫著：「給還想不起來的人。」 # speaker:旁白}
 ~ ending_kind = "score"
 -> chapter_coda
 === end_echo ===
@@ -598,11 +621,19 @@ VAR ending_kind = ""
 {left_plan_blanks:書店那張計畫表的空格，她一直沒有填。比賽前一晚，她把它們全塗成了練習時數。 # speaker:旁白}
 {asked_phone:季晴來聽了那場比賽。若音在台上數著台下的換弓，數到最後，發現自己一直在等對方拉錯。 # speaker:旁白}
 {told_jinglan_notes:比賽那天，拉到第四個音時她想起那位老師。她沒有停，掌聲蓋過了那一拍。 # speaker:旁白}
+{lincheng_paused == "moon":比賽用的譜重抄過一次。譜角那個歪月亮，沒有抄過去。 # speaker:旁白}
+{lincheng_paused == "unsure":比賽曲裡沒有休止符。她撕給店員的那一小角，是她那陣子畫過的唯一一個。 # speaker:旁白}
 ~ ending_kind = "echo"
 -> chapter_coda
 === chapter_coda ===
 若音離開後，妳在鋼琴裡找到一只上了發條的八音盒。它播放的，正是她十歲寫下、剛才在茶杯邊聽見的四個音。 # scene:counter # speaker:旁白 # section:coda # clue:motif
 手冊原本缺失的第一頁，被黑貓從櫃台下拖出來。紙邊有妳童年畫過的小月亮，墨水早已乾了。
+{
+- lincheng_paused == "moon":
+    妳剛才在若音譜角畫的那個，比紙邊這個歪得多，彎的方向卻一樣。 # speaker:旁白
+- lincheng_paused == "unsure":
+    妳把若音撕給妳的休止符夾在第一頁旁。妳還想不起來；那一小角紙說，也許只是還沒到下一拍。 # speaker:旁白
+}
 店員也必須留下自己的故事，才能在黎明以前離開。 # speaker:員工手冊 # clue:manual-page
 妳看著杯底相同的記號。若音的曲子不是書店先寫下的；書店只是一直替她保管著沒拉完的那一小節。
 窗外仍沒有天亮。妳把第一頁放回手冊，終於不再把它壓在最後。

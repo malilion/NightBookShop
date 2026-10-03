@@ -47,6 +47,7 @@ VAR ending_ruoyin = ""
 VAR told_ruoyin_tune = false
 VAR read_aloud = ""
 VAR tonight_mark = ""
+VAR lincheng_fear = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -583,6 +584,21 @@ VAR ending_kind = ""
         ~ understanding += 1
         他把住址卡翻過來，寫得很慢：「今晚寫了信給小川。是真的。」寫完，他把「是真的」三個字又描了一遍。 # speaker:旁白
         -> sea_return
+* {tonight_mark != "" && lincheng_fear == ""} [聽他反問妳有沒有怕忘記的事]
+    海明把住址卡和日誌疊好，抬頭看妳。「我怕忘記小川。那妳呢，年輕人？妳有沒有怕忘記的事？」 # speaker:顧海明
+    ** [說妳怕的，好像反而是想起來]
+        ~ lincheng_fear = "remember"
+        ~ trust += 1
+        妳說不知道為什麼，比起忘記，妳好像更怕想起什麼。說出口以後，妳自己也愣了一下。 # speaker:林澄
+        海明看了妳很久。「我怕忘，妳怕記得。」他笑了，「要是能換一換就好了。」 # speaker:顧海明 # portrait:haiming-warm
+        笑完，他把手放在日誌上。「燈塔守久了就知道，霧散不散，不是守塔人決定的。妳只要決定，燈亮不亮。」 # speaker:顧海明
+        -> sea_return
+    ** [說妳怕忘記這幾晚的客人]
+        ~ lincheng_fear = "guests"
+        妳說妳怕忘記這幾晚來過的人：一位老師、一個上班族、一個拉琴的女孩、一位麵包師、一個郵差，還有他。 # speaker:林澄
+        「那就寫下來。」海明說，「我寫了四十年航海誌。忘掉的時候，它替我記得。」 # speaker:顧海明
+        他從上衣口袋拿出一枝削短的鉛筆，放在妳手邊。「這枝借妳。寫潮汐的，很耐用。」 # speaker:旁白
+        -> sea_return
 * {letter_understood && lamp_balanced} [邀請顧川到書店，一起讀海明原來的字]
     -> end_light
 * [錄下日常、恐懼和笑話，做一份聲音航海誌]
@@ -608,6 +624,8 @@ VAR ending_kind = ""
 {tonight_mark == "card":顧川在住址卡背面那行字底下，補了一句：「我收到了。」 # speaker:旁白}
 {told_ruoyin_tune:顧川問父親常哼的是什麼歌。海明說不知道名字，只知道有人還在寫最後一個音。 # speaker:旁白}
 {told_jinglan_tune:顧川問那四個音從哪裡來。海明說，有一位老師年輕時也聽過，所以它大概不是他自己編的。 # speaker:旁白}
+{lincheng_fear == "remember":顧川問書店的店員是什麼樣的人。海明說：「一個怕想起來的孩子。我跟她說，燈亮不亮由她。」 # speaker:旁白}
+{lincheng_fear == "guests":顧川在日誌最後一頁看到父親記的一行：「鉛筆借給書店的店員了。她也在寫航海誌。」 # speaker:旁白}
 ~ ending_kind = "light"
 -> chapter_coda
 === end_voice ===
@@ -626,6 +644,8 @@ VAR ending_kind = ""
 {tonight_mark == "card":隔天早上，他讀到住址卡背面那行字，第一件事是按下錄音鍵。 # speaker:旁白}
 {told_ruoyin_tune:錄音裡有一段他哼那四個音，停在同一個地方。顧川後來發現，自己也會停在那裡。 # speaker:旁白}
 {told_jinglan_tune:錄音最後，他提到一位沒見過面的老師：「她也記得這段。我們算是同一首歌的聽眾。」 # speaker:旁白}
+{lincheng_fear == "remember":錄音裡有一段，他像在對誰說話：「霧散不散，不是妳決定的。」顧川不知道那是說給誰聽。 # speaker:旁白}
+{lincheng_fear == "guests":錄音快結束時他說：「那枝鉛筆借給書店的店員了。她要記得她的客人。」 # speaker:旁白}
 ~ ending_kind = "voice"
 -> chapter_coda
 === end_boat ===
@@ -643,6 +663,8 @@ VAR ending_kind = ""
 {tonight_mark == "card":出門前，他把住址卡背面那行字又讀了一遍，才去穿鞋。 # speaker:旁白}
 {told_ruoyin_tune:在海邊，他哼了那四個音。風很大，最後一個音被吹走了，他沒有再補。 # speaker:旁白}
 {told_jinglan_tune:在海邊，他說起那位在校刊室聽過旋律的老師。顧川問是誰，他說是一位也還在半路上的人。 # speaker:旁白}
+{lincheng_fear == "remember":那天海邊起了霧。海明說有個人跟他相反，怕記得；他要她別急，霧自己會散。 # speaker:旁白}
+{lincheng_fear == "guests":回來以後他找那枝常用的鉛筆，才想起借給了書店的店員。他笑了，說那就讓她記。 # speaker:旁白}
 ~ ending_kind = "boat"
 -> chapter_coda
 === end_hero ===
@@ -661,6 +683,8 @@ VAR ending_kind = ""
 {tonight_mark == "card":住址卡背面寫著「今晚寫了信給小川。是真的。」他後來問顧川，那封信裡寫了什麼。 # speaker:旁白}
 {told_ruoyin_tune:傳記裡沒有那四個音。海明說，那本來就不是他的歌。 # speaker:旁白}
 {told_jinglan_tune:傳記裡沒有寫那位老師。海明說，這段旋律不是任何一個人的功績。 # speaker:旁白}
+{lincheng_fear == "remember":傳記裡沒有寫他怕忘記。那晚他說過，有人跟他相反，怕想起來；那一句也沒有寫進去。 # speaker:旁白}
+{lincheng_fear == "guests":那枝借出去的鉛筆沒有寫進傳記。他說過，忘掉的時候，紙會替人記得；傳記卻把他記得的方式刪掉了。 # speaker:旁白}
 ~ ending_kind = "hero"
 -> chapter_coda
 === chapter_coda ===
@@ -671,6 +695,12 @@ VAR ending_kind = ""
 照片裡的孩子轉過身來。她是年幼的林澄，站在店門前，像在等如今的妳認出她。 # portrait:lincheng-child
 一個從未見過面的男人走到櫃台後。 # speaker:旁白 # portrait:owner
 妳不是偶然來到這裡。小時候，妳親手請我替妳保管一段不願記得的故事。黎明前，妳可以自己決定要不要把它取回。 # speaker:店主 # portrait:owner
+{
+- lincheng_fear == "remember":
+    妳想起剛才對海明說的話。原來妳怕想起來，不是今晚才開始的。 # speaker:旁白
+- lincheng_fear == "guests":
+    妳握著海明借妳的鉛筆。這幾晚妳一直怕忘記別人；自己的那一段，卻是妳親手請人收起來的。 # speaker:旁白
+}
 窗外第一次泛出很淡的灰白。手冊的第一頁仍寫著：店員也必須留下自己的故事，才能在黎明以前離開。
 -> final_bookmark
 === final_bookmark ===

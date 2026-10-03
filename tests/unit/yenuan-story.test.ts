@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-12.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-13.json", "utf8");
+const chapterTwelve = readFileSync("public/story/compiled/yenuan-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/yenuan-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/yenuan-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/yenuan-chapter-9.json", "utf8");
@@ -77,6 +78,32 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
 }
 
 describe("Yenuan fourth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twelve %s route readable", (target) => {
+    expect(play(target, true, chapterTwelve).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["yenuan-share", "一起包餃子", "最想問的那句一直沒問", "剁進餃子餡"],
+    ["yenuan-reopen", "一起包餃子", "最想問的那句一直沒問", "說的不只是配方"],
+    ["yenuan-rest", "一起包餃子", "最想問的那句一直沒問", "對著空廚房說了幾句"],
+    ["yenuan-copy", "一起包餃子", "最想問的那句一直沒問", "那句話更沒有地方問了"],
+    ["yenuan-share", "很少打電話回家", "媽媽都想知道這個", "先寫好的開頭"],
+    ["yenuan-reopen", "很少打電話回家", "媽媽都想知道這個", "沒有收件人的相簿"],
+    ["yenuan-rest", "很少打電話回家", "媽媽都想知道這個", "寫滿七格"],
+    ["yenuan-copy", "很少打電話回家", "媽媽都想知道這個", "卻總是記不起來"],
+  ] as const)("lets Yenuan ask about Lin Cheng's mother before %s (%s)", (target, answer, reply, afterword) => {
+    const run = play(target, true, compiled, { chooseTexts: ["聽她問起妳的母親", answer] });
+    const texts = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(texts).toContain("妳媽媽呢？");
+    expect(texts).toContain(reply);
+    expect(texts).toContain(afterword);
+    expect(texts).toContain(answer === "一起包餃子" ? "也許就是那一年以前" : "這樣也可以說");
+  });
+  it("leaves Yenuan's question out when the player moves on to the recipe", () => {
+    const texts = play("yenuan-share", true, compiled, { chooseTexts: ["想留下哪一口"] }).texts.join(" ");
+    expect(texts).not.toContain("妳媽媽呢？");
+    expect(texts).not.toContain("也許就是那一年以前");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eleven %s route readable", (target) => {
     expect(play(target, true, chapterEleven).story.frame.endingId).toBe(target);
   });

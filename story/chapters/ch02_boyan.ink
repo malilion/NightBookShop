@@ -34,6 +34,7 @@ VAR told_old_letter = false
 VAR apology_kind = ""
 VAR took_off_watch = false
 VAR asked_tonight = false
+VAR lincheng_shift = ""
 -> arrival
 
 === arrival ===
@@ -445,6 +446,21 @@ VAR asked_tonight = false
     妳問他，如果路上胸口又悶，打算怎麼辦。 # speaker:旁白
     他把手機翻過來，在備忘錄最上面打了一行：「胸悶不退或頭暈，直接去急診，不要先回訊息。」打完，他把這一行釘選在最上面。
     -> decision_return
+* {asked_tonight && lincheng_shift == ""} [聽他反問妳幾點下班]
+    柏言把手機放下，看了看櫃台後那盞燈。「我說了我的。那妳呢？妳幾點下班？」 # speaker:許柏言
+    ** [老實說妳也不知道，門在天亮前打不開]
+        ~ lincheng_shift = "locked"
+        ~ trust += 1
+        妳說妳也不知道。門在天亮前打不開，手機沒有訊號，大概也沒有人知道妳在這裡。 # speaker:林澄
+        柏言皺起眉，像在看一份排錯的班表。「沒有下班時間，也沒人知道妳在哪。這種班，我上了七年。」 # speaker:許柏言
+        他抽了一張紙巾，用公司的原子筆寫了一行，推到妳面前：「天亮後，先讓一個人知道妳在哪裡。」 # speaker:旁白
+        -> decision_return
+    ** [說妳還好，不累]
+        ~ lincheng_shift = "fine"
+        妳說妳還好，不累。 # speaker:林澄
+        柏言笑了一下，笑完低頭看自己的錶。「『我還好』這句，我在公司說了七年。」 # speaker:許柏言
+        他沒有拆穿妳，只說：「哪天不好，也可以說。我是今晚才學會的，可能說得不太標準。」 # speaker:許柏言
+        -> decision_return
 * [先陪他安排就醫和請假]
     ~ chose_support = true
     -> rest
@@ -472,6 +488,8 @@ VAR asked_tonight = false
 {apology_kind == "mother":回診那週的週末，他回家吃飯，把口袋裡那張紙條念給母親聽。母親先罵他怎麼不早說，又把湯盛得太滿。 # speaker:旁白}
 {took_off_watch:修錶師傅問他為什麼停在 23:47。他說那天晚上他倒下了，後來也站起來了。 # speaker:旁白}
 {asked_tonight:那晚他回家，第一次沒開電腦就睡了。備忘錄最上面那一行一直沒刪。 # speaker:旁白}
+{lincheng_shift == "locked":回診那天，他照自己寫在紙巾上的話做了一次：出門前先傳訊息給同事，說他在哪家醫院。 # speaker:旁白}
+{lincheng_shift == "fine":醫師問他最近好不好，他差點說還好，想起書店那個也說還好的店員，改口說了胸悶。 # speaker:旁白}
 -> coda_rest
 === leave ===
 柏言沒有立刻按下寄出。他在紙背寫下存款可以撐多久、誰願意幫忙，以及看診後需要哪些安排。 # scene:boyan # speaker:旁白
@@ -490,6 +508,8 @@ VAR asked_tonight = false
 {apology_kind == "mother":告訴母親自己要離職以前，他先說了昏倒的事。那是那次談話裡最難開口、也最先說出口的一句。 # speaker:旁白}
 {took_off_watch:錶修好以後，他沒有再戴回去，把它放在書桌上。看時間的時候，他先看窗外。 # speaker:旁白}
 {asked_tonight:他手機備忘錄最上面那一行，換了新手機也抄過去了。 # speaker:旁白}
+{lincheng_shift == "locked":最後一天上班，他把自己的下班時間寫在交接表最上面。他說見過一個不知道自己幾點下班的人。 # speaker:旁白}
+{lincheng_shift == "fine":母親問他還好嗎，他沒有說還好。他說有點累，說完覺得像替某個人也說了一次。 # speaker:旁白}
 -> coda_leave
 === boundary ===
 他把信題改為「工作負荷與人力安排」。交接清單留在附件，第一段先寫目前無法再單獨承擔的項目。 # scene:boyan # speaker:旁白
@@ -507,6 +527,8 @@ VAR asked_tonight = false
 {apology_kind == "mother":那個週末，他把口袋裡的紙條交給母親。她讀完沒說話，隔天傳來一張掛號單的照片，問他是不是這一家。 # speaker:旁白}
 {took_off_watch:會議那天，他把停住的錶放在桌上。主管問起，他說了那個晚上。 # speaker:旁白}
 {asked_tonight:他把備忘錄最上面那一行也抄進了會議紀錄，寫在回診時間旁邊。 # speaker:旁白}
+{lincheng_shift == "locked":說明的第一條是「下班後不立即回覆」。他說他見過一個不知道自己幾點下班的人，不想讓團隊裡再多一個。 # speaker:旁白}
+{lincheng_shift == "fine":主管問他撐不撐得住，他沒說還好。那兩個字有人在書店裡也說過，他聽得出那不是真話。 # speaker:旁白}
 -> coda_boundary
 === overwork ===
 他點點頭，像終於聽到熟悉的指令。電腦其實仍沒有電，他用手機把報告最後三頁寫完。 # scene:boyan # speaker:旁白
@@ -523,25 +545,39 @@ VAR asked_tonight = false
 {apology_kind == "mother":襯衫口袋裡那張給母親的紙條還在，洗過一次，摺痕已經發白。 # speaker:旁白}
 {took_off_watch:他把錶戴回去，錶面朝內。 # speaker:旁白}
 {asked_tonight:備忘錄最上面那一行還在。他說，至少這一條他會照做。 # speaker:旁白}
+{lincheng_shift == "locked":那張寫著「先讓一個人知道妳在哪裡」的紙巾，他留在櫃台上。那晚他自己在哪裡，仍沒有告訴任何人。 # speaker:旁白}
+{lincheng_shift == "fine":主管問他還好嗎，他說還好。說完他想起書店的店員也這樣說過，那時他聽得出來不是真的。 # speaker:旁白}
 -> coda_overwork
 === coda_rest ===
 妳翻開手冊，發現一張空白頁上多了一行字：「已收存第二位訪客的故事。」 # section:coda # speaker:旁白
 柏言的母親回覆他的請假訊息，還傳來一張保存多年的校刊照片。她說封面編輯周靜蘭曾是自己的老師，教她寫文章前先聽完別人的話。妳認出那是昨夜那封藍色信旁的校刊。 # clue:school-journal # speaker:旁白
 黑貓按住那封最早的草稿，妳記下與自己進店同月同日、卻早了七年的日期。
 停住的時間不是柏言的一生。妳把新的杯子翻正，聽見遠處有人試了一個沒拉完的音。
+-> shift_echo ->
 -> final_rest
 === coda_leave ===
 妳在手冊上寫下柏言的名字。黑貓將最早那封草稿推來，日期與妳進店的月日相同，卻早了七年。 # section:coda # speaker:旁白
 妳還不明白這個記號，便先把它收好。書架深處，有人試了一個沒拉完的音。
+-> shift_echo ->
 -> final_leave
 === coda_boundary ===
 妳把柏言寄出的說明折成書籤。最早那封草稿的建立日期，與妳進店的月日相同，卻早了七年。 # section:coda # speaker:旁白
 妳記下日期，遠處忽然傳來一小段小提琴的聲音。
+-> shift_echo ->
 -> final_boundary
 === coda_overwork ===
 妳在手冊上抄下柏言留下的醫囑。他的草稿日期與妳進店的月日相同，卻早了七年。 # section:coda # speaker:旁白
 這一頁沒有寫「已解決」。妳聽見遠處的小提琴聲，決定把桌上的燈再留久一點。
+-> shift_echo ->
 -> final_overwork
+=== shift_echo ===
+{
+- lincheng_shift == "locked":
+    妳把柏言寫的紙巾夾進手冊。天亮後會先打給誰？妳第一個想到的號碼，已經很久沒有撥過。 # speaker:旁白
+- lincheng_shift == "fine":
+    妳在手冊邊上寫了「還好」兩個字，看了一會，又在旁邊畫了一個問號。 # speaker:旁白
+}
+->->
 === final_rest ===
 柏言把修好的錶放進口袋。今晚，他替自己留出了一個上午。 # scene:moon-sea # ending:boyan-rest
 -> END

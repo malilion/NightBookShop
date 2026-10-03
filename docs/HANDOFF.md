@@ -103,12 +103,12 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 | 章節 | Ink 原稿 | 目前版本 |
 | --- | --- | --- |
-| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-8`（`main.json`） |
-| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-14` |
-| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-13` |
-| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-12` |
+| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-9`（`main.json`） |
+| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-15` |
+| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-14` |
+| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-13` |
 | 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-14` |
-| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-18` |
+| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-19` |
 | 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-14` |
 
 升版後請更新此表。

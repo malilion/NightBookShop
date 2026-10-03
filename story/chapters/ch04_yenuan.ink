@@ -44,6 +44,7 @@ VAR share_with = ""
 VAR reopen_said = ""
 VAR rest_note = ""
 VAR copy_reply = ""
+VAR lincheng_mother = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -513,6 +514,21 @@ VAR ending_kind = ""
         「那這一格，」她說，「我想寫給明天早上的我。她也會餓。」 # speaker:葉暖
     }
     -> recipe_question
+* {lincheng_mother == ""} [聽她問起妳的母親]
+    葉暖把筆擱在空格旁。「我一直在說我媽。妳媽媽呢？妳們會一起吃飯嗎？」 # speaker:葉暖
+    ** [說過年會一起包餃子，只是有一年的事從來不提]
+        ~ lincheng_mother = "dumplings"
+        ~ trust += 1
+        妳說每年過年，妳和母親會在姨媽家包餃子。談工作、談天氣，什麼都談，只有小時候搬家那一年，兩個人都不提。 # speaker:林澄
+        葉暖點頭，像聽見一個熟悉的配方。「我跟我媽也是。一起揉了二十年麵團，最想問的那句一直沒問。」 # speaker:葉暖
+        她沒有叫妳去問，只把麵粉從指縫拍掉。「包餃子的時候手是忙的。有些話，手忙的時候比較說得出口。」 # speaker:旁白
+        -> recipe_question
+    ** [說妳很少打電話回家]
+        ~ lincheng_mother = "rarely"
+        妳說妳很少打電話回家。不是吵架，只是每次拿起手機，都不知道要說什麼。 # speaker:林澄
+        葉暖沉默了一下。「我不會叫妳打。我媽走以後，我最怕聽人說『要珍惜』。」 # speaker:葉暖
+        「不過如果妳哪天打了，跟她說妳今天吃了什麼。」她低頭看那張食譜卡，「媽媽都想知道這個。」 # speaker:葉暖
+        -> recipe_question
 * [問她想留下哪一口，讓自己也能吃下去]
     ~ recipe_sincere = true
     葉暖把筆放下。「我可以記得她，也可以承認我還想吃新的味道。留一口給她以前，我想先替自己留一口。」 # speaker:葉暖
@@ -563,6 +579,8 @@ VAR ending_kind = ""
 {ate_burnt_bread:每年母親生日，她仍會烤一顆原味的蘋果麵包。烤焦了也不再丟；她切開它，先吃中間最軟的那一片。 # speaker:旁白}
 {share_with == "lincheng":新配方卡的背面多了一行小字：「在一家書店，跟一個人一起吃過。」 # speaker:旁白}
 {share_with == "regular":第一位試吃的常客說有點苦。她隔週少放了一點柚子皮，在卡片上記下日期，沒有道歉。 # speaker:旁白}
+{lincheng_mother == "dumplings":那年冬天，她試著把柚子皮剁進餃子餡。不太成功，她還是包完一整盤，邊包邊說起母親以前怎麼罵她手慢。 # speaker:旁白}
+{lincheng_mother == "rarely":新配方卡背面另有一行，不是給自己的：「今天吃了柚子蘋果麵包。」她說是替一個很少打電話回家的人先寫好的開頭。 # speaker:旁白}
 ~ ending_kind = "share"
 -> chapter_coda
 === end_reopen ===
@@ -586,6 +604,8 @@ VAR ending_kind = ""
 {told_as_stranger:有熟客問起那年的週年活動。她起頭說「有個麵包師的女兒」，說到一半停下來，改口：「是我。」 # speaker:旁白}
 {reopen_said == "same":她每年在價牌背面多畫一道短線，記下又照母親的比例烤了一年。 # speaker:旁白}
 {reopen_said == "mine":有熟客說今年的蘋果麵包比較軟。她沒有道歉，只說：「今年的蘋果比較甜。」 # speaker:旁白}
+{lincheng_mother == "dumplings":她說過，手忙的時候有些話比較說得出口。揉麵的早上，她開始跟學徒說起母親，說的不只是配方。 # speaker:旁白}
+{lincheng_mother == "rarely":每天收店前，她把當天的麵包拍一張照片，存在手機裡一個沒有收件人的相簿。說是替那個不知道電話裡要說什麼的店員記的。 # speaker:旁白}
 ~ ending_kind = "reopen"
 -> chapter_coda
 === end_rest ===
@@ -608,6 +628,8 @@ VAR ending_kind = ""
 {asked_candles:休息那週，她把抽屜裡的蠟燭一盒盒拿出來排在桌上，數了數，比她記得的還多一盒。她沒有點，只把它們收進同一個盒子，寫上母親的名字。 # speaker:旁白}
 {rest_note == "contact":那一週，門縫裡只塞進兩張紙條。一張訂生日麵包，一張寫著：「休息好再回來。」 # speaker:旁白}
 {rest_note == "closed":那一週有人敲過幾次門。她在家聽不見，也沒有去想是誰。 # speaker:旁白}
+{lincheng_mother == "dumplings":休息那週她包了一次餃子，一個人吃不完，分了一盤給隔壁。手忙的時候，她對著空廚房說了幾句想對母親說的話。 # speaker:旁白}
+{lincheng_mother == "rarely":那一週沒有營業，她每天在日曆上寫下自己吃了什麼。寫滿七格，她才發現以前從來不知道自己吃了什麼。 # speaker:旁白}
 ~ ending_kind = "rest"
 -> chapter_coda
 === end_copy ===
@@ -629,12 +651,20 @@ VAR ending_kind = ""
 {cut_burnt_bread:母親生日那天，她依舊烤一顆，依舊在天亮前丟掉。書店裡切開過的那一顆，她沒有再切開第二次。 # speaker:旁白}
 {copy_reply == "promise":配方卡最上面那行「只要照著做」，她描過很多次。劃破的地方，用膠帶貼了起來。 # speaker:旁白}
 {copy_reply == "silent":她偶爾想起書店裡那杯沒喝的茶。那天她其實想聽有人說：差一點也沒關係。 # speaker:旁白}
+{lincheng_mother == "dumplings":她說過一起揉了二十年麵團，最想問的那句沒問。如今她每天照母親的字量麵粉，那句話更沒有地方問了。 # speaker:旁白}
+{lincheng_mother == "rarely":她叮嚀過店員，打電話就說吃了什麼。她自己每天吃了什麼，卻總是記不起來。 # speaker:旁白}
 ~ ending_kind = "copy"
 -> chapter_coda
 === chapter_coda ===
 葉暖離開後，黑貓把食譜卡帶回櫃台。{asked_cat: 這一次牠沒有叼著卡片跑遠，只把它推到妳手邊。}卡片右下角印著夜行書店的月亮標誌，落款日期卻早於葉暖出生。 # scene:counter # speaker:旁白 # section:coda # clue:moon-card
 妳翻看店員手冊，想起自己很小的時候也曾在這裡看過那枚月亮。桌沿刻著一道淺淺的身高線，旁邊寫著「林澄」。 # clue:childhood-glimpse
 那不是妳第一次走進夜行書店。黑貓用尾巴蓋住日期，像還要等妳自己想起來。
+{
+- lincheng_mother == "dumplings":
+    妳想起每年包餃子時從不提起的那一年。身高線刻得那麼低，也許就是那一年以前。 # speaker:旁白
+- lincheng_mother == "rarely":
+    妳想起葉暖說的話。今晚妳吃了什麼？好像只有幾口茶。這樣也可以說。 # speaker:旁白
+}
 窗外仍是夜色。妳把食譜卡放進手冊，讓葉暖的那一頁與自己的名字並排。
 -> final_bookmark
 === final_bookmark ===

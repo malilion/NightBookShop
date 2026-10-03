@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-14.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-15.json", "utf8");
+const chapterFourteen = readFileSync("public/story/compiled/boyan-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/boyan-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/boyan-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/boyan-chapter-11.json", "utf8");
@@ -78,6 +79,34 @@ function complete(
 }
 
 describe("Boyan second night", () => {
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-fourteen %s route", (target) => {
+    expect(complete(target, chapterFourteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["boyan-rest", "門在天亮前打不開", "這種班，我上了七年", "說他在哪家醫院"],
+    ["boyan-leave", "門在天亮前打不開", "這種班，我上了七年", "把自己的下班時間寫在交接表最上面"],
+    ["boyan-boundary", "門在天亮前打不開", "這種班，我上了七年", "不想讓團隊裡再多一個"],
+    ["boyan-overwork", "門在天亮前打不開", "這種班，我上了七年", "仍沒有告訴任何人"],
+    ["boyan-rest", "說妳還好", "我在公司說了七年", "改口說了胸悶"],
+    ["boyan-leave", "說妳還好", "我在公司說了七年", "像替某個人也說了一次"],
+    ["boyan-boundary", "說妳還好", "我在公司說了七年", "他聽得出那不是真話"],
+    ["boyan-overwork", "說妳還好", "我在公司說了七年", "那時他聽得出來不是真的"],
+  ] as const)("lets Boyan ask when Lin Cheng's shift ends before %s (%s)", (target, answer, reply, afterword) => {
+    const run = complete(target, compiled, { extra: ["今晚離開書店後要去哪裡", "反問妳幾點下班", answer] });
+    const texts = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(texts).toContain("妳幾點下班");
+    expect(texts).toContain(reply);
+    expect(texts).toContain(afterword);
+    expect(texts).toContain(answer === "說妳還好" ? "又在旁邊畫了一個問號" : "已經很久沒有撥過");
+  });
+  it("waits to ask about Lin Cheng's shift until she has asked about his night", () => {
+    const run = complete("boyan-rest", compiled, { extra: ["那一疊「抱歉」", "陪他數一數"] });
+    const texts = run.texts.join(" ");
+    expect(texts).not.toContain("妳幾點下班");
+    expect(texts).not.toContain("又在旁邊畫了一個問號");
+    expect(texts).not.toContain("已經很久沒有撥過");
+  });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-thirteen %s route", (target) => {
     expect(complete(target, chapterThirteen).story.frame.endingId).toBe(target);
   });

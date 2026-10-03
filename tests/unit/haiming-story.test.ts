@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-18.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-19.json", "utf8");
+const chapterEighteen = readFileSync("public/story/compiled/haiming-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/haiming-chapter-17.json", "utf8");
 const chapterSixteen = readFileSync("public/story/compiled/haiming-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/haiming-chapter-15.json", "utf8");
@@ -77,6 +78,33 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
 }
 
 describe("Haiming sixth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eighteen %s route readable", (target) => {
+    expect(play(target, false, chapterEighteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["haiming-light", "反而是想起來", "我怕忘，妳怕記得", "一個怕想起來的孩子"],
+    ["haiming-voice", "反而是想起來", "我怕忘，妳怕記得", "顧川不知道那是說給誰聽"],
+    ["haiming-boat", "反而是想起來", "我怕忘，妳怕記得", "霧自己會散"],
+    ["haiming-hero", "反而是想起來", "我怕忘，妳怕記得", "那一句也沒有寫進去"],
+    ["haiming-light", "忘記這幾晚的客人", "它替我記得", "她也在寫航海誌"],
+    ["haiming-voice", "忘記這幾晚的客人", "它替我記得", "她要記得她的客人"],
+    ["haiming-boat", "忘記這幾晚的客人", "它替我記得", "那就讓她記"],
+    ["haiming-hero", "忘記這幾晚的客人", "它替我記得", "傳記卻把他記得的方式刪掉了"],
+  ] as const)("lets Haiming ask what Lin Cheng is afraid to forget before %s (%s)", (target, answer, reply, afterword) => {
+    const run = play(target, target === "haiming-hero", compiled, { extra: ["明天醒來，要怎麼記得今晚", "折個角", "怕忘記的事", answer] });
+    const texts = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(texts).toContain("妳有沒有怕忘記的事");
+    expect(texts).toContain(reply);
+    expect(texts).toContain(afterword);
+    expect(texts).toContain(answer === "反而是想起來" ? "不是今晚才開始的" : "妳親手請人收起來的");
+  });
+  it("keeps Haiming's question until he has decided how to remember tonight", () => {
+    const texts = play("haiming-light").texts.join(" ");
+    expect(texts).not.toContain("妳有沒有怕忘記的事");
+    expect(texts).not.toContain("不是今晚才開始的");
+    expect(texts).not.toContain("妳親手請人收起來的");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-seventeen %s route readable", (target) => {
     expect(play(target, false, chapterSeventeen).story.frame.endingId).toBe(target);
   });

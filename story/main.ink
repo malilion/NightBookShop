@@ -35,5 +35,6 @@ VAR asked_not_ready = false
 VAR warmed_water = false
 VAR kept_short = false
 VAR afterword_kind = ""
+VAR lincheng_destination = ""
 INCLUDE chapters/ch01_jinglan.ink
 -> prologue
