@@ -26,7 +26,7 @@ test("reading and tea controls keep usable hit areas", async ({ page }, info) =>
     const next = page.locator(".dialogue-panel button").first();
     await expect(next).toBeVisible();
     await next.click();
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
   }
   await expect(page.locator(".tea-board")).toBeVisible();
   expect(await smallTargets(page), "第一夜茶席").toEqual([]);

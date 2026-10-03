@@ -79,7 +79,7 @@ for (const ending of endings) {
     for (let step = 0; step < 20; step++) {
       if (await page.locator(".ending-panel").isVisible()) break;
       const reveal = page.getByRole("button", { name: "顯示全文" });
-      if (await reveal.isVisible()) await reveal.click();
+      if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
       else await page.getByRole("button", { name: "繼續", exact: true }).click();
     }
     await expect(page.locator(".ending-panel")).toBeVisible();

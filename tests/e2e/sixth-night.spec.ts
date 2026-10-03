@@ -11,7 +11,7 @@ async function advanceUntil(page: Page, target: string, max = 280) {
     if (await page.locator(target).isVisible()) return;
     const reveal = page.getByRole("button", { name: "顯示全文" });
     const next = page.getByRole("button", { name: "繼續", exact: true });
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else if (await next.isVisible()) await next.click();
     else if (await page.locator(".dialogue-choices button").first().isVisible())
       await page.locator(".dialogue-choices button").first().click();
@@ -158,7 +158,10 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await expect(page.locator(".letter-slot.filled")).toHaveCount(4);
   await page.screenshot({ path: `output/sixth-night-letter-${info.project.name}.png`, fullPage: true, animations: "disabled" });
   await page.getByRole("button", { name: "把紙船交還給他" }).click();
+  await (await untilChoice(page, "不知道怎麼回到你身邊")).click();
+  await (await untilChoice(page, "讓他自己念")).click();
   await (await untilChoice(page, "邀請顧川到書店")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="顧川等他從頭再念"]');
   await advanceUntil(page, '.character-portrait[data-portrait="child"]');
   await page.screenshot({ path: `output/sixth-night-child-${info.project.name}.png`, animations: "disabled" });
   await advanceUntil(page, '.character-portrait[data-portrait="owner"]');

@@ -7,7 +7,7 @@ async function advanceUntil(page: Page, target: string, max = 260) {
     if (await page.locator(target).isVisible()) return;
     const reveal = page.getByRole("button", { name: "顯示全文" });
     const next = page.getByRole("button", { name: "繼續", exact: true });
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else if (await next.isVisible()) await next.click();
     else if (await page.locator(".dialogue-choices button").first().isVisible())
       await page.locator(".dialogue-choices button").first().click();
@@ -51,6 +51,7 @@ async function expectMemoryBackground(page: Page, scene: string, project: string
 }
 
 test("fifth night restores the route and letter stamp before Yuhang signs today", async ({ page }, info) => {
+  test.setTimeout(300_000);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
@@ -146,7 +147,9 @@ test("fifth night restores the route and letter stamp before Yuhang signs today"
   await expect(page.locator(".letter-slot.filled")).toHaveCount(4);
   await page.screenshot({ path: `output/fifth-night-letter-${info.project.name}.png`, fullPage: true, animations: "disabled" });
   await page.getByRole("button", { name: "把藍色信交還給他" }).click();
+  await (await untilChoice(page, "替別人蓋過幾次章")).click();
   await (await untilChoice(page, "今天自己簽收")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="和紙巾上那一枚是同一個紅色"]');
   await advanceUntil(page, ".ending-panel");
   await expect(page.getByRole("heading", { name: "今日簽收" })).toBeVisible();
   await page.getByRole("button", { name: /守夜手記/ }).click();

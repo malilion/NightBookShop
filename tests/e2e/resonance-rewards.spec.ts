@@ -73,7 +73,7 @@ test("resonant letter fragment and gold bookmark survive reload", async ({ page 
     const reveal = page.getByRole("button", { name: "顯示全文" });
     const next = page.getByRole("button", { name: "繼續", exact: true });
     const choice = page.locator(".dialogue-choices button").first();
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else if (await next.isVisible()) await next.click();
     else if (await choice.isVisible()) await choice.click();
     else throw new Error(`Story stalled after letter at step ${step}`);

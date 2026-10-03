@@ -7,7 +7,7 @@ async function advanceTo(page: Page, selector: string, max = 180) {
     if (await page.locator(selector).isVisible()) return;
     const reveal = page.getByRole("button", { name: "顯示全文" });
     const next = page.getByRole("button", { name: "繼續", exact: true });
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else if (await next.isVisible()) await next.click();
     else if (await page.locator(".dialogue-choices button").first().isVisible())
       await page.locator(".dialogue-choices button").first().click();
@@ -149,7 +149,12 @@ test("second night can be brewed, assembled, completed and resumed", async ({
   await page.getByRole("button", { name: "查看三版草稿" }).click();
   await page.getByRole("button", { name: "把信交還給他" }).click();
   await advanceTo(page, ".dialogue-choices");
+  await page.getByRole("button", { name: /今晚離開書店後要去哪裡/ }).click();
+  await advanceTo(page, '.dialogue-text[data-full-text*="直接去急診，不要先回訊息"]');
+  await advanceTo(page, ".dialogue-choices");
+  await expect(page.getByRole("button", { name: /今晚離開書店後要去哪裡/ })).toHaveCount(0);
   await page.getByRole("button", { name: /先陪他安排就醫和請假/ }).click();
+  await advanceTo(page, '.dialogue-text[data-full-text*="第一次沒開電腦就睡了"]');
   await advanceTo(page, ".ending-panel");
   await expect(
     page.getByRole("heading", { name: "明日可以晚一點" }),

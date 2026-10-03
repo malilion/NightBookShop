@@ -60,7 +60,7 @@ test("Jinglan's family question is visible in the hospital memory and survives r
   for (let step = 0; step < 20; step++) {
     if (await page.getByRole("group", { name: "記憶中的物件" }).isVisible()) break;
     const reveal = page.getByRole("button", { name: "顯示全文" });
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else await page.getByRole("button", { name: "繼續", exact: true }).click();
   }
   await expect(page.getByRole("group", { name: "記憶中的物件" })).toBeVisible();

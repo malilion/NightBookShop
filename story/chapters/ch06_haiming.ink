@@ -41,6 +41,8 @@ VAR asked_where_stops = false
 VAR wrote_today_date = false
 VAR allowed_wrong_dates = false
 VAR asked_who_delivers = false
+VAR read_aloud = ""
+VAR tonight_mark = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -513,6 +515,36 @@ VAR ending_kind = ""
     他把還沒拼齊的部分折好，說想親手留著；今晚有幾句至少已能讀清。 # scene:haiming # speaker:旁白 # section:log-choice
 }
 妳問他想讓誰聽見這封信。海明看向兒子的住址卡，沒有要求書店替他把以後的每一天變得清楚。
+-> sea_choice
+=== sea_return ===
+紙船在桌上，燈還亮著。 # speaker:旁白
+-> sea_choice
+=== sea_choice ===
+* {letter_understood && read_aloud == ""} [請他把「不知道怎麼回到你身邊」念出來]
+    海明把紙船攤平，手指壓在那一行底下。「寫的時候不難。念出來，好像就真的是我說的了。」 # speaker:顧海明
+    ** [讓他自己念]
+        ~ read_aloud = "self"
+        ~ trust += 1
+        他念到「不知道怎麼」就停了，嘴唇動了兩下，像在找下一個字。妳沒有替他接。 # speaker:旁白
+        過了一會，他從頭再念一次。這一次念完了，聲音很低，卻沒有斷。 # portrait:haiming-warm
+        -> sea_return
+    ** [由妳念給他聽]
+        ~ read_aloud = "lincheng"
+        ~ understanding += 1
+        妳照著紙上的停頓念，連他劃掉又寫回去的那兩個字也念了。 # speaker:旁白
+        海明聽完，看著紙船很久。「原來別人念起來是這樣。不像英雄，像一個爸爸。」 # speaker:顧海明 # portrait:haiming-warm
+        -> sea_return
+* {tonight_mark == ""} [問他明天醒來，要怎麼記得今晚]
+    海明想了想，笑了一下。「我也不知道。很多晚上，我都以為自己會記得。」 # speaker:顧海明
+    ** [幫他在日誌今晚這一頁折個角]
+        ~ tonight_mark = "corner"
+        妳們一起把那頁的右下角折起來。海明用指甲把摺痕壓了兩次。「折角的地方，就是有事的地方。我在燈塔也這樣記潮汐。」 # speaker:顧海明
+        -> sea_return
+    ** [請他在住址卡背面寫一句給明天的自己]
+        ~ tonight_mark = "card"
+        ~ understanding += 1
+        他把住址卡翻過來，寫得很慢：「今晚寫了信給小川。是真的。」寫完，他把「是真的」三個字又描了一遍。 # speaker:旁白
+        -> sea_return
 * {letter_understood && lamp_balanced} [邀請顧川到書店，一起讀海明原來的字]
     -> end_light
 * [錄下日常、恐懼和笑話，做一份聲音航海誌]
@@ -532,6 +564,10 @@ VAR ending_kind = ""
 {asked_where_stops:顧川問起那艘船。海明講到船看見岸，停了一下，接著說：「然後我才去醫院。」 # speaker:旁白}
 {asked_who_delivers:那封信是海明親手交的。顧川接過時，父子的手在紙船的摺痕上碰了一下。 # speaker:旁白}
 {asked_morning:有天早上，顧川煎的蛋又焦了。海明看著盤子說：「跟我煎的一樣。」兩個人都笑了。 # speaker:旁白}
+{read_aloud == "self":見到顧川那天，他先自己念了那一句。念到一半停住，顧川等他從頭再念。 # speaker:旁白}
+{read_aloud == "lincheng":顧川問那句是誰先念的。海明說是書店的店員：「她念得比我好。可是我想自己再念一次。」 # speaker:旁白}
+{tonight_mark == "corner":日誌裡那一頁的折角，顧川用一枚夾子夾住了。 # speaker:旁白}
+{tonight_mark == "card":顧川在住址卡背面那行字底下，補了一句：「我收到了。」 # speaker:旁白}
 ~ ending_kind = "light"
 -> chapter_coda
 === end_voice ===
@@ -544,6 +580,10 @@ VAR ending_kind = ""
 {asked_who_delivers:錄音帶是海明自己拿去郵局寄的。櫃台的人問要不要掛號，他說要，還把收件人的名字念了兩遍。 # speaker:旁白}
 {heard_wind_first:錄音開頭是一段很長的風向與浪高。顧川沒有快轉，聽到第三遍才明白，父親是在讓他一起站到那晚的窗前。 # speaker:旁白}
 {asked_hands:錄音裡父親說錯的潮時，顧川也照抄進日誌，旁邊仍用鉛筆小小地寫上對的。 # speaker:旁白}
+{read_aloud == "self":錄音裡那一句他念了兩次。第一次斷在一半，顧川沒有剪掉。 # speaker:旁白}
+{read_aloud == "lincheng":錄音開頭，海明說：「有個年輕人替我念過一次，現在換我。」 # speaker:旁白}
+{tonight_mark == "corner":他每次聽錄音以前，會先把日誌翻到折角的那一頁。 # speaker:旁白}
+{tonight_mark == "card":隔天早上，他讀到住址卡背面那行字，第一件事是按下錄音鍵。 # speaker:旁白}
 ~ ending_kind = "voice"
 -> chapter_coda
 === end_boat ===
@@ -556,6 +596,9 @@ VAR ending_kind = ""
 {asked_who_delivers:紙船還在他手裡。他說過要自己交；只是那天在海邊，他還沒交出去，顧川也沒有伸手要。 # speaker:旁白}
 {wrote_today_date:從海邊回來，海明在杯墊背面寫下那天的日期，旁邊寫了顧川的名字。 # speaker:旁白}
 {asked_sea:在海邊，海明又報了一次風向和霧。顧川沒有糾正，只問他是怎麼看出來的；海明講了很久。 # speaker:旁白}
+{read_aloud != "":在海邊，他把那句念給海聽。風把後半句吹散了，他又念了一次。 # speaker:旁白}
+{tonight_mark == "corner":折角的那頁日誌，他也帶去了海邊。 # speaker:旁白}
+{tonight_mark == "card":出門前，他把住址卡背面那行字又讀了一遍，才去穿鞋。 # speaker:旁白}
 ~ ending_kind = "boat"
 -> chapter_coda
 === end_hero ===
@@ -568,6 +611,10 @@ VAR ending_kind = ""
 {asked_who_delivers:海明說過這封信要自己交。最後寄出傳記的，是妳。 # speaker:旁白}
 {allowed_wrong_dates:傳記裡每個日期都查證過。海明讀完說：「那晚我說錯的那幾個，比較像我。」 # speaker:旁白}
 {asked_hands:傳記裡找不到顧川那幾頁端正的字。那些照抄父親說錯潮時的句子，被當作筆誤刪掉了。 # speaker:旁白}
+{read_aloud == "self":傳記裡沒有那一句。他親口念過的，只有書店裡那一次。 # speaker:旁白}
+{read_aloud == "lincheng":寄出傳記以前，海明問妳還記不記得那一句怎麼念。妳記得，卻沒有把它寫進去。 # speaker:旁白}
+{tonight_mark == "corner":整理成傳記時，那一頁的折角被壓平了。 # speaker:旁白}
+{tonight_mark == "card":住址卡背面寫著「今晚寫了信給小川。是真的。」他後來問顧川，那封信裡寫了什麼。 # speaker:旁白}
 ~ ending_kind = "hero"
 -> chapter_coda
 === chapter_coda ===

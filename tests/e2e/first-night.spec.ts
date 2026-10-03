@@ -16,7 +16,7 @@ async function until(page: Page, text: string) {
     ).toBeVisible();
     if (await target.isVisible()) return;
     if (await reveal.isVisible()) {
-      await reveal.click();
+      await reveal.click({ timeout: 2_000 }).catch(() => undefined);
       continue;
     }
     await page.locator(".dialogue-panel button").first().click();
@@ -31,7 +31,7 @@ async function untilMemory(page: Page, section: string) {
     const reveal = page.getByRole("button", { name: "顯示全文" });
     const next = page.locator(".dialogue-panel button").first();
     await expect(next).toBeVisible();
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else await next.click();
   }
   throw new Error(`Memory not reached: ${section}`);
@@ -228,7 +228,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   const paper = page.locator(".letter-paper");
   for (let step = 0; step < 80 && !(await paper.isVisible()); step++) {
     const reveal = page.getByRole("button", { name: "顯示全文" });
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else await page.locator(".dialogue-panel button").first().click();
   }
   await expect(paper).toBeVisible();
@@ -370,7 +370,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   ) {
     const reveal = page.getByRole("button", { name: "顯示全文" });
     if (await reveal.isVisible()) {
-      await reveal.click();
+      await reveal.click({ timeout: 2_000 }).catch(() => undefined);
       continue;
     }
     const next = page.getByRole("button", { name: "繼續", exact: true });

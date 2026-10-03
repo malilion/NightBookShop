@@ -45,6 +45,9 @@ VAR asked_dream_station = false
 VAR walked_to_door = false
 VAR finished_cup = false
 VAR told_recipe = false
+VAR sister_word = ""
+VAR tried_stamp = false
+VAR key_choice = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -496,6 +499,42 @@ VAR ending_kind = ""
     郵票仍在桌上。他說也許今晚先不寄，但信要由自己收好。 # speaker:旁白 # section:stamp-choice
 }
 雨航拿起印章，重新看著收件人的名字。接下來的路，不能只由一封神祕的信替他決定。
+-> sign_choice
+=== sign_return ===
+印章還在他手邊，簽收欄仍空著。 # speaker:旁白
+-> sign_choice
+=== sign_choice ===
+* {asked_sister && sister_word == ""} [問他有沒有一句話想對妹妹說]
+    雨航想起站牌下說過的話。「她起頭，我收尾。」他把明信片翻到背面，兩個人當年的清單只寫到一半。 # speaker:程雨航
+    ** [請他寫在明信片背面]
+        ~ sister_word = "written"
+        ~ understanding += 1
+        他在清單最底下補了一行，字比妹妹的小：「妳起頭的事，我不一定都替妳收尾了。妳沒起頭的那間店，換我自己決定要不要起頭。」 # speaker:旁白
+        寫完他吹了吹墨水，像怕它暈開。 
+        -> sign_return
+    ** [讓他只說出口，不必寫下]
+        ~ sister_word = "spoken"
+        ~ trust += 1
+        他對著櫃台邊的空椅子，說得很輕：「妳那把吉他我還沒賣。弦都鏽了。」 # speaker:程雨航
+        說完他笑了一下，眼眶卻紅了。妳沒有遞紙巾，只把茶杯往他手邊推近一點。 # speaker:旁白
+        -> sign_return
+* {not tried_stamp} [問他這七年替別人蓋過幾次章]
+    ~ tried_stamp = true
+    雨航真的算了起來。「一晚四十幾件，一週五晚，七年……」他停下來，「大概十萬次吧。」 # speaker:程雨航
+    「可是我自己的名字蓋出來是什麼顏色，我好像沒看過。」
+    妳從櫃台下拿了一張紙巾給他。他在上面蓋了一次，紅色的「程雨航」有點歪，邊角缺了一點墨。 # speaker:旁白
+    他看了很久，說原來是這個樣子。那不是簽收，只是讓自己先認得那個名字。
+    -> sign_return
+* {read_shop_key && key_choice == ""} [問他那把空店面的鑰匙打算怎麼辦]
+    他把鑰匙從圈上拆下來，又裝回去。「租約過期了，它其實已經不是我的。」 # speaker:程雨航
+    ** [陪他把鑰匙裝進信封，寫好房東的地址]
+        ~ key_choice = "return"
+        他寫地址時很熟練，寫到自己的寄件地址時停了一下，還是寫完了。「還回去。下次要進去，就重新問一次。」 # speaker:程雨航
+        -> sign_return
+    ** [讓他先把鑰匙留在圈上]
+        ~ key_choice = "keep"
+        他把鑰匙圈握在手心，木製書店壓著那把鑰匙。「留著不代表要開。只是今晚還不想拿下來。」 # speaker:程雨航
+        -> sign_return
 * {letter_understood && letter_stamp == "present"} [今天自己簽收，先申請休假再看店面]
     -> end_today
 * {letter_stamp == "future"} [寄往七年後，寫下明確日期與第一步]
@@ -517,6 +556,11 @@ VAR ending_kind = ""
 夜班照舊有人接手。他第一次把休假的日期寫進簿裡，沒有塗掉。
 {rested_on_shift:休假第一天他睡到中午。醒來先摸床邊，才想起那裡沒有郵袋。 # speaker:旁白}
 {finished_cup:那天早上，他在家把一杯焙茶喝完才出門。杯子洗好，倒扣在妹妹以前用的那只旁邊。 # speaker:旁白}
+{sister_word == "written":市集那天，他把明信片立在書堆旁，背面朝外。有人問那行字是什麼意思，他說是寫給起頭的人。 # speaker:旁白}
+{sister_word == "spoken":休假第三天，他把妹妹的吉他拿去換了弦。 # speaker:旁白}
+{tried_stamp:簽收欄那一格，他蓋得很正，和紙巾上那一枚是同一個紅色。 # speaker:旁白}
+{key_choice == "return":看店面那天，房東用自己的鑰匙開了門。雨航說這次是來看的，不是來收尾的。 # speaker:旁白}
+{key_choice == "keep":看店面那天，他用口袋裡那把鑰匙開門。門這次沒有卡住。 # speaker:旁白}
 ~ ending_kind = "today"
 -> chapter_coda
 === end_future ===
@@ -527,6 +571,10 @@ VAR ending_kind = ""
 === future_afterword ===
 書籤後記：下個月他果然打開了第一箱書。店還沒開，他把新的日期寄回書店，請黑貓替他壓在手冊裡。 # scene:yuhang # speaker:旁白 # portrait:yuhang-hopeful # section:afterword
 有些路還遠；至少這一次，他能指出自己已經走到哪裡。
+{sister_word == "written":那張補過一行的明信片，他一起寄往七年後。 # speaker:旁白}
+{sister_word == "spoken":七年後的信裡，他也寫了那把吉他：還沒賣，弦換過了。 # speaker:旁白}
+{tried_stamp:他把紙巾上那枚章剪下來，夾進寄往七年後的信封，讓那時的自己認得。 # speaker:旁白}
+{key_choice == "return":鑰匙寄回房東了。他在信裡寫：如果七年後還想要一間店，就重新去問。 # speaker:旁白}
 ~ ending_kind = "future"
 -> chapter_coda
 === end_past ===
@@ -539,6 +587,10 @@ VAR ending_kind = ""
 紀念盒放在家裡，不再跟著郵袋每晚出門。
 {asked_dream_station:海邊車站的月台很短，只有一張長椅。他在那裡坐了一會，沒有等任何人，才起身去看海。 # speaker:旁白}
 {asked_home:他在新信的寄件人欄寫下自己住處的街名與門牌。那個地址他背了七年，今天第一次寫給自己。 # speaker:旁白}
+{sister_word == "written":明信片放進紀念盒以前，他又讀了一遍自己補的那一行。 # speaker:旁白}
+{tried_stamp:紙巾上那枚章，他夾在新信的第一頁。 # speaker:旁白}
+{key_choice == "keep":鑰匙仍掛在鑰匙圈上，和木製書店一起。他沒打算再開那扇門，只是還不想拿下來。 # speaker:旁白}
+{key_choice == "return":鑰匙寄回去那天，他順路去了海邊車站。信封投進郵筒的聲音，比他想像中輕。 # speaker:旁白}
 ~ ending_kind = "past"
 -> chapter_coda
 === end_unknown ===
@@ -552,6 +604,10 @@ VAR ending_kind = ""
 {walked_to_door:他還是會在話說到家的時候站起來。只是有幾次，他握著門把站一會，又自己坐回去。 # speaker:旁白}
 {told_recipe:他記得書店說起的那張食譜卡。父親送過兩次才送到；他自己的這封，還一次都沒有讓它送到。 # speaker:旁白}
 {looked_bag:郵袋底層那封信依舊沒有套上防水袋。雨航每次摸到它，都會想起有人問過，那場雨是哪一天。 # speaker:旁白}
+{sister_word == "written":明信片背面那一行他寫了，卻把明信片收進抽屜最底層。 # speaker:旁白}
+{sister_word == "spoken":那句關於吉他的話，他後來沒有再說過。吉他仍靠在衣櫃旁。 # speaker:旁白}
+{tried_stamp:那張蓋過他名字的紙巾留在櫃台上。黑貓有時睡在上面。 # speaker:旁白}
+{key_choice == "keep":鑰匙還在圈上。他每次掏鑰匙開家門，都會先碰到它。 # speaker:旁白}
 ~ ending_kind = "unknown"
 -> chapter_coda
 === chapter_coda ===

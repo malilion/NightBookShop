@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-13.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-14.json", "utf8");
+const chapterThirteen = readFileSync("public/story/compiled/boyan-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/boyan-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/boyan-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/boyan-chapter-10.json", "utf8");
@@ -28,10 +29,11 @@ const choicesByEnding = {
 function complete(
   target: keyof typeof choicesByEnding,
   storyJson = compiled,
-  options: { skipObjects?: boolean; skipOpening?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean; orderHandoffFirst?: boolean; teaDraft?: TeaDraft; teaFollowup?: "leave"; teaChoice?: string } = {},
+  options: { skipObjects?: boolean; skipOpening?: boolean; previousEnding?: string; repliedMother?: boolean; honey?: boolean; orderHandoffFirst?: boolean; teaDraft?: TeaDraft; teaFollowup?: "leave"; teaChoice?: string; extra?: string[] } = {},
 ) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
+  const extra = [...(options.extra ?? [])];
   const sections = new Set<string>();
   const texts: string[] = [];
   let steps = 0;
@@ -49,7 +51,8 @@ function complete(
     } else if (story.frame.canContinue) {
       story.next();
     } else {
-      const choice = (options.teaChoice ? story.frame.choices.find((entry) => entry.text.includes(options.teaChoice!)) : undefined) ?? (options.teaFollowup === "leave" ? story.frame.choices.find((entry) => entry.text.includes("先讓杯子和手機都留在桌上")) : undefined) ?? (options.skipOpening ? story.frame.choices.find((entry) => entry.text.includes("先替他燒水")) : undefined) ?? (options.orderHandoffFirst ? story.frame.choices.find((entry) => entry.text.includes("先照舊清單排好交接")) : undefined) ?? story.frame.choices.find((entry) =>
+      const extraStep = extra[0] && story.frame.choices.some((entry) => entry.text.includes(extra[0]!)) ? extra.shift() : undefined;
+      const choice = (extraStep ? story.frame.choices.find((entry) => entry.text.includes(extraStep)) : undefined) ?? (options.teaChoice ? story.frame.choices.find((entry) => entry.text.includes(options.teaChoice!)) : undefined) ?? (options.teaFollowup === "leave" ? story.frame.choices.find((entry) => entry.text.includes("先讓杯子和手機都留在桌上")) : undefined) ?? (options.skipOpening ? story.frame.choices.find((entry) => entry.text.includes("先替他燒水")) : undefined) ?? (options.orderHandoffFirst ? story.frame.choices.find((entry) => entry.text.includes("先照舊清單排好交接")) : undefined) ?? story.frame.choices.find((entry) =>
         entry.text.includes(choicesByEnding[target]),
       ) ?? (options.skipObjects
         ? story.frame.choices.find((entry) => [
@@ -75,6 +78,51 @@ function complete(
 }
 
 describe("Boyan second night", () => {
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-thirteen %s route", (target) => {
+    expect(complete(target, chapterThirteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["boyan-rest", "陪他數一數", "一個「抱歉」也沒有"],
+    ["boyan-leave", "真的想說的", "最難開口、也最先說出口的一句"],
+    ["boyan-boundary", "真的想說的", "掛號單的照片"],
+    ["boyan-overwork", "陪他數一數", "刪掉，又打了回去"],
+  ] as const)("lets Boyan sort his apologies after the letter and carries it into %s", (target, answer, afterword) => {
+    const texts = complete(target, compiled, { extra: ["那一疊「抱歉」", answer] }).texts.join(" ");
+    expect(texts).toContain("好像我做錯了很多事");
+    expect(texts).toContain(afterword);
+    expect(texts).toContain("還沒決定先拿起哪一張");
+  });
+  it.each([
+    ["boyan-rest", "後來也站起來了", "第一次沒開電腦就睡了"],
+    ["boyan-leave", "他先看窗外", "換了新手機也抄過去了"],
+    ["boyan-boundary", "他說了那個晚上", "抄進了會議紀錄"],
+    ["boyan-overwork", "錶面朝內", "至少這一條他會照做"],
+  ] as const)("lets Boyan take off the watch and plan tonight, echoed in %s", (target, watch, tonight) => {
+    const texts = complete(target, compiled, { extra: ["停在 23:47 的錶", "今晚離開書店後要去哪裡"] }).texts.join(" ");
+    expect(texts).toContain("這一次錶面朝上");
+    expect(texts).toContain("直接去急診，不要先回訊息");
+    expect(texts).toContain(watch);
+    expect(texts).toContain(tonight);
+  });
+  it("keeps the after-letter talk optional and hides the watch when it was never asked about", () => {
+    const skipped = complete("boyan-rest", compiled, { skipOpening: true });
+    const texts = skipped.texts.join(" ");
+    expect(texts).not.toContain("還沒決定先拿起哪一張");
+    expect(texts).not.toContain("後來也站起來了");
+    const story = new StoryBridge(compiled);
+    story.next();
+    for (let step = 0; step < 280 && !story.frame.choices.some((entry) => entry.text.includes("先陪他安排就醫")); step++) {
+      if (story.frame.mode === "tea") story.finishTea({ teaId: "chamomile", garnish: "none", quality: 95, emotionalMatch: 75 });
+      else if (story.frame.mode === "letter") story.finishLetter({ completion: 50, understood: false });
+      else if (story.frame.mode === "notifications") story.finishNotifications({ allPaused: true, repliedMother: true });
+      else if (story.frame.canContinue) story.next();
+      else story.choose((story.frame.choices.find((entry) => entry.text.includes("先替他燒水")) ?? story.frame.choices[0])!.index);
+    }
+    const menu = story.frame.choices.map((entry) => entry.text);
+    expect(menu).toContain("先陪他安排就醫和請假");
+    expect(menu).not.toContain("問他那一疊「抱歉」要怎麼處理");
+    expect(menu).not.toContain("看看那只停在 23:47 的錶");
+  });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-twelve %s route", (target) => {
     expect(complete(target, chapterTwelve).story.frame.endingId).toBe(target);
   });

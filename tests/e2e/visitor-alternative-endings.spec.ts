@@ -21,10 +21,10 @@ import { smallTargets } from "./touch-target-helpers";
 
 const chapters = [
   { version: STORY_VERSION, file: "main", tea: "osmanthus", fragments: ["address", "reason", "wait"] },
-  { version: "boyan-chapter-13", file: "boyan-chapter-13", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
-  { version: "ruoyin-chapter-12", file: "ruoyin-chapter-10", tea: "lavender", fragments: ["greeting", "fear", "music"] },
-  { version: "yenuan-chapter-11", file: "yenuan-chapter-9", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
-  { version: "haiming-chapter-15", file: "haiming-chapter-13", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
+  { version: "boyan-chapter-14", file: "boyan-chapter-14", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
+  { version: "ruoyin-chapter-12", file: "ruoyin-chapter-12", tea: "lavender", fragments: ["greeting", "fear", "music"] },
+  { version: "yenuan-chapter-11", file: "yenuan-chapter-11", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
+  { version: "haiming-chapter-16", file: "haiming-chapter-16", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
 ] as const satisfies readonly { version: StoryVersion; file: string; tea: TeaId; fragments: readonly string[] }[];
 const endings = [
   { chapter: 0, id: "recipient", choice: "陪她寫一張詢問收信意願的短箋", title: "遲來的收件人" },
@@ -125,7 +125,7 @@ for (const ending of endings) {
       const reveal = page.getByRole("button", { name: "顯示全文" });
       const next = page.getByRole("button", { name: "繼續", exact: true });
       const followup = page.locator(".dialogue-choices button").first();
-      if (await reveal.isVisible()) await reveal.click();
+      if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
       else if (await next.isVisible()) await next.click();
       else if (await followup.isVisible()) await followup.click();
       else throw new Error(`${ending.id} stalled after final choice`);

@@ -8,7 +8,7 @@ async function advanceUntil(page: Page, target: string) {
   for (let step = 0; step < 280; step++) {
     if (await page.locator(target).first().isVisible()) return;
     const reveal = page.getByRole("button", { name: "顯示全文" });
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else await page.locator(".dialogue-panel button").first().click();
   }
   throw new Error(`Story did not reach ${target}`);

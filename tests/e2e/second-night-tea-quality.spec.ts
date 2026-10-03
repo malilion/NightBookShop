@@ -4,7 +4,7 @@ import { StoryBridge } from "../../src/story/storyBridge";
 import { scoreTea } from "../../src/services/teaScoring";
 import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
 
-const storyJson = readFileSync("public/story/compiled/boyan-chapter-13.json", "utf8");
+const storyJson = readFileSync("public/story/compiled/boyan-chapter-14.json", "utf8");
 const legacyStoryJson = readFileSync("public/story/compiled/boyan-chapter-9.json", "utf8");
 
 function beforeTeaFollowup(): GameSnapshot {
@@ -18,7 +18,7 @@ function beforeTeaFollowup(): GameSnapshot {
     if (frame.choices.some((choice) => choice.text.includes("今晚最怕哪件事停下來")))
       return snapshotSchema.parse({
         version: 1,
-        storyVersion: "boyan-chapter-13",
+        storyVersion: "boyan-chapter-14",
         inkState: story.serialize(),
         frame,
         tea,
@@ -38,7 +38,7 @@ function beforeTeaChoice(teaId: "black" | "mint"): GameSnapshot {
   for (let step = 0; step < 160; step++) {
     const frame = story.frame;
     if (frame.choices.some((choice) => choice.text.includes(teaId === "black" ? "明早那三頁" : "報告和回診")))
-      return snapshotSchema.parse({ version: 1, storyVersion: "boyan-chapter-13", inkState: story.serialize(), frame, tea, letter: newLetter() });
+      return snapshotSchema.parse({ version: 1, storyVersion: "boyan-chapter-14", inkState: story.serialize(), frame, tea, letter: newLetter() });
     if (frame.mode === "tea") story.finishTea({ teaId, quality: 80, emotionalMatch: 70 });
     else if (frame.canContinue) story.next();
     else story.choose(frame.choices[0]!.index);

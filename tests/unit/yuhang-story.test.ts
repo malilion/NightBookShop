@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-12.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-13.json", "utf8");
+const chapterTwelve = readFileSync("public/story/compiled/yuhang-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/yuhang-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/yuhang-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/yuhang-chapter-9.json", "utf8");
@@ -70,6 +71,29 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
 }
 
 describe("Yuhang fifth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twelve %s route readable", (target) => {
+    expect(play(target, true, false, chapterTwelve).story.frame.endingId).toBe(target);
+  });
+  const setup = ["問他妹妹是什麼樣的人", "讓他試試那把沒有用過的鑰匙"];
+  it.each([
+    ["yuhang-today", "請他寫在明信片背面", "陪他把鑰匙裝進信封", ["寫給起頭的人", "同一個紅色", "不是來收尾的"]],
+    ["yuhang-today", "讓他只說出口", "讓他先把鑰匙留在圈上", ["換了弦", "門這次沒有卡住"]],
+    ["yuhang-future", "讓他只說出口", "陪他把鑰匙裝進信封", ["弦換過了", "讓那時的自己認得", "重新去問"]],
+    ["yuhang-past", "請他寫在明信片背面", "讓他先把鑰匙留在圈上", ["又讀了一遍自己補的那一行", "夾在新信的第一頁", "只是還不想拿下來"]],
+    ["yuhang-unknown", "讓他只說出口", "讓他先把鑰匙留在圈上", ["靠在衣櫃旁", "黑貓有時睡在上面", "都會先碰到它"]],
+  ] as const)("lets Yuhang speak to his sister, stamp his own name and decide on the key before %s", (target, word, key, echoes) => {
+    const texts = play(target, true, false, compiled, { chooseTexts: [...setup, "想對妹妹說", word, "替別人蓋過幾次章", "空店面的鑰匙打算怎麼辦", key] }).texts.join(" ");
+    expect(texts).toContain("大概十萬次吧");
+    expect(texts).toContain("簽收欄仍空著");
+    for (const echo of echoes) expect(texts).toContain(echo);
+  });
+  it("hides the sister and key questions when they were never raised", () => {
+    const run = play("yuhang-today", true, false, compiled, { skipObjects: true });
+    const texts = run.texts.join(" ");
+    expect(texts).not.toContain("她起頭，我收尾。」他把明信片翻到背面");
+    expect(texts).not.toContain("租約過期了，它其實已經不是我的");
+    expect(texts).not.toContain("大概十萬次吧");
+  });
   it("uses only supported tags", () => {
     const source = readFileSync("story/chapters/ch05_yuhang.ink", "utf8");
     for (const match of source.matchAll(/#\s*([^#\n}]+)/g))

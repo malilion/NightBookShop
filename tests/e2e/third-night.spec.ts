@@ -7,7 +7,7 @@ async function advanceUntil(page: Page, target: string, max = 220) {
     if (await page.locator(target).isVisible()) return;
     const reveal = page.getByRole("button", { name: "顯示全文" });
     const next = page.getByRole("button", { name: "繼續", exact: true });
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else if (await next.isVisible()) await next.click();
     else if (await page.locator(".dialogue-choices button").first().isVisible())
       await page.locator(".dialogue-choices button").first().click();

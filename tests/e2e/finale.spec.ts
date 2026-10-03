@@ -31,7 +31,7 @@ function completedJinglanSave(): GameSnapshot {
 }
 
 function completedHaimingSave(): GameSnapshot {
-  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-15.json", "utf8"));
+  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-16.json", "utf8"));
   story.next();
   for (let step = 0; step < 320 && story.frame.mode !== "ending"; step++) {
     if (story.frame.mode === "tea") story.finishTea({ teaId: "hojicha", quality: 100, emotionalMatch: 100 });
@@ -43,7 +43,7 @@ function completedHaimingSave(): GameSnapshot {
   if (story.frame.endingId !== "haiming-light") throw new Error("Haiming fixture did not reach the shared-letter ending");
   return snapshotSchema.parse({
     version: 1,
-    storyVersion: "haiming-chapter-15",
+    storyVersion: "haiming-chapter-16",
     inkState: story.serialize(),
     frame: story.frame,
     tea: newTea(),
@@ -56,7 +56,7 @@ async function advanceUntil(page: Page, target: string, max = 280) {
     if (await page.locator(target).isVisible()) return;
     const reveal = page.getByRole("button", { name: "顯示全文" });
     const next = page.getByRole("button", { name: "繼續", exact: true });
-    if (await reveal.isVisible()) await reveal.click();
+    if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
     else if (await next.isVisible()) await next.click();
     else if (await page.locator(".dialogue-choices button").first().isVisible())
       await page.locator(".dialogue-choices button").first().click();

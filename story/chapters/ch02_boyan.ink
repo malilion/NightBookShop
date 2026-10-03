@@ -31,6 +31,9 @@ VAR asked_bag = false
 VAR asked_phone_down = false
 VAR poured_water = false
 VAR told_old_letter = false
+VAR apology_kind = ""
+VAR took_off_watch = false
+VAR asked_tonight = false
 -> arrival
 
 === arrival ===
@@ -411,6 +414,37 @@ VAR told_old_letter = false
 }
 他把三封舊信疊好，問妳：「是不是一定要辭職，才算真的照顧自己？」
 不是。也不是一定得留下。妳現在知道的是，今晚的胸悶和上週的昏倒需要處理。明天的決定可以等妳看過醫生、算過手上的資源，再親自作。 # speaker:林澄
+-> decision
+=== decision_return ===
+柏言把信紙壓在杯底下，還沒決定先拿起哪一張。 # speaker:旁白
+-> decision
+=== decision ===
+* {letter_understood && apology_kind == ""} [問他那一疊「抱歉」要怎麼處理]
+    他把第一版信裡的「抱歉」一個個圈起來，圈到後來筆水都淡了。「這麼多，好像我做錯了很多事。」 # speaker:許柏言
+    ** [陪他數一數，有幾句是替別人道歉]
+        ~ apology_kind = "counted"
+        ~ understanding += 1
+        妳們一起數。十四個「抱歉」裡，九個是替別人延誤的進度，三個是替當機的系統，一個是替沒接到的電話。 # speaker:旁白
+        最後一個寫著「抱歉，我身體不太好」。柏言盯著它看了很久，把它劃掉。「這個不用道歉。」 # speaker:許柏言
+        -> decision_return
+    ** [問他有沒有哪一句是真的想說的]
+        ~ apology_kind = "mother"
+        ~ trust += 1
+        柏言翻過每一頁，停在信紙背面一行很小的字。那一句不是寫給主管的。 # speaker:旁白
+        「媽，上週我在公司昏倒，沒有告訴妳。對不起。」他把這一行撕下來，折好放進襯衫口袋。「這句不放在辭職信裡。我想當面說。」 # speaker:許柏言
+        -> decision_return
+* {read_watch && not took_off_watch} [看看那只停在 23:47 的錶]
+    ~ took_off_watch = true
+    柏言低頭看錶，像這才想起它還戴著。「我一直沒拿下來。每次看時間都先看到它，再趕快去看手機。」 # speaker:許柏言
+    他解開錶帶，把錶放在信旁。這一次錶面朝上。「讓它停在那裡吧。我想記得那天，不是一直把它翻過去。」 # speaker:許柏言
+    -> decision_return
+* {not asked_tonight} [問他今晚離開書店後要去哪裡]
+    ~ asked_tonight = true
+    ~ trust += 1
+    柏言愣了一下。「回家吧。」他想了想又說：「其實我已經很久沒有在十二點以前到家了。到家也是開電腦。」 # speaker:許柏言
+    妳問他，如果路上胸口又悶，打算怎麼辦。 # speaker:旁白
+    他把手機翻過來，在備忘錄最上面打了一行：「胸悶不退或頭暈，直接去急診，不要先回訊息。」打完，他把這一行釘選在最上面。
+    -> decision_return
 * [先陪他安排就醫和請假]
     ~ chose_support = true
     -> rest
@@ -434,6 +468,10 @@ VAR told_old_letter = false
 他把晚餐放在桌上，說自己仍會緊張，只是不再把那份緊張當作必須立刻打開電腦的命令。
 有幾次新工作又被排到他的名字下，他拿出那張分過欄的排程，和團隊討論誰能接。手錶走得準了，柏言也沒有要求自己從此每次都能說得一樣穩。
 {told_old_letter:請假信是回診那天早上寄的。寄出前，他先把副本寄給自己，在捷運上讀了一遍。 # speaker:旁白}
+{apology_kind == "counted":那封請假信裡，一個「抱歉」也沒有。 # speaker:旁白}
+{apology_kind == "mother":回診那週的週末，他回家吃飯，把口袋裡那張紙條念給母親聽。母親先罵他怎麼不早說，又把湯盛得太滿。 # speaker:旁白}
+{took_off_watch:修錶師傅問他為什麼停在 23:47。他說那天晚上他倒下了，後來也站起來了。 # speaker:旁白}
+{asked_tonight:那晚他回家，第一次沒開電腦就睡了。備忘錄最上面那一行一直沒刪。 # speaker:旁白}
 -> coda_rest
 === leave ===
 柏言沒有立刻按下寄出。他在紙背寫下存款可以撐多久、誰願意幫忙，以及看診後需要哪些安排。 # scene:boyan # speaker:旁白
@@ -448,6 +486,10 @@ VAR told_old_letter = false
 母親仍問他什麼時候找工作。他沒有每次都答得好，卻開始能說：「先讓我把身體照顧好。」
 舊同事偶爾問他某份檔案在哪，他會回覆自己知道的路徑，也能說下一步該問現在負責的人。空白履歷沒有替他省掉現實的計算，卻讓他不再把每一次求助都當成失敗。
 {told_old_letter:離職信沒有在半夜寄出。他等到早上，喝完一杯茶，才按下送出。 # speaker:旁白}
+{apology_kind == "counted":離職信寫了三次，最後一版沒有替任何人的延誤道歉。 # speaker:旁白}
+{apology_kind == "mother":告訴母親自己要離職以前，他先說了昏倒的事。那是那次談話裡最難開口、也最先說出口的一句。 # speaker:旁白}
+{took_off_watch:錶修好以後，他沒有再戴回去，把它放在書桌上。看時間的時候，他先看窗外。 # speaker:旁白}
+{asked_tonight:他手機備忘錄最上面那一行，換了新手機也抄過去了。 # speaker:旁白}
 -> coda_leave
 === boundary ===
 他把信題改為「工作負荷與人力安排」。交接清單留在附件，第一段先寫目前無法再單獨承擔的項目。 # scene:boyan # speaker:旁白
@@ -461,6 +503,10 @@ VAR told_old_letter = false
 他保留了回診時間，沒有用下一次升遷的承諾抵掉它。
 有兩項工作被重派，另一項還需要爭取人手。柏言沒把那次會議說成一次就解決了所有事；他把未定的事項寫進紀錄，約好下次再核對。
 {told_old_letter:那份說明他沒有用郵件丟過去，而是先約了時間，當面交到主管手上。 # speaker:旁白}
+{apology_kind == "counted":說明裡沒有一個「抱歉」。主管讀完，第一句問的是他身體怎麼樣。 # speaker:旁白}
+{apology_kind == "mother":那個週末，他把口袋裡的紙條交給母親。她讀完沒說話，隔天傳來一張掛號單的照片，問他是不是這一家。 # speaker:旁白}
+{took_off_watch:會議那天，他把停住的錶放在桌上。主管問起，他說了那個晚上。 # speaker:旁白}
+{asked_tonight:他把備忘錄最上面那一行也抄進了會議紀錄，寫在回診時間旁邊。 # speaker:旁白}
 -> coda_boundary
 === overwork ===
 他點點頭，像終於聽到熟悉的指令。電腦其實仍沒有電，他用手機把報告最後三頁寫完。 # scene:boyan # speaker:旁白
@@ -473,6 +519,10 @@ VAR told_old_letter = false
 他的錶仍停在 23:47。妳把那晚的茶方夾在書頁裡，旁邊留下一行提醒：若胸悶持續或再次昏厥，應立即尋求醫療協助。
 柏言看見提醒，沒有說自己已經好了；他只說知道這句話是寫給自己的。書店仍留著那張未寄出的請假草稿，下一次要不要打開，由他決定。
 {told_old_letter:報告寄出了，那封信還在草稿匣。他說過身體沒辦法等五十年；草稿的建立日期，已經又過了一週。 # speaker:旁白}
+{apology_kind == "counted":報告寄件信的第一句是「抱歉晚交」。他打完才發現，刪掉，又打了回去。 # speaker:旁白}
+{apology_kind == "mother":襯衫口袋裡那張給母親的紙條還在，洗過一次，摺痕已經發白。 # speaker:旁白}
+{took_off_watch:他把錶戴回去，錶面朝內。 # speaker:旁白}
+{asked_tonight:備忘錄最上面那一行還在。他說，至少這一條他會照做。 # speaker:旁白}
 -> coda_overwork
 === coda_rest ===
 妳翻開手冊，發現一張空白頁上多了一行字：「已收存第二位訪客的故事。」 # section:coda # speaker:旁白

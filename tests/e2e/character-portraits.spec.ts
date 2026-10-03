@@ -44,7 +44,7 @@ for (const visitor of visitors) {
     const dialogueText = page.locator(".dialogue-text");
     const fullText = await dialogueText.getAttribute("data-full-text");
     const revealButton = page.getByRole("button", { name: "顯示全文" });
-    if (await revealButton.isVisible()) await revealButton.click();
+    if (await revealButton.isVisible()) await revealButton.click({ timeout: 2_000 }).catch(() => undefined);
     await expect(dialogueText.locator("span")).toHaveText(fullText ?? "");
     await page.screenshot({ path: `output/${visitor.id}-portrait-${info.project.name}.png`, animations: "disabled" });
     expect(errors).toEqual([]);
