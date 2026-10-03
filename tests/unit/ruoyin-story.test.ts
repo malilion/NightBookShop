@@ -1,15 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { StoryBridge } from "../../src/story/storyBridge";
+import { StoryBridge, type PriorChapterEndings } from "../../src/story/storyBridge";
 import { parseTag } from "../../src/story/commandParser";
 import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-12.json",
+  "public/story/compiled/ruoyin-chapter-13.json",
   "utf8",
 );
+const chapterTwelve = readFileSync("public/story/compiled/ruoyin-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/ruoyin-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/ruoyin-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/ruoyin-chapter-9.json", "utf8");
@@ -31,9 +32,9 @@ function play(
   target: keyof typeof targets,
   fullLetter = true,
   storyJson = compiled,
-  options: { skipObjects?: boolean; excludedChoices?: string[]; previousEnding?: string; finalBar?: "return" | "new" | "rest"; teaId?: "lavender" | "osmanthus" | "black"; chooseTexts?: string[]; latePrompt?: string; skipScoreTable?: boolean } = {},
+  options: { skipObjects?: boolean; excludedChoices?: string[]; previousEnding?: string; finalBar?: "return" | "new" | "rest"; teaId?: "lavender" | "osmanthus" | "black"; chooseTexts?: string[]; latePrompt?: string; skipScoreTable?: boolean; priorEndings?: PriorChapterEndings } = {},
 ) {
-  const story = new StoryBridge(storyJson, options.previousEnding);
+  const story = new StoryBridge(storyJson, options.previousEnding, options.priorEndings);
   story.next();
   const sections = new Set<string>();
   const texts: string[] = [];
@@ -101,6 +102,32 @@ function play(
 }
 
 describe("Ruoyin third night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twelve %s route readable", (target) => {
+    expect(play(target, true, chapterTwelve).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["moonlight", "寫給那個十歲的人聽"],
+    ["recipient", "想聽的人，我再拉給他"],
+    ["unfinished", "最後一個音晚一點落下，也沒關係"],
+    ["intervention", "那最後一小節，請讓我自己寫"],
+  ])("lets Jinglan's %s ending answer Ruoyin's four notes", (jinglan, answer) => {
+    const texts = play("ruoyin-one", true, compiled, { previousEnding: "boyan-rest", priorEndings: { jinglan }, latePrompt: "第一晚有位老師也聽過這四個音" }).texts.join(" ");
+    expect(texts).toContain("最後一個音沒有落下");
+    expect(texts).toContain(answer);
+    expect(texts).toContain("給第一晚也聽見的人");
+  });
+  it.each([
+    ["ruoyin-stage", "她也在等最後一個音"],
+    ["ruoyin-score", "借給所有沒聽完的人"],
+    ["ruoyin-echo", "掌聲蓋過了那一拍"],
+  ] as const)("carries Jinglan's four notes into the %s afterword", (target, afterword) => {
+    expect(play(target, true, compiled, { priorEndings: { jinglan: "moonlight" }, latePrompt: "第一晚有位老師也聽過這四個音" }).texts.join(" ")).toContain(afterword);
+  });
+  it("does not mention the first night's listener without Jinglan's ending", () => {
+    const texts = play("ruoyin-one", true, compiled, { latePrompt: "第一晚有位老師也聽過這四個音" }).texts.join(" ");
+    expect(texts).not.toContain("第一晚那位退休的國文老師");
+    expect(texts).not.toContain("給第一晚也聽見的人");
+  });
   it("uses only supported story tags", () => {
     const source = readFileSync("story/chapters/ch03_ruoyin.ink", "utf8");
     for (const match of source.matchAll(/#\s*([^#\n}]+)/g))

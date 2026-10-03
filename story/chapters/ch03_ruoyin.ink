@@ -37,6 +37,8 @@ VAR heard_rankings = false
 VAR asked_plan_hand = false
 VAR left_plan_blanks = false
 VAR asked_share_load = false
+VAR ending_jinglan = ""
+VAR told_jinglan_notes = false
 VAR ending_kind = ""
 -> arrival
 
@@ -489,6 +491,21 @@ VAR ending_kind = ""
     {read_injury:她想起妳們看過的復健日期，把「停一下」寫在新曲旁，沒有把舊傷與那場比賽混成同一個失敗。 # speaker:旁白}
     {not read_injury:妳們沒有讀到過去的復健紀錄；她此刻說的是現在的手。妳不替她推斷還能拉多久。 # speaker:旁白}
     -> score_table_hub
+* {ending_jinglan != "" && not told_jinglan_notes} [告訴她，第一晚有位老師也聽過這四個音]
+    ~ told_jinglan_notes = true
+    妳說起第一晚那位退休的國文老師。她在櫃台前坐到很晚，書架深處也傳來四個音，最後一個音沒有落下。 # speaker:旁白
+    若音停住筆。「她聽完，有說什麼嗎？」 # speaker:沈若音
+    {
+    - ending_jinglan == "moonlight":
+        妳說她沒提琴聲，只在最後寫了一封信給年輕時的自己。若音看著譜角十歲時畫的雲：「那這一小節，我也可以先寫給那個十歲的人聽。」 # speaker:沈若音
+    - ending_jinglan == "recipient":
+        妳說她先寫了一張短箋，問收信的人願不願意收。若音點頭：「那我也先問。想聽的人，我再拉給他。」 # speaker:沈若音
+    - ending_jinglan == "unfinished":
+        妳說她把信帶回家，還沒決定要不要寄。若音笑了一下：「原來她也還沒寫完。那最後一個音晚一點落下，也沒關係。」 # speaker:沈若音
+    - else:
+        妳說那封信最後是妳替她封口的，她說過「等等」。若音把鉛筆握緊了一點，又放鬆：「那最後一小節，請讓我自己寫。」 # speaker:沈若音
+    }
+    -> score_table_hub
 * [把鉛筆交回若音，聽她決定最後一小節]
     -> final_bar_choice
 === final_bar_choice ===
@@ -543,6 +560,7 @@ VAR ending_kind = ""
 {asked_share_load:〈三分鐘〉的譜上留著一個鉛筆畫的記號。演出到那裡，鋼琴會先走一小段，她的左手在琴頸上歇一拍。 # speaker:旁白}
 {asked_labels:琴盒上的商演標籤她一張也沒撕。最新一張貼在最上面，寫著一間小咖啡館的名字。 # speaker:旁白}
 {asked_plan_hand:她現在的練習表第一欄不是時數，是手的狀況。痛的日子，她只拉那四個音。 # speaker:旁白}
+{told_jinglan_notes:她後來在譜紙角落寫了一行小字：「給第一晚也聽見的人。」 # speaker:旁白}
 ~ ending_kind = "one"
 -> chapter_coda
 === end_stage ===
@@ -554,6 +572,7 @@ VAR ending_kind = ""
 她們沒有把那次爭吵說成誤會，只是第一次聽彼此把話講完。
 {asked_corridor_tree:散場後，兩人沿著音樂廳外的人行道走了一段。路邊有一棵桂花，她們都沒有提起那年的名次。 # speaker:旁白}
 {asked_phone:那張票是她自己在開賣那天買的。鬧鐘響了，她沒有只看著座位圖變灰。演出中她數過一次季晴換弓的位置，後來便忘了數。 # speaker:旁白}
+{told_jinglan_notes:寄給季晴的信裡，她提到一位也聽過這四個音的老師。她沒寫名字，只寫：「她也在等最後一個音。」 # speaker:旁白}
 ~ ending_kind = "stage"
 -> chapter_coda
 === end_score ===
@@ -564,6 +583,7 @@ VAR ending_kind = ""
 書籤後記：有人的信只有一句話，有人寫滿十頁。若音替他們寫短短的旋律，也把自己寫不出的日子留在簿子裡。 # scene:counter # speaker:旁白 # section:afterword
 簿子漸漸厚了，沒有一頁標著「重新成為獨奏家」。
 {asked_labels:她仍接婚禮和尾牙。遇到有人請她拉家人以前唱的歌，她會先把那段故事記進簿子，再動手改編曲。 # speaker:旁白}
+{told_jinglan_notes:她替普通人寫的第一首曲子，開頭仍是那四個音。她說是借來的，借給所有沒聽完的人。 # speaker:旁白}
 ~ ending_kind = "score"
 -> chapter_coda
 === end_echo ===
@@ -577,6 +597,7 @@ VAR ending_kind = ""
 {heard_rankings:成績公布那天，她排在第二。她第一個找的，仍是其他人的名字排在哪裡。 # speaker:旁白}
 {left_plan_blanks:書店那張計畫表的空格，她一直沒有填。比賽前一晚，她把它們全塗成了練習時數。 # speaker:旁白}
 {asked_phone:季晴來聽了那場比賽。若音在台上數著台下的換弓，數到最後，發現自己一直在等對方拉錯。 # speaker:旁白}
+{told_jinglan_notes:比賽那天，拉到第四個音時她想起那位老師。她沒有停，掌聲蓋過了那一拍。 # speaker:旁白}
 ~ ending_kind = "echo"
 -> chapter_coda
 === chapter_coda ===

@@ -1,4 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { StoryBridge } from "../../src/story/storyBridge";
+import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
@@ -40,24 +43,39 @@ async function inspectMemoryObjects(page: Page, section: string, labels: string[
   await expect(page.locator(`${overlay} .memory-object-seen`)).toHaveCount(3);
 }
 
+function scoreRuoyinSave(): GameSnapshot {
+  const story = new StoryBridge(readFileSync("public/story/compiled/ruoyin-chapter-13.json", "utf8"));
+  story.next();
+  for (let step = 0; step < 320 && story.frame.mode !== "ending"; step++) {
+    if (story.frame.mode === "tea") story.finishTea({ teaId: "lavender", quality: 95, emotionalMatch: 100 });
+    else if (story.frame.mode === "melody") story.finishMelody(true);
+    else if (story.frame.mode === "letter") story.finishLetter({ completion: 100, understood: true });
+    else if (story.frame.canContinue) story.next();
+    else story.choose((story.frame.choices.find((entry) => entry.text.includes("替普通人的故事寫旋律")) ?? story.frame.choices[0])!.index);
+  }
+  if (story.frame.endingId !== "ruoyin-score") throw new Error("Ruoyin fixture did not reach the score ending");
+  return snapshotSchema.parse({ version: 1, storyVersion: "ruoyin-chapter-13", inkState: story.serialize(), frame: story.frame, tea: newTea(), letter: newLetter() });
+}
+
 test("sixth night keeps Haiming's original words and reveals Lincheng's childhood", async ({ page }, info) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  await page.evaluate(async () => {
+  await page.evaluate(async (ruoyinSave) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const db = request.result;
-        const tx = db.transaction("collection", "readwrite");
+        const tx = db.transaction(["collection", "saves"], "readwrite");
         for (const id of ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today"])
           tx.objectStore("collection").put({ id, unlockedAt: new Date().toISOString() });
+        tx.objectStore("saves").put({ id: "chapter-ruoyin", kind: "chapter", updatedAt: new Date().toISOString(), snapshot: ruoyinSave });
         tx.oncomplete = () => { db.close(); resolve(); };
         tx.onerror = () => reject(tx.error);
       };
     });
-  });
+  }, scoreRuoyinSave());
   await page.getByRole("link", { name: "設定" }).click();
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
   await page.getByRole("switch", { name: /減少動態效果/ }).check();
@@ -94,6 +112,8 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await page.getByRole("button", { name: "守住柔和的燈光" }).click();
   await page.screenshot({ path: `output/sixth-night-lamp-${info.project.name}.png`, fullPage: true, animations: "disabled" });
   await page.getByRole("button", { name: "聽他接著說" }).click();
+  await (await untilChoice(page, "小提琴手在寫這四個音")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="我可以講風向給她聽"]');
   await advanceUntil(page, '.scene-art img[src*="memory-lighthouse.webp"]');
   await expect(page.locator(".scene-art")).toHaveCount(1);
   if (touch) await expect(page.locator('.scene-art source[srcset*="memory-lighthouse-mobile.webp"]')).toHaveCount(1);
@@ -162,6 +182,7 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await (await untilChoice(page, "讓他自己念")).click();
   await (await untilChoice(page, "邀請顧川到書店")).click();
   await advanceUntil(page, '.dialogue-text[data-full-text*="顧川等他從頭再念"]');
+  await advanceUntil(page, '.dialogue-text[data-full-text*="有人還在寫最後一個音"]');
   await advanceUntil(page, '.character-portrait[data-portrait="child"]');
   await page.screenshot({ path: `output/sixth-night-child-${info.project.name}.png`, animations: "disabled" });
   await advanceUntil(page, '.character-portrait[data-portrait="owner"]');

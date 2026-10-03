@@ -41,6 +41,8 @@ VAR asked_where_stops = false
 VAR wrote_today_date = false
 VAR allowed_wrong_dates = false
 VAR asked_who_delivers = false
+VAR ending_ruoyin = ""
+VAR told_ruoyin_tune = false
 VAR read_aloud = ""
 VAR tonight_mark = ""
 VAR ending_kind = ""
@@ -225,6 +227,24 @@ VAR ending_kind = ""
 }
 海明翻頁時哼出四個音，尾音停在半空。妳認出若音在茶杯旁拉過的開頭，也想起靜蘭說過校刊室有人曾哼過它；海明卻只說，很多年前燈塔外有人唱過。 # clue:shared-melody # speaker:旁白
 海明翻開第一頁。他說風從東北來，屋內卻有一聲嬰兒的哭聲，像從很久以前的海上傳來。
+-> tower_door
+=== tower_door ===
+* {ending_ruoyin != "" && not told_ruoyin_tune} [告訴他，前幾晚有位小提琴手在寫這四個音]
+    ~ told_ruoyin_tune = true
+    妳說起那位小提琴手。她十歲時寫下這四個音，最後一個音總在落下以前被拉回去。 # speaker:旁白
+    海明又哼了一次，這回停在同一個地方。「那她後來，接上了嗎？」 # speaker:顧海明
+    {
+    - ending_ruoyin == "ruoyin-one":
+        妳說她只為一位夜歸的客人拉完，三分鐘，留一拍給呼吸。海明點頭：「一個人聽也夠了。燈塔一整晚，常常也只照到一艘船。」 # speaker:顧海明
+    - ending_ruoyin == "ruoyin-stage":
+        妳說她先把一封信寄給以前一起練琴的朋友，曲子還在寫。海明笑了：「先寄信，再寫歌。我年輕時，順序常常反過來。」 # speaker:顧海明
+    - ending_ruoyin == "ruoyin-score":
+        妳說她開始替普通人的故事寫旋律。海明想了想：「守燈的人也算普通人吧。她要是想寫，我可以講風向給她聽。」 # speaker:顧海明
+    - else:
+        妳說她帶著舊傷回去比賽了。海明沉默了一會：「手會痛還要拉，跟浪大還要守燈不一樣。燈可以換人守。」 # speaker:顧海明
+    }
+    海明把日誌翻回第一頁。 # speaker:旁白
+    -> tower_door
 * [走進暴風夜的燈塔]
     -> storm_tower
 === storm_tower ===
@@ -568,6 +588,7 @@ VAR ending_kind = ""
 {read_aloud == "lincheng":顧川問那句是誰先念的。海明說是書店的店員：「她念得比我好。可是我想自己再念一次。」 # speaker:旁白}
 {tonight_mark == "corner":日誌裡那一頁的折角，顧川用一枚夾子夾住了。 # speaker:旁白}
 {tonight_mark == "card":顧川在住址卡背面那行字底下，補了一句：「我收到了。」 # speaker:旁白}
+{told_ruoyin_tune:顧川問父親常哼的是什麼歌。海明說不知道名字，只知道有人還在寫最後一個音。 # speaker:旁白}
 ~ ending_kind = "light"
 -> chapter_coda
 === end_voice ===
@@ -584,6 +605,7 @@ VAR ending_kind = ""
 {read_aloud == "lincheng":錄音開頭，海明說：「有個年輕人替我念過一次，現在換我。」 # speaker:旁白}
 {tonight_mark == "corner":他每次聽錄音以前，會先把日誌翻到折角的那一頁。 # speaker:旁白}
 {tonight_mark == "card":隔天早上，他讀到住址卡背面那行字，第一件事是按下錄音鍵。 # speaker:旁白}
+{told_ruoyin_tune:錄音裡有一段他哼那四個音，停在同一個地方。顧川後來發現，自己也會停在那裡。 # speaker:旁白}
 ~ ending_kind = "voice"
 -> chapter_coda
 === end_boat ===
@@ -599,6 +621,7 @@ VAR ending_kind = ""
 {read_aloud != "":在海邊，他把那句念給海聽。風把後半句吹散了，他又念了一次。 # speaker:旁白}
 {tonight_mark == "corner":折角的那頁日誌，他也帶去了海邊。 # speaker:旁白}
 {tonight_mark == "card":出門前，他把住址卡背面那行字又讀了一遍，才去穿鞋。 # speaker:旁白}
+{told_ruoyin_tune:在海邊，他哼了那四個音。風很大，最後一個音被吹走了，他沒有再補。 # speaker:旁白}
 ~ ending_kind = "boat"
 -> chapter_coda
 === end_hero ===
@@ -615,6 +638,7 @@ VAR ending_kind = ""
 {read_aloud == "lincheng":寄出傳記以前，海明問妳還記不記得那一句怎麼念。妳記得，卻沒有把它寫進去。 # speaker:旁白}
 {tonight_mark == "corner":整理成傳記時，那一頁的折角被壓平了。 # speaker:旁白}
 {tonight_mark == "card":住址卡背面寫著「今晚寫了信給小川。是真的。」他後來問顧川，那封信裡寫了什麼。 # speaker:旁白}
+{told_ruoyin_tune:傳記裡沒有那四個音。海明說，那本來就不是他的歌。 # speaker:旁白}
 ~ ending_kind = "hero"
 -> chapter_coda
 === chapter_coda ===

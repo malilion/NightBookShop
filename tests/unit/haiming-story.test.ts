@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { StoryBridge } from "../../src/story/storyBridge";
+import { StoryBridge, type PriorChapterEndings } from "../../src/story/storyBridge";
 import { parseTag } from "../../src/story/commandParser";
 import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-16.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-17.json", "utf8");
+const chapterSixteen = readFileSync("public/story/compiled/haiming-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/haiming-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/haiming-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/haiming-chapter-13.json", "utf8");
@@ -28,8 +29,8 @@ const targets = {
   "haiming-hero": "只寄流暢的英雄故事",
 } as const;
 
-function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none"; orderDates?: boolean; reunionChoice?: "flex"; prefer?: string; teaId?: "hojicha" | "puer" | "mint"; extra?: string[] } = {}) {
-  const story = new StoryBridge(storyJson, options.previousEnding);
+function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none"; orderDates?: boolean; reunionChoice?: "flex"; prefer?: string; teaId?: "hojicha" | "puer" | "mint"; extra?: string[]; priorEndings?: PriorChapterEndings } = {}) {
+  const story = new StoryBridge(storyJson, options.previousEnding, options.priorEndings);
   story.next();
   const extra = [...(options.extra ?? [])];
   const sections = new Set<string>();
@@ -75,6 +76,25 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
 }
 
 describe("Haiming sixth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-sixteen %s route readable", (target) => {
+    expect(play(target, false, chapterSixteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["ruoyin-one", "haiming-light", "常常也只照到一艘船", "有人還在寫最後一個音"],
+    ["ruoyin-stage", "haiming-voice", "順序常常反過來", "自己也會停在那裡"],
+    ["ruoyin-score", "haiming-boat", "我可以講風向給她聽", "他沒有再補"],
+    ["ruoyin-echo", "haiming-hero", "燈可以換人守", "那本來就不是他的歌"],
+  ] as const)("lets Ruoyin's %s ending answer the tune Haiming hums before %s", (ruoyin, target, answer, afterword) => {
+    const texts = play(target, target === "haiming-hero", compiled, { priorEndings: { ruoyin }, extra: ["小提琴手在寫這四個音"] }).texts.join(" ");
+    expect(texts).toContain("那她後來，接上了嗎？");
+    expect(texts).toContain(answer);
+    expect(texts).toContain(afterword);
+  });
+  it("does not mention the violinist without Ruoyin's ending", () => {
+    const texts = play("haiming-light", false, compiled, { extra: ["小提琴手在寫這四個音"] }).texts.join(" ");
+    expect(texts).not.toContain("那她後來，接上了嗎？");
+    expect(texts).not.toContain("有人還在寫最後一個音");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fifteen %s route readable", (target) => {
     expect(play(target, false, chapterFifteen).story.frame.endingId).toBe(target);
   });

@@ -1,4 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { StoryBridge } from "../../src/story/storyBridge";
+import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
@@ -44,19 +47,33 @@ async function expectMemoryBackground(page: Page, scene: string, project: string
   await page.screenshot({ path: `output/third-night-${scene}-${project}.png`, animations: "disabled" });
 }
 
+function unfinishedJinglanSave(): GameSnapshot {
+  const story = new StoryBridge(readFileSync("public/story/compiled/main.json", "utf8"));
+  story.next();
+  for (let step = 0; step < 360 && story.frame.mode !== "ending"; step++) {
+    if (story.frame.mode === "tea") story.finishTea({ teaId: "osmanthus", quality: 100, emotionalMatch: 100 });
+    else if (story.frame.mode === "letter") story.finishLetter({ completion: 100, understood: true });
+    else if (story.frame.canContinue) story.next();
+    else story.choose((story.frame.choices.find((entry) => entry.text.includes("把信交還給她，今晚")) ?? story.frame.choices[0])!.index);
+  }
+  if (story.frame.endingId !== "unfinished") throw new Error("Jinglan fixture did not reach the unfinished ending");
+  return snapshotSchema.parse({ version: 1, storyVersion: "jinglan-chapter-8", inkState: story.serialize(), frame: story.frame, tea: newTea(), letter: newLetter() });
+}
+
 test("third night saves the cup motif and both sides of the letter", async ({
   page,
 }, info) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  await page.evaluate(async () => {
+  await page.evaluate(async (jinglanSave) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const db = request.result;
-        const tx = db.transaction("collection", "readwrite");
+        const tx = db.transaction(["collection", "saves"], "readwrite");
+        tx.objectStore("saves").put({ id: "chapter-jinglan", kind: "chapter", updatedAt: new Date().toISOString(), snapshot: jinglanSave });
         for (const id of ["moonlight", "boyan-rest"])
           tx.objectStore("collection").put({
             id,
@@ -69,7 +86,7 @@ test("third night saves the cup motif and both sides of the letter", async ({
         tx.onerror = () => reject(tx.error);
       };
     });
-  });
+  }, unfinishedJinglanSave());
   await page.getByRole("link", { name: "設定" }).click();
   await page
     .getByRole("combobox", { name: /對話文字速度/ })
@@ -185,9 +202,12 @@ test("third night saves the cup motif and both sides of the letter", async ({
   await expect(page.getByRole("button", { name: "請她說說最初四個音裡的停頓" })).toHaveCount(0);
   await (await untilChoice(page, "問她手累時能不能把休止符留下")).click();
   await page.screenshot({ path: `output/third-night-score-table-${info.project.name}.png`, animations: "disabled" });
+  await (await untilChoice(page, "第一晚有位老師也聽過這四個音")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="最後一個音晚一點落下，也沒關係"]');
   await (await untilChoice(page, "把鉛筆交回若音")).click();
   await (await untilChoice(page, "回到最初的四個音")).click();
   await (await untilChoice(page, "陪她只為一個人拉完")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="給第一晚也聽見的人"]');
   await advanceUntil(page, ".ending-panel");
   await expect(
     page.getByRole("heading", { name: "只為一個人演奏" }),
