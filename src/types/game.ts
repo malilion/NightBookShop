@@ -46,6 +46,7 @@ export const storyVersionSchema = z.enum([
   "yenuan-chapter-9",
   "yenuan-chapter-10",
   "yenuan-chapter-11",
+  "yenuan-chapter-12",
   "yuhang-chapter-1",
   "yuhang-chapter-2",
   "yuhang-chapter-3",
@@ -76,6 +77,7 @@ export const storyVersionSchema = z.enum([
   "haiming-chapter-15",
   "haiming-chapter-16",
   "haiming-chapter-17",
+  "haiming-chapter-18",
   "lincheng-chapter-1",
   "lincheng-chapter-2",
   "lincheng-chapter-3",
@@ -89,6 +91,7 @@ export const storyVersionSchema = z.enum([
   "lincheng-chapter-11",
   "lincheng-chapter-12",
   "lincheng-chapter-13",
+  "lincheng-chapter-14",
   "jinglan-chapter-1",
   "jinglan-prototype-1",
 ]);

@@ -40,6 +40,10 @@ VAR took_cloth = false
 VAR recipe_choice = ""
 VAR recipe_sincere = false
 VAR asked_last_line = false
+VAR share_with = ""
+VAR reopen_said = ""
+VAR rest_note = ""
+VAR copy_reply = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -541,46 +545,90 @@ VAR ending_kind = ""
 === end_share ===
 柚子的香氣混進烤蘋果裡。葉暖等到麵團真正醒來才開火，出爐後切下一小片，放在母親生日的蠟燭旁。 # speaker:旁白
 「媽媽，這次是我做的。」她沒有點燃蠟燭，只坐在爐邊，自己也吃了一口。
--> share_afterword
+葉暖把剩下的麵包切成幾片，刀停在半空，問妳要不要也吃一片。 # speaker:旁白
+* [接過一片，坐在她旁邊吃]
+    ~ share_with = "lincheng"
+    ~ trust += 1
+    妳們沒有說話，各自把那一片吃完。麵包皮有點硬，柚子皮在舌尖留下一點苦。 # speaker:旁白
+    「媽媽一定會說太苦。」葉暖說。「可是我喜歡。」 # speaker:葉暖
+* [請她把第一片留給明早的常客]
+    ~ share_with = "regular"
+    她想了想，用烘焙紙包好一片，在上面寫「試吃・新口味」。 # speaker:旁白
+    「如果有人說不好吃，我就再改。」她把紙包放進籃子。「改，不是對不起她。」 # speaker:葉暖
+- -> share_afterword
 === share_afterword ===
 書籤後記：晨麥多了一款柚子蘋果麵包。葉暖有時仍會為那晚難過；想起母親時，她會先讓自己坐下吃一片。 # scene:counter # speaker:旁白 # section:afterword
 母親的原配方仍收在店裡，新配方寫在它旁邊。她把兩張卡片都留下。
 {asked_last_line:新配方卡的最後一行寫著：「給早上的自己，先吃一片。」字比其他幾行小。 # speaker:旁白}
 {ate_burnt_bread:每年母親生日，她仍會烤一顆原味的蘋果麵包。烤焦了也不再丟；她切開它，先吃中間最軟的那一片。 # speaker:旁白}
+{share_with == "lincheng":新配方卡的背面多了一行小字：「在一家書店，跟一個人一起吃過。」 # speaker:旁白}
+{share_with == "regular":第一位試吃的常客說有點苦。她隔週少放了一點柚子皮，在卡片上記下日期，沒有道歉。 # speaker:旁白}
 ~ ending_kind = "share"
 -> chapter_coda
 === end_reopen ===
 葉暖把劃掉的等待重新寫上去，照母親的比例烤出一盤。隔天她對第一位常客說：「這是我媽媽教的。」 # speaker:旁白
 她沒有假裝母親還在店裡，也沒有把那天說成一個沒有傷口的故事。
--> reopen_afterword
+常客咬了一口，抬頭問：「跟妳媽媽以前做的，一樣嗎？」 # speaker:旁白
+* [讓她照實說「一樣」]
+    ~ reopen_said = "same"
+    「一樣。」葉暖說。常客又咬一口：「對，就是這個。」 # speaker:葉暖
+    她轉身去擦烤盤，背對著店門站了一會，才把下一盤放進烤箱。 # speaker:旁白
+* [讓她說「是我烤的，可能差一點」]
+    ~ reopen_said = "mine"
+    ~ understanding += 1
+    「是我烤的，可能差一點。」葉暖說完，自己先愣了一下。 # speaker:葉暖
+    常客笑了：「差一點，也是晨麥的味道。」 # speaker:旁白
+- -> reopen_afterword
 === reopen_afterword ===
 書籤後記：蘋果麵包重新放上晨麥的架子。葉暖把母親的名字寫在價牌背面，偶爾會拿給熟客看。 # scene:counter # speaker:旁白 # section:afterword
 她知道自己將來也可以改配方；今天，她先把這個味道好好留下。
 {asked_not_eating:試吃盤上每天都切同樣厚的片數。常客發現，最後一片總是葉暖自己吃掉的。 # speaker:旁白}
 {told_as_stranger:有熟客問起那年的週年活動。她起頭說「有個麵包師的女兒」，說到一半停下來，改口：「是我。」 # speaker:旁白}
+{reopen_said == "same":她每年在價牌背面多畫一道短線，記下又照母親的比例烤了一年。 # speaker:旁白}
+{reopen_said == "mine":有熟客說今年的蘋果麵包比較軟。她沒有道歉，只說：「今年的蘋果比較甜。」 # speaker:旁白}
 ~ ending_kind = "reopen"
 -> chapter_coda
 === end_rest ===
 葉暖在晨麥門上寫：「休息一週，下週見。」寫完，她站在路邊看了一會，沒有把告示撕下來。 # speaker:旁白
 她帶著生日蠟燭回家，第一次允許這一天只有想念，沒有營業額。
--> rest_afterword
+走到街角，她又回頭看了一眼店門。「如果有人來敲門呢？」 # speaker:葉暖
+* [陪她在告示上補一行留言方式]
+    ~ rest_note = "contact"
+    妳們走回去。她在「下週見」底下寫：「急事請留言，休息完會回覆。」字比上一行小。 # speaker:旁白
+* [告訴她，讓門關著就好]
+    ~ rest_note = "closed"
+    ~ trust += 1
+    她把已經伸向口袋鑰匙的手收回來。「好。這一週，敲門的人就讓他敲。」 # speaker:葉暖
+- -> rest_afterword
 === rest_afterword ===
 書籤後記：一週後她重新打開店門，先整理烤箱，再決定當天做什麼。店仍是她的，休息也由她決定。 # scene:counter # speaker:旁白 # section:afterword
 她還沒烤蘋果麵包，卻不再把空著的那格當成必須補上的缺口。
 {tidied_together:休息的第一天，她還是把店裡擦了一遍。擦到第二遍，她想起書店那塊早就乾淨的櫃台，把抹布掛回去。 # speaker:旁白}
 {took_cloth:那一週她練習讓手空著。沒有麵團可揉的早上，她坐著把一杯茶喝完，店也沒有因此亂掉。 # speaker:旁白}
 {asked_candles:休息那週，她把抽屜裡的蠟燭一盒盒拿出來排在桌上，數了數，比她記得的還多一盒。她沒有點，只把它們收進同一個盒子，寫上母親的名字。 # speaker:旁白}
+{rest_note == "contact":那一週，門縫裡只塞進兩張紙條。一張訂生日麵包，一張寫著：「休息好再回來。」 # speaker:旁白}
+{rest_note == "closed":那一週有人敲過幾次門。她在家聽不見，也沒有去想是誰。 # speaker:旁白}
 ~ ending_kind = "rest"
 -> chapter_coda
 === end_copy ===
 妳說改動配方會讓母親的味道消失。葉暖把柚子皮收回罐裡，逐克量好材料，連烤盤的位置也照舊照片擺。 # speaker:旁白
 麵包出爐時香氣一模一樣，她卻沒有拿起第一片。「如果下次差了一點呢？」
--> copy_afterword
+她看著妳，像在等妳說不會。 # speaker:旁白
+* [告訴她不會差，只要照著做]
+    ~ copy_reply = "promise"
+    ~ intervention += 1
+    她點頭，把「只要照著做」抄在配方卡最上面。字寫得很用力，筆尖把紙劃破了一點。 # speaker:旁白
+* [沒有回答，把茶推到她面前]
+    ~ copy_reply = "silent"
+    她沒有喝，也沒有再問。麵包在架上慢慢涼了。 # speaker:旁白
+- -> copy_afterword
 === copy_afterword ===
 書籤後記：晨麥天天賣出漂亮的蘋果麵包。葉暖每晚重算比例，不讓任何人代做；母親留下的卡片漸漸被翻得起毛。 # scene:counter # speaker:旁白 # section:afterword
 她守住了味道，仍害怕自己一旦停下，就會失去最後能抓住的東西。
 {asked_last_line:她在書店說過，最後一格想寫給明天早上的自己。後來那一格仍照母親的字描滿，沒有留給她。 # speaker:旁白}
 {cut_burnt_bread:母親生日那天，她依舊烤一顆，依舊在天亮前丟掉。書店裡切開過的那一顆，她沒有再切開第二次。 # speaker:旁白}
+{copy_reply == "promise":配方卡最上面那行「只要照著做」，她描過很多次。劃破的地方，用膠帶貼了起來。 # speaker:旁白}
+{copy_reply == "silent":她偶爾想起書店裡那杯沒喝的茶。那天她其實想聽有人說：差一點也沒關係。 # speaker:旁白}
 ~ ending_kind = "copy"
 -> chapter_coda
 === chapter_coda ===

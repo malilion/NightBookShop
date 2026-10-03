@@ -31,7 +31,7 @@ function completedJinglanSave(): GameSnapshot {
 }
 
 function completedHaimingSave(): GameSnapshot {
-  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-17.json", "utf8"));
+  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-18.json", "utf8"));
   story.next();
   for (let step = 0; step < 320 && story.frame.mode !== "ending"; step++) {
     if (story.frame.mode === "tea") story.finishTea({ teaId: "hojicha", quality: 100, emotionalMatch: 100 });
@@ -43,7 +43,7 @@ function completedHaimingSave(): GameSnapshot {
   if (story.frame.endingId !== "haiming-light") throw new Error("Haiming fixture did not reach the shared-letter ending");
   return snapshotSchema.parse({
     version: 1,
-    storyVersion: "haiming-chapter-17",
+    storyVersion: "haiming-chapter-18",
     inkState: story.serialize(),
     frame: story.frame,
     tea: newTea(),
@@ -117,6 +117,8 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await advanceUntil(page, '.character-portrait[data-portrait="owner"]');
   await expect.poll(() => page.locator('.character-portrait[data-portrait="owner"]').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   await page.screenshot({ path: `output/finale-owner-${info.project.name}.png`, animations: "disabled" });
+  await (await untilChoice(page, "翻開靜蘭的書籤")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="給二十四歲的周靜蘭"]');
   await (await untilChoice(page, "先坐到訪客席")).click();
   await advanceUntil(page, ".tea-board");
   const touch = info.project.name === "mobile";

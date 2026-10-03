@@ -8,9 +8,9 @@ const chapters = [
   { id: "jinglan", file: "main", teaId: "osmanthus" },
   { id: "boyan", file: "boyan-chapter-14", teaId: "chamomile" },
   { id: "ruoyin", file: "ruoyin-chapter-13", teaId: "lavender" },
-  { id: "yenuan", file: "yenuan-chapter-11", teaId: "hojicha" },
+  { id: "yenuan", file: "yenuan-chapter-12", teaId: "hojicha" },
   { id: "yuhang", file: "yuhang-chapter-13", teaId: "mint" },
-  { id: "haiming", file: "haiming-chapter-17", teaId: "hojicha" },
+  { id: "haiming", file: "haiming-chapter-18", teaId: "hojicha" },
 ] as const;
 
 function atTea(file: string) {

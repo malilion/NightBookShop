@@ -86,7 +86,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - 每行對話尾端用 tag 標說話者與畫面：`# speaker:顧海明 # portrait:haiming-warm`。只能用 `commandParser.ts` 允許的 tag，各章單元測試會檢查。
 - **可略過的追問**模式：在結局選單或段落選單中放 `* {條件 && not 已問} [選項]`，內容結束後 `-> xxx_return`（一行過場）再回到選單。結局選項放在同一選單裡，玩家隨時能直接選結局。
 - **後記回響**：追問設一個變數，在相關結局的 `*_afterword` 用 `{變數:一句話}` 或 `{變數 == "值":一句話}` 留下痕跡。條件只依實際發生過的事，不要讓後記與結局矛盾。
-- **前夜回應**：`previous_ending` 是前一夜的首次結局。第二至六夜各有抵達、中段、後段三處回應。更早各夜的首次結局由 `gameStore` 傳入；章節 Ink 宣告 `VAR ending_jinglan = ""`（或 boyan、ruoyin、yenuan、yuhang）才會收到。目前第三夜讀 `ending_jinglan`、第六夜讀 `ending_ruoyin`，終章讀五夜全部。
+- **前夜回應**：`previous_ending` 是前一夜的首次結局。第二至六夜各有抵達、中段、後段三處回應。更早各夜的首次結局由 `gameStore` 傳入；章節 Ink 宣告 `VAR ending_jinglan = ""`（或 boyan、ruoyin、yenuan、yuhang）才會收到。目前第三夜讀 `ending_jinglan`、第六夜讀 `ending_jinglan` 與 `ending_ruoyin`，終章讀五夜全部。
 - 主題底線：泡茶不取代醫療；柏言的胸悶與昏厥一律引導就醫。不讓林澄替訪客決定成為「正確答案」。
 - 每次只改一個主題，一次一個提交。提交訊息用英文、祈使句，說明玩家可見的變化，最後一行是 `New story version xxx-chapter-N; -M stays for existing saves.`，再加 `Co-Authored-By` 行。
 
@@ -95,6 +95,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - 單元測試的 `play()`／`complete()` helper 預設選第一個選項；要走特定追問時，用該檔已有的參數（`refusal`、`extra`、`chooseTexts`、`prefer`）依序指定選項文字。
 - E2E 寫入 IndexedDB（例如預先解鎖章節）後，**要 `page.reload()`**，否則 App 已讀過空收藏，章節仍是未解鎖。
 - 「顯示全文」按鈕可能在點擊前因逐字完成而消失。點擊時要加短 timeout 並忽略失敗，否則整項卡到逾時。
+- `finale.spec.ts` 的手機版拒坐路線在長批次中偶爾停在「翻開終章」找不到（終章未解鎖），單獨或整檔連跑皆通過，原因未查明。遇到時先單獨重跑。
 - 第一夜〈替她決定的人〉之前還有一個確認選單（先選「替她把信寄出」，再選「仍替她封口」）。
 - `tests/e2e/alternative-endings-from-opening.spec.ts` 讓 20 種替代結局各自從該夜開場玩到結局；〈不會天亮的書店〉由 `finale.spec.ts` 的拒坐路線涵蓋。這份測試在驅動選第一個選項時，會跳過新加的可選追問（因為結局選項在同一選單，偏好清單會先命中結局）。
 
@@ -105,10 +106,10 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 | 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-8`（`main.json`） |
 | 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-14` |
 | 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-13` |
-| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-11` |
+| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-12` |
 | 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-13` |
-| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-17` |
-| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-13` |
+| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-18` |
+| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-14` |
 
 升版後請更新此表。
 
@@ -129,7 +130,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 AI 可直接做：
 
 1. **擴寫章節內容**：PRD_GAP_AUDIT「PRD 章節時長」列。可選方向包括記憶場景中更多可查看物件、訪客對林澄的反問、非首選茶種在後段的回響、結局後記依更多中段選擇變化。每次照「改劇情的標準流程」升版。
-2. **跨章回應延伸到非相鄰章節**：程式已支援，已有兩例（第三夜回應靜蘭、第六夜回應若音，都經由「四個音」）。可再找原作已有的人物連結，例如柏言的母親是靜蘭的學生（第四夜以後可提及）、若音曾在柏言公司尾牙演奏、海明哼的旋律與靜蘭、若音相同。
+2. **跨章回應延伸到非相鄰章節**：程式已支援，PRD 列出的交叉細節都已回應（第三夜回應靜蘭，第六夜回應靜蘭與若音，都經由「四個音」）。若要再加，需要自行從各章已有細節找出合理連結，避免新增與原作矛盾的設定。
 3. **E2E 穩定性**：把各檔重複的 `advanceUntil`／`untilChoice` 收斂到共用 helper。
 4. **無障礙自動檢查**：擴充 axe 檢查到所有結局畫面與小遊戲操作後狀態。
 

@@ -156,6 +156,8 @@ test("fourth night saves hearth, reads both recipe sides, and reaches Yenuan's n
   await (await untilChoice(page, "問她想留下哪一口")).click();
   await (await untilChoice(page, "加入自己喜歡的柚子")).click();
   await (await untilChoice(page, "陪她烤一顆新的麵包")).click();
+  await (await untilChoice(page, "接過一片，坐在她旁邊吃")).click();
+  await advanceUntil(page, '.dialogue-text[data-full-text*="跟一個人一起吃過"]');
   await advanceUntil(page, ".ending-panel");
   await expect(page.getByRole("heading", { name: "留一口給妳" })).toBeVisible();
   await page.getByRole("button", { name: /守夜手記/ }).click();

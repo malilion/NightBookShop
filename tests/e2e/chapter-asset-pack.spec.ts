@@ -40,7 +40,7 @@ test("starting a later chapter makes its unvisited memories available offline", 
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第六夜" }).click();
-  await expectStoryCached(page, "haiming-chapter-17");
+  await expectStoryCached(page, "haiming-chapter-18");
 
   const chapterImages = [
     "/images/characters/haiming.webp",
@@ -123,7 +123,7 @@ test("fourth-night memories load from the chapter pack offline", async ({ page, 
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第四夜" }).click();
-  await expectStoryCached(page, "yenuan-chapter-11");
+  await expectStoryCached(page, "yenuan-chapter-12");
   await expectImagesCached(page, [
     "/images/characters/yenuan.webp",
     ...["bakery", "anniversary", "hospital-return", "old-oven"].flatMap((scene) => [
@@ -171,7 +171,7 @@ test("finale childhood home loads from the chapter pack offline", async ({ page,
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today", "haiming-light"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開終章" }).click();
-  await expectStoryCached(page, "lincheng-chapter-13");
+  await expectStoryCached(page, "lincheng-chapter-14");
   await expectImagesCached(page, [
     "/images/characters/owner.webp",
     "/images/characters/lincheng-child.webp",

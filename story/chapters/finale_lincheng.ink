@@ -45,6 +45,13 @@ VAR embrace_kind = ""
 VAR read_blank = false
 VAR read_ink_line = false
 VAR ink_word = ""
+VAR flipped_jinglan = false
+VAR flipped_boyan = false
+VAR flipped_ruoyin = false
+VAR flipped_yenuan = false
+VAR flipped_yuhang = false
+VAR flipped_haiming = false
+VAR flipped_count = 0
 VAR ending_kind = ""
 -> threshold
 
@@ -64,6 +71,107 @@ VAR ending_kind = ""
 }
 窗外快天亮了。店主把一張空椅子推到櫃台另一側，沒有坐在妳旁邊。黑貓從手冊裡叼出那枚月亮形店員徽章，放在椅面。 # portrait:owner
 這一張椅子也可以留給妳。若妳今天不想坐，我不會讀那封信。 # speaker:店主 # portrait:owner
+-> seat_choice
+=== seat_return ===
+{flipped_count == 6:六張書籤都翻過了。妳把它們疊回原位，沒有替任何一張改寫結尾。|書籤還攤在櫃台上，椅子仍在那裡。} # speaker:旁白
+-> seat_choice
+=== seat_choice ===
+* {not flipped_jinglan} [翻開靜蘭的書籤]
+    ~ flipped_jinglan = true
+    ~ flipped_count += 1
+    {
+    - ending_jinglan == "moonlight":
+        書籤背面是靜蘭的字：「給二十四歲的周靜蘭。」那晚她最後寫信的對象，是自己。 # speaker:旁白
+    - ending_jinglan == "recipient":
+        書籤裡夾著那張短箋的草稿，第一句是：「如果您願意收下這封舊信。」她先問了，才寄。 # speaker:旁白
+    - ending_jinglan == "unfinished":
+        書籤背面只有「尚未完成」四個字，是妳自己的筆跡。那晚她說還不想決定，妳就等了。 # speaker:旁白
+    - ending_jinglan == "intervention":
+        書籤上有一道裂痕。妳到現在還記得，她說「等等」時的聲音。 # speaker:旁白
+    - else:
+        書籤上壓著一片乾掉的桂花，聞起來仍有一點甜。 # speaker:旁白
+    }
+    -> seat_return
+* {not flipped_boyan} [翻開柏言的書籤]
+    ~ flipped_boyan = true
+    ~ flipped_count += 1
+    {
+    - ending_boyan == "boyan-rest":
+        書籤背面抄著他的請假訊息：「明天上午需就醫，無法出席會議。」沒有一句道歉。 # speaker:旁白
+    - ending_boyan == "boyan-leave":
+        書籤背面是一行空白，旁邊是柏言的字：「這裡我自己填。」 # speaker:旁白
+    - ending_boyan == "boyan-boundary":
+        書籤背面是那張分過欄的工作表，其中一欄寫著別人的名字。 # speaker:旁白
+    - ending_boyan == "boyan-overwork":
+        書籤上的錶仍停在 23:47。旁邊是妳抄下的那行醫囑。 # speaker:旁白
+    - else:
+        書籤上畫著一只停住的錶，指針在十一點四十七分。 # speaker:旁白
+    }
+    -> seat_return
+* {not flipped_ruoyin} [翻開若音的書籤]
+    ~ flipped_ruoyin = true
+    ~ flipped_count += 1
+    {
+    - ending_ruoyin == "ruoyin-one":
+        書籤背面畫了一個小小的休止符，旁邊寫：「只拉給一個人。」 # speaker:旁白
+    - ending_ruoyin == "ruoyin-stage":
+        書籤背面寫著季晴的名字，地址是若音一筆一筆抄的。 # speaker:旁白
+    - ending_ruoyin == "ruoyin-score":
+        書籤背面抄著四個音，後面多了一段別人的故事寫成的旋律。 # speaker:旁白
+    - ending_ruoyin == "ruoyin-echo":
+        書籤上有一道裂痕，壓著一張比賽報名表。妳記得她說「好」的時候，沒有看妳。 # speaker:旁白
+    - else:
+        書籤上抄著四個音，最後一個音沒有寫完。 # speaker:旁白
+    }
+    -> seat_return
+* {not flipped_yenuan} [翻開葉暖的書籤]
+    ~ flipped_yenuan = true
+    ~ flipped_count += 1
+    {
+    - ending_yenuan == "yenuan-share":
+        書籤上還有一點柚子皮的香氣。那晚她留了一口給母親，也留了一口給自己。 # speaker:旁白
+    - ending_yenuan == "yenuan-reopen":
+        書籤背面是母親原來的比例，被劃掉的「等待」又寫了回去。 # speaker:旁白
+    - ending_yenuan == "yenuan-rest":
+        書籤背面寫著「休息一週，下週見」。字有點歪，是她站在門口寫的。 # speaker:旁白
+    - ending_yenuan == "yenuan-copy":
+        書籤有一道裂痕，夾著被翻得起毛的食譜卡影本。每個數字都描過兩遍。 # speaker:旁白
+    - else:
+        書籤上沾著一點麵粉，拍不太掉。 # speaker:旁白
+    }
+    -> seat_return
+* {not flipped_yuhang} [翻開雨航的書籤]
+    ~ flipped_yuhang = true
+    ~ flipped_count += 1
+    {
+    - ending_yuhang == "yuhang-today":
+        書籤背面的簽收欄寫著「程雨航」，日期是今天，沒有再改成明年。 # speaker:旁白
+    - ending_yuhang == "yuhang-future":
+        書籤上寫著一個下個月的日期，和「整理第一箱書」。 # speaker:旁白
+    - ending_yuhang == "yuhang-past":
+        書籤旁夾著一張明信片的影本，背面是兄妹兩人只寫了一半的清單。 # speaker:旁白
+    - ending_yuhang == "yuhang-unknown":
+        書籤上蓋著「查無此人」。妳記得，那是妳替他找的理由。 # speaker:旁白
+    - else:
+        書籤上有一枚郵戳，日期在七年後。 # speaker:旁白
+    }
+    -> seat_return
+* {not flipped_haiming} [翻開海明的書籤]
+    ~ flipped_haiming = true
+    ~ flipped_count += 1
+    {
+    - previous_ending == "haiming-light":
+        書籤上有兩種筆跡：海明的字，和顧川補在旁邊的時間。 # speaker:旁白
+    - previous_ending == "haiming-voice":
+        書籤背面記著一段錄音的開頭：先是風向，再是一個講了兩次的笑話。 # speaker:旁白
+    - previous_ending == "haiming-boat":
+        書籤摺成一艘小紙船，沒有攤開。 # speaker:旁白
+    - previous_ending == "haiming-hero":
+        書籤平整得沒有一條摺痕。妳翻了兩次，找不到他說害怕的那一句。 # speaker:旁白
+    - else:
+        書籤上是燈塔的剪影，燈還亮著。 # speaker:旁白
+    }
+    -> seat_return
 * [先坐到訪客席，替自己留一杯茶]
     ~ sat_down = true
     妳從櫃台後走出來。椅子沒有把門鎖上，徽章仍在桌上。第一次，妳不用替下一位客人安排座位。 # speaker:旁白
@@ -500,6 +608,7 @@ VAR ending_kind = ""
 {embrace_kind == "owner":她回書店坐坐時，店主仍會先問一句：「今天要站著，還是坐著？」 # speaker:旁白}
 {embrace_kind == "cat":黑貓有時跟她走到街口，看她過了馬路，才自己回去。 # speaker:旁白}
 {ink_word == "self":那張新舊筆跡並排的信紙，她夾在每天用的筆記本裡。 # speaker:旁白}
+{flipped_count == 6:她把六張書籤的影本夾在筆記本最後幾頁。有些晚上睡不著，她會翻一張，想想那個人現在在哪裡。 # speaker:旁白}
 ~ ending_kind = "dawn"
 -> chapter_coda
 === end_keeper ===
@@ -515,6 +624,7 @@ VAR ending_kind = ""
 {asked_embrace:有訪客哭的時候，她不再只把紙巾放在桌角。她會先問：「要不要抱一下，還是我坐在這裡就好？」 # speaker:旁白}
 {embrace_kind == "mother":休店的那一晚，她回家陪母親包餃子，終於問了那一夜的事。 # speaker:旁白}
 {ink_word == "self":每位訪客的手記頁底，她都留一行空白，請對方寫一句給自己的話。 # speaker:旁白}
+{flipped_count == 6:她把六張書籤釘在櫃台後的牆上。新來的客人問那是什麼，她說：「之前坐過這張椅子的人。」 # speaker:旁白}
 ~ ending_kind = "keeper"
 -> chapter_coda
 === end_shelf ===
@@ -530,6 +640,7 @@ VAR ending_kind = ""
 {ink_word == "blank":信上第三行仍停在半個「我」字。她想，等哪天知道後面要寫什麼，再回來寫。 # speaker:旁白}
 {ink_word == "self":信上多了一行現在的字，和童年的筆跡並排放在書架上。 # speaker:旁白}
 {embrace_kind == "mother":她沒有每晚去書店，卻在某個週末回家，讓母親抱了一下。兩個人都沒說是為了哪一晚。 # speaker:旁白}
+{flipped_count == 6:她沒有帶走六張書籤。它們跟她的信放在同一層書架，名字朝外。 # speaker:旁白}
 ~ ending_kind = "shelf"
 -> chapter_coda
 === end_midnight ===
@@ -541,6 +652,7 @@ VAR ending_kind = ""
 書籤後記：夜行書店仍在午夜開門。林澄接待了許多訪客，手冊一頁頁變厚，寫給自己的那封信一直留在櫃台最底下。 # scene:counter # speaker:旁白 # section:afterword
 黑貓偶爾會坐到那張空椅子上。今夜，她還沒願意坐過去。
 {refuse_read_notes:她的手記越寫越厚，每一頁都有人坐下過。只有最底下那一封，還沒有椅子。 # speaker:旁白}
+{flipped_count == 6:她把六張書籤翻過一遍又一遍。自己的那張一直在最底下，她沒有翻開過。 # speaker:旁白}
 ~ ending_kind = "midnight"
 -> chapter_coda
 === chapter_coda ===

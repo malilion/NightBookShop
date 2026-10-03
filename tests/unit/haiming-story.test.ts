@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-17.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-18.json", "utf8");
+const chapterSeventeen = readFileSync("public/story/compiled/haiming-chapter-17.json", "utf8");
 const chapterSixteen = readFileSync("public/story/compiled/haiming-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/haiming-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/haiming-chapter-14.json", "utf8");
@@ -76,6 +77,27 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
 }
 
 describe("Haiming sixth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-seventeen %s route readable", (target) => {
+    expect(play(target, false, chapterSeventeen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["moonlight", "haiming-light", "比較不怕寫錯", "大概不是他自己編的"],
+    ["recipient", "haiming-voice", "我也該先問小川想不想聽", "同一首歌的聽眾"],
+    ["unfinished", "haiming-boat", "都還在半路上", "也還在半路上的人"],
+    ["intervention", "haiming-hero", "那我的信，妳別替我寄", "不是任何一個人的功績"],
+  ] as const)("lets Jinglan's %s ending answer where Haiming learned the tune before %s", (jinglan, target, answer, afterword) => {
+    const texts = play(target, target === "haiming-hero", compiled, { priorEndings: { jinglan }, extra: ["在校刊室聽過"] }).texts.join(" ");
+    expect(texts).toContain("也許我們都只是路過同一個地方");
+    expect(texts).toContain(answer);
+    expect(texts).toContain(afterword);
+  });
+  it("offers both the teacher and the violinist when both earlier endings exist", () => {
+    const texts = play("haiming-light", false, compiled, { priorEndings: { jinglan: "moonlight", ruoyin: "ruoyin-one" }, extra: ["小提琴手在寫這四個音", "在校刊室聽過"] }).texts.join(" ");
+    expect(texts).toContain("常常也只照到一艘船");
+    expect(texts).toContain("比較不怕寫錯");
+    expect(texts).toContain("有人還在寫最後一個音");
+    expect(texts).toContain("大概不是他自己編的");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-sixteen %s route readable", (target) => {
     expect(play(target, false, chapterSixteen).story.frame.endingId).toBe(target);
   });

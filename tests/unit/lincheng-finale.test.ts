@@ -7,7 +7,8 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-13.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-14.json", "utf8");
+const chapterThirteen = readFileSync("public/story/compiled/lincheng-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/lincheng-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/lincheng-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/lincheng-chapter-10.json", "utf8");
@@ -121,6 +122,30 @@ describe("Lincheng finale", () => {
     expect(said).toContain("空白不等於丟了");
     expect(run.story.frame.endingId).toBe("lincheng-shelf");
   });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-thirteen %s route readable", (target) => {
+    expect(play(target, true, chapterThirteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    [{ jinglan: "moonlight", boyan: "boyan-rest", ruoyin: "ruoyin-one", yenuan: "yenuan-share", yuhang: "yuhang-today" }, "haiming-light", ["給二十四歲的周靜蘭", "沒有一句道歉", "只拉給一個人", "也留了一口給自己", "沒有再改成明年", "顧川補在旁邊的時間"]],
+    [{ jinglan: "recipient", boyan: "boyan-leave", ruoyin: "ruoyin-stage", yenuan: "yenuan-reopen", yuhang: "yuhang-future" }, "haiming-voice", ["她先問了，才寄", "這裡我自己填", "季晴的名字", "又寫了回去", "整理第一箱書", "講了兩次的笑話"]],
+    [{ jinglan: "unfinished", boyan: "boyan-boundary", ruoyin: "ruoyin-score", yenuan: "yenuan-rest", yuhang: "yuhang-past" }, "haiming-boat", ["妳就等了", "寫著別人的名字", "別人的故事寫成的旋律", "站在門口寫的", "只寫了一半的清單", "沒有攤開"]],
+    [{ jinglan: "intervention", boyan: "boyan-overwork", ruoyin: "ruoyin-echo", yenuan: "yenuan-copy", yuhang: "yuhang-unknown" }, "haiming-hero", ["說「等等」時的聲音", "那行醫囑", "沒有看妳", "每個數字都描過兩遍", "妳替他找的理由", "找不到他說害怕的那一句"]],
+  ] as const)("lets Lin Cheng turn over each visitor's bookmark as it ended (%#)", (priorEndings, previousEnding, lines) => {
+    const run = play("lincheng-dawn", true, compiled, { priorEndings, previousEnding, refusal: ["靜蘭的書籤", "柏言的書籤", "若音的書籤", "葉暖的書籤", "雨航的書籤", "海明的書籤"] });
+    const said = run.texts.join(" ");
+    for (const line of lines) expect(said).toContain(line);
+    expect(said).toContain("六張書籤都翻過了");
+    expect(said).toContain("想想那個人現在在哪裡");
+  });
+  it("keeps the bookmarks optional and gives a plain line without earlier endings", () => {
+    const quiet = play("lincheng-keeper", true, compiled, { refusal: ["先坐到訪客席"] }).texts.join(" ");
+    expect(quiet).not.toContain("六張書籤都翻過了");
+    expect(quiet).not.toContain("之前坐過這張椅子的人");
+    const plain = play("lincheng-shelf", true, compiled, { refusal: ["靜蘭的書籤", "柏言的書籤", "若音的書籤", "葉暖的書籤", "雨航的書籤", "海明的書籤"] }).texts.join(" ");
+    for (const line of ["乾掉的桂花", "十一點四十七分", "最後一個音沒有寫完", "拍不太掉", "日期在七年後", "燈還亮著"])
+      expect(plain).toContain(line);
+    expect(plain).toContain("它們跟她的信放在同一層書架");
+  });
   it("lets Lin Cheng own every visitor she decided for when the owner apologizes", () => {
     const overstepped = {
       jinglan: "intervention", boyan: "boyan-overwork", ruoyin: "ruoyin-echo", yenuan: "yenuan-copy", yuhang: "yuhang-unknown",
@@ -166,6 +191,7 @@ describe("Lincheng finale", () => {
     expect(chapterForVersion("lincheng-chapter-11")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-12")).toBe("lincheng");
     expect(chapterForVersion("lincheng-chapter-13")).toBe("lincheng");
+    expect(chapterForVersion("lincheng-chapter-14")).toBe("lincheng");
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-ten %s route loadable", (target) => {
     expect(play(target, true, chapterTen).story.frame.endingId).toBe(target);

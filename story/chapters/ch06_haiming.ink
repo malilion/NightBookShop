@@ -41,6 +41,8 @@ VAR asked_where_stops = false
 VAR wrote_today_date = false
 VAR allowed_wrong_dates = false
 VAR asked_who_delivers = false
+VAR ending_jinglan = ""
+VAR told_jinglan_tune = false
 VAR ending_ruoyin = ""
 VAR told_ruoyin_tune = false
 VAR read_aloud = ""
@@ -242,6 +244,22 @@ VAR ending_kind = ""
         妳說她開始替普通人的故事寫旋律。海明想了想：「守燈的人也算普通人吧。她要是想寫，我可以講風向給她聽。」 # speaker:顧海明
     - else:
         妳說她帶著舊傷回去比賽了。海明沉默了一會：「手會痛還要拉，跟浪大還要守燈不一樣。燈可以換人守。」 # speaker:顧海明
+    }
+    海明把日誌翻回第一頁。 # speaker:旁白
+    -> tower_door
+* {ending_jinglan != "" && not told_jinglan_tune} [告訴他，第一晚有位老師說年輕時在校刊室聽過]
+    ~ told_jinglan_tune = true
+    妳說起第一晚那位退休的國文老師。她說這段旋律，年輕時在學校的校刊室聽過。 # speaker:旁白
+    海明想了很久，還是搖頭。「我不知道自己是從哪裡學來的。也許我們都只是路過同一個地方。」 # speaker:顧海明
+    {
+    - ending_jinglan == "moonlight":
+        妳說她最後寫了一封信給年輕時的自己。海明點點頭：「寫給以前的自己，比較不怕寫錯。」 # speaker:顧海明
+    - ending_jinglan == "recipient":
+        妳說她先問收信的人願不願意收。海明看向顧川的住址卡：「我也該先問小川想不想聽。」 # speaker:顧海明
+    - ending_jinglan == "unfinished":
+        妳說她把信帶回家，還沒決定要不要寄。海明說：「那她跟我一樣，都還在半路上。」 # speaker:顧海明
+    - else:
+        妳說那封信最後是妳替她封口的，她說過「等等」。海明看了妳一會：「那我的信，妳別替我寄。」 # speaker:顧海明
     }
     海明把日誌翻回第一頁。 # speaker:旁白
     -> tower_door
@@ -589,6 +607,7 @@ VAR ending_kind = ""
 {tonight_mark == "corner":日誌裡那一頁的折角，顧川用一枚夾子夾住了。 # speaker:旁白}
 {tonight_mark == "card":顧川在住址卡背面那行字底下，補了一句：「我收到了。」 # speaker:旁白}
 {told_ruoyin_tune:顧川問父親常哼的是什麼歌。海明說不知道名字，只知道有人還在寫最後一個音。 # speaker:旁白}
+{told_jinglan_tune:顧川問那四個音從哪裡來。海明說，有一位老師年輕時也聽過，所以它大概不是他自己編的。 # speaker:旁白}
 ~ ending_kind = "light"
 -> chapter_coda
 === end_voice ===
@@ -606,6 +625,7 @@ VAR ending_kind = ""
 {tonight_mark == "corner":他每次聽錄音以前，會先把日誌翻到折角的那一頁。 # speaker:旁白}
 {tonight_mark == "card":隔天早上，他讀到住址卡背面那行字，第一件事是按下錄音鍵。 # speaker:旁白}
 {told_ruoyin_tune:錄音裡有一段他哼那四個音，停在同一個地方。顧川後來發現，自己也會停在那裡。 # speaker:旁白}
+{told_jinglan_tune:錄音最後，他提到一位沒見過面的老師：「她也記得這段。我們算是同一首歌的聽眾。」 # speaker:旁白}
 ~ ending_kind = "voice"
 -> chapter_coda
 === end_boat ===
@@ -622,6 +642,7 @@ VAR ending_kind = ""
 {tonight_mark == "corner":折角的那頁日誌，他也帶去了海邊。 # speaker:旁白}
 {tonight_mark == "card":出門前，他把住址卡背面那行字又讀了一遍，才去穿鞋。 # speaker:旁白}
 {told_ruoyin_tune:在海邊，他哼了那四個音。風很大，最後一個音被吹走了，他沒有再補。 # speaker:旁白}
+{told_jinglan_tune:在海邊，他說起那位在校刊室聽過旋律的老師。顧川問是誰，他說是一位也還在半路上的人。 # speaker:旁白}
 ~ ending_kind = "boat"
 -> chapter_coda
 === end_hero ===
@@ -639,6 +660,7 @@ VAR ending_kind = ""
 {tonight_mark == "corner":整理成傳記時，那一頁的折角被壓平了。 # speaker:旁白}
 {tonight_mark == "card":住址卡背面寫著「今晚寫了信給小川。是真的。」他後來問顧川，那封信裡寫了什麼。 # speaker:旁白}
 {told_ruoyin_tune:傳記裡沒有那四個音。海明說，那本來就不是他的歌。 # speaker:旁白}
+{told_jinglan_tune:傳記裡沒有寫那位老師。海明說，這段旋律不是任何一個人的功績。 # speaker:旁白}
 ~ ending_kind = "hero"
 -> chapter_coda
 === chapter_coda ===

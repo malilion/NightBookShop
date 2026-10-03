@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-11.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-12.json", "utf8");
+const chapterEleven = readFileSync("public/story/compiled/yenuan-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/yenuan-chapter-10.json", "utf8");
 const chapterNine = readFileSync("public/story/compiled/yenuan-chapter-9.json", "utf8");
 const chapterEight = readFileSync("public/story/compiled/yenuan-chapter-8.json", "utf8");
@@ -76,6 +77,25 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
 }
 
 describe("Yenuan fourth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eleven %s route readable", (target) => {
+    expect(play(target, true, chapterEleven).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["yenuan-share", "接過一片，坐在她旁邊吃", "可是我喜歡", "跟一個人一起吃過"],
+    ["yenuan-share", "把第一片留給明早的常客", "改，不是對不起她", "少放了一點柚子皮"],
+    ["yenuan-reopen", "照實說「一樣」", "對，就是這個", "多畫一道短線"],
+    ["yenuan-reopen", "是我烤的，可能差一點", "也是晨麥的味道", "今年的蘋果比較甜"],
+    ["yenuan-rest", "補一行留言方式", "休息完會回覆", "休息好再回來"],
+    ["yenuan-rest", "讓門關著就好", "敲門的人就讓他敲", "也沒有去想是誰"],
+    ["yenuan-copy", "不會差，只要照著做", "筆尖把紙劃破了一點", "用膠帶貼了起來"],
+    ["yenuan-copy", "把茶推到她面前", "麵包在架上慢慢涼了", "差一點也沒關係"],
+  ] as const)("lets %s end with Lin Cheng's choice to %s", (target, choice, scene, afterword) => {
+    const run = play(target, true, compiled, { chooseTexts: [choice] });
+    const texts = run.texts.join(" ");
+    expect(texts).toContain(scene);
+    expect(texts).toContain(afterword);
+    expect(run.story.frame.endingId).toBe(target);
+  });
   it("uses only supported story tags", () => {
     const source = readFileSync("story/chapters/ch04_yenuan.ink", "utf8");
     for (const match of source.matchAll(/#\s*([^#\n}]+)/g))
