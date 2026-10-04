@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { readFileSync } from "node:fs";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
@@ -21,8 +22,10 @@ async function advanceUntil(page: Page, target: string, max = 220) {
 async function untilChoice(page: Page, name: string) {
   const target = page.getByRole("button", { name, exact: false });
   for (let step = 0; step < 40; step++) {
-    if (await target.isVisible()) return target;
     const next = page.getByRole("button", { name: "繼續", exact: true });
+    // Choices appear a moment after the line finishes; wait for either.
+    await target.or(next).first().waitFor({ timeout: 10_000 }).catch(() => undefined);
+    if (await target.isVisible()) return target;
     if (await next.isVisible()) await next.click();
     else throw new Error(`Choice not found: ${name}`);
   }
@@ -42,7 +45,7 @@ async function expectMemoryBackground(page: Page, scene: string, project: string
   await advanceUntil(page, `.scene-art img[src*="memory-${scene}.webp"]`);
   await expect(page.locator(".scene-art")).toHaveCount(1);
   await expect.poll(() => page.locator(`.scene-art img[src*="memory-${scene}.webp"]`).evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-  if (project === "mobile")
+  if (project.endsWith("mobile"))
     await expect(page.locator(`.scene-art source[srcset*="memory-${scene}-mobile.webp"]`)).toHaveCount(1);
   await page.screenshot({ path: `output/third-night-${scene}-${project}.png`, animations: "disabled" });
 }
@@ -64,7 +67,7 @@ test("third night saves the cup motif and both sides of the letter", async ({
   page,
 }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.evaluate(async (jinglanSave) => {
     await new Promise<void>((resolve, reject) => {
@@ -101,7 +104,7 @@ test("third night saves the cup motif and both sides of the letter", async ({
     "第三夜 · 沈若音",
   );
   await advanceUntil(page, ".tea-board");
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   await prepareLeaves(page, touch, 6);
   await pour(page, "kettle", 68, touch);
   await steepAndServe(page, touch, "她");

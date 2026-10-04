@@ -492,15 +492,25 @@ function tick(time: number) {
   audio.setBoil(!paused && props.boiling && onStove.value && draft.fire > 0 ? clamp((draft.kettleTemp - 65) / 35, 0, 1) : 0);
   raf = requestAnimationFrame(tick);
 }
+function holdTouch(event: TouchEvent) {
+  if (pointerId !== null) event.preventDefault();
+}
 onMounted(() => {
   observer = new ResizeObserver((entries) => {
     const value = entries[0]!.contentRect.width < 600;
-    if (compact.value !== value) {
-      cancel();
-      compact.value = value;
-    }
+    // Switch layouts on the next frame: resizing the board inside this callback
+    // makes Safari report a ResizeObserver loop.
+    requestAnimationFrame(() => {
+      if (compact.value !== value) {
+        cancel();
+        compact.value = value;
+      }
+    });
   });
   if (board.value) observer.observe(board.value);
+  // iOS Safari scrolls the page under a finger drag despite touch-action: none;
+  // cancelling the touch while something is held keeps the drag on the table.
+  board.value?.addEventListener("touchmove", holdTouch, { passive: false });
   window.addEventListener("blur", pause);
   document.addEventListener("visibilitychange", pause);
   raf = requestAnimationFrame(tick);
@@ -508,6 +518,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf);
   observer?.disconnect();
+  board.value?.removeEventListener("touchmove", holdTouch);
   window.removeEventListener("blur", pause);
   document.removeEventListener("visibilitychange", pause);
   audio.setPour(0);

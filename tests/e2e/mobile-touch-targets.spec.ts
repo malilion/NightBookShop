@@ -4,7 +4,7 @@ import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { smallTargets } from "./touch-target-helpers";
 
 test("reading and tea controls keep usable hit areas", async ({ page }, info) => {
-  const mobile = info.project.name === "mobile";
+  const mobile = info.project.name.endsWith("mobile");
   const origin = process.env.PLAYWRIGHT_BASE_URL ?? "";
   await page.goto(`${origin}/`);
   await expect(page.getByRole("heading", { name: "夜行書店", exact: true })).toBeVisible();

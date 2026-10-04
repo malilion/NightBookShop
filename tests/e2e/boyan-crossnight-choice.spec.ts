@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { collectPageErrors } from "./page-errors";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema } from "../../src/types/game";
@@ -31,7 +32,7 @@ function officeQuestionSnapshot() {
 
 test("second-night crossnight question can be chosen and resumed on both layouts", async ({ page }) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.getByRole("link", { name: "設定" }).click();
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
@@ -85,7 +86,7 @@ function openingHubSnapshot() {
 
 test("second-night opening observations can be asked, skipped and resumed on both layouts", async ({ page }) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.getByRole("link", { name: "設定" }).click();
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");

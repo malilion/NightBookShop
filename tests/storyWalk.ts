@@ -1,15 +1,15 @@
 import { StoryBridge } from "../src/story/storyBridge";
-import type { TeaId } from "../src/types/game";
+import type { StoryFrame, TeaId } from "../src/types/game";
 
 // Plays a compiled chapter, preferring choices that contain a hint and finishing
-// every minigame well, until a line containing `line` comes up. Returns the
-// story at that line, or null if the chapter ended first.
-export function playUntil(storyJson: string, teaId: TeaId, hints: string[], line: string) {
+// every minigame well, until `reached(frame)` holds. Returns the story at that
+// frame, or null if the chapter ended first.
+export function playTo(storyJson: string, teaId: TeaId, hints: string[], reached: (frame: StoryFrame) => boolean) {
   const story = new StoryBridge(storyJson);
   story.next();
   for (let step = 0; step < 700; step++) {
-    if (story.frame.text.includes(line)) return story;
     const frame = story.frame;
+    if (reached(frame)) return story;
     if (frame.mode === "ending") break;
     if (frame.mode === "tea") story.finishTea({ teaId, garnish: "none", quality: 95, emotionalMatch: 100 });
     else if (frame.mode === "letter") story.finishLetter({ completion: 100, understood: true });
@@ -27,3 +27,7 @@ export function playUntil(storyJson: string, teaId: TeaId, hints: string[], line
   }
   return null;
 }
+
+/** Plays until a line containing `line` comes up. */
+export const playUntil = (storyJson: string, teaId: TeaId, hints: string[], line: string) =>
+  playTo(storyJson, teaId, hints, (frame) => frame.text.includes(line));

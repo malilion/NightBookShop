@@ -9,3 +9,5 @@ playwright-report/
 !.env.example
 .vercel
 art-staging/portraits/
+dist-a11y/
+test-results-a11y/

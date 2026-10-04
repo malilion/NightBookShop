@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { readFileSync } from "node:fs";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { scoreLamp } from "../../src/services/lampScoring";
@@ -67,8 +68,10 @@ async function advanceUntil(page: Page, target: string, max = 280) {
 async function untilChoice(page: Page, name: string) {
   const target = page.getByRole("button", { name, exact: false });
   for (let step = 0; step < 40; step++) {
-    if (await target.isVisible()) return target;
     const next = page.getByRole("button", { name: "繼續", exact: true });
+    // Choices appear a moment after the line finishes; wait for either.
+    await target.or(next).first().waitFor({ timeout: 10_000 }).catch(() => undefined);
+    if (await target.isVisible()) return target;
     if (await next.isVisible()) await next.click();
     else throw new Error(`Choice not found: ${name}`);
   }
@@ -87,7 +90,7 @@ async function inspectMemoryObjects(page: Page, section: string, labels: string[
 
 test("finale lets Lincheng brew for herself, restore six clues, and leave at dawn", async ({ page }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.evaluate(async ({ chapterSave, jinglanSave }) => {
     await new Promise<void>((resolve, reject) => {
@@ -121,7 +124,7 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await advanceUntil(page, '.dialogue-text[data-full-text*="給二十四歲的周靜蘭"]');
   await (await untilChoice(page, "先坐到訪客席")).click();
   await advanceUntil(page, ".tea-board");
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   await prepareLeaves(page, touch, 0);
   await pour(page, "kettle", 68, touch);
   await steepAndServe(page, touch, "自己");
@@ -242,7 +245,7 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
 
 test("refusing the visitor seat reaches the endless midnight ending", async ({ page }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.evaluate(async () => {
     await new Promise<void>((resolve, reject) => {

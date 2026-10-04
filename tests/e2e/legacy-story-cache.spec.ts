@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { setOffline } from "./offline-helpers";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema } from "../../src/types/game";
@@ -25,6 +26,14 @@ test("upgrading preserves a previously cached story for offline saved games", as
       "/story/compiled/ruoyin-chapter-8.json?__WB_REVISION__=previous",
       new Response(json, { status: 200, headers: { "content-type": "application/json" } }),
     );
+    // Install the new worker from this document: WebKit's test browser drops a
+    // large cache entry written here once the page navigates away.
+    const registration = await navigator.serviceWorker.register("/sw.js");
+    const worker = registration.installing ?? registration.waiting ?? registration.active!;
+    if (worker.state !== "activated")
+      await new Promise<void>((resolve) =>
+        worker.addEventListener("statechange", () => worker.state === "activated" && resolve()),
+      );
   }, archived);
 
   await page.goto("/");
@@ -48,9 +57,9 @@ test("upgrading preserves a previously cached story for offline saved games", as
   })).toBe(true);
   await page.reload();
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
-  await context.setOffline(true);
+  await setOffline(context, true);
   await page.getByRole("button", { name: "繼續故事" }).click();
   await expect(page.locator(".dialogue-text")).toContainText("一點三十六分");
   await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
-  await context.setOffline(false);
+  await setOffline(context, false);
 });

@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { collectPageErrors } from "./page-errors";
 import { expect, test, type Page } from "@playwright/test";
 import { newLetter, newTea, snapshotSchema, STORY_VERSION, type TeaId } from "../../src/types/game";
 import { playUntil } from "../storyWalk";
@@ -49,7 +50,7 @@ for (const { cue, kind, file, version, teaId, hints, line } of [
 ] as const) {
   test(`shows the ${cue} portrait on its line`, async ({ page }, info) => {
     const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    collectPageErrors(page, errors);
     await resume(page, saveAt(file, version, teaId, [...hints], line));
     await expect(page.locator(".dialogue-text")).toHaveAttribute("data-full-text", new RegExp(line));
     const portrait = page.locator(".character-portrait");

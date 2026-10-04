@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
@@ -87,16 +88,17 @@ async function playNight(page: Page, night: number, touch: boolean) {
 }
 
 test("plays seven nights in order without seeding chapter unlocks", async ({ page }, info) => {
-  test.setTimeout(900_000);
+  // WebKit's test browser plays the same seven nights about twice as slowly.
+  test.setTimeout(info.project.name.startsWith("webkit") ? 2_400_000 : 900_000);
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.getByRole("link", { name: "設定" }).click();
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
   await page.getByRole("switch", { name: /減少動態效果/ }).check();
   await page.goto("/");
   await page.getByRole("button", { name: "開始故事", exact: true }).click();
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   for (let night = 0; night < nights.length; night++) {
     await playNight(page, night, touch);
     await expect(page.locator(".ending-panel")).toBeVisible();

@@ -16,7 +16,7 @@ async function advanceUntil(page: Page, target: string) {
 
 test("text stays readable over every first-night screen", async ({ page }, info) => {
   test.setTimeout(300_000);
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   const low: Record<string, unknown> = {};
   const check = async (screen: string) => {
     const found = await lowContrastText(page);

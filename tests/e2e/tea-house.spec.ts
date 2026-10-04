@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { newTea } from "../../src/types/game";
 import { newTeaHouseProgress } from "../../src/types/teaHouse";
 import { drag, geometry, pour, prepareLeaves } from "./tea-helpers";
@@ -52,9 +53,9 @@ async function steepAndServe(page: Page, touch: boolean) {
 }
 
 test("a tea house night: read orders, brew, discover a recipe and close the shop", async ({ page }, info) => {
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await seedTeaHouse(page, {
     ...newTeaHouseProgress(),
     stars: 8,
@@ -134,7 +135,7 @@ test("a tea house night: read orders, brew, discover a recipe and close the shop
 
 test("the title opens the tea house, a daily ticket and a free table", async ({ page }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.getByRole("link", { name: "午夜茶席" }).click();
   await expect(page.getByRole("heading", { name: "午夜茶席", level: 1 })).toBeVisible();
@@ -172,7 +173,7 @@ test("the title opens the tea house, a daily ticket and a free table", async ({ 
 
 test("the tea house also runs as its own page without the story engine", async ({ page, request }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/tea.html");
   await expect(page).toHaveTitle("午夜茶席 · The Midnight Tea Table");
   await expect(page.getByRole("heading", { name: "午夜茶席", level: 1 })).toBeVisible();

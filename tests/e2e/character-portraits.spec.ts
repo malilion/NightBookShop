@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { prepareOpening } from "./opening-helpers";
 
 const visitors = [
@@ -12,7 +13,7 @@ const visitors = [
 for (const visitor of visitors) {
   test(`${visitor.chapter} shows ${visitor.id} as a transparent portrait`, async ({ page }, info) => {
     const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    collectPageErrors(page, errors);
     await page.goto("/");
     await page.evaluate(async () => {
       await new Promise<void>((resolve, reject) => {

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
@@ -31,7 +32,7 @@ test("second night can be brewed, assembled, completed and resumed", async ({
   page,
 }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   // A completed first-night bookmark is the precondition for this chapter test.
   await page.evaluate(async () => {
@@ -71,7 +72,7 @@ test("second night can be brewed, assembled, completed and resumed", async ({
   await expect.poll(() => portrait.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await page.screenshot({ path: `output/second-night-portrait-${info.project.name}.png`, animations: "disabled" });
   await advanceTo(page, ".tea-board");
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   await prepareLeaves(page, touch, 5);
   await page.getByRole("button", { name: "加入一小匙蜂蜜" }).click();
   await expect(page.getByRole("button", { name: /已加入蜂蜜/ })).toHaveAttribute("aria-pressed", "true");

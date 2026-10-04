@@ -4,6 +4,8 @@ import vue from "eslint-plugin-vue";
 export default ts.config(
   {
     ignores: [
+      "dist-a11y/**",
+      "test-results-a11y/**",
       "dist/**",
       "output/**",
       "**/node_modules/**",

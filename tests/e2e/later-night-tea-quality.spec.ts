@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { collectPageErrors } from "./page-errors";
 import { expect, test, type Page } from "@playwright/test";
 import { teas } from "../../src/data/catalog";
 import { scoreTea } from "../../src/services/teaScoring";
@@ -87,7 +88,7 @@ for (const chapter of chapters)
   for (const response of ["ask", "wait"] as const)
     test(`${chapter.id} ordinary tea ${response} response survives reload`, async ({ page }, info) => {
       const errors: string[] = [];
-      page.on("pageerror", (error) => errors.push(error.message));
+      collectPageErrors(page, errors);
       await loadSnapshot(page, beforeFollowup(chapter));
       const choice = response === "ask" ? chapter.ask : chapter.wait;
       const reply = response === "ask" ? chapter.askResponse : chapter.waitResponse;
@@ -106,7 +107,7 @@ for (const chapter of chapters)
 for (const chapter of chapters)
   test(`${chapter.id} mismatched tea clue survives reload`, async ({ page }, info) => {
     const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    collectPageErrors(page, errors);
     await loadSnapshot(page, mismatchedTeaResponse(chapter));
     await expect(page.locator(".dialogue-text")).toContainText(chapter.lowText);
     await page.screenshot({ path: `output/${chapter.id}-tea-mismatch-${info.project.name}.png`, animations: "disabled" });

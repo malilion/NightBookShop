@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
@@ -19,8 +20,10 @@ async function advanceUntil(page: Page, target: string, max = 250) {
 async function untilChoice(page: Page, name: string) {
   const target = page.getByRole("button", { name, exact: false });
   for (let step = 0; step < 40; step++) {
-    if (await target.isVisible()) return target;
     const next = page.getByRole("button", { name: "繼續", exact: true });
+    // Choices appear a moment after the line finishes; wait for either.
+    await target.or(next).first().waitFor({ timeout: 10_000 }).catch(() => undefined);
+    if (await target.isVisible()) return target;
     if (await next.isVisible()) await next.click();
     else throw new Error(`Choice not found: ${name}`);
   }
@@ -40,14 +43,14 @@ async function expectMemoryBackground(page: Page, scene: string, project: string
   await advanceUntil(page, `.scene-art img[src*="memory-${scene}.webp"]`);
   await expect(page.locator(".scene-art")).toHaveCount(1);
   await expect.poll(() => page.locator(`.scene-art img[src*="memory-${scene}.webp"]`).evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-  if (project === "mobile")
+  if (project.endsWith("mobile"))
     await expect(page.locator(`.scene-art source[srcset*="memory-${scene}-mobile.webp"]`)).toHaveCount(1);
   await page.screenshot({ path: `output/fourth-night-${scene}-${project}.png`, animations: "disabled" });
 }
 
 test("fourth night saves hearth, reads both recipe sides, and reaches Yenuan's new bread", async ({ page }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.evaluate(async () => {
     await new Promise<void>((resolve, reject) => {
@@ -73,7 +76,7 @@ test("fourth night saves hearth, reads both recipe sides, and reaches Yenuan's n
   await prepareOpening(page);
   await expect(page.locator(".scene-caption small")).toHaveText("第四夜 · 葉暖");
   await advanceUntil(page, ".tea-board");
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   await prepareLeaves(page, touch, 7);
   await page.getByRole("button", { name: "加入一片蘋果乾" }).click();
   await expect(page.getByRole("button", { name: /已加入蘋果乾/ })).toHaveAttribute("aria-pressed", "true");

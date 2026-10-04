@@ -24,10 +24,12 @@ npm test
 npm run validate:ink
 npm run build
 npm run test:e2e
+npm run test:e2e:webkit
+npx playwright test tests/e2e/accessibility-audit.spec.ts
 npx playwright test tests/e2e/chapter-transfer-budget.spec.ts
 ```
 
-首次跑瀏覽器測試若缺 Chromium：`npx playwright install chromium`。E2E 使用正式 `dist/`，先執行 build；自動啟動 4173 preview。最後一項命令量測已載入程式主體後，各章首次進入的資源請求。截圖位於 `output/`，失敗 trace 位於 `test-results/`，兩者不列入 Git。
+首次跑瀏覽器測試若缺 Chromium：`npx playwright install chromium`；Safari 引擎（`test:e2e:webkit`，桌機與 iPhone）需 `npx playwright install webkit`。無障礙稽核在 `output/a11y/` 寫出每章報告。實機與讀屏的人工檢查見[實機與讀屏驗收清單](docs/DEVICE_QA.md)。E2E 使用正式 `dist/`，先執行 build；自動啟動 4173 preview。最後一項命令量測已載入程式主體後，各章首次進入的資源請求。截圖位於 `output/`，失敗 trace 位於 `test-results/`，兩者不列入 Git。
 
 ## 已實作
 

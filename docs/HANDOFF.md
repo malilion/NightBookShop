@@ -32,10 +32,12 @@ npm run lint
 npm run typecheck      # vue-tsc；不要用純 tsc，它不認得 .vue
 npm test               # Vitest 單元測試（約 790 項，約 50–130 秒；第一夜 128 條隨機路線單獨約 100 秒，時限已放寬為 300 秒）
 npm run build          # build:ink + typecheck + vite build + 效能預算檢查
-npm run test:e2e       # Playwright，使用 dist/，務必先 build
+npm run test:e2e       # Playwright Chromium 桌機＋手機，使用 dist/，務必先 build
+npm run test:e2e:webkit  # 同一套測試跑在 Safari 引擎（桌機＋iPhone），約 1 小時；需 npx playwright install webkit
 npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 ```
 
+- 測試輔助的注意事項：觸控拖曳只在 Chromium 用 CDP（`tea-helpers.ts` 的 `canTouch`），WebKit 用滑鼠驅動同一組 pointer 事件；Playwright 的 WebKit 在 `setOffline` 時連 Service Worker 回應都會拒絕，所以離線一律用 `offline-helpers.ts` 的 `setOffline`（WebKit 保持連線），Safari 離線由 `webkit-offline.spec.ts` 關閉自建伺服器驗證；`page-errors.ts` 的 `collectPageErrors` 會略過 WebKit 在重新整理時回報、但程式已處理的中斷請求。
 - E2E 共約 272 項（桌機＋手機各一輪），單一 worker，整輪 1～3 小時。開發時只跑相關檔案，例如 `npx playwright test tests/e2e/finale.spec.ts`。
 - E2E 由 `vite preview` 在 4173 提供 `dist/`。**E2E 執行中不要重新 build**，否則 `dist/` 被換掉會讓測試失敗。
 - 機器負載高時（其他專案同時跑 Playwright、ffmpeg 等），對時間敏感的測試會逾時或卡住。先用 `uptime` 看負載，負載正常後再單獨重跑失敗項目，不要急著改測試。
@@ -131,7 +133,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 | 玩法系統 | ~90% | 茶席、拼信、六種小遊戲、存檔、PWA、午夜茶席模式 |
 | 美術 | ~100% | 背景、結局插畫齊；七位訪客與店主各有兩種以上表情立繪，成年林澄有平靜與含淚兩張（2026-10-04 第二批，見 CHAPTER_ART）；實機視覺驗收併入正式版品質 |
 | 聲音與影片 | ~100% | 十二支製茶影片各有同步音軌（`npm run render:film-audio`）；全部音效為原創程序式合成，真人聽感併入實機驗收 |
-| 正式版品質 | ~50% | 缺實機 Safari／Android、VoiceOver／TalkBack、完整對比審核 |
+| 正式版品質 | ~100%（自動化可達範圍） | 全套 E2E 在 Chromium 與 Safari 引擎（WebKit 桌機／iPhone）皆通過；七章所有畫面類型與選單的 WCAG 2.1 AA（axe）與實際畫素對比稽核零違規；iOS 模擬器真 Safari 已確認首頁、設定、章節、收藏。剩實機與讀屏人工驗收，清單見 [DEVICE_QA.md](DEVICE_QA.md) |
 | 發行準備 | ~10–20% | 素材授權、內容校閱、跨瀏覽器、部署未開始 |
 
 ## 下一步建議（依可由 AI 完成的程度排序）

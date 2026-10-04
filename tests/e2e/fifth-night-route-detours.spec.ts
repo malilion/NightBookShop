@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { collectPageErrors } from "./page-errors";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import {
@@ -45,7 +46,7 @@ function beforeRoute(): GameSnapshot {
 
 test("wrong fifth-night addresses show distinct possible lives and survive reload", async ({ page }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.getByRole("link", { name: "設定" }).click();
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");

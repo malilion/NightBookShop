@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { collectPageErrors } from "./page-errors";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { scoreTea } from "../../src/services/teaScoring";
@@ -63,7 +64,7 @@ function legacyBlackTea(): GameSnapshot {
 
 test("chapter-nine Boyan save resumes with its archived tea response", async ({ page }) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.getByRole("link", { name: "設定" }).click();
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
@@ -94,7 +95,7 @@ for (const branch of [
 ] as const) {
   test(`${branch.teaId} tea opens its own pause and restores Boyan's answer`, async ({ page }, info) => {
     const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    collectPageErrors(page, errors);
     await page.goto("/");
     await page.getByRole("link", { name: "設定" }).click();
     await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
@@ -131,7 +132,7 @@ for (const branch of [
 ] as const) {
   test(`ordinary tea lets Boyan choose ${branch.choice} and restores the response`, async ({ page }, info) => {
     const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    collectPageErrors(page, errors);
     await page.goto("/");
     await page.getByRole("link", { name: "設定" }).click();
     await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");

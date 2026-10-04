@@ -43,7 +43,7 @@ function atMode(version: StoryVersion, target: (typeof cases)[number]["mode"]) {
 
 for (const scenario of cases) {
   test(`mobile ${scenario.name} controls meet the target size`, async ({ page }, info) => {
-    test.skip(info.project.name !== "mobile");
+    test.skip(!info.project.name.endsWith("mobile"));
     const origin = process.env.PLAYWRIGHT_BASE_URL ?? "";
     await page.goto(`${origin}/`);
     await page.evaluate(async (snapshot) => {

@@ -18,6 +18,15 @@ export default defineConfig({
       name: "mobile",
       use: { ...devices["iPhone 13"], defaultBrowserType: "chromium" },
     },
+    // Safari's engine, run with `npm run test:e2e:webkit`.
+    {
+      name: "webkit-desktop",
+      use: { ...devices["Desktop Safari"], viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 },
+    },
+    {
+      name: "webkit-mobile",
+      use: { ...devices["iPhone 13"] },
+    },
   ],
   webServer: externalBaseURL ? undefined : {
     command: "npm run preview -- --port 4173",

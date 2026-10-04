@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
@@ -18,8 +19,10 @@ async function advanceUntil(page: Page, target: string, max = 260) {
 async function untilChoice(page: Page, name: string) {
   const target = page.getByRole("button", { name, exact: false });
   for (let step = 0; step < 40; step++) {
-    if (await target.isVisible()) return target;
     const next = page.getByRole("button", { name: "繼續", exact: true });
+    // Choices appear a moment after the line finishes; wait for either.
+    await target.or(next).first().waitFor({ timeout: 10_000 }).catch(() => undefined);
+    if (await target.isVisible()) return target;
     if (await next.isVisible()) await next.click();
     else throw new Error(`Choice not found: ${name}`);
   }
@@ -45,7 +48,7 @@ async function expectMemoryBackground(page: Page, scene: string, project: string
   await advanceUntil(page, `.scene-art img[src*="memory-${scene}.webp"]`);
   await expect(page.locator(".scene-art")).toHaveCount(1);
   await expect.poll(() => page.locator(`.scene-art img[src*="memory-${scene}.webp"]`).evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-  if (project === "mobile")
+  if (project.endsWith("mobile"))
     await expect(page.locator(`.scene-art source[srcset*="memory-${scene}-mobile.webp"]`)).toHaveCount(1);
   await page.screenshot({ path: `output/fifth-night-${scene}-${project}.png`, animations: "disabled" });
 }
@@ -53,7 +56,7 @@ async function expectMemoryBackground(page: Page, scene: string, project: string
 test("fifth night restores the route and letter stamp before Yuhang signs today", async ({ page }, info) => {
   test.setTimeout(300_000);
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.evaluate(async () => {
     await new Promise<void>((resolve, reject) => {
@@ -78,7 +81,7 @@ test("fifth night restores the route and letter stamp before Yuhang signs today"
   await prepareOpening(page);
   await expect(page.locator(".scene-caption small")).toHaveText("第五夜 · 程雨航");
   await advanceUntil(page, ".tea-board");
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   await prepareLeaves(page, touch, 2);
   await page.getByRole("button", { name: "加入一片檸檬" }).click();
   await expect(page.getByRole("button", { name: /已加入檸檬片/ })).toHaveAttribute("aria-pressed", "true");
@@ -189,7 +192,7 @@ for (const recipe of [
     await page.getByRole("button", { name: "翻開第五夜" }).click();
     await prepareOpening(page);
     await advanceUntil(page, ".tea-board");
-    await prepareLeaves(page, info.project.name === "mobile", recipe.slot);
+    await prepareLeaves(page, info.project.name.endsWith("mobile"), recipe.slot);
     await expect(page.getByText(recipe.heading)).toBeVisible();
     await page.getByRole("button", { name: `加入一${recipe.ingredient === "蜂蜜" ? "小匙" : "片"}${recipe.ingredient}` }).click();
     await expect(page.getByRole("button", { name: `✓ 已加入${recipe.ingredient}` })).toHaveAttribute("aria-pressed", "true");

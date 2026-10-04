@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { collectPageErrors } from "./page-errors";
 import { expect, test, type Page } from "@playwright/test";
 import { teaInfusion } from "../../src/services/teaInfusion";
 import { StoryBridge } from "../../src/story/storyBridge";
@@ -68,7 +69,7 @@ async function serve(page: Page, snapshot: unknown, reducedMotion = false) {
 
 test("the brew film follows the tea that leads the cup, tinted by this brew", async ({ page }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   // One spoon of osmanthus and two of pu'er: the story and the film follow pu'er.
   const { draft, snapshot } = atTea({ teaId: "osmanthus", leaves: 1, blendTeaId: "puer", blendLeaves: 2 });
   const completion = await serve(page, snapshot);

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { prepareOpening } from "./opening-helpers";
 
 test("audio starts after interaction and saved controls apply on reload", async ({
@@ -54,7 +55,7 @@ test("missing audio files do not block the story", async ({ browser }) => {
   const context = await browser.newContext({ serviceWorkers: "block" });
   const page = await context.newPage();
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.route("**/audio/**", (route) => route.abort());
   await page.goto("/");
   await page.getByRole("button", { name: "開始故事", exact: true }).click();

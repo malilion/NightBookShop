@@ -1,10 +1,13 @@
 import { test, expect, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
+import { setOffline } from "./offline-helpers";
 import {
   prepareLeaves,
   pour,
   steepAndServe,
   geometry,
   drag,
+  canTouch,
 } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 async function until(page: Page, text: string) {
@@ -47,7 +50,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
 }, info) => {
   test.setTimeout(300_000);
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   // Keep this end-to-end story route bounded; animation timing is covered by
   // dedicated dialogue and tea-film tests.
   await page.goto("/#/settings");
@@ -80,7 +83,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   await expect(jinglanPortrait).toHaveAttribute("src", "/images/characters/jinglan.webp");
   await expect.poll(() => jinglanPortrait.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await expect(page.locator('.scene-art img[src*="jinglan-room.webp"]')).toHaveCount(1);
-  if (info.project.name === "mobile")
+  if (info.project.name.endsWith("mobile"))
     await expect(page.locator('.scene-art source[srcset*="jinglan-room-mobile.webp"]')).toHaveCount(1);
   await page.screenshot({ path: `output/jinglan-portrait-${info.project.name}.png`, animations: "disabled" });
   await page.screenshot({
@@ -97,8 +100,8 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   await page.getByRole("button", { name: "關閉手記" }).click();
   await until(page, "茶罐：桂花烏龍");
   await expect(page.locator(".shelf-jar .tea-prop-3d")).toHaveCount(8);
-  await prepareLeaves(page, info.project.name === "mobile");
-  await pour(page, "kettle", 68, info.project.name === "mobile");
+  await prepareLeaves(page, info.project.name.endsWith("mobile"));
+  await pour(page, "kettle", 68, info.project.name.endsWith("mobile"));
   await expect(page.locator(".tea-board")).toHaveAttribute(
     "data-liquor-color",
     "#dae1d8",
@@ -108,7 +111,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   await page.evaluate(() =>
     navigator.serviceWorker.ready.then(() => undefined),
   );
-  await context.setOffline(true);
+  await setOffline(context, true);
   await page.reload();
   await expect(page.locator(".tea-board")).toHaveAttribute(
     "data-water",
@@ -120,8 +123,8 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     animations: "disabled",
   });
   // The tea draft is restored offline; full films are downloaded on demand.
-  await context.setOffline(false);
-  await steepAndServe(page, info.project.name === "mobile");
+  await setOffline(context, false);
+  await steepAndServe(page, info.project.name.endsWith("mobile"));
   const completion = page.getByRole("dialog", {
     name: "把這一杯，放到她面前。",
   });
@@ -176,7 +179,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     await expect(
       page.getByRole("group", { name: "記憶中的物件" }),
     ).toBeVisible();
-    if (info.project.name === "mobile")
+    if (info.project.name.endsWith("mobile"))
       await expect(
         page.locator(
           `.scene-art source[srcset*="memory-${scene}-mobile.webp"]`,
@@ -240,7 +243,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
   await expect(zoomLevel).toHaveText("100%");
   await page.getByRole("button", { name: "放大拼信工作區" }).click();
   await expect(zoomLevel).toHaveText("115%");
-  if (info.project.name === "mobile") {
+  if (info.project.name.endsWith("mobile") && canTouch(page)) {
     const paper = page.locator(".letter-paper");
     await paper.scrollIntoViewIfNeeded();
     const box = (await paper.boundingBox())!;
@@ -290,7 +293,7 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     x: target.x + target.width / 2,
     y: target.y + target.height / 2,
   };
-  if (info.project.name === "mobile") {
+  if (info.project.name.endsWith("mobile") && canTouch(page)) {
     const session = await context.newCDPSession(page);
     await session.send("Input.dispatchTouchEvent", {
       type: "touchStart",
@@ -493,7 +496,7 @@ test("cached shell and first-night story resume offline", async ({
   const before = await page
     .locator(".dialogue-text")
     .getAttribute("data-full-text");
-  await context.setOffline(true);
+  await setOffline(context, true);
   await page.reload();
   await expect(page.locator(".dialogue-text")).toHaveAttribute(
     "data-full-text",
@@ -502,7 +505,7 @@ test("cached shell and first-night story resume offline", async ({
   await expect(page.locator(".dialogue-text")).toHaveText(before!);
   await page.getByRole("button", { name: "繼續", exact: true }).click();
   await expect(page.locator(".dialogue-text")).not.toHaveText(before!);
-  await context.setOffline(false);
+  await setOffline(context, false);
 });
 
 test("tea is playable without films, keyboard spills stop, and mistakes can be repaired", async ({
@@ -634,10 +637,10 @@ test("infusion changes with time and survives a paused offline reload", async ({
   await until(page, "先替她拉開椅子");
   await page.getByRole("button", { name: /先替她拉開椅子/ }).click();
   await until(page, "茶罐：桂花烏龍");
-  await prepareLeaves(page, info.project.name === "mobile", 1);
-  await pour(page, "kettle", 68, info.project.name === "mobile");
+  await prepareLeaves(page, info.project.name.endsWith("mobile"), 1);
+  await pour(page, "kettle", 68, info.project.name.endsWith("mobile"));
   const { layout } = await geometry(page);
-  await drag(page, layout.lid, layout.pot, info.project.name === "mobile");
+  await drag(page, layout.lid, layout.pot, info.project.name.endsWith("mobile"));
   const board = page.locator(".tea-board");
   await expect
     .poll(async () => Number(await board.getAttribute("data-seconds")))
@@ -651,7 +654,7 @@ test("infusion changes with time and survives a paused offline reload", async ({
   await page.evaluate(() =>
     navigator.serviceWorker.ready.then(() => undefined),
   );
-  await context.setOffline(true);
+  await setOffline(context, true);
   await page.reload();
   await expect(board).toHaveAttribute("data-seconds", seconds!);
   await expect(board).toHaveAttribute("data-liquor-color", before!);

@@ -86,65 +86,183 @@ function render(name, seconds, sample, bitrate = "64k") {
   }
 }
 try {
-  const chord = [146.832, 174.614, 220, 329.628];
-  const melody = [587.33, 440, 349.23, 329.63];
-  render(
-    "midnight-theme",
-    16,
-    (t) => {
-      const swell =
-        0.64 + 0.26 * Math.sin((2 * Math.PI * t) / 16 - Math.PI / 2);
-      let pad = 0;
-      for (const frequency of chord) {
-        pad += Math.sin(2 * Math.PI * frequency * t) * 0.55;
-        pad += Math.sin(2 * Math.PI * frequency * 2.003 * t) * 0.13;
+  // The bookshop theme: a slow felt-piano waltz in D minor over a soft pad and
+  // bass, with a small room reverb. Rendered three times over so the middle
+  // pass, reverb tail included, loops without a seam.
+  {
+    const beat = 60 / 66;
+    const bar = beat * 3;
+    const bars = 12;
+    const loopSeconds = bar * bars;
+    const hz = (midi) => 440 * 2 ** ((midi - 69) / 12);
+    // Dm – B♭ – F – C, then Gm – Dm – A – Dm, twice through the first four.
+    const progression = [
+      [50, [62, 65, 69]], [46, [62, 65, 70]], [41, [60, 65, 69]], [48, [60, 64, 67]],
+      [43, [62, 67, 70]], [50, [62, 65, 69]], [45, [61, 64, 69]], [50, [62, 65, 69]],
+      [50, [62, 65, 69]], [46, [62, 65, 70]], [43, [62, 67, 70]], [45, [61, 64, 69]],
+    ];
+    // Melody: [bar, beat, midi, beats held]; sparse, so the room can breathe.
+    const melody = [
+      [0, 0, 74, 2], [0, 2, 72, 1], [1, 0, 70, 2.5], [2, 0, 69, 1], [2, 1, 72, 1], [2, 2, 77, 1],
+      [3, 0, 76, 3], [4, 0, 74, 1.5], [4, 1.5, 72, 0.5], [4, 2, 70, 1], [5, 0, 69, 3],
+      [6, 0, 73, 1], [6, 1, 76, 1], [6, 2, 79, 1], [7, 0, 77, 1.5], [7, 1.5, 76, 0.5], [7, 2, 74, 1],
+      [8, 1, 69, 1], [8, 2, 74, 1], [9, 0, 77, 2], [9, 2, 74, 1], [10, 0, 74, 1], [10, 1, 70, 2],
+      [11, 0, 73, 2], [11, 2, 76, 1],
+    ];
+    const total = Math.round(loopSeconds * 3 * rate);
+    const dry = new Float32Array(total);
+    // A felt piano note: decaying harmonics, the upper ones fading first.
+    const piano = (start, midi, held, level) => {
+      const f = hz(midi);
+      const from = Math.round(start * rate);
+      const length = Math.round((held + 2.5) * rate);
+      for (let i = 0; i < length && from + i < total; i++) {
+        const t = i / rate;
+        const release = t < held ? 1 : Math.exp(-(t - held) * 4);
+        let sum = 0;
+        for (let k = 1; k <= 6; k++) {
+          const partial = f * k * (1 + 0.0004 * k * k);
+          if (partial > 6000) break;
+          sum += Math.sin(2 * Math.PI * partial * t) * Math.exp(-t * (0.9 + k * 0.85)) / k ** 1.6;
+        }
+        const attack = Math.min(1, t / 0.006);
+        dry[from + i] += sum * attack * release * level;
       }
-      let motif = 0;
-      for (let i = 0; i < 4; i++) {
-        const since = t - i * 4;
-        if (since < 0) continue;
-        const envelope = (1 - Math.exp(-since * 24)) * Math.exp(-since * 1.8);
-        motif += envelope * Math.sin(2 * Math.PI * melody[i] * since);
+    };
+    // A warm pad: three slightly detuned voices of a few soft harmonics.
+    const pad = (start, notes, seconds, level) => {
+      const from = Math.round(start * rate);
+      const length = Math.round(seconds * rate);
+      for (let i = 0; i < length && from + i < total; i++) {
+        const t = i / rate;
+        const swell = Math.sin(Math.PI * Math.min(1, t / seconds)) ** 0.7;
+        let sum = 0;
+        for (const midi of notes)
+          for (const detune of [-0.003, 0, 0.0035]) {
+            const f = hz(midi) * (1 + detune);
+            sum += Math.sin(2 * Math.PI * f * t) + 0.22 * Math.sin(4 * Math.PI * f * t) + 0.06 * Math.sin(6 * Math.PI * f * t);
+          }
+        dry[from + i] += sum * swell * level;
       }
-      const edge = Math.min(1, t * 4, (16 - t) * 4);
-      return edge * (pad * 0.025 * swell + motif * 0.052);
-    },
-    "80k",
-  );
+    };
+    for (let pass = 0; pass < 3; pass++) {
+      const offset = pass * loopSeconds;
+      progression.forEach(([root, notes], index) => {
+        const at = offset + index * bar;
+        pad(at - 0.4, notes, bar + 0.8, 0.0045);
+        piano(at, root, bar * 0.9, 0.085);
+        piano(at + beat, root + 12, beat * 0.8, 0.03);
+        notes.forEach((midi, n) => piano(at + beat * (1 + n * 0.5) + beat * 0.5, midi, beat, 0.022));
+      });
+      for (const [index, beatAt, midi, held] of melody)
+        piano(offset + index * bar + beatAt * beat, midi, held * beat, 0.06);
+    }
+    // A small room: four combs into two all-passes, gently low-passed.
+    const combs = [1557, 1617, 1491, 1422].map((length) => ({ buffer: new Float32Array(length), index: 0, store: 0 }));
+    const passes = [225, 556].map((length) => ({ buffer: new Float32Array(length), index: 0 }));
+    const wet = new Float32Array(total);
+    for (let i = 0; i < total; i++) {
+      let sum = 0;
+      for (const comb of combs) {
+        const out = comb.buffer[comb.index];
+        comb.store = out * 0.75 + comb.store * 0.25;
+        comb.buffer[comb.index] = dry[i] + comb.store * 0.82;
+        comb.index = (comb.index + 1) % comb.buffer.length;
+        sum += out;
+      }
+      for (const pass of passes) {
+        const delayed = pass.buffer[pass.index];
+        const out = -sum + delayed;
+        pass.buffer[pass.index] = sum + delayed * 0.5;
+        pass.index = (pass.index + 1) % pass.buffer.length;
+        sum = out;
+      }
+      wet[i] = sum * 0.25;
+    }
+    let tone = 0;
+    const from = Math.round(loopSeconds * rate);
+    render("midnight-theme", loopSeconds, (_t, i) => {
+      // Soften the very top so nothing reads as a beep.
+      tone += (dry[from + i] + wet[from + i] - tone) * 0.55;
+      return Math.tanh(tone * 1.4) * 0.26;
+    }, "80k");
+  }
 
-  let rainLow = 0;
-  let rainMid = 0;
-  let drop = 0;
-  let dropPhase = 0;
-  render("rain-window", 16, (t) => {
-    const noise = random() * 2 - 1;
-    rainLow = rainLow * 0.995 + noise * 0.005;
-    rainMid = rainMid * 0.72 + noise * 0.28;
-    if (random() < 0.00007) drop = 1;
-    drop *= 0.9993;
-    dropPhase += (2 * Math.PI * 1200) / rate;
-    const edge = Math.min(1, t * 20, (16 - t) * 20);
-    return edge * (
-      (rainMid - rainLow) * 0.19 +
-      rainLow * 0.2 +
-      Math.sin(dropPhase) * drop * 0.014
-    );
-  });
+  // The ambience uses its own generator; the shared one is advanced exactly as
+  // the first versions did, so the short cues below stay byte-stable.
+  for (let i = 0; i < Math.round(16 * rate) * 3; i++) random();
+  let ambienceSeed = 20261004;
+  const ambienceRandom = () => {
+    ambienceSeed ^= ambienceSeed << 13;
+    ambienceSeed ^= ambienceSeed >>> 17;
+    ambienceSeed ^= ambienceSeed << 5;
+    return (ambienceSeed >>> 0) / 4294967296;
+  };
+  // Renders `seconds` plus a tail and folds the tail over the start, so the
+  // loop has no seam and no fade to silence.
+  const looped = (seconds, sample) => {
+    const fold = Math.round(1.5 * rate);
+    const length = Math.round(seconds * rate);
+    const raw = new Float32Array(length + fold);
+    for (let i = 0; i < raw.length; i++) raw[i] = sample(i / rate);
+    return (_t, i) => {
+      if (i >= fold) return raw[i];
+      const k = i / fold;
+      return raw[i] * Math.sin((k * Math.PI) / 2) + raw[length + i] * Math.cos((k * Math.PI) / 2);
+    };
+  };
+  // Pink noise (Paul Kellet's filter): softer than white, like distant rain.
+  const pink = () => {
+    let b0 = 0, b1 = 0, b2 = 0;
+    return () => {
+      const white = ambienceRandom() * 2 - 1;
+      b0 = 0.99765 * b0 + white * 0.099046;
+      b1 = 0.963 * b1 + white * 0.2965164;
+      b2 = 0.57 * b2 + white * 1.0526913;
+      return (b0 + b1 + b2 + white * 0.1848) * 0.2;
+    };
+  };
 
-  let roomLow = 0;
-  let roomMid = 0;
-  render("bookshop-room", 16, (t) => {
-    const noise = random() * 2 - 1;
-    roomLow = roomLow * 0.999 + noise * 0.001;
-    roomMid = roomMid * 0.93 + noise * 0.07;
-    const phase = t % 4;
-    const tick =
-      phase < 0.05
-        ? Math.sin(2 * Math.PI * 920 * phase) * Math.exp(-phase * 95) * 0.055
-        : 0;
-    const edge = Math.min(1, t * 20, (16 - t) * 20);
-    return edge * (roomLow * 0.9 + roomMid * 0.09 + tick);
-  });
+  // Rain on the window: a soft, darkened wash with gusts, light patter of drops
+  // on the glass and, now and then, a fuller drip from the eaves.
+  {
+    const wash = pink();
+    let low = 0, lower = 0;
+    const drops = [];
+    render("rain-window", 20, looped(20, (t) => {
+      const n = wash();
+      low += (n - low) * 0.18;
+      lower += (low - lower) * 0.05;
+      const gust = 0.8 + 0.2 * Math.sin((2 * Math.PI * t) / 6.7) * Math.sin((2 * Math.PI * t) / 10.3 + 1);
+      if (ambienceRandom() < 9 / rate)
+        drops.push({ age: 0, hz: 1800 + ambienceRandom() * 2600, level: 0.004 + ambienceRandom() ** 2 * 0.014, decay: 260 + ambienceRandom() * 200, noise: 0 });
+      if (ambienceRandom() < 0.25 / rate)
+        drops.push({ age: 0, hz: 520 + ambienceRandom() * 380, level: 0.012 + ambienceRandom() * 0.01, decay: 38, glide: true, noise: 0 });
+      let patter = 0;
+      for (const drop of drops) {
+        drop.age += 1 / rate;
+        const pitch = drop.glide ? drop.hz * (1 + 0.8 * drop.age * 10) : drop.hz;
+        drop.noise = drop.noise * 0.6 + (ambienceRandom() * 2 - 1) * 0.4;
+        patter += (Math.sin(2 * Math.PI * pitch * drop.age) * 0.7 + drop.noise * 0.3) * drop.level * Math.exp(-drop.age * drop.decay);
+      }
+      while (drops.length && drops[0].age > 0.25) drops.shift();
+      return ((low - lower) * 0.7 + lower * 0.5) * 0.1 * gust + patter * 1.6;
+    }));
+  }
+
+  // The bookshop at night: a low, quiet room tone and a slow clock.
+  {
+    const air = pink();
+    let low = 0, lower = 0;
+    render("bookshop-room", 20, looped(20, (t) => {
+      const n = air();
+      low += (n - low) * 0.03;
+      lower += (low - lower) * 0.02;
+      const beat = t % 2;
+      const tick = beat < 0.04 ? Math.sin(2 * Math.PI * 1150 * beat) * Math.exp(-beat * 140) * 0.009 * (Math.floor(t / 2) % 2 ? 0.8 : 1) : 0;
+      return (low - lower) * 0.03 + lower * 0.036 + tick;
+    }));
+  }
 
   let paperNoise = 0;
   render("paper", 0.52, (t) => {

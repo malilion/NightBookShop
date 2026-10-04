@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { collectPageErrors } from "./page-errors";
 import { expect, test, type Page } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
@@ -42,7 +43,7 @@ for (const branch of [
 ] as const) {
   test(`future-stamp Yuhang returns before Haiming and chooses ${branch.image}`, async ({ page }, info) => {
     const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    collectPageErrors(page, errors);
     await page.goto("/");
     await page.evaluate(async (snapshot) => {
       await new Promise<void>((resolve, reject) => {

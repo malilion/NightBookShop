@@ -27,7 +27,7 @@ function atFirstLetter() {
 }
 
 test("mobile letter and collection touch targets", async ({ page }, info) => {
-  test.skip(info.project.name !== "mobile");
+  test.skip(!info.project.name.endsWith("mobile"));
   const origin = process.env.PLAYWRIGHT_BASE_URL ?? "";
   await page.goto(`${origin}/`);
   await page.getByRole("link", { name: "故事收藏" }).click();

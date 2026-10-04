@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { collectPageErrors } from "./page-errors";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import {
@@ -96,7 +97,7 @@ function beforeFinalChoice(ending: (typeof endings)[number]): GameSnapshot {
 for (const ending of endings) {
   test(`${ending.id} is readable and collected`, async ({ page }, info) => {
     const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    collectPageErrors(page, errors);
     await page.goto("/");
     await page.getByRole("link", { name: "設定" }).click();
     await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");
@@ -132,7 +133,7 @@ for (const ending of endings) {
     }
     await expect(page.locator(".ending-panel")).toBeVisible();
     await expect(page.getByRole("heading", { name: ending.title })).toBeVisible();
-    if (info.project.name === "mobile")
+    if (info.project.name.endsWith("mobile"))
       expect(await smallTargets(page), `${ending.id} ending controls`).toEqual([]);
     await expect(page.getByRole("status", { name: "存檔狀態" })).toHaveText("進度自動保存在此瀏覽器");
     await page.screenshot({ path: `output/${ending.id}-ending-${info.project.name}.png`, fullPage: true, animations: "disabled" });

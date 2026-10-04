@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { collectPageErrors } from "./page-errors";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newOpening, newTea, snapshotSchema, STORY_VERSION } from "../../src/types/game";
@@ -19,9 +20,9 @@ function atTea() {
 }
 
 test("two teas can be measured, saved, poured, and acknowledged", async ({ page }, info) => {
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.getByRole("link", { name: "設定" }).click();
   await page.getByRole("combobox", { name: /對話文字速度/ }).selectOption("instant");

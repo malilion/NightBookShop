@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { setOffline } from "./offline-helpers";
 
 async function unlock(page: Page, ids: string[]) {
   await page.goto("/");
@@ -58,7 +59,7 @@ test("starting a later chapter makes its unvisited memories available offline", 
   ];
   await expectImagesCached(page, chapterImages);
 
-  await context.setOffline(true);
+  await setOffline(context, true);
   const offlineImage = await page.evaluate(async (url) => {
     const response = await fetch(url);
     return { ok: response.ok, type: response.headers.get("content-type"), bytes: (await response.blob()).size };
@@ -68,7 +69,7 @@ test("starting a later chapter makes its unvisited memories available offline", 
   expect(offlineImage.bytes).toBeGreaterThan(0);
   await page.reload();
   await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("第六夜");
-  await context.setOffline(false);
+  await setOffline(context, false);
 });
 
 test("second-night clinic and train load from the chapter pack offline", async ({ page, context }) => {
@@ -83,7 +84,7 @@ test("second-night clinic and train load from the chapter pack offline", async (
       `/images/memory-${scene}-mobile.webp`,
     ]),
   ]);
-  await context.setOffline(true);
+  await setOffline(context, true);
   const response = await page.evaluate(async () => {
     const image = await fetch("/images/memory-train-mobile.webp");
     return { ok: image.ok, bytes: (await image.blob()).size };
@@ -92,7 +93,7 @@ test("second-night clinic and train load from the chapter pack offline", async (
   expect(response.bytes).toBeGreaterThan(0);
   await page.reload();
   await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("第二夜");
-  await context.setOffline(false);
+  await setOffline(context, false);
 });
 
 test("third-night memories load from the chapter pack offline", async ({ page, context }) => {
@@ -107,7 +108,7 @@ test("third-night memories load from the chapter pack offline", async ({ page, c
       `/images/memory-${scene}-mobile.webp`,
     ]),
   ]);
-  await context.setOffline(true);
+  await setOffline(context, true);
   const response = await page.evaluate(async () => {
     const image = await fetch("/images/memory-grandstage-mobile.webp");
     return { ok: image.ok, bytes: (await image.blob()).size };
@@ -116,7 +117,7 @@ test("third-night memories load from the chapter pack offline", async ({ page, c
   expect(response.bytes).toBeGreaterThan(0);
   await page.reload();
   await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("第三夜");
-  await context.setOffline(false);
+  await setOffline(context, false);
 });
 
 test("fourth-night memories load from the chapter pack offline", async ({ page, context }) => {
@@ -131,7 +132,7 @@ test("fourth-night memories load from the chapter pack offline", async ({ page, 
       `/images/memory-${scene}-mobile.webp`,
     ]),
   ]);
-  await context.setOffline(true);
+  await setOffline(context, true);
   const response = await page.evaluate(async () => {
     const image = await fetch("/images/memory-old-oven-mobile.webp");
     return { ok: image.ok, bytes: (await image.blob()).size };
@@ -140,7 +141,7 @@ test("fourth-night memories load from the chapter pack offline", async ({ page, 
   expect(response.bytes).toBeGreaterThan(0);
   await page.reload();
   await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("第四夜");
-  await context.setOffline(false);
+  await setOffline(context, false);
 });
 
 test("fifth-night memories load from the chapter pack offline", async ({ page, context }) => {
@@ -155,7 +156,7 @@ test("fifth-night memories load from the chapter pack offline", async ({ page, c
       `/images/memory-${scene}-mobile.webp`,
     ]),
   ]);
-  await context.setOffline(true);
+  await setOffline(context, true);
   const response = await page.evaluate(async () => {
     const image = await fetch("/images/memory-bookshop-door-mobile.webp");
     return { ok: image.ok, bytes: (await image.blob()).size };
@@ -164,7 +165,7 @@ test("fifth-night memories load from the chapter pack offline", async ({ page, c
   expect(response.bytes).toBeGreaterThan(0);
   await page.reload();
   await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("第五夜");
-  await context.setOffline(false);
+  await setOffline(context, false);
 });
 
 test("finale childhood home loads from the chapter pack offline", async ({ page, context }) => {
@@ -180,7 +181,7 @@ test("finale childhood home loads from the chapter pack offline", async ({ page,
       `/images/memory-${scene}-mobile.webp`,
     ]),
   ]);
-  await context.setOffline(true);
+  await setOffline(context, true);
   const response = await page.evaluate(async () => {
     const image = await fetch("/images/memory-child-home-mobile.webp");
     return { ok: image.ok, bytes: (await image.blob()).size };
@@ -189,5 +190,5 @@ test("finale childhood home loads from the chapter pack offline", async ({ page,
   expect(response.bytes).toBeGreaterThan(0);
   await page.reload();
   await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("終章");
-  await context.setOffline(false);
+  await setOffline(context, false);
 });

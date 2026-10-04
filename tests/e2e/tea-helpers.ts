@@ -18,11 +18,14 @@ export async function geometry(page: Page) {
     }),
   };
 }
+// Raw touch input needs Chromium's CDP; WebKit runs drive the same pointer
+// handlers with the mouse (its two-finger and touch drags are checked on iOS).
+export const canTouch = (page: Page) => page.context().browser()?.browserType().name() === "chromium";
 export async function drag(page: Page, from: Point, to: Point, touch = false) {
   const { at } = await geometry(page);
   const a = at(from),
     b = at(to);
-  if (touch) {
+  if (touch && canTouch(page)) {
     const session = await page.context().newCDPSession(page);
     await session.send("Input.dispatchTouchEvent", {
       type: "touchStart",
@@ -71,7 +74,7 @@ export async function pour(
   const start = at(l[kind]),
     anchor = at(resting),
     tilted = at({ x: resting.x + 90, y: resting.y });
-  const session = touch ? await page.context().newCDPSession(page) : null;
+  const session = touch && canTouch(page) ? await page.context().newCDPSession(page) : null;
   if (session) {
     await session.send("Input.dispatchTouchEvent", {
       type: "touchStart",

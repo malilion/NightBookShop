@@ -417,8 +417,8 @@ button:active:not(:disabled),
   align-items: center;
   padding: 22px 3.5%;
   gap: 25px;
-  /* Bright scenes (the letter desk) sit right behind this small text. */
-  background: linear-gradient(#070b12b8, #070b1200);
+  /* Bright scenes (the letter desk, the bakery) sit right behind this small text. */
+  background: linear-gradient(#070b12e0, #070b1299 60%, #070b1200);
 }
 .game-brand {
   font-size: 25px;
@@ -465,6 +465,11 @@ button:active:not(:disabled),
   flex-direction: column;
   gap: 10px;
   text-shadow: 0 2px 12px #000;
+  /* A soft scrim so the caption stays readable over bright stages and kitchens. */
+  padding: 10px 28px 10px 14px;
+  margin-left: -14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #070b12c7, #070b12a6 80%, #070b1200);
 }
 .scene-caption > span {
   font-size: 26px;
@@ -1815,9 +1820,16 @@ button:active:not(:disabled),
 .setting-row select {
   min-width: 132px;
   min-height: 44px;
-  padding: 8px 12px;
+  /* Safari keeps a native select at its own short height unless it is restyled. */
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 8px 34px 8px 12px;
   border: 1px solid var(--line);
-  background: var(--panel);
+  border-radius: 0;
+  background:
+    linear-gradient(45deg, transparent 50%, var(--gold) 50%) right 17px center / 6px 6px no-repeat,
+    linear-gradient(-45deg, transparent 50%, var(--gold) 50%) right 12px center / 6px 6px no-repeat,
+    var(--panel);
   color: var(--ink);
   font: inherit;
 }
@@ -2173,6 +2185,10 @@ button:active:not(:disabled),
   }
   .scene-caption small {
     font-size: 10px;
+  }
+  /* The portrait bleeds off the right edge; clip it so Safari cannot scroll sideways. */
+  .game-content {
+    overflow-x: clip;
   }
   .character-portrait {
     right: -2%;

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
 
@@ -144,7 +145,7 @@ for (const ending of endings) {
   test(`${nights[ending.night]} plays from its opening to ${ending.id}`, async ({ page }, info) => {
     test.setTimeout(420_000);
     const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    collectPageErrors(page, errors);
     await page.goto("/");
     await page.evaluate(async (ids) => {
       await new Promise<void>((resolve, reject) => {
@@ -170,7 +171,7 @@ for (const ending of endings) {
       await page.goto("/#/chapters");
       await page.getByRole("button", { name: `翻開${nights[ending.night]}` }).click();
     }
-    await playToEnding(page, ending, info.project.name === "mobile");
+    await playToEnding(page, ending, info.project.name.endsWith("mobile"));
     await expect(page.locator(".ending-panel").getByRole("heading", { name: ending.title })).toBeVisible();
     await page.goto("/#/collection");
     await expect(page.getByRole("heading", { name: ending.title })).toBeVisible();

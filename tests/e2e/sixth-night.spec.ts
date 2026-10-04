@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { collectPageErrors } from "./page-errors";
 import { readFileSync } from "node:fs";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
@@ -25,8 +26,10 @@ async function advanceUntil(page: Page, target: string, max = 280) {
 async function untilChoice(page: Page, name: string) {
   const target = page.getByRole("button", { name, exact: false });
   for (let step = 0; step < 40; step++) {
-    if (await target.isVisible()) return target;
     const next = page.getByRole("button", { name: "繼續", exact: true });
+    // Choices appear a moment after the line finishes; wait for either.
+    await target.or(next).first().waitFor({ timeout: 10_000 }).catch(() => undefined);
+    if (await target.isVisible()) return target;
     if (await next.isVisible()) await next.click();
     else throw new Error(`Choice not found: ${name}`);
   }
@@ -59,7 +62,7 @@ function scoreRuoyinSave(): GameSnapshot {
 
 test("sixth night keeps Haiming's original words and reveals Lincheng's childhood", async ({ page }, info) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  collectPageErrors(page, errors);
   await page.goto("/");
   await page.evaluate(async (ruoyinSave) => {
     await new Promise<void>((resolve, reject) => {
@@ -89,7 +92,7 @@ test("sixth night keeps Haiming's original words and reveals Lincheng's childhoo
   await expect(page.locator('.character-portrait[data-expression="searching"]')).toHaveAttribute("src", "/images/characters/haiming-searching.webp");
   await page.screenshot({ path: `output/sixth-night-searching-${info.project.name}.png`, animations: "disabled" });
   await advanceUntil(page, ".tea-board");
-  const touch = info.project.name === "mobile";
+  const touch = info.project.name.endsWith("mobile");
   await prepareLeaves(page, touch, 7);
   await page.getByRole("button", { name: "加入一小塊海鹽焦糖" }).click();
   await expect(page.getByRole("button", { name: /已加入海鹽焦糖/ })).toHaveAttribute("aria-pressed", "true");
