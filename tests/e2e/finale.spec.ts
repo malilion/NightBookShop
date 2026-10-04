@@ -227,6 +227,7 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   await advanceUntil(page, '.dialogue-text[data-full-text*="今天要站著，還是坐著？"]');
   await advanceUntil(page, '.dialogue-text[data-full-text*="有幾題的答案，後來又改過"]');
   await advanceUntil(page, '.dialogue-text[data-full-text*="老闆記得她的口味"]');
+  await advanceUntil(page, '.dialogue-text[data-full-text*="櫃台最底下那封信已經拆開了"]');
   await advanceUntil(page, ".ending-panel");
   await expect(page.getByRole("heading", { name: "天亮以後" })).toBeVisible();
   await page.getByRole("button", { name: /守夜手記/ }).click();

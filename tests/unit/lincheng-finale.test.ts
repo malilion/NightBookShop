@@ -7,7 +7,8 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-16.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-17.json", "utf8");
+const chapterSixteen = readFileSync("public/story/compiled/lincheng-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/lincheng-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/lincheng-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/lincheng-chapter-13.json", "utf8");
@@ -88,6 +89,29 @@ const firstAnswers = { lincheng_destination: "home", lincheng_shift: "locked", l
 const secondAnswers = { lincheng_destination: "unsure", lincheng_shift: "fine", lincheng_paused: "unsure", lincheng_mother: "rarely", lincheng_card: "kept", lincheng_fear: "guests" };
 
 describe("Lincheng finale", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-sixteen %s route readable", (target) => {
+    expect(play(target, true, chapterSixteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["lincheng-dawn", "請他也找一天讀它", "今晚我也想試試", "已經拆開了"],
+    ["lincheng-dawn", "讀不讀由他", "妳說話越來越像手冊了", "她沒有提，那是他的"],
+    ["lincheng-keeper", "請他也找一天讀它", "今晚我也想試試", "他說留給下一封"],
+    ["lincheng-keeper", "讀不讀由他", "妳說話越來越像手冊了", "沒有問他要去哪裡"],
+    ["lincheng-shelf", "請他也找一天讀它", "今晚我也想試試", "兩封隔著幾本書"],
+    ["lincheng-shelf", "讀不讀由他", "妳說話越來越像手冊了", "都在等寫給的那個人"],
+  ] as const)("lets Lin Cheng ask the owner about his own unread letter before %s (%s)", (target, answer, reply, afterword) => {
+    const run = play(target, true, compiled, { refusal: ["他自己有沒有一封沒讀的信", answer] });
+    const said = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(said).toContain("放得比妳的信還久");
+    expect(said).toContain(reply);
+    expect(said).toContain(afterword);
+  });
+  it("leaves the owner's letter alone when Lin Cheng does not ask", () => {
+    const said = play("lincheng-dawn", true, compiled, { refusal: ["讓他把手冊最後一頁交給妳"] }).texts.join(" ");
+    expect(said).not.toContain("放得比妳的信還久");
+    expect(said).not.toContain("已經拆開了");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fifteen %s route readable", (target) => {
     expect(play(target, true, chapterFifteen).story.frame.endingId).toBe(target);
   });

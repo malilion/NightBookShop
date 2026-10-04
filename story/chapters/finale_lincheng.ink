@@ -60,6 +60,7 @@ VAR lincheng_card = ""
 VAR lincheng_fear = ""
 VAR answered_visitors = false
 VAR ending_close = ""
+VAR owner_letter = ""
 VAR ending_kind = ""
 -> threshold
 
@@ -520,6 +521,19 @@ VAR ending_kind = ""
     所以我也想要一樣的待遇。你可以陪我，可以等我，但我的信，要我自己拆。 # speaker:林澄
     店主把手從信封上收回，放到桌子自己那一側。「好。」 # speaker:店主 # portrait:owner
     -> owner_choice
+* {owner_letter == ""} [問店主，他自己有沒有一封沒讀的信]
+    六夜裡，每個人都被問過自己的事。你呢？你有沒有一封沒讀的信？ # speaker:林澄
+    店主沉默了很久，久到黑貓換了一次姿勢。「有。」他沒有說是誰寫的，「在櫃台最底下，放得比妳的信還久。」 # speaker:店主 # portrait:owner
+    「我一直以為守夜的人不必讀自己的。現在聽起來，那跟妳小時候說的『先不要讓我想起來』，可能是同一句話。」 # speaker:店主 # portrait:owner-apology
+    ** [請他也找一天讀它]
+        ~ owner_letter = "read"
+        店主看著櫃台的方向。「等妳的信讀完，我再試試。不是跟妳交換，只是今晚我也想試試。」 # speaker:店主 # portrait:owner
+        -> owner_choice
+    ** [說那是他的信，讀不讀由他]
+        ~ owner_letter = "his"
+        ~ trust += 1
+        店主第一次笑了一下，很短。「妳說話越來越像手冊了。」他沒有再提那封信，也沒有把它拿出來。 # speaker:店主 # portrait:owner
+        -> owner_choice
 * [讓他把手冊最後一頁交給妳]
     ~ trust += 1
     他把紙放在桌面，不伸手替妳翻。上面寫著：「保管不等於擁有。取回與否，應由寫信的人決定。」 # clue:hidden-page # speaker:旁白
@@ -672,6 +686,8 @@ VAR ending_kind = ""
 {answered_visitors && lincheng_card == "told":她回了父親今年的卡片，只有一行：「地址還對。」 # speaker:旁白}
 {ending_close == "breakfast":她後來常去那家早餐店。老闆記得她的口味，偶爾問她最近睡得好不好，她照實回答。 # speaker:旁白}
 {ending_close == "call":那天以後，她給母親打電話的次數多了一點。有時只講早餐吃了什麼。 # speaker:旁白}
+{owner_letter == "read":她回書店坐坐時，櫃台最底下那封信已經拆開了。店主沒說寫了什麼，她也沒有問。 # speaker:旁白}
+{owner_letter == "his":她回書店坐坐時，看見櫃台最底下那封信還沒拆。她沒有提，那是他的。 # speaker:旁白}
 ~ ending_kind = "dawn"
 -> chapter_coda
 === end_keeper ===
@@ -699,6 +715,8 @@ VAR ending_kind = ""
 {answered_visitors:有客人反問起她的事時，她不再說「今晚先說你的」。她會先回答一句，再把話還給對方。 # speaker:旁白}
 {ending_close == "rule":手冊第一頁仍是她寫的那一行：「店員也可以坐下。」後來每一任店員都讀得到。 # speaker:旁白}
 {ending_close == "rest":她當守夜人的第一晚，門上掛的是「今晚休息」。第二晚開門時，她的茶是熱的。 # speaker:旁白}
+{owner_letter == "read":交接那晚，店主把自己拆過的那封信帶走了。櫃台最底下空出一格，他說留給下一封。 # speaker:旁白}
+{owner_letter == "his":店主離開時帶走了那封沒拆的信，說到別處再決定。她送他到門口，沒有問他要去哪裡。 # speaker:旁白}
 ~ ending_kind = "keeper"
 -> chapter_coda
 === end_shelf ===
@@ -725,6 +743,8 @@ VAR ending_kind = ""
 {answered_visitors:六夜裡被問過的那些問題，她回答了想得到的幾題。其餘的，跟信一起留在書架上。 # speaker:旁白}
 {ending_close == "note":書背上的便條寫著「等我想讀的那天」。經過的客人看見，都沒有去翻。 # speaker:旁白}
 {ending_close == "memorized":第三層，左邊第七本。她偶爾在睡前想起這個數字，像確認一把鑰匙還在。 # speaker:旁白}
+{owner_letter == "read":聽說店主那封信後來拆開了，也從櫃台底下移到她那一層書架，兩封隔著幾本書。 # speaker:旁白}
+{owner_letter == "his":她的信在書架上，店主那封仍在櫃台底下，都還沒拆，都在等寫給的那個人。 # speaker:旁白}
 ~ ending_kind = "shelf"
 -> chapter_coda
 === end_midnight ===
