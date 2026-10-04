@@ -2,7 +2,7 @@
 
 本文件讓新接手的人（包含其他 AI 代理）在不讀完整歷史的情況下，知道專案現況、怎麼安全地改劇情、怎麼驗證，以及還剩哪些工作。細節以各連結文件為準；本文件只整理接手時最容易出錯的地方。
 
-最後更新：2026-10-04。
+最後更新：2026-10-04（訪客反問與結局收尾選擇之後）。
 
 ## 一句話現況
 
@@ -30,13 +30,13 @@ npm run dev            # 會先編譯 Ink，再啟動 Vite（127.0.0.1:5173）
 npm run build:ink      # 只編譯 Ink 到 public/story/compiled/
 npm run lint
 npm run typecheck      # vue-tsc；不要用純 tsc，它不認得 .vue
-npm test               # Vitest 單元測試（約 600 項，約 30–130 秒）
+npm test               # Vitest 單元測試（約 790 項，約 50–130 秒；負載高時第一夜 128 條隨機路線可能超過 120 秒上限，單獨重跑即可）
 npm run build          # build:ink + typecheck + vite build + 效能預算檢查
 npm run test:e2e       # Playwright，使用 dist/，務必先 build
 npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 ```
 
-- E2E 共約 268 項（桌機＋手機各一輪），單一 worker，整輪 1.5～3 小時。開發時只跑相關檔案，例如 `npx playwright test tests/e2e/finale.spec.ts`。
+- E2E 共約 272 項（桌機＋手機各一輪），單一 worker，整輪 1～3 小時。開發時只跑相關檔案，例如 `npx playwright test tests/e2e/finale.spec.ts`。
 - E2E 由 `vite preview` 在 4173 提供 `dist/`。**E2E 執行中不要重新 build**，否則 `dist/` 被換掉會讓測試失敗。
 - 機器負載高時（其他專案同時跑 Playwright、ffmpeg 等），對時間敏感的測試會逾時或卡住。先用 `uptime` 看負載，負載正常後再單獨重跑失敗項目，不要急著改測試。
 
@@ -84,6 +84,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 - 繁體中文。旁白以第二人稱「妳」指林澄；店員說話時 `# speaker:林澄`。
 - 每行對話尾端用 tag 標說話者與畫面：`# speaker:顧海明 # portrait:haiming-warm`。只能用 `commandParser.ts` 允許的 tag，各章單元測試會檢查。
+- **結局收尾的二選一**：24 種訪客結局的收尾場景都以林澄的一個二選一收束，格式為 `* [選項] ~ 變數 = "值" 內容` 兩項，再以 `- -> xxx_afterword` 匯合，後記用 `{變數 == "值":一句話}` 回應。替訪客決定的結局裡，其中一項會再 `intervention += 1`。新加結局時沿用此格式。
 - **可略過的追問**模式：在結局選單或段落選單中放 `* {條件 && not 已問} [選項]`，內容結束後 `-> xxx_return`（一行過場）再回到選單。結局選項放在同一選單裡，玩家隨時能直接選結局。
 - **後記回響**：追問設一個變數，在相關結局的 `*_afterword` 用 `{變數:一句話}` 或 `{變數 == "值":一句話}` 留下痕跡。條件只依實際發生過的事，不要讓後記與結局矛盾。
 - **前夜回應**：`previous_ending` 是前一夜的首次結局。第二至六夜各有抵達、中段、後段三處回應。更早各夜的首次結局由 `gameStore` 傳入；章節 Ink 宣告 `VAR ending_jinglan = ""`（或 boyan、ruoyin、yenuan、yuhang）才會收到。目前第三夜讀 `ending_jinglan`、第六夜讀 `ending_jinglan` 與 `ending_ruoyin`，終章讀五夜全部。
@@ -95,6 +96,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 - 單元測試的 `play()`／`complete()` helper 預設選第一個選項；要走特定追問時，用該檔已有的參數（`refusal`、`extra`、`chooseTexts`、`prefer`）依序指定選項文字。
 - E2E 寫入 IndexedDB（例如預先解鎖章節）後，**要 `page.reload()`**，否則 App 已讀過空收藏，章節仍是未解鎖。
+- 從結局選擇前的存檔接續的 E2E，推進迴圈必須也會點 `.dialogue-choices button`（參考 `visitor-alternative-endings.spec.ts`）。結局收尾現在都有選項，只按「繼續」會卡到逾時（2026-10-04 `fifth-night-endings.spec.ts` 踩過）。
 - 「顯示全文」按鈕可能在點擊前因逐字完成而消失。點擊時要加短 timeout 並忽略失敗，否則整項卡到逾時。
 - `finale.spec.ts` 的手機版拒坐路線在長批次中偶爾停在「翻開終章」找不到（終章未解鎖），單獨或整檔連跑皆通過，原因未查明。遇到時先單獨重跑。
 - 第一夜〈替她決定的人〉之前還有一個確認選單（先選「替她把信寄出」，再選「仍替她封口」）。
@@ -130,7 +132,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 AI 可直接做：
 
-1. **擴寫章節內容**：PRD_GAP_AUDIT「PRD 章節時長」列。可選方向包括記憶場景中更多可查看物件、訪客對林澄的反問、非首選茶種在後段的回響、結局後記依更多中段選擇變化。每次照「改劇情的標準流程」升版。
+1. **擴寫章節內容**：PRD_GAP_AUDIT「PRD 章節時長」列。訪客反問（六夜＋終章回應）與結局收尾二選一（24 種結局）已完成。剩下的方向：記憶場景中更多可查看物件、非首選茶種在後段的回響、結局後記依更多中段選擇變化、終章三種離開或留下的結局收尾也加上林澄的選擇。每次照「改劇情的標準流程」升版。
 2. **跨章回應延伸到非相鄰章節**：程式已支援，PRD 列出的交叉細節都已回應（第三夜回應靜蘭，第六夜回應靜蘭與若音，都經由「四個音」）。若要再加，需要自行從各章已有細節找出合理連結，避免新增與原作矛盾的設定。
 3. **E2E 穩定性**：把各檔重複的 `advanceUntil`／`untilChoice` 收斂到共用 helper。
 4. **無障礙自動檢查**：擴充 axe 檢查到所有結局畫面與小遊戲操作後狀態。
@@ -150,6 +152,7 @@ AI 可直接做：
 
 | 提交 | 內容 |
 | --- | --- |
+| `f34742e` | 第一、二、三、五、六夜的結局收尾二選一（比照第四夜），24 種訪客結局收尾都有林澄的選擇 |
 | `edf9c1d` | 終章 `lincheng-chapter-15`：讀完信後回答六夜的反問；`gameStore` 從章節存檔傳入回答 |
 | `228c10c` | 第一、二、三、四、六夜的訪客反問（`jinglan-chapter-9`、`boyan-chapter-15`、`ruoyin-chapter-14`、`yenuan-chapter-13`、`haiming-chapter-19`） |
 | `6b1e3d7` | 第五夜 `yuhang-chapter-14`：雨航問林澄有沒有沒回的信（第一段訪客反問） |
