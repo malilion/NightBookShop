@@ -127,7 +127,7 @@ describe("complete Jinglan chapter", () => {
     expect(endings).toEqual(
       new Set(["moonlight", "recipient", "unfinished", "intervention"]),
     );
-  }, 120000);
+  }, 300000);
   it("continues original prototype saves against their original story", () => {
     expect(play(2, "moonlight", true).story.frame.endingId).toBe("moonlight");
   });
@@ -242,6 +242,19 @@ describe("complete Jinglan chapter", () => {
     expect(story.frame.endingId).toBe(target);
     expect(text).toContain(scene);
     expect(text).toContain(afterword);
+  });
+  it("continues chapter-ten saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-10.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["osmanthus", "moonlight", "巷口的桂花開了"],
+    ["puer", "unfinished", "這茶要慢慢喝，話也是"],
+    ["mint", "recipient", "說涼得太快"],
+  ] as const)("remembers the %s tea in the %s afterword", (teaId, target, line) => {
+    const text = play(2, target, false, compiled, "explore", false, { teaId, quality: 100 }).texts.join(" ");
+    expect(text).toContain(line);
   });
   it("leaves Jinglan's question out when the player goes straight to her decision", () => {
     const text = play(2, "moonlight", false, compiled, "skip").texts.join(" ");

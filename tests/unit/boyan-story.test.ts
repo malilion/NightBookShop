@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-16.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-17.json", "utf8");
+const chapterSixteen = readFileSync("public/story/compiled/boyan-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/boyan-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/boyan-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/boyan-chapter-13.json", "utf8");
@@ -80,6 +81,20 @@ function complete(
 }
 
 describe("Boyan second night", () => {
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-sixteen %s route", (target) => {
+    expect(complete(target, chapterSixteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["chamomile", "boyan-rest", "抽屜裡多了一盒洋甘菊"],
+    ["black", "boyan-overwork", "過了晚上十點，就先把杯子洗起來"],
+    ["mint", "boyan-leave", "把今晚、明早和要找誰分成三欄"],
+  ] as const)("remembers the %s tea in the %s afterword", (teaId, target, line) => {
+    const teaDraft = { ...newTea(), teaId, leaves: 3, water: 70, temperature: teaId === "black" ? 95 : teaId === "mint" ? 85 : 90, seconds: 55 };
+    const texts = complete(target, compiled, { teaDraft }).texts.join(" ");
+    expect(texts).toContain(line);
+    for (const other of ["抽屜裡多了一盒洋甘菊", "過了晚上十點，就先把杯子洗起來", "把今晚、明早和要找誰分成三欄"].filter((entry) => entry !== line))
+      expect(texts).not.toContain(other);
+  });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-fifteen %s route", (target) => {
     expect(complete(target, chapterFifteen).story.frame.endingId).toBe(target);
   });

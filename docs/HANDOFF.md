@@ -30,7 +30,7 @@ npm run dev            # 會先編譯 Ink，再啟動 Vite（127.0.0.1:5173）
 npm run build:ink      # 只編譯 Ink 到 public/story/compiled/
 npm run lint
 npm run typecheck      # vue-tsc；不要用純 tsc，它不認得 .vue
-npm test               # Vitest 單元測試（約 790 項，約 50–130 秒；負載高時第一夜 128 條隨機路線可能超過 120 秒上限，單獨重跑即可）
+npm test               # Vitest 單元測試（約 790 項，約 50–130 秒；第一夜 128 條隨機路線單獨約 100 秒，時限已放寬為 300 秒）
 npm run build          # build:ink + typecheck + vite build + 效能預算檢查
 npm run test:e2e       # Playwright，使用 dist/，務必先 build
 npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
@@ -106,12 +106,12 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 | 章節 | Ink 原稿 | 目前版本 |
 | --- | --- | --- |
-| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-10`（`main.json`） |
-| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-16` |
-| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-15` |
-| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-13` |
-| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-15` |
-| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-20` |
+| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-11`（`main.json`） |
+| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-17` |
+| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-16` |
+| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-14` |
+| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-16` |
+| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-21` |
 | 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-17` |
 
 升版後請更新此表。
@@ -132,7 +132,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 AI 可直接做：
 
-1. **擴寫章節內容**：PRD_GAP_AUDIT「PRD 章節時長」列。訪客反問（六夜＋終章回應）與結局收尾二選一（24 種訪客結局與終章四種結局）已完成。剩下的方向：記憶場景中更多可查看物件、非首選茶種在後段的回響、結局後記依更多中段選擇變化。每次照「改劇情的標準流程」升版。
+1. **擴寫章節內容**：PRD_GAP_AUDIT「PRD 章節時長」列。訪客反問（六夜＋終章回應）與結局收尾二選一（24 種訪客結局與終章四種結局）已完成。後記依當晚的茶各多一句也已完成（`tea_afterword`）。剩下的方向：記憶場景中更多可查看物件、非首選茶種在中後段（記憶場景、拼信前）的回響、結局後記依更多中段選擇變化。每次照「改劇情的標準流程」升版。
 2. **跨章回應延伸到非相鄰章節**：程式已支援，PRD 列出的交叉細節都已回應（第三夜回應靜蘭，第六夜回應靜蘭與若音，都經由「四個音」）。若要再加，需要自行從各章已有細節找出合理連結，避免新增與原作矛盾的設定。
 3. **E2E 穩定性**：把各檔重複的 `advanceUntil`／`untilChoice` 收斂到共用 helper。
 4. **無障礙自動檢查**：擴充 axe 檢查到所有結局畫面與小遊戲操作後狀態。

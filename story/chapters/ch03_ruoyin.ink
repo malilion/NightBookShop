@@ -594,6 +594,7 @@ VAR ending_kind = ""
 {lincheng_paused == "unsure":演出時，她在空拍那裡等一下。有時會想起書店裡那個說想不起來的店員。 # speaker:旁白}
 {one_hand == "towel":演出結束後，她會先把手泡進溫水裡，再出去跟聽眾說話。 # speaker:旁白}
 {one_hand == "asked":有人問她手還好嗎，她會照實說：「有一點痠。」說完仍把下一首拉完，或者不拉。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "one"
 -> chapter_coda
 === end_stage ===
@@ -618,6 +619,7 @@ VAR ending_kind = ""
 {lincheng_paused == "unsure":她在給季晴的信裡寫：休止符不一定是結束。這句話，她先對一個店員說過。 # speaker:旁白}
 {stage_post == "tonight":季晴說那封信的郵戳是半夜。她也是在半夜讀完的。 # speaker:旁白}
 {stage_post == "tomorrow":掛號回執寄回來時，簽名欄是季晴的字。若音把它夾進樂譜，和那張舊票根放在一起。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "stage"
 -> chapter_coda
 === end_score ===
@@ -641,6 +643,7 @@ VAR ending_kind = ""
 {lincheng_paused == "unsure":簿子最後留了一頁空白，標題寫著：「給還想不起來的人。」 # speaker:旁白}
 {score_first == "self":簿子第一頁是她自己的四個音。後來每個人翻開，都會先聽見那個雨天。 # speaker:旁白}
 {score_first == "guest":第一個在簿子裡留信的人，是一位夜班的計程車司機。他只寫了一句，若音替那一句寫了八小節。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "score"
 -> chapter_coda
 === end_echo ===
@@ -667,6 +670,7 @@ VAR ending_kind = ""
 {lincheng_paused == "unsure":比賽曲裡沒有休止符。她撕給店員的那一小角，是她那陣子畫過的唯一一個。 # speaker:旁白}
 {echo_reply == "retract":比賽前一晚，她想起書店店員說過可以再想。她還是去了，只是那晚提早一小時收琴。 # speaker:旁白}
 {echo_reply == "copied":練習表是書店店員替她抄的，字很工整。她照著練，一格也沒有空下來。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "echo"
 -> chapter_coda
 === chapter_coda ===
@@ -694,3 +698,14 @@ VAR ending_kind = ""
     掌聲在大幕後反覆響起。樂譜仍在最後一小節折回開頭。 # scene:moon-sea # ending:ruoyin-echo
 }
 -> END
+
+=== tea_afterword ===
+{
+- tea_type == "lavender":
+    她的琴盒裡多了一小包薰衣草。打開琴盒時先聞到它，手會比較慢一點才放上琴弦。 # speaker:旁白
+- tea_type == "osmanthus":
+    每到桂花開，她會想起放學公車上那首沒被打分數的歌，在路邊哼一兩句。 # speaker:旁白
+- tea_type == "black":
+    她仍在練琴前喝一杯濃紅茶。有幾次喝到一半，她想起書店裡那張計畫表，停下來看了看手。 # speaker:旁白
+}
+->->

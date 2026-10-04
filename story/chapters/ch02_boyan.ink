@@ -499,6 +499,7 @@ VAR ending_close = ""
 {lincheng_shift == "fine":醫師問他最近好不好，他差點說還好，想起書店那個也說還好的店員，改口說了胸悶。 # speaker:旁白}
 {ending_close == "sent":主管隔天早上七點回了「好，保重」。他把那四個字截圖存著。 # speaker:旁白}
 {ending_close == "morning":他睡了一覺才送出請假訊息。醒來時胸口不悶，他還是照約去了醫院。 # speaker:旁白}
+-> tea_afterword ->
 -> coda_rest
 === leave ===
 柏言沒有立刻按下寄出。他在紙背寫下存款可以撐多久、誰願意幫忙，以及看診後需要哪些安排。 # scene:boyan # speaker:旁白
@@ -526,6 +527,7 @@ VAR ending_close = ""
 {lincheng_shift == "fine":母親問他還好嗎，他沒有說還好。他說有點累，說完覺得像替某個人也說了一次。 # speaker:旁白}
 {ending_close == "helpers":信旁那張求助名單，他後來真的打了第二個電話。對方說：「你怎麼現在才打。」 # speaker:旁白}
 {ending_close == "first-week":離職後第一個星期，他回家住了五天。電腦放在公司，沒有帶回去。 # speaker:旁白}
+-> tea_afterword ->
 -> coda_leave
 === boundary ===
 他把信題改為「工作負荷與人力安排」。交接清單留在附件，第一段先寫目前無法再單獨承擔的項目。 # scene:boyan # speaker:旁白
@@ -552,6 +554,7 @@ VAR ending_close = ""
 {lincheng_shift == "fine":主管問他撐不撐得住，他沒說還好。那兩個字有人在書店裡也說過，他聽得出那不是真話。 # speaker:旁白}
 {ending_close == "clinic":回診那天的行事曆上，他用紅字寫著「不可改期」。 # speaker:旁白}
 {ending_close == "rehearse":主管果然先說「大家都辛苦」。他在書店聽過一次，這次沒有愣住。 # speaker:旁白}
+-> tea_afterword ->
 -> coda_boundary
 === overwork ===
 他點點頭，像終於聽到熟悉的指令。電腦其實仍沒有電，他用手機把報告最後三頁寫完。 # scene:boyan # speaker:旁白
@@ -577,6 +580,7 @@ VAR ending_close = ""
 {lincheng_shift == "fine":主管問他還好嗎，他說還好。說完他想起書店的店員也這樣說過，那時他聽得出來不是真的。 # speaker:旁白}
 {ending_close == "watched":報告寄出的時間是凌晨一點多。寄件備份裡一直留著那個時間，他偶爾滑到，會停一下。 # speaker:旁白}
 {ending_close == "water":後來熬夜交件以前，他會先倒一杯水。喝不喝完，至少手邊有。 # speaker:旁白}
+-> tea_afterword ->
 -> coda_overwork
 === coda_rest ===
 妳翻開手冊，發現一張空白頁上多了一行字：「已收存第二位訪客的故事。」 # section:coda # speaker:旁白
@@ -620,3 +624,14 @@ VAR ending_close = ""
 === final_overwork ===
 報告寄出了，手錶仍停著。妳知道今晚還有一句話沒有被聽見。 # scene:moon-sea # ending:boyan-overwork
 -> END
+
+=== tea_afterword ===
+{
+- tea_type == "chamomile":
+    他的抽屜裡多了一盒洋甘菊。忙的晚上不一定記得泡，但每次看見，都會想起有人要他先坐下。 # speaker:旁白
+- tea_type == "black":
+    他仍喝紅茶提神，只是試著記得看時間：過了晚上十點，就先把杯子洗起來。 # speaker:旁白
+- tea_type == "mint":
+    他的桌上有時放一杯薄荷茶。涼涼的，提醒他把今晚、明早和要找誰分成三欄。 # speaker:旁白
+}
+->->

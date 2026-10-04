@@ -594,6 +594,7 @@ VAR ending_kind = ""
 {lincheng_card == "kept":他寄回書店的明信片寫給「先送別人信的店員」。上面沒有問題，只寫他今天先送了自己的。 # speaker:旁白}
 {today_first == "blank":休假第一天那格，他真的什麼都沒排。下午他在公園坐到路燈亮，才想起今天不用上班。 # speaker:旁白}
 {today_first == "his":休假第一天，他吃了一頓不用趕的早餐。吐司點了兩份，吃完一份才想起不必替誰外帶。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "today"
 -> chapter_coda
 === end_future ===
@@ -620,6 +621,7 @@ VAR ending_kind = ""
 {lincheng_card == "kept":他在給七年後自己的信末多寫一句：站牌下那位店員也還沒送出自己的信，希望她那時已經送了。 # speaker:旁白}
 {future_reminder == "phone":提醒響起那天他還在送信。送完那一區，他請了半天假，回家打開第一箱。 # speaker:旁白}
 {future_reminder == "colleague":下個月那天，同事在打卡鐘旁問他：「箱子開了沒？」他說開了，裡面第一本是妹妹的旅遊書。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "future"
 -> chapter_coda
 === end_past ===
@@ -648,6 +650,7 @@ VAR ending_kind = ""
 {lincheng_card == "kept":在海邊的長椅上，他想起有人說過「今晚先送你的」。他把那句話寫進新信，沒有寫是誰說的。 # speaker:旁白}
 {past_lid == "closed":紀念盒蓋好以後放在書櫃最上層。每年妹妹生日，他拿下來一次。 # speaker:旁白}
 {past_lid == "ajar":盒蓋一直沒有蓋緊。有時他經過，會把那張明信片拿出來看一眼，再放回去。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "past"
 -> chapter_coda
 === end_unknown ===
@@ -676,6 +679,7 @@ VAR ending_kind = ""
 {lincheng_card == "kept":他說過妳跟他一樣先送別人的。後來每晚送完最後一戶，他都在路燈下停一會，像在等誰先開口。 # speaker:旁白}
 {unknown_parting == "returned":那晚以後，他摸到袋底那封信時，信封總是乾的。他不知道是誰放回去的，也沒有問。 # speaker:旁白}
 {unknown_parting == "said":他記得門口那句「信會一直在這裡」。有幾晚，他經過書店那條街時放慢腳步，沒有進去。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "unknown"
 -> chapter_coda
 === chapter_coda ===
@@ -703,3 +707,14 @@ VAR ending_kind = ""
     查無此人。藍色信仍在郵袋最底下，等著下一次投遞。 # scene:moon-sea # ending:yuhang-unknown
 }
 -> END
+
+=== tea_afterword ===
+{
+- tea_type == "mint":
+    他的郵袋側袋多了一包薄荷茶。夜班休息時泡一杯，喝完才去下一區。 # speaker:旁白
+- tea_type == "chamomile":
+    夜班前他偶爾泡一杯洋甘菊。那晚書店裡的那一杯讓他坐得住，他記得那種不用趕的感覺。 # speaker:旁白
+- tea_type == "hojicha":
+    他後來喝焙茶時，會先把一杯喝完再出門。不是每次都做得到。 # speaker:旁白
+}
+->->

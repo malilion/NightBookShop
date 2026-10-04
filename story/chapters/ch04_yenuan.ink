@@ -581,6 +581,7 @@ VAR ending_kind = ""
 {share_with == "regular":第一位試吃的常客說有點苦。她隔週少放了一點柚子皮，在卡片上記下日期，沒有道歉。 # speaker:旁白}
 {lincheng_mother == "dumplings":那年冬天，她試著把柚子皮剁進餃子餡。不太成功，她還是包完一整盤，邊包邊說起母親以前怎麼罵她手慢。 # speaker:旁白}
 {lincheng_mother == "rarely":新配方卡背面另有一行，不是給自己的：「今天吃了柚子蘋果麵包。」她說是替一個很少打電話回家的人先寫好的開頭。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "share"
 -> chapter_coda
 === end_reopen ===
@@ -606,6 +607,7 @@ VAR ending_kind = ""
 {reopen_said == "mine":有熟客說今年的蘋果麵包比較軟。她沒有道歉，只說：「今年的蘋果比較甜。」 # speaker:旁白}
 {lincheng_mother == "dumplings":她說過，手忙的時候有些話比較說得出口。揉麵的早上，她開始跟學徒說起母親，說的不只是配方。 # speaker:旁白}
 {lincheng_mother == "rarely":每天收店前，她把當天的麵包拍一張照片，存在手機裡一個沒有收件人的相簿。說是替那個不知道電話裡要說什麼的店員記的。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "reopen"
 -> chapter_coda
 === end_rest ===
@@ -630,6 +632,7 @@ VAR ending_kind = ""
 {rest_note == "closed":那一週有人敲過幾次門。她在家聽不見，也沒有去想是誰。 # speaker:旁白}
 {lincheng_mother == "dumplings":休息那週她包了一次餃子，一個人吃不完，分了一盤給隔壁。手忙的時候，她對著空廚房說了幾句想對母親說的話。 # speaker:旁白}
 {lincheng_mother == "rarely":那一週沒有營業，她每天在日曆上寫下自己吃了什麼。寫滿七格，她才發現以前從來不知道自己吃了什麼。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "rest"
 -> chapter_coda
 === end_copy ===
@@ -653,6 +656,7 @@ VAR ending_kind = ""
 {copy_reply == "silent":她偶爾想起書店裡那杯沒喝的茶。那天她其實想聽有人說：差一點也沒關係。 # speaker:旁白}
 {lincheng_mother == "dumplings":她說過一起揉了二十年麵團，最想問的那句沒問。如今她每天照母親的字量麵粉，那句話更沒有地方問了。 # speaker:旁白}
 {lincheng_mother == "rarely":她叮嚀過店員，打電話就說吃了什麼。她自己每天吃了什麼，卻總是記不起來。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "copy"
 -> chapter_coda
 === chapter_coda ===
@@ -679,3 +683,14 @@ VAR ending_kind = ""
     麵包每天都像照片裡一樣。葉暖仍在每一個晚上，害怕明天會有不同。 # scene:moon-sea # ending:yenuan-copy
 }
 -> END
+
+=== tea_afterword ===
+{
+- tea_type == "hojicha":
+    晨麥的櫃台後多了一壺焙茶。忙的時候她會倒一杯放在旁邊，不一定喝完，但手邊總有一杯是給自己的。 # speaker:旁白
+- tea_type == "lavender":
+    她偶爾在打烊後泡一杯薰衣草伯爵，對著空下來的店，試著用「我」說今天發生了什麼。 # speaker:旁白
+- tea_type == "black":
+    櫃台上的抹布，她試著擦完三遍就停，倒一杯紅茶坐下來。不是每次都做得到。 # speaker:旁白
+}
+->->

@@ -171,8 +171,8 @@ describe("Lincheng finale", () => {
   });
   it("reads each night's answer back from a finished chapter save", () => {
     const sources = {
-      jinglan: "main.json", boyan: "boyan-chapter-16.json", ruoyin: "ruoyin-chapter-15.json",
-      yenuan: "yenuan-chapter-13.json", yuhang: "yuhang-chapter-15.json", haiming: "haiming-chapter-20.json",
+      jinglan: "main.json", boyan: "boyan-chapter-17.json", ruoyin: "ruoyin-chapter-16.json",
+      yenuan: "yenuan-chapter-14.json", yuhang: "yuhang-chapter-16.json", haiming: "haiming-chapter-21.json",
     } as const;
     for (const [visitor, variable] of Object.entries(visitorQuestionVariables)) {
       const chapter = new StoryBridge(readFileSync(`public/story/compiled/${sources[visitor as keyof typeof sources]}`, "utf8"));

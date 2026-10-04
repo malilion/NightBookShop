@@ -640,6 +640,7 @@ VAR ending_kind = ""
 {lincheng_fear == "guests":顧川在日誌最後一頁看到父親記的一行：「鉛筆借給書店的店員了。她也在寫航海誌。」 # speaker:旁白}
 {light_space == "back":顧川後來說，那晚他記得最清楚的是書店很安靜，安靜到聽得見父親換氣。 # speaker:旁白}
 {light_space == "tea":顧川家裡多了一罐焙茶。他泡給父親時，會多放一點焦糖。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "light"
 -> chapter_coda
 === end_voice ===
@@ -669,6 +670,7 @@ VAR ending_kind = ""
 {lincheng_fear == "guests":錄音快結束時他說：「那枝鉛筆借給書店的店員了。她要記得她的客人。」 # speaker:旁白}
 {voice_close == "goodnight":錄音最後是一句晚安。有幾晚海明在旁邊，跟著錄音又說了一次。 # speaker:旁白}
 {voice_close == "joke":錄音停在那個笑話。顧川每次聽到最後都會笑，有時笑完才發現自己在哭。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "voice"
 -> chapter_coda
 === end_boat ===
@@ -698,6 +700,7 @@ VAR ending_kind = ""
 {lincheng_fear == "guests":回來以後他找那枝常用的鉛筆，才想起借給了書店的店員。他笑了，說那就讓她記。 # speaker:旁白}
 {boat_mark == "pocket":那艘紙船一直在他外套內袋，摺痕被摸得發軟。 # speaker:旁白}
 {boat_mark == "name":船身上寫著「小川」。顧川第一次看見時沒有說話，只把船還給父親，讓他自己拿著。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "boat"
 -> chapter_coda
 === end_hero ===
@@ -728,6 +731,7 @@ VAR ending_kind = ""
 {lincheng_fear == "guests":那枝借出去的鉛筆沒有寫進傳記。他說過，忘掉的時候，紙會替人記得；傳記卻把他記得的方式刪掉了。 # speaker:旁白}
 {hero_cuts == "kept":那個信封放在海明床頭，一直沒拆。顧川問是什麼，他說：「我說得不好的那些。」顧川把它收進自己的包裡。 # speaker:旁白}
 {hero_cuts == "thrown":刪掉的稿紙早就被清走了。後來顧川問父親那晚有沒有說過想回家，海明想不起來，也沒有地方可以查。 # speaker:旁白}
+-> tea_afterword ->
 ~ ending_kind = "hero"
 -> chapter_coda
 === chapter_coda ===
@@ -758,3 +762,14 @@ VAR ending_kind = ""
     傳記上的守塔人毫無破綻，兒子仍在字裡尋找父親。 # scene:moon-sea # ending:haiming-hero
 }
 -> END
+
+=== tea_afterword ===
+{
+- tea_type == "hojicha":
+    海明後來喝焙茶時會放一小塊焦糖，說燈塔的廚房都是這樣。有時他記錯年份，茶的味道倒沒記錯。 # speaker:旁白
+- tea_type == "puer":
+    他慢慢講風向的那一段，後來總配著一杯熟普洱。聽的人不催，他就講得到船看見岸。 # speaker:旁白
+- tea_type == "mint":
+    薄荷茶喝完以後，他會先確認今天的日期，再看窗外。說錯了也沒關係，他還是每天確認一次。 # speaker:旁白
+}
+->->

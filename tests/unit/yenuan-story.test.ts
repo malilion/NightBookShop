@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-13.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-14.json", "utf8");
+const chapterThirteen = readFileSync("public/story/compiled/yenuan-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/yenuan-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/yenuan-chapter-11.json", "utf8");
 const chapterTen = readFileSync("public/story/compiled/yenuan-chapter-10.json", "utf8");
@@ -78,6 +79,17 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
 }
 
 describe("Yenuan fourth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-thirteen %s route readable", (target) => {
+    expect(play(target, true, chapterThirteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["hojicha", "yenuan-share", "手邊總有一杯是給自己的"],
+    ["lavender", "yenuan-rest", "試著用「我」說今天發生了什麼"],
+    ["black", "yenuan-copy", "擦完三遍就停"],
+  ] as const)("remembers the %s tea in the %s afterword", (teaId, target, line) => {
+    const texts = play(target, true, compiled, { teaId }).texts.join(" ");
+    expect(texts).toContain(line);
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twelve %s route readable", (target) => {
     expect(play(target, true, chapterTwelve).story.frame.endingId).toBe(target);
   });

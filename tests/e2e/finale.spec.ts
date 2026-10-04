@@ -22,7 +22,7 @@ function completedJinglanSave(): GameSnapshot {
   if (story.frame.endingId !== "moonlight") throw new Error("Jinglan fixture did not reach her self-letter ending");
   return snapshotSchema.parse({
     version: 1,
-    storyVersion: "jinglan-chapter-10",
+    storyVersion: "jinglan-chapter-11",
     inkState: story.serialize(),
     frame: story.frame,
     tea: newTea(),
@@ -31,7 +31,7 @@ function completedJinglanSave(): GameSnapshot {
 }
 
 function completedHaimingSave(): GameSnapshot {
-  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-20.json", "utf8"));
+  const story = new StoryBridge(readFileSync("public/story/compiled/haiming-chapter-21.json", "utf8"));
   story.next();
   for (let step = 0; step < 320 && story.frame.mode !== "ending"; step++) {
     if (story.frame.mode === "tea") story.finishTea({ teaId: "hojicha", quality: 100, emotionalMatch: 100 });
@@ -43,7 +43,7 @@ function completedHaimingSave(): GameSnapshot {
   if (story.frame.endingId !== "haiming-light") throw new Error("Haiming fixture did not reach the shared-letter ending");
   return snapshotSchema.parse({
     version: 1,
-    storyVersion: "haiming-chapter-20",
+    storyVersion: "haiming-chapter-21",
     inkState: story.serialize(),
     frame: story.frame,
     tea: newTea(),
