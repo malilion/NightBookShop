@@ -40,6 +40,10 @@ VAR asked_share_load = false
 VAR ending_jinglan = ""
 VAR told_jinglan_notes = false
 VAR lincheng_paused = ""
+VAR one_hand = ""
+VAR stage_post = ""
+VAR score_first = ""
+VAR echo_reply = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -570,7 +574,15 @@ VAR ending_kind = ""
 }
 謝謝。我今晚本來不想回家。 # speaker:旁白
 若音沒有問為什麼，也沒有急著把曲子解釋完。她把琴放低，在那人旁邊坐了一會。
--> one_afterword
+客人走後，她把左手攤在膝上，指節一張一合，像在數剛才用了幾分力。 # speaker:旁白
+* [遞一條溫毛巾，讓她先暖手]
+    ~ one_hand = "towel"
+    妳把熱水壺邊的毛巾擰乾遞過去。若音把手整個包進去，過了一會才說：「以前拉完都直接收琴。原來可以先等手回來。」 # speaker:旁白
+* [問她手還好嗎，等她自己說]
+    ~ one_hand = "asked"
+    ~ trust += 1
+    若音看著自己的手，想了一下才回答。「有一點痠。」她笑了，「這句我以前不會說，怕說了就不能上台。」 # speaker:沈若音
+- -> one_afterword
 === one_afterword ===
 書籤後記：若音後來偶爾在小場地演出。她仍會想起舊比賽，也仍須照顧手的狀況，但不再要求每一場都回答她的人生是否成功。 # scene:counter # speaker:旁白 # section:afterword
 那首曲子有了名字，叫〈三分鐘〉。樂譜上保留了雨聲的空拍，演出時她會先等一下，再落弓。
@@ -580,12 +592,22 @@ VAR ending_kind = ""
 {told_jinglan_notes:她後來在譜紙角落寫了一行小字：「給第一晚也聽見的人。」 # speaker:旁白}
 {lincheng_paused == "moon":〈三分鐘〉的譜角，雲旁邊多了一個歪歪的月亮。重抄過幾次，她都照樣畫上。 # speaker:旁白}
 {lincheng_paused == "unsure":演出時，她在空拍那裡等一下。有時會想起書店裡那個說想不起來的店員。 # speaker:旁白}
+{one_hand == "towel":演出結束後，她會先把手泡進溫水裡，再出去跟聽眾說話。 # speaker:旁白}
+{one_hand == "asked":有人問她手還好嗎，她會照實說：「有一點痠。」說完仍把下一首拉完，或者不拉。 # speaker:旁白}
 ~ ending_kind = "one"
 -> chapter_coda
 === end_stage ===
 若音重讀寫給季晴的那面，刪掉想讓對方負責的句子，留下自己想說的話。她親手把信封口，沒有請妳替她寄。 # speaker:旁白
 「我可以聽她拉完，不代表我要變成她。」若音說。「那天我沒說完的，也許可以現在說。」
--> stage_afterword
+她把信封拿在手上，翻過來看了看自己寫的地址，沒有立刻起身。 # speaker:旁白
+* [陪她走到門邊的信箱]
+    ~ stage_post = "tonight"
+    妳們一起走到門邊。若音把信封捏了一下，才放進投信口。蓋子落下時，她小聲說：「好了。」 # speaker:旁白
+* [讓她把信帶回去，明天自己寄]
+    ~ stage_post = "tomorrow"
+    ~ trust += 1
+    若音把信收進琴盒的內袋。「明天我自己去郵局。」她說，「想用掛號，讓她簽名才算收到。」 # speaker:沈若音
+- -> stage_afterword
 === stage_afterword ===
 書籤後記：季晴回了一張演出邀請。若音坐在觀眾席，聽完整場，謝幕後兩人才在走廊裡見面。 # scene:counter # speaker:旁白 # section:afterword
 她們沒有把那次爭吵說成誤會，只是第一次聽彼此把話講完。
@@ -594,12 +616,22 @@ VAR ending_kind = ""
 {told_jinglan_notes:寄給季晴的信裡，她提到一位也聽過這四個音的老師。她沒寫名字，只寫：「她也在等最後一個音。」 # speaker:旁白}
 {lincheng_paused == "moon":季晴問她譜角那個歪月亮是誰畫的。若音說，是一個很多年沒畫的人。 # speaker:旁白}
 {lincheng_paused == "unsure":她在給季晴的信裡寫：休止符不一定是結束。這句話，她先對一個店員說過。 # speaker:旁白}
+{stage_post == "tonight":季晴說那封信的郵戳是半夜。她也是在半夜讀完的。 # speaker:旁白}
+{stage_post == "tomorrow":掛號回執寄回來時，簽名欄是季晴的字。若音把它夾進樂譜，和那張舊票根放在一起。 # speaker:旁白}
 ~ ending_kind = "stage"
 -> chapter_coda
 === end_score ===
 若音在書店留下一本沒有封面的簿子。第一頁寫：「留一封信，換一段旋律。」她沒有保證每封都能寫完。 # speaker:旁白
 黑貓在頁角留下爪印。她想擦，最後決定把那個不整齊的記號留著。
--> score_afterword
+她把簿子推到櫃台中央，又拉回來一點，像不確定第一頁該留給誰。 # speaker:旁白
+* [請她先替自己寫第一段]
+    ~ score_first = "self"
+    ~ understanding += 1
+    若音把最初的四個音寫在第一頁，空拍也照樣留著。「先交我自己的。」她說，「不然好像在跟別人要故事，自己卻什麼都沒給。」 # speaker:旁白
+* [把簿子放在櫃台最顯眼的地方，留給下一位客人]
+    ~ score_first = "guest"
+    妳把簿子立在茶罐旁邊，封面朝外。若音看了一會，說這樣很好，第一個寫的人不必知道她是誰。 # speaker:旁白
+- -> score_afterword
 === score_afterword ===
 書籤後記：有人的信只有一句話，有人寫滿十頁。若音替他們寫短短的旋律，也把自己寫不出的日子留在簿子裡。 # scene:counter # speaker:旁白 # section:afterword
 簿子漸漸厚了，沒有一頁標著「重新成為獨奏家」。
@@ -607,12 +639,22 @@ VAR ending_kind = ""
 {told_jinglan_notes:她替普通人寫的第一首曲子，開頭仍是那四個音。她說是借來的，借給所有沒聽完的人。 # speaker:旁白}
 {lincheng_paused == "moon":交換簿第一頁，黑貓的爪印旁邊，是那個歪歪的月亮。 # speaker:旁白}
 {lincheng_paused == "unsure":簿子最後留了一頁空白，標題寫著：「給還想不起來的人。」 # speaker:旁白}
+{score_first == "self":簿子第一頁是她自己的四個音。後來每個人翻開，都會先聽見那個雨天。 # speaker:旁白}
+{score_first == "guest":第一個在簿子裡留信的人，是一位夜班的計程車司機。他只寫了一句，若音替那一句寫了八小節。 # speaker:旁白}
 ~ ending_kind = "score"
 -> chapter_coda
 === end_echo ===
 妳說既然她還能拉，就該再試一次大賽。若音看了一眼左手，沒有反駁，反而把熟悉的練習時程重新列出來。 # speaker:旁白
 妳聽見她說「好」，卻沒問那是答應妳，還是答應自己。
--> echo_afterword
+她把時程表推到妳面前，像在等誰替它蓋章。 # speaker:旁白
+* [告訴她妳剛才說得太快，她可以再想]
+    ~ echo_reply = "retract"
+    若音看了妳一眼。「我知道。」她把表格收回去，「可是我習慣聽別人說快的那一句。」 # speaker:沈若音
+* [替她把練習時程抄得工整一點]
+    ~ echo_reply = "copied"
+    ~ intervention += 1
+    妳把時數一格一格抄好，字比她的整齊。若音道了謝，把那張紙摺好，放進琴盒最上層。 # speaker:旁白
+- -> echo_afterword
 === echo_afterword ===
 書籤後記：她帶傷參賽，取得名次。海報重新貼上她的名字，某個雨夜，她又把那首未完成曲拉到最後一小節。 # scene:counter # speaker:旁白 # section:afterword
 終止線後面仍是開頭的四個音。掌聲響起，她卻想不起自己上一次沒有痛地拉琴，是什麼時候。
@@ -623,6 +665,8 @@ VAR ending_kind = ""
 {told_jinglan_notes:比賽那天，拉到第四個音時她想起那位老師。她沒有停，掌聲蓋過了那一拍。 # speaker:旁白}
 {lincheng_paused == "moon":比賽用的譜重抄過一次。譜角那個歪月亮，沒有抄過去。 # speaker:旁白}
 {lincheng_paused == "unsure":比賽曲裡沒有休止符。她撕給店員的那一小角，是她那陣子畫過的唯一一個。 # speaker:旁白}
+{echo_reply == "retract":比賽前一晚，她想起書店店員說過可以再想。她還是去了，只是那晚提早一小時收琴。 # speaker:旁白}
+{echo_reply == "copied":練習表是書店店員替她抄的，字很工整。她照著練，一格也沒有空下來。 # speaker:旁白}
 ~ ending_kind = "echo"
 -> chapter_coda
 === chapter_coda ===

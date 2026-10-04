@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-19.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-20.json", "utf8");
+const chapterNineteen = readFileSync("public/story/compiled/haiming-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/haiming-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/haiming-chapter-17.json", "utf8");
 const chapterSixteen = readFileSync("public/story/compiled/haiming-chapter-16.json", "utf8");
@@ -78,6 +79,25 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
 }
 
 describe("Haiming sixth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-nineteen %s route readable", (target) => {
+    expect(play(target, target === "haiming-hero", chapterNineteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["haiming-light", "退到櫃台後", "沒有人急著填滿", "聽得見父親換氣"],
+    ["haiming-light", "替顧川也泡一杯焙茶", "是焦糖放少了", "多放一點焦糖"],
+    ["haiming-voice", "說一句晚安", "小川，晚安。", "跟著錄音又說了一次"],
+    ["haiming-voice", "停在他剛才那個笑話", "最後一秒是他的笑聲", "笑完才發現自己在哭"],
+    ["haiming-boat", "摺回原樣", "確定還在", "摺痕被摸得發軟"],
+    ["haiming-boat", "寫上顧川的名字", "這樣船就知道要去哪裡", "讓他自己拿著"],
+    ["haiming-hero", "收進一個信封", "還是我說的", "收進自己的包裡"],
+    ["haiming-hero", "丟進字紙簍", "把傳記的封面撫平", "沒有地方可以查"],
+  ] as const)("lets %s end with Lin Cheng's choice to %s", (target, choice, scene, afterword) => {
+    const run = play(target, target === "haiming-hero", compiled, { extra: [choice] });
+    const texts = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(texts).toContain(scene);
+    expect(texts).toContain(afterword);
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eighteen %s route readable", (target) => {
     expect(play(target, false, chapterEighteen).story.frame.endingId).toBe(target);
   });

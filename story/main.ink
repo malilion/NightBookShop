@@ -36,5 +36,7 @@ VAR warmed_water = false
 VAR kept_short = false
 VAR afterword_kind = ""
 VAR lincheng_destination = ""
+VAR recipient_wait = ""
+VAR intervention_after = ""
 INCLUDE chapters/ch01_jinglan.ink
 -> prologue

@@ -1,7 +1,8 @@
 import { z } from "zod";
-export const STORY_VERSION = "jinglan-chapter-9";
+export const STORY_VERSION = "jinglan-chapter-10";
 export const storyVersionSchema = z.enum([
   STORY_VERSION,
+  "jinglan-chapter-9",
   "jinglan-chapter-8",
   "jinglan-chapter-7",
   "jinglan-chapter-6",
@@ -24,6 +25,7 @@ export const storyVersionSchema = z.enum([
   "boyan-chapter-13",
   "boyan-chapter-14",
   "boyan-chapter-15",
+  "boyan-chapter-16",
   "ruoyin-chapter-1",
   "ruoyin-chapter-2",
   "ruoyin-chapter-3",
@@ -38,6 +40,7 @@ export const storyVersionSchema = z.enum([
   "ruoyin-chapter-12",
   "ruoyin-chapter-13",
   "ruoyin-chapter-14",
+  "ruoyin-chapter-15",
   "yenuan-chapter-1",
   "yenuan-chapter-2",
   "yenuan-chapter-3",
@@ -65,6 +68,7 @@ export const storyVersionSchema = z.enum([
   "yuhang-chapter-12",
   "yuhang-chapter-13",
   "yuhang-chapter-14",
+  "yuhang-chapter-15",
   "haiming-chapter-1",
   "haiming-chapter-2",
   "haiming-chapter-3",
@@ -84,6 +88,7 @@ export const storyVersionSchema = z.enum([
   "haiming-chapter-17",
   "haiming-chapter-18",
   "haiming-chapter-19",
+  "haiming-chapter-20",
   "lincheng-chapter-1",
   "lincheng-chapter-2",
   "lincheng-chapter-3",

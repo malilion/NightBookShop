@@ -208,6 +208,41 @@ describe("complete Jinglan chapter", () => {
     expect(text).toContain(afterword);
     expect(text).toContain(answer === "走回住處" ? "等妳天亮回去開" : "像也在等一個人先把名字寫上");
   });
+  it("continues chapter-nine saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-9.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["recipient", "在信箱旁站一會", "這次站一會就夠了", "這句話她記得是自己說的"],
+    ["recipient", "讓她自己跟這封短箋道別", "水聲停下時", "才打電話告訴孫女"],
+    ["intervention", "寫下她說過的「等等」", "妳寫完沒有再改", "都會先翻到那裡"],
+    ["intervention", "向她道歉", "我聽見了。", "原不原諒，是她的事"],
+  ])("lets %s end with Lin Cheng's choice to %s", (target, choiceText, scene, afterword) => {
+    const story = new StoryBridge(compiled);
+    story.next();
+    const texts: string[] = [];
+    const desired = { recipient: "問她，是否願意", intervention: "替她把信寄出" }[target]!;
+    for (let steps = 0; story.frame.mode !== "ending"; steps++) {
+      expect(steps).toBeLessThan(600);
+      texts.push(story.frame.text);
+      if (story.frame.mode === "tea") story.finishTea({ teaId: "osmanthus", quality: 100, emotionalMatch: 100 });
+      else if (story.frame.mode === "letter") story.finishLetter({ completion: 100, understood: true, alternate: false });
+      else if (story.frame.canContinue) story.next();
+      else {
+        const choices = story.frame.choices;
+        const choice = choices.find((c) => c.text.includes(choiceText))
+          ?? choices.find((c) => c.text.includes(desired))
+          ?? choices.find((c) => c.text.includes("仍替她封口"))
+          ?? choices[0]!;
+        story.choose(choice.index);
+      }
+    }
+    const text = texts.join(" ");
+    expect(story.frame.endingId).toBe(target);
+    expect(text).toContain(scene);
+    expect(text).toContain(afterword);
+  });
   it("leaves Jinglan's question out when the player goes straight to her decision", () => {
     const text = play(2, "moonlight", false, compiled, "skip").texts.join(" ");
     expect(text).not.toContain("妳今晚本來要去哪裡");

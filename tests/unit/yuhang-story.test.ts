@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-14.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-15.json", "utf8");
+const chapterFourteen = readFileSync("public/story/compiled/yuhang-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/yuhang-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/yuhang-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/yuhang-chapter-11.json", "utf8");
@@ -72,6 +73,25 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
 }
 
 describe("Yuhang fifth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fourteen %s route readable", (target) => {
+    expect(play(target, true, false, chapterFourteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["yuhang-today", "什麼都不排", "不想把它填滿", "坐到路燈亮"],
+    ["yuhang-today", "要他自己回答", "不用趕的早餐。」說完", "不必替誰外帶"],
+    ["yuhang-future", "存進手機行事曆", "打開第一箱", "請了半天假"],
+    ["yuhang-future", "告訴一個會問他的人", "他什麼都會問", "箱子開了沒？"],
+    ["yuhang-past", "陪他把盒蓋蓋好", "不是鎖起來，是收好", "每年妹妹生日"],
+    ["yuhang-past", "讓盒蓋留一條縫", "停在半開", "拿出來看一眼"],
+    ["yuhang-unknown", "放回他郵袋最底下", "或者發現了", "信封總是乾的"],
+    ["yuhang-unknown", "信會一直在這裡", "才不想看", "放慢腳步，沒有進去"],
+  ] as const)("lets %s end with Lin Cheng's choice to %s", (target, choice, scene, afterword) => {
+    const run = play(target, true, false, compiled, { chooseTexts: [choice] });
+    const texts = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(texts).toContain(scene);
+    expect(texts).toContain(afterword);
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-thirteen %s route readable", (target) => {
     expect(play(target, true, false, chapterThirteen).story.frame.endingId).toBe(target);
   });

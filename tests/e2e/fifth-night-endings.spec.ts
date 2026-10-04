@@ -14,7 +14,7 @@ import {
   type GameSnapshot,
 } from "../../src/types/game";
 
-const storyJson = readFileSync("public/story/compiled/yuhang-chapter-14.json", "utf8");
+const storyJson = readFileSync("public/story/compiled/yuhang-chapter-15.json", "utf8");
 const endings = [
   { id: "yuhang-today", stamp: "present", choice: "今天自己簽收", title: "今日簽收" },
   { id: "yuhang-future", stamp: "future", choice: "寄往七年後，寫下", title: "寄往七年後" },
@@ -30,7 +30,7 @@ function beforeFinalChoice(stamp: (typeof endings)[number]["stamp"], choice: str
     if (frame.mode === "dialogue" && frame.choices.some((item) => item.text.includes(choice))) {
       return snapshotSchema.parse({
         version: 1,
-        storyVersion: "yuhang-chapter-14",
+        storyVersion: "yuhang-chapter-15",
         inkState: story.serialize(),
         frame,
         tea: { ...newTea(), teaId: "mint", garnish: "lemon", blackTea: 20, step: "serve", leaves: 3, water: 70, seconds: 30 },
@@ -78,11 +78,15 @@ for (const ending of endings) {
     await page.getByRole("button", { name: "繼續故事" }).click();
     await expect(page.getByRole("button", { name: new RegExp(ending.choice) })).toBeVisible();
     await page.getByRole("button", { name: new RegExp(ending.choice) }).click();
-    for (let step = 0; step < 20; step++) {
+    for (let step = 0; step < 30; step++) {
       if (await page.locator(".ending-panel").isVisible()) break;
       const reveal = page.getByRole("button", { name: "顯示全文" });
+      const next = page.getByRole("button", { name: "繼續", exact: true });
+      const followup = page.locator(".dialogue-choices button").first();
       if (await reveal.isVisible()) await reveal.click({ timeout: 2_000 }).catch(() => undefined);
-      else await page.getByRole("button", { name: "繼續", exact: true }).click();
+      else if (await next.isVisible()) await next.click();
+      else if (await followup.isVisible()) await followup.click();
+      else throw new Error(`${ending.id} stalled after final choice`);
     }
     await expect(page.locator(".ending-panel")).toBeVisible();
     await expect(page.getByRole("heading", { name: ending.title })).toBeVisible();

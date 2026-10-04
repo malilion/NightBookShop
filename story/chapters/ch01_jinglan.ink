@@ -558,7 +558,15 @@
 妳把郵票放在桌上。她撕下保護紙，貼得有些偏，想重貼，妳說地址還清楚。她用拇指把四角都按緊了。
 今夜寄出的只有詢問的短箋。靜蘭自己把它放進門邊的信箱，再試了一次箱蓋，確定沒有夾住。
 我明天可能又後悔。她說完笑了。「可是至少，今晚是我想寄。」 # speaker:周靜蘭
--> recipient_afterword
+她沒有馬上回到座位，手還放在信箱蓋上。 # speaker:旁白
+* [陪她在信箱旁站一會]
+    ~ recipient_wait = "stood"
+    妳走過去，站在她旁邊。她說年輕時在月台也站了很久，「這次站一會就夠了。」說完，她把手從信箱上拿開。 # speaker:旁白
+* [先回櫃台，讓她自己跟這封短箋道別]
+    ~ recipient_wait = "alone"
+    ~ trust += 1
+    妳回到櫃台後洗杯子。水聲停下時，她已經坐回椅子上，把手提包的釦子扣好了。 # speaker:旁白
+- -> recipient_afterword
 === recipient_afterword ===
 -> chapter_coda ->
 書籤後記：十四天以後。 # section:afterword # speaker:旁白
@@ -570,6 +578,8 @@
 寄出以後，她沒有守在門口等郵差。倒是花了半個下午，把自己的校刊從櫃子底下找出來，拍乾淨上面的灰。
 {lincheng_destination == "home":那天傍晚下了雨。她站在窗邊想，那個說要走回住處的店員，不知道今晚有沒有帶傘。 # speaker:旁白}
 {lincheng_destination == "unsure":校刊最後一頁是空白的投稿欄。她看了一會，想起有個店員也還沒交自己那一篇。 # speaker:旁白}
+{recipient_wait == "stood":收到回信那天，她在信箱前站了一會才打開。站一會就夠了，這句話她記得是自己說的。 # speaker:旁白}
+{recipient_wait == "alone":收到回信那天，她一個人在廚房讀完，才打電話告訴孫女。 # speaker:旁白}
 ~ afterword_kind = "recipient"
 -> final_bookmark
 === end_unfinished ===
@@ -604,7 +614,13 @@
 妳說聽見了，只是怕她以後後悔。她看了妳一會，把杯子往桌中央放正。 # speaker:旁白
 我已經後悔很多年了。這一次，我本來想自己決定。 # speaker:周靜蘭
 門鈴響起，她沒有回頭。妳站在信箱旁，第一次覺得它比櫃台還遠。箱蓋已經落下，手冊裡的字沒有消失。 # speaker:旁白
--> intervention_afterword
+* [在手冊上寫下她說過的「等等」]
+    ~ intervention_after = "noted"
+    妳在那一頁的空白處寫下「等等」兩個字。字很小，妳寫完沒有再改。 # speaker:旁白
+* [追到門口，向她道歉]
+    ~ intervention_after = "apologized"
+    妳推開門說對不起。她在雨裡停了一步，說：「我聽見了。」然後撐開傘，沒有再說別的。 # speaker:旁白
+- -> intervention_afterword
 === intervention_afterword ===
 -> chapter_coda ->
 書籤後記：三週以後。 # section:afterword # speaker:旁白
@@ -614,6 +630,8 @@
 妳沒能再聽她說。書店椅背上的硬紙袋還掛著，杯底留了一圈淡淡的茶痕。妳把杯子洗淨，沒有把那圈痕跡算作她已經原諒。
 {lincheng_destination == "home":她曾叮嚀妳天亮先回家換衣服。那句話是在妳替她封口以前說的，妳仍記得。 # speaker:旁白}
 {lincheng_destination == "unsure":她說過別一直不交那一篇。如今妳替她交了她的，自己那一篇仍是白卷。 # speaker:旁白}
+{intervention_after == "noted":手冊那一頁寫著「等等」兩個字。妳後來每次想替人決定，都會先翻到那裡。 # speaker:旁白}
+{intervention_after == "apologized":妳的道歉她收下了，沒有說原諒。原不原諒，是她的事。 # speaker:旁白}
 ~ afterword_kind = "intervention"
 -> final_bookmark
 === chapter_coda ===

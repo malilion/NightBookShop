@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-15.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-16.json", "utf8");
+const chapterFifteen = readFileSync("public/story/compiled/boyan-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/boyan-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/boyan-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/boyan-chapter-12.json", "utf8");
@@ -79,6 +80,25 @@ function complete(
 }
 
 describe("Boyan second night", () => {
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-fifteen %s route", (target) => {
+    expect(complete(target, chapterFifteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["boyan-rest", "請他親手送出請假訊息", "終於留出了一個上午", "好，保重"],
+    ["boyan-rest", "存成草稿，睡醒再送", "螢幕朝下", "他還是照約去了醫院"],
+    ["boyan-leave", "可求助的人寫在信旁", "標成需要別人接手", "你怎麼現在才打"],
+    ["boyan-leave", "第一個星期想做什麼", "不帶電腦。", "回家住了五天"],
+    ["boyan-boundary", "就醫時間也保留下來", "具體問題", "不可改期"],
+    ["boyan-boundary", "演練主管可能會說的第一句話", "第二次，他沒有愣住", "這次沒有愣住"],
+    ["boyan-overwork", "看著他送出報告", "排在身體前面", "凌晨一點多"],
+    ["boyan-overwork", "倒一杯溫水", "喝了半杯才按下送出", "至少手邊有"],
+  ] as const)("lets %s end with Lin Cheng's choice to %s", (target, choice, scene, afterword) => {
+    const run = complete(target, compiled, { extra: [choice] });
+    const texts = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(texts).toContain(scene);
+    expect(texts).toContain(afterword);
+  });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-fourteen %s route", (target) => {
     expect(complete(target, chapterFourteen).story.frame.endingId).toBe(target);
   });

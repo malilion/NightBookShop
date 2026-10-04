@@ -154,7 +154,7 @@ export const useGameStore = defineStore("game", () => {
       if (prerequisite && !completedChapters.value.has(prerequisite))
         throw new Error("請先完成前一夜，再翻開這一章。");
       const version: StoryVersion =
-        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-15" : chapter === "ruoyin" ? "ruoyin-chapter-14" : chapter === "yenuan" ? "yenuan-chapter-13" : chapter === "yuhang" ? "yuhang-chapter-14" : chapter === "haiming" ? "haiming-chapter-19" : "lincheng-chapter-15";
+        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-16" : chapter === "ruoyin" ? "ruoyin-chapter-15" : chapter === "yenuan" ? "yenuan-chapter-13" : chapter === "yuhang" ? "yuhang-chapter-15" : chapter === "haiming" ? "haiming-chapter-20" : "lincheng-chapter-15";
       const previousEnding = prerequisite
         ? saveList.value.find((save) => save.id === `chapter-${prerequisite}`)?.snapshot.frame.endingId || ""
         : "";

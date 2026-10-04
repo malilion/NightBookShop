@@ -35,6 +35,7 @@ VAR apology_kind = ""
 VAR took_off_watch = false
 VAR asked_tonight = false
 VAR lincheng_shift = ""
+VAR ending_close = ""
 -> arrival
 
 === arrival ===
@@ -477,7 +478,13 @@ VAR lincheng_shift = ""
 他把同事留在檢查單上的問句翻出來，寫下「謝謝你那天陪我去醫院」。訊息還沒有送出去，他先讀了一遍，確認這不是要同事替他請假。
 柏言說如果症狀又來，不會等到預約時間；今晚胸口安靜下來了，他仍要把上週昏倒與最近的胸悶完整告訴醫療人員。
 * [請他親手送出請假訊息]
+    ~ ending_close = "sent"
     他看了一眼收件人，按下送出。書店沒有替他把工作變少，明天卻終於留出了一個上午。 # speaker:旁白
+    -> rest_afterword
+* [請他把訊息存成草稿，睡醒再送]
+    ~ ending_close = "morning"
+    ~ trust += 1
+    他把草稿存好，設了一個早上七點的鬧鐘。「醒來再送。今晚不用再回任何人。」他把手機蓋在桌上，螢幕朝下。 # speaker:旁白
     -> rest_afterword
 === rest_afterword ===
 書籤後記：幾週後，柏言帶著修好的手錶路過書店。他的工作沒有一夜改變，但他和醫師談過胸悶，也和主管重新分配了值班。 # scene:counter # speaker:旁白 # section:afterword
@@ -490,6 +497,8 @@ VAR lincheng_shift = ""
 {asked_tonight:那晚他回家，第一次沒開電腦就睡了。備忘錄最上面那一行一直沒刪。 # speaker:旁白}
 {lincheng_shift == "locked":回診那天，他照自己寫在紙巾上的話做了一次：出門前先傳訊息給同事，說他在哪家醫院。 # speaker:旁白}
 {lincheng_shift == "fine":醫師問他最近好不好，他差點說還好，想起書店那個也說還好的店員，改口說了胸悶。 # speaker:旁白}
+{ending_close == "sent":主管隔天早上七點回了「好，保重」。他把那四個字截圖存著。 # speaker:旁白}
+{ending_close == "morning":他睡了一覺才送出請假訊息。醒來時胸口不悶，他還是照約去了醫院。 # speaker:旁白}
 -> coda_rest
 === leave ===
 柏言沒有立刻按下寄出。他在紙背寫下存款可以撐多久、誰願意幫忙，以及看診後需要哪些安排。 # scene:boyan # speaker:旁白
@@ -497,7 +506,12 @@ VAR lincheng_shift = ""
 他拿起第二版信裡那張完整交接表，留下已放進資料夾的部分，把未知的工作標成需要別人接手。離職並不要求他在離開以前把所有缺口補上。 # speaker:旁白
 柏言想起母親總說「穩定很難得」。他說母親的擔心是真的，自己的身體警訊也是真的；他打算先把就醫與生活費說清楚，再告訴她自己要做的選擇。 # speaker:許柏言
 * [讓他先把可求助的人寫在信旁]
+    ~ ending_close = "helpers"
     ~ understanding += 1
+    -> leave_afterword
+* [問他離職後的第一個星期想做什麼]
+    ~ ending_close = "first-week"
+    柏言想了很久，久到茶都涼了。「回家看我媽。不帶電腦。」他說完自己笑了，「好像也只想得到這個。」 # speaker:許柏言
     -> leave_afterword
 === leave_afterword ===
 書籤後記：柏言就醫、休息後提出離職。他的履歷第一行沒有立刻填上新職稱，而是寫了想重新學的事。 # scene:counter # speaker:旁白 # section:afterword
@@ -510,13 +524,20 @@ VAR lincheng_shift = ""
 {asked_tonight:他手機備忘錄最上面那一行，換了新手機也抄過去了。 # speaker:旁白}
 {lincheng_shift == "locked":最後一天上班，他把自己的下班時間寫在交接表最上面。他說見過一個不知道自己幾點下班的人。 # speaker:旁白}
 {lincheng_shift == "fine":母親問他還好嗎，他沒有說還好。他說有點累，說完覺得像替某個人也說了一次。 # speaker:旁白}
+{ending_close == "helpers":信旁那張求助名單，他後來真的打了第二個電話。對方說：「你怎麼現在才打。」 # speaker:旁白}
+{ending_close == "first-week":離職後第一個星期，他回家住了五天。電腦放在公司，沒有帶回去。 # speaker:旁白}
 -> coda_leave
 === boundary ===
 他把信題改為「工作負荷與人力安排」。交接清單留在附件，第一段先寫目前無法再單獨承擔的項目。 # scene:boyan # speaker:旁白
 柏言在會議邀請裡列了三件要談的事：誰有權指派新增工作、哪些時段不必立即回覆、回診時間如何避開排班。寄出前，他把「希望您不要生氣」刪掉，改成可討論的具體問題。
 「如果主管不同意，我也能再想要不要離開。」他說。「這不是拿健康跟升遷交換，只是先把話說清楚。」 # speaker:許柏言
 * [請他把就醫時間也保留下來]
+    ~ ending_close = "clinic"
     ~ understanding += 1
+    -> boundary_afterword
+* [陪他演練主管可能會說的第一句話]
+    ~ ending_close = "rehearse"
+    妳假裝是主管，說：「大家都很辛苦。」柏言愣了一秒，接著把清單第一項念出來。第二次，他沒有愣住。 # speaker:旁白
     -> boundary_afterword
 === boundary_afterword ===
 書籤後記：談話並不輕鬆。主管起初說「大家都辛苦」，柏言拿出清單，說明哪些工作需要新的負責人。 # scene:counter # speaker:旁白 # section:afterword
@@ -529,12 +550,19 @@ VAR lincheng_shift = ""
 {asked_tonight:他把備忘錄最上面那一行也抄進了會議紀錄，寫在回診時間旁邊。 # speaker:旁白}
 {lincheng_shift == "locked":說明的第一條是「下班後不立即回覆」。他說他見過一個不知道自己幾點下班的人，不想讓團隊裡再多一個。 # speaker:旁白}
 {lincheng_shift == "fine":主管問他撐不撐得住，他沒說還好。那兩個字有人在書店裡也說過，他聽得出那不是真話。 # speaker:旁白}
+{ending_close == "clinic":回診那天的行事曆上，他用紅字寫著「不可改期」。 # speaker:旁白}
+{ending_close == "rehearse":主管果然先說「大家都辛苦」。他在書店聽過一次，這次沒有愣住。 # speaker:旁白}
 -> coda_boundary
 === overwork ===
 他點點頭，像終於聽到熟悉的指令。電腦其實仍沒有電，他用手機把報告最後三頁寫完。 # scene:boyan # speaker:旁白
 三則工作通知已經暫停，他卻自己重新打開報告。寫到最後一頁時，柏言停下來看了一眼請假草稿，沒有刪，也沒有送。他說先完成這份，明天比較有底氣說別的事。
 妳聽見這句話與那張七年前的草稿很像。柏言仍可以改變明天的決定，但今晚他選擇把能交出去的工作排在身體前面。
 * [看著他送出報告]
+    ~ ending_close = "watched"
+    -> overwork_afterword
+* [在他送出以前，倒一杯溫水放在他手邊]
+    ~ ending_close = "water"
+    他喝了半杯才按下送出。妳沒有說什麼，只把醫囑那張紙往他那邊推近一點。 # speaker:旁白
     -> overwork_afterword
 === overwork_afterword ===
 書籤後記：主管在群組裡稱讚柏言可靠。那則訊息底下，很快又排進下一份工作。 # scene:counter # speaker:旁白 # section:afterword
@@ -547,6 +575,8 @@ VAR lincheng_shift = ""
 {asked_tonight:備忘錄最上面那一行還在。他說，至少這一條他會照做。 # speaker:旁白}
 {lincheng_shift == "locked":那張寫著「先讓一個人知道妳在哪裡」的紙巾，他留在櫃台上。那晚他自己在哪裡，仍沒有告訴任何人。 # speaker:旁白}
 {lincheng_shift == "fine":主管問他還好嗎，他說還好。說完他想起書店的店員也這樣說過，那時他聽得出來不是真的。 # speaker:旁白}
+{ending_close == "watched":報告寄出的時間是凌晨一點多。寄件備份裡一直留著那個時間，他偶爾滑到，會停一下。 # speaker:旁白}
+{ending_close == "water":後來熬夜交件以前，他會先倒一杯水。喝不喝完，至少手邊有。 # speaker:旁白}
 -> coda_overwork
 === coda_rest ===
 妳翻開手冊，發現一張空白頁上多了一行字：「已收存第二位訪客的故事。」 # section:coda # speaker:旁白

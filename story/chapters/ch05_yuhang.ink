@@ -49,6 +49,10 @@ VAR sister_word = ""
 VAR tried_stamp = false
 VAR key_choice = ""
 VAR lincheng_card = ""
+VAR today_first = ""
+VAR future_reminder = ""
+VAR past_lid = ""
+VAR unknown_parting = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -567,7 +571,15 @@ VAR ending_kind = ""
 他在休假單上寫的是自己的名字與日期，沒有把妹妹的名字填成理由。同事問他要去哪裡，他說先去看幾本書，然後看看自己想留下來還是繼續走。
 {told_recipe:他後來去了一趟晨麥，買了一個蘋果麵包。付錢時他說家父以前替這裡送過信，葉暖愣了一下，多切了一片給他。 # speaker:旁白}
 {asked_father:代理人欄裡，他寫下同事的名字。父親當年那句「誰來休假」，他終於替自己答了一次。 # speaker:旁白}
--> today_afterword
+他把休假單折好，問妳休假第一天該做什麼。「我排班排了七年，第一天反而不知道怎麼排。」 # speaker:程雨航
+* [說第一天可以什麼都不排]
+    ~ today_first = "blank"
+    雨航看著假單上的空格，沒有拿筆。「這是我第一次看到空格，不想把它填滿。」 # speaker:程雨航
+* [說這一題要他自己回答]
+    ~ today_first = "his"
+    ~ trust += 1
+    他想了很久。「先去吃一頓不用趕的早餐。」說完他自己也有點意外，「好像是真的想吃。」 # speaker:程雨航
+- -> today_afterword
 === today_afterword ===
 書籤後記：假期裡，雨航整理出妹妹留下的書，帶幾本去市集。他還沒有決定要開哪一家店，卻開始和人聊每本書從哪裡來。 # scene:counter # speaker:旁白 # section:afterword
 夜班照舊有人接手。他第一次把休假的日期寫進簿裡，沒有塗掉。
@@ -580,13 +592,23 @@ VAR ending_kind = ""
 {key_choice == "keep":看店面那天，他用口袋裡那把鑰匙開門。門這次沒有卡住。 # speaker:旁白}
 {lincheng_card == "told":他寄回書店的明信片背面多了一行小字：「那張卡片，回了嗎？不回也沒關係，地址還對就好。」 # speaker:旁白}
 {lincheng_card == "kept":他寄回書店的明信片寫給「先送別人信的店員」。上面沒有問題，只寫他今天先送了自己的。 # speaker:旁白}
+{today_first == "blank":休假第一天那格，他真的什麼都沒排。下午他在公園坐到路燈亮，才想起今天不用上班。 # speaker:旁白}
+{today_first == "his":休假第一天，他吃了一頓不用趕的早餐。吐司點了兩份，吃完一份才想起不必替誰外帶。 # speaker:旁白}
 ~ ending_kind = "today"
 -> chapter_coda
 === end_future ===
 雨航選了七年後的地址，卻先在信封內寫下下個月的日期：「整理第一箱書，去看一間店。」 # speaker:旁白
 他承認今晚還做不到更多，也把第一步寫得能由未來的自己查對。
 這次他把日期寫在派送簿的今日欄，而不是又翻到「明年」。信可以晚一點抵達；下個月那箱書則要由他親手打開。
--> future_afterword
+他看著信封內那行下個月的日期，說怕到時候又被夜班蓋過去。 # speaker:旁白
+* [陪他把日期也存進手機行事曆]
+    ~ future_reminder = "phone"
+    妳們一起設好提醒，前一天和當天各響一次。雨航把提醒的名稱打成「打開第一箱」，沒有加上「如果有空」。 # speaker:旁白
+* [請他把日期告訴一個會問他的人]
+    ~ future_reminder = "colleague"
+    ~ understanding += 1
+    雨航想了想，說要告訴常跟他換班的同事。「他一定會問。他什麼都會問。」 # speaker:程雨航
+- -> future_afterword
 === future_afterword ===
 書籤後記：下個月他果然打開了第一箱書。店還沒開，他把新的日期寄回書店，請黑貓替他壓在手冊裡。 # scene:yuhang # speaker:旁白 # portrait:yuhang-hopeful # section:afterword
 有些路還遠；至少這一次，他能指出自己已經走到哪裡。
@@ -596,13 +618,23 @@ VAR ending_kind = ""
 {key_choice == "return":鑰匙寄回房東了。他在信裡寫：如果七年後還想要一間店，就重新去問。 # speaker:旁白}
 {lincheng_card == "told":寄往七年後的信封裡，他另外夾了一張空白卡片，寫明給書店的店員：回給誰、回不回，都由她決定。 # speaker:旁白}
 {lincheng_card == "kept":他在給七年後自己的信末多寫一句：站牌下那位店員也還沒送出自己的信，希望她那時已經送了。 # speaker:旁白}
+{future_reminder == "phone":提醒響起那天他還在送信。送完那一區，他請了半天假，回家打開第一箱。 # speaker:旁白}
+{future_reminder == "colleague":下個月那天，同事在打卡鐘旁問他：「箱子開了沒？」他說開了，裡面第一本是妹妹的旅遊書。 # speaker:旁白}
 ~ ending_kind = "future"
 -> chapter_coda
 === end_past ===
 雨航把信放進妹妹的紀念盒，也把木製書店放在旁邊。「我愛她，但不一定要照那張明信片生活。」 # speaker:旁白
 他寫下一封新的信，沒有收件日期，問自己若不開店，想去哪裡看看。
 他把明信片翻到背面，讀完兩個人當年的清單，才合上盒蓋。共同想過的生活仍然存在過，現在不把它實現，也不是把妹妹再失去一次。
--> past_afterword
+他的手停在紀念盒的蓋子上，沒有往下壓。 # speaker:旁白
+* [陪他把盒蓋蓋好]
+    ~ past_lid = "closed"
+    妳們一起把蓋子壓下。卡榫響了一聲，雨航說：「不是鎖起來，是收好。」 # speaker:程雨航
+* [讓盒蓋留一條縫]
+    ~ past_lid = "ajar"
+    ~ trust += 1
+    他把手收回來，蓋子停在半開。「今天先這樣。」明信片的一角露在外面，他沒有把它推進去。 # speaker:旁白
+- -> past_afterword
 === past_afterword ===
 書籤後記：他請了三天假，搭車到海邊。回來後仍送信，也開始學攝影；那不是妹妹替他選的路，是他自己想走的。 # scene:counter # speaker:旁白 # section:afterword
 紀念盒放在家裡，不再跟著郵袋每晚出門。
@@ -614,13 +646,22 @@ VAR ending_kind = ""
 {key_choice == "return":鑰匙寄回去那天，他順路去了海邊車站。信封投進郵筒的聲音，比他想像中輕。 # speaker:旁白}
 {lincheng_card == "told":在海邊他買了兩張明信片。一張寄給自己，另一張寄到書店，只寫：「這裡的地址也還對。」 # speaker:旁白}
 {lincheng_card == "kept":在海邊的長椅上，他想起有人說過「今晚先送你的」。他把那句話寫進新信，沒有寫是誰說的。 # speaker:旁白}
+{past_lid == "closed":紀念盒蓋好以後放在書櫃最上層。每年妹妹生日，他拿下來一次。 # speaker:旁白}
+{past_lid == "ajar":盒蓋一直沒有蓋緊。有時他經過，會把那張明信片拿出來看一眼，再放回去。 # speaker:旁白}
 ~ ending_kind = "past"
 -> chapter_coda
 === end_unknown ===
 雨航說這不是自己的信，把它放進錯誤郵件夾。門鈴響時，他已背起郵袋，不肯看簽收欄。 # speaker:旁白
 妳沒有追出去替他蓋章。黑貓只是坐在門口，讓雨停下來。
 派送簿上還有他的筆跡和今天的日期。那兩樣東西沒有隨信一起消失；雨航出門時避開它們，腳步卻在門檻外慢了一瞬。
--> unknown_afterword
+藍色信還留在錯誤郵件夾裡，門外的雨聲變小了。 # speaker:旁白
+* [把藍色信放回他郵袋最底下，不攔他]
+    ~ unknown_parting = "returned"
+    妳趁他扣郵袋時，把信輕輕放回最底層。雨航沒有發現，或者發現了，也沒有說。 # speaker:旁白
+* [在他身後說，信會一直在這裡]
+    ~ unknown_parting = "said"
+    他的手停在門把上一下。「我知道。」他沒有回頭，「就是因為知道，才不想看。」 # speaker:程雨航
+- -> unknown_afterword
 === unknown_afterword ===
 書籤後記：此後每晚，那封藍色信仍出現在郵袋最底下。雨航知道它在，卻一次次先送完別人的信。 # scene:counter # speaker:旁白 # section:afterword
 有一天他也許會停下；今晚他仍把自己的地址留白。
@@ -633,6 +674,8 @@ VAR ending_kind = ""
 {key_choice == "keep":鑰匙還在圈上。他每次掏鑰匙開家門，都會先碰到它。 # speaker:旁白}
 {lincheng_card == "told":他對妳說過，寄件的人每年寫同一個地址，是在確認它還對。他自己那封，連地址都還沒寫。 # speaker:旁白}
 {lincheng_card == "kept":他說過妳跟他一樣先送別人的。後來每晚送完最後一戶，他都在路燈下停一會，像在等誰先開口。 # speaker:旁白}
+{unknown_parting == "returned":那晚以後，他摸到袋底那封信時，信封總是乾的。他不知道是誰放回去的，也沒有問。 # speaker:旁白}
+{unknown_parting == "said":他記得門口那句「信會一直在這裡」。有幾晚，他經過書店那條街時放慢腳步，沒有進去。 # speaker:旁白}
 ~ ending_kind = "unknown"
 -> chapter_coda
 === chapter_coda ===

@@ -44,7 +44,7 @@ async function inspectMemoryObjects(page: Page, section: string, labels: string[
 }
 
 function scoreRuoyinSave(): GameSnapshot {
-  const story = new StoryBridge(readFileSync("public/story/compiled/ruoyin-chapter-14.json", "utf8"));
+  const story = new StoryBridge(readFileSync("public/story/compiled/ruoyin-chapter-15.json", "utf8"));
   story.next();
   for (let step = 0; step < 320 && story.frame.mode !== "ending"; step++) {
     if (story.frame.mode === "tea") story.finishTea({ teaId: "lavender", quality: 95, emotionalMatch: 100 });
@@ -54,7 +54,7 @@ function scoreRuoyinSave(): GameSnapshot {
     else story.choose((story.frame.choices.find((entry) => entry.text.includes("替普通人的故事寫旋律")) ?? story.frame.choices[0])!.index);
   }
   if (story.frame.endingId !== "ruoyin-score") throw new Error("Ruoyin fixture did not reach the score ending");
-  return snapshotSchema.parse({ version: 1, storyVersion: "ruoyin-chapter-14", inkState: story.serialize(), frame: story.frame, tea: newTea(), letter: newLetter() });
+  return snapshotSchema.parse({ version: 1, storyVersion: "ruoyin-chapter-15", inkState: story.serialize(), frame: story.frame, tea: newTea(), letter: newLetter() });
 }
 
 test("sixth night keeps Haiming's original words and reveals Lincheng's childhood", async ({ page }, info) => {

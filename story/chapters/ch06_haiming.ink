@@ -48,6 +48,10 @@ VAR told_ruoyin_tune = false
 VAR read_aloud = ""
 VAR tonight_mark = ""
 VAR lincheng_fear = ""
+VAR light_space = ""
+VAR voice_close = ""
+VAR boat_mark = ""
+VAR hero_cuts = ""
 VAR ending_kind = ""
 -> arrival
 
@@ -611,7 +615,15 @@ VAR ending_kind = ""
 === end_light ===
 顧川來到書店，先讀了父親的原句，又讀到自己的字曾補在日誌旁。海明說他記得風箏，卻記不準那年是哪一天。 # speaker:旁白
 顧川說自己那時等了很久。海明沒有要求他立刻原諒，顧川也沒有把失去的日子改說成沒關係。兩人坐在同一張桌邊，顧川第一次握住父親的手。 # portrait:haiming-warm
--> light_afterword
+桌上的兩只杯子都空了。妳站在櫃台邊，不確定自己該留在哪裡。 # speaker:旁白
+* [退到櫃台後，讓父子倆自己說]
+    ~ light_space = "back"
+    ~ trust += 1
+    妳把燈調暗一格，退到書架那頭。他們說話很慢，中間有好幾次很長的停頓，沒有人急著填滿。 # speaker:旁白
+* [替顧川也泡一杯焙茶]
+    ~ light_space = "tea"
+    顧川喝了一口，說跟父親以前在燈塔泡的一樣苦。海明說：「是焦糖放少了。」兩個人都笑了一下。 # speaker:旁白
+- -> light_afterword
 === light_afterword ===
 書籤後記：顧川帶父親回來幾次。有些日子海明能說起風箏，有些日子需要再看住址卡。顧川把日誌與卡放在他容易找到的地方。 # scene:counter # speaker:旁白 # section:afterword
 那封信仍有塗改與停頓；它不替兩人解決所有往事，卻讓他們知道還能從哪一句開始。
@@ -626,12 +638,21 @@ VAR ending_kind = ""
 {told_jinglan_tune:顧川問那四個音從哪裡來。海明說，有一位老師年輕時也聽過，所以它大概不是他自己編的。 # speaker:旁白}
 {lincheng_fear == "remember":顧川問書店的店員是什麼樣的人。海明說：「一個怕想起來的孩子。我跟她說，燈亮不亮由她。」 # speaker:旁白}
 {lincheng_fear == "guests":顧川在日誌最後一頁看到父親記的一行：「鉛筆借給書店的店員了。她也在寫航海誌。」 # speaker:旁白}
+{light_space == "back":顧川後來說，那晚他記得最清楚的是書店很安靜，安靜到聽得見父親換氣。 # speaker:旁白}
+{light_space == "tea":顧川家裡多了一罐焙茶。他泡給父親時，會多放一點焦糖。 # speaker:旁白}
 ~ ending_kind = "light"
 -> chapter_coda
 === end_voice ===
 妳把錄音機放在日誌旁。海明說起海難，也說燈塔廚房的焦糖、兒子第一次做的風箏，以及自己年輕時不敢承認的害怕。 # speaker:旁白
 有一句他說了兩次。妳沒有剪掉第二次；海明聽完，笑說「原來我還是會講這個笑話」。
--> voice_afterword
+錄音機還在轉。海明看著它，像在等它問下一個問題。 # speaker:旁白
+* [請他在錄音最後跟顧川說一句晚安]
+    ~ voice_close = "goodnight"
+    他清了清喉嚨，湊近錄音機：「小川，晚安。」停了一下，又補一句，「明天見。」 # speaker:顧海明 # portrait:haiming-warm
+* [讓錄音停在他剛才那個笑話]
+    ~ voice_close = "joke"
+    妳按下停止鍵。最後一秒是他的笑聲，還有杯子碰到桌面的一聲輕響。 # speaker:旁白
+- -> voice_afterword
 === voice_afterword ===
 書籤後記：顧川收到聲音航海誌，聽見父親說的不只有英勇事蹟。往後海明忘記某個日期時，他們會一起聽一小段，不要求錄音把記憶變回原樣。 # scene:counter # speaker:旁白 # section:afterword
 錄音裡有海聲，也有廚房裡沒忍住的笑聲。
@@ -646,12 +667,22 @@ VAR ending_kind = ""
 {told_jinglan_tune:錄音最後，他提到一位沒見過面的老師：「她也記得這段。我們算是同一首歌的聽眾。」 # speaker:旁白}
 {lincheng_fear == "remember":錄音裡有一段，他像在對誰說話：「霧散不散，不是妳決定的。」顧川不知道那是說給誰聽。 # speaker:旁白}
 {lincheng_fear == "guests":錄音快結束時他說：「那枝鉛筆借給書店的店員了。她要記得她的客人。」 # speaker:旁白}
+{voice_close == "goodnight":錄音最後是一句晚安。有幾晚海明在旁邊，跟著錄音又說了一次。 # speaker:旁白}
+{voice_close == "joke":錄音停在那個笑話。顧川每次聽到最後都會笑，有時笑完才發現自己在哭。 # speaker:旁白}
 ~ ending_kind = "voice"
 -> chapter_coda
 === end_boat ===
 海明把紙船帶到海邊，顧川站在身旁。他先說那天曾走到碼頭，又說自己不知道要怎麼把後面的話接完。 # speaker:旁白
 顧川沒有催他。紙船沒有真的放進海裡，他們把它留在手中，讓那一段先停在這裡。
--> boat_afterword
+出發去海邊以前，海明把紙船拿在手裡，摺痕已經有點鬆。 # speaker:旁白
+* [替他把紙船摺回原樣，讓他放進口袋]
+    ~ boat_mark = "pocket"
+    妳順著舊摺痕把船壓好。海明把它放進外套內袋，拍了兩下，確定還在。 # speaker:旁白
+* [請他在船身寫上顧川的名字]
+    ~ boat_mark = "name"
+    ~ understanding += 1
+    他寫得很慢，「小川」兩個字有點抖。「這樣船就知道要去哪裡。」 # speaker:顧海明 # portrait:haiming-warm
+- -> boat_afterword
 === boat_afterword ===
 書籤後記：海明日後有些話說得出來，有些仍留在紙上。顧川陪他去看海，兩人不把每次沉默都當成忘記。 # scene:counter # speaker:旁白 # section:afterword
 那張紙船依然可以打開；何時讀，由海明自己選。
@@ -665,12 +696,22 @@ VAR ending_kind = ""
 {told_jinglan_tune:在海邊，他說起那位在校刊室聽過旋律的老師。顧川問是誰，他說是一位也還在半路上的人。 # speaker:旁白}
 {lincheng_fear == "remember":那天海邊起了霧。海明說有個人跟他相反，怕記得；他要她別急，霧自己會散。 # speaker:旁白}
 {lincheng_fear == "guests":回來以後他找那枝常用的鉛筆，才想起借給了書店的店員。他笑了，說那就讓她記。 # speaker:旁白}
+{boat_mark == "pocket":那艘紙船一直在他外套內袋，摺痕被摸得發軟。 # speaker:旁白}
+{boat_mark == "name":船身上寫著「小川」。顧川第一次看見時沒有說話，只把船還給父親，讓他自己拿著。 # speaker:旁白}
 ~ ending_kind = "boat"
 -> chapter_coda
 === end_hero ===
 妳把重複、猶豫與後悔刪去，只寄出一份完整的守塔人傳記。每次救援都有日期，每段話都像在表揚他。 # speaker:旁白
 海明說那是自己做過的事，卻找不到想對顧川說的那一句。妳將信寄出時，他沒有攔下。
--> hero_afterword
+桌上還留著刪下來的稿紙：重複的句子、猶豫的停頓、那幾句後悔。 # speaker:旁白
+* [把刪掉的句子收進一個信封，交給海明]
+    ~ hero_cuts = "kept"
+    海明接過信封，沒有打開，只在封口按了一下。「我說得不好的那些。」他說，「還是我說的。」 # speaker:顧海明
+* [把刪掉的稿紙丟進字紙簍]
+    ~ hero_cuts = "thrown"
+    ~ intervention += 1
+    紙團落進字紙簍。海明看了一眼，沒有說話，把傳記的封面撫平。 # speaker:旁白
+- -> hero_afterword
 === hero_afterword ===
 書籤後記：顧川收到傳記，珍惜父親救人的紀錄，也說：「我還是不知道他那時有沒有想回家。」 # scene:counter # speaker:旁白 # section:afterword
 日誌變得整齊，父子間那張空椅子仍沒有名字。
@@ -685,6 +726,8 @@ VAR ending_kind = ""
 {told_jinglan_tune:傳記裡沒有寫那位老師。海明說，這段旋律不是任何一個人的功績。 # speaker:旁白}
 {lincheng_fear == "remember":傳記裡沒有寫他怕忘記。那晚他說過，有人跟他相反，怕想起來；那一句也沒有寫進去。 # speaker:旁白}
 {lincheng_fear == "guests":那枝借出去的鉛筆沒有寫進傳記。他說過，忘掉的時候，紙會替人記得；傳記卻把他記得的方式刪掉了。 # speaker:旁白}
+{hero_cuts == "kept":那個信封放在海明床頭，一直沒拆。顧川問是什麼，他說：「我說得不好的那些。」顧川把它收進自己的包裡。 # speaker:旁白}
+{hero_cuts == "thrown":刪掉的稿紙早就被清走了。後來顧川問父親那晚有沒有說過想回家，海明想不起來，也沒有地方可以查。 # speaker:旁白}
 ~ ending_kind = "hero"
 -> chapter_coda
 === chapter_coda ===

@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-14.json",
+  "public/story/compiled/ruoyin-chapter-15.json",
   "utf8",
 );
+const chapterFourteen = readFileSync("public/story/compiled/ruoyin-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/ruoyin-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/ruoyin-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/ruoyin-chapter-11.json", "utf8");
@@ -103,6 +104,25 @@ function play(
 }
 
 describe("Ruoyin third night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fourteen %s route readable", (target) => {
+    expect(play(target, true, chapterFourteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["ruoyin-one", "遞一條溫毛巾", "原來可以先等手回來", "先把手泡進溫水裡"],
+    ["ruoyin-one", "問她手還好嗎", "有一點痠。", "她會照實說"],
+    ["ruoyin-stage", "陪她走到門邊的信箱", "她小聲說：「好了。」", "郵戳是半夜"],
+    ["ruoyin-stage", "明天自己寄", "讓她簽名才算收到", "簽名欄是季晴的字"],
+    ["ruoyin-score", "先替自己寫第一段", "先交我自己的", "都會先聽見那個雨天"],
+    ["ruoyin-score", "留給下一位客人", "第一個寫的人不必知道她是誰", "夜班的計程車司機"],
+    ["ruoyin-echo", "說得太快", "我習慣聽別人說快的那一句", "提早一小時收琴"],
+    ["ruoyin-echo", "抄得工整一點", "放進琴盒最上層", "一格也沒有空下來"],
+  ] as const)("lets %s end with Lin Cheng's choice to %s", (target, choice, scene, afterword) => {
+    const run = play(target, true, compiled, { chooseTexts: [choice] });
+    const texts = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(texts).toContain(scene);
+    expect(texts).toContain(afterword);
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-thirteen %s route readable", (target) => {
     expect(play(target, true, chapterThirteen).story.frame.endingId).toBe(target);
   });

@@ -4,7 +4,7 @@ import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema } from "../../src/types/game";
 
 function officeQuestionSnapshot() {
-  const story = new StoryBridge(readFileSync("public/story/compiled/boyan-chapter-15.json", "utf8"), "recipient");
+  const story = new StoryBridge(readFileSync("public/story/compiled/boyan-chapter-16.json", "utf8"), "recipient");
   story.next();
   for (let step = 0; step < 280; step++) {
     const frame = story.frame;
@@ -16,7 +16,7 @@ function officeQuestionSnapshot() {
     if (frame.section === "office" && frame.choices.some((choice) => choice.text === "問柏言這封信該先讓誰讀") && !objects)
       return snapshotSchema.parse({
         version: 1,
-        storyVersion: "boyan-chapter-15",
+        storyVersion: "boyan-chapter-16",
         inkState: story.serialize(),
         frame,
         tea: newTea(),
@@ -64,14 +64,14 @@ test("second-night crossnight question can be chosen and resumed on both layouts
 });
 
 function openingHubSnapshot() {
-  const story = new StoryBridge(readFileSync("public/story/compiled/boyan-chapter-15.json", "utf8"));
+  const story = new StoryBridge(readFileSync("public/story/compiled/boyan-chapter-16.json", "utf8"));
   story.next();
   for (let step = 0; step < 40; step++) {
     const frame = story.frame;
     if (frame.choices.some((choice) => choice.text === "問袖口那圈冷掉的咖啡"))
       return snapshotSchema.parse({
         version: 1,
-        storyVersion: "boyan-chapter-15",
+        storyVersion: "boyan-chapter-16",
         inkState: story.serialize(),
         frame,
         tea: newTea(),
