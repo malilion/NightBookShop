@@ -1,6 +1,6 @@
 # 夜行書店 · Remotion 製片室
 
-獨立於 Vue 遊戲的 React / Remotion 製片目錄。遊戲現在播放 `TeaBrew`：八種茶各一支、1280×720、30 fps、300 格／10 秒的製茶影片，由林澄的雙手演出取茶、注水、倒茶與奉茶。另保留 `TeaPour` 注水與 `TeaComplete` 單杯完成兩個 composition（180 格／6 秒，沒有手部）作回退；其他四段仍是原流程素材。三者都沒有音軌。
+獨立於 Vue 遊戲的 React / Remotion 製片目錄。遊戲現在播放 `TeaBrew`：八種茶各一支、1280×720、30 fps、300 格／10 秒的製茶影片，由林澄的雙手演出取茶、注水、倒茶與奉茶。另保留 `TeaPour` 注水與 `TeaComplete` 單杯完成兩個 composition（180 格／6 秒，沒有手部）作回退；其他四段仍是原流程素材。影片檔本身都不含音軌；TeaBrew 十二支影片的音軌由根目錄 `npm run render:film-audio` 另行合成，遊戲同步播放，見[製茶影片](../docs/TEA_FILMS.md#音軌)。
 
 ## 啟動與輸出
 

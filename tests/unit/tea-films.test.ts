@@ -90,6 +90,25 @@ describe("per-tea brew films", () => {
     expect(brewFilmAsset("hojicha")).toBe("brew-hojicha-v1");
   });
 
+  it.each([
+    ...teaIds.map((id) => brewFilmAsset(id)),
+    brewFilmAsset("hojicha", "apple"),
+    brewFilmAsset("hojicha", "caramel"),
+    brewFilmAsset("mint", "lemon"),
+    brewFilmAsset("chamomile", "honey"),
+  ])("gives %s a soundtrack as long as the film", (asset) => {
+    for (const extension of ["ogg", "mp3"]) {
+      const file = publicFile(`/video/tea/${asset}.${extension}`);
+      expect(existsSync(file), `${asset}.${extension}`).toBe(true);
+      expect(statSync(file).size).toBeLessThanOrEqual(256 * 1024);
+    }
+    // Ogg Opus length: the last page's granule position less the pre-skip, at 48 kHz.
+    const ogg = readFileSync(publicFile(`/video/tea/${asset}.ogg`));
+    const preSkip = ogg.readUInt16LE(ogg.indexOf("OpusHead") + 10);
+    const granule = Number(ogg.readBigUInt64LE(ogg.lastIndexOf("OggS") + 6));
+    expect((granule - preSkip) / 48000).toBeCloseTo(brewFilm.frames / brewFilm.fps, 1);
+  });
+
   it("shares one liquor mask that covers only the pour and serve shots", async () => {
     await checkAtlas(brewLiquor, brewFilm.frames);
     const pourStart = brewFilmShots.find((shot) => shot.id === "pour")!.from;

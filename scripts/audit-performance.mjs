@@ -57,6 +57,11 @@ if (precached.some((url) => url.startsWith("story/compiled/") && url !== "story/
   throw new Error("後期章節故事應在章節啟動時下載。");
 if (precached.some((url) => url.startsWith("video/tea/") && /\.(mp4|webm)$/.test(url)))
   throw new Error("完整製茶影片不應進入安裝預快取。");
+for (const clip of activeTeaClips)
+  for (const extension of ["ogg", "mp3"])
+    if (size(`video/tea/${clip}.${extension}`) > 256 * 1024) throw new Error(`製茶影片音軌過大：${clip}.${extension}`);
+if (precached.some((url) => url.startsWith("video/tea/") && /\.(ogg|mp3)$/.test(url)))
+  throw new Error("製茶影片音軌應隨影片按需快取。");
 for (const url of [...activeTeaClips.map((clip) => `video/tea/${clip}-still.webp`), "video/tea/brew-liquor-v1.webp", "video/tea/brew-liquor-v1.json"])
   if (!precached.includes(url)) throw new Error(`減少動態的奉茶畫面未預快取：${url}`);
 if (precached.some((url) => url.startsWith("images/memory-white-room")))

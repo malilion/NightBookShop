@@ -47,6 +47,7 @@ class AudioManager {
   private loops: Partial<Record<LoopName, LoopTrack>> = {};
   private cues: Partial<Record<AudioCue, Howl>> = {};
   private effects: Partial<Record<EffectLoop, { howl: Howl; level: number }>> = {};
+  private film: { path: string; howl: Howl; id?: number } | null = null;
 
   start() {
     if (this.started) return;
@@ -96,6 +97,45 @@ class AudioManager {
   /** The kettle simmering on the stove, louder toward a rolling boil. */
   setBoil(level: number) {
     this.setEffect("boil", level, 0.45);
+  }
+  /**
+   * A brew film's soundtrack, /video/tea/<film>.ogg or .mp3. The film player
+   * keeps it in step: play and seek follow the video's clock. It plays at the
+   * effects volume and stays silent, still in step, while muted.
+   */
+  loadFilm(path: string) {
+    if (this.film?.path === path) return;
+    this.stopFilm();
+    this.film = {
+      path,
+      howl: new Howl({ src: [`${path}.ogg`, `${path}.mp3`], volume: this.filmVolume() }),
+    };
+  }
+  playFilm(time: number) {
+    const film = this.film;
+    if (!film) return;
+    // Before the track loads Howler queues both calls, in this order.
+    if (film.id === undefined || !film.howl.playing(film.id)) film.id = film.howl.play(film.id);
+    film.howl.seek(time, film.id);
+  }
+  seekFilm(time: number) {
+    if (this.film?.id !== undefined) this.film.howl.seek(time, this.film.id);
+  }
+  pauseFilm() {
+    if (this.film?.id !== undefined) this.film.howl.pause(this.film.id);
+  }
+  stopFilm() {
+    this.film?.howl.unload();
+    this.film = null;
+  }
+  /** Seconds into the soundtrack, for tests; null with none loaded. */
+  filmTime() {
+    if (this.film?.id === undefined) return null;
+    const time = this.film.howl.seek(this.film.id);
+    return typeof time === "number" ? time : null;
+  }
+  private filmVolume() {
+    return this.preferences.muted ? 0 : this.preferences.sfxVolume / 100;
   }
   private setEffect(name: EffectLoop, level: number, gain: number) {
     const allowed =
@@ -171,6 +211,7 @@ class AudioManager {
     this.updateLoop("room", this.scene === "room" ? ambience : 0);
     for (const cue of Object.values(this.cues))
       cue.volume(this.preferences.sfxVolume / 100);
+    this.film?.howl.volume(this.filmVolume());
   }
 }
 

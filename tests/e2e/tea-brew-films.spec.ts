@@ -106,10 +106,51 @@ test("the brew film follows the tea that leads the cup, tinted by this brew", as
   expect(errors).toEqual([]);
 });
 
+test("the brew film's soundtrack plays in step with the film", async ({ page }) => {
+  // Record the long buffers Howler starts and stops: the 10-second soundtrack.
+  await page.addInitScript(() => {
+    const state = window as Window & { __film?: { starts: number[]; stops: number } };
+    state.__film = { starts: [], stops: 0 };
+    const start = AudioBufferSourceNode.prototype.start;
+    const stop = AudioBufferSourceNode.prototype.stop;
+    AudioBufferSourceNode.prototype.start = function (when?: number, offset?: number, duration?: number) {
+      if (Math.round(this.buffer?.duration ?? 0) === 10) state.__film!.starts.push(offset ?? 0);
+      return start.call(this, when, offset, duration);
+    };
+    AudioBufferSourceNode.prototype.stop = function (when?: number) {
+      if (Math.round(this.buffer?.duration ?? 0) === 10) state.__film!.stops++;
+      return stop.call(this, when);
+    };
+  });
+  const soundtrack = page.waitForRequest(/\/video\/tea\/brew-jasmine-v1\.(ogg|mp3)$/);
+  const { snapshot } = atTea({ teaId: "jasmine" });
+  const completion = await serve(page, snapshot);
+  await soundtrack;
+  const film = () => page.evaluate(() => (window as Window & { __film?: { starts: number[]; stops: number } }).__film!);
+  await expect.poll(async () => (await film()).starts.length).toBeGreaterThan(0);
+  // The track starts where the picture is, not from its own beginning each time.
+  const video = completion.locator("video");
+  await completion.getByRole("button", { name: "暫停動畫" }).click();
+  await expect.poll(async () => (await film()).stops).toBeGreaterThan(0);
+  const paused = await video.evaluate((v) => (v as HTMLVideoElement).currentTime);
+  const startsBefore = (await film()).starts.length;
+  await completion.getByRole("button", { name: "播放動畫" }).click();
+  await expect.poll(async () => (await film()).starts.length).toBeGreaterThan(startsBefore);
+  expect(Math.abs((await film()).starts.at(-1)! - paused)).toBeLessThan(0.35);
+  await completion.getByRole("button", { name: "略過動畫，繼續故事" }).click();
+  await expect(completion).not.toBeVisible();
+});
+
 test("reduced motion shows the same tea's served cup, still tinted", async ({ page }, info) => {
   const { draft, snapshot } = atTea({ teaId: "chamomile", seconds: 30 });
+  const soundtracks: string[] = [];
+  page.on("request", (request) => {
+    if (/\/video\/tea\/.*\.(ogg|mp3)$/.test(request.url())) soundtracks.push(request.url());
+  });
   const completion = await serve(page, snapshot, true);
   await expect(completion.locator("video")).toHaveCount(0);
+  // The still has no soundtrack to load.
+  expect(soundtracks).toEqual([]);
   await expect(completion.locator(".tea-film img")).toHaveAttribute("src", "/video/tea/brew-chamomile-v1-still.webp");
   await expect(completion.getByText("靜態製茶畫面")).toBeVisible();
   const layer = completion.locator(".film-liquor-layer");

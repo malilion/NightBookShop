@@ -41,11 +41,12 @@ registerRoute(
     plugins: [new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 })],
   }),
 );
+// Films and their soundtracks are cached the first time they play.
 registerRoute(
-  ({ url }) => url.origin === self.location.origin && /^\/video\/tea\/.*\.(?:mp4|webm)$/.test(url.pathname),
+  ({ url }) => url.origin === self.location.origin && /^\/video\/tea\/.*\.(?:mp4|webm|ogg|mp3)$/.test(url.pathname),
   new CacheFirst({
     cacheName: "night-bookshop-tea-films-v1",
-    plugins: [new ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 60 * 60 * 24 * 30 })],
+    plugins: [new ExpirationPlugin({ maxEntries: 56, maxAgeSeconds: 60 * 60 * 24 * 30 })],
   }),
 );
 // Film posters and masks are versioned by file name, like the films.

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import LiquorTint from "./LiquorTint.vue";
+import { audio } from "../../audio/audioManager";
 import completeLiquor from "../../data/teaLiquorFrames.json";
 import { brewFilmAsset, brewFilmShots, loadBrewLiquor, type LiquorFrames, type TeaGarnish } from "../../data/teaFilms";
 import { useSettingsStore } from "../../stores/settingsStore";
@@ -70,6 +71,8 @@ function trackFrames() {
     next();
   }
 }
+// The brew films' soundtracks follow the video's clock.
+const soundtrack = computed(() => props.clip === "brew");
 let request: AbortController | undefined;
 let objectUrl = "";
 const looping = computed(
@@ -136,6 +139,16 @@ function fail() {
   clearTimeout(timeout);
   request?.abort();
   failed.value = true;
+  if (soundtrack.value) audio.stopFilm();
+}
+function playSound() {
+  if (soundtrack.value && video.value) audio.playFilm(video.value.currentTime);
+}
+function pauseSound() {
+  if (soundtrack.value) audio.pauseFilm();
+}
+function seekSound() {
+  if (soundtrack.value && video.value) audio.seekFilm(video.value.currentTime);
 }
 async function toggle() {
   paused.value = !paused.value;
@@ -158,6 +171,10 @@ watch(
     paused.value = false;
     ready.value = false;
     clearTimeout(timeout);
+    if (soundtrack.value) {
+      if (reduced) audio.stopFilm();
+      else audio.loadFilm(`/video/tea/${clip}`);
+    }
     if (reduced) return;
     await nextTick();
     timeout = setTimeout(() => {
@@ -189,6 +206,7 @@ watch(
 );
 onBeforeUnmount(() => {
   stopTracking();
+  if (soundtrack.value) audio.stopFilm();
   clearTimeout(timeout);
   request?.abort();
   if (objectUrl) URL.revokeObjectURL(objectUrl);
@@ -219,10 +237,13 @@ onBeforeUnmount(() => {
       preload="auto"
       :aria-label="clip === 'brew' ? '林澄親手製茶的影片' : '製茶動畫'"
       @loadeddata="start"
-      @seeked="syncFrame()"
+      @seeked="syncFrame(), seekSound()"
+      @playing="playSound"
+      @pause="pauseSound"
+      @waiting="pauseSound"
       @timeupdate="syncFrame()"
       @error="fail"
-      @ended="emit('ended')"
+      @ended="pauseSound(), emit('ended')"
     ></video>
     <svg
       v-if="liquor && liquorColor && !liquorFailed"
