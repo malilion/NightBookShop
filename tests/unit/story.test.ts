@@ -248,6 +248,21 @@ describe("complete Jinglan chapter", () => {
     for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
       expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
   });
+  it("continues chapter-eleven saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-11.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["osmanthus", "像碰一下很久以前的那棵樹"],
+    ["puer", "晚一點說也還能說"],
+    ["mint", "不必說滿的位置"],
+  ] as const)("lets the %s tea return just before the letter", (teaId, line) => {
+    const texts = play(2, "moonlight", false, compiled, "explore", false, { teaId, quality: 100 }).texts;
+    const at = texts.findIndex((text) => text.includes(line));
+    expect(at).toBeGreaterThan(-1);
+    expect(texts.slice(at + 1).some((text) => text.includes("先選碎片，再放到信上的位置"))).toBe(true);
+  });
   it.each([
     ["osmanthus", "moonlight", "巷口的桂花開了"],
     ["puer", "unfinished", "這茶要慢慢喝，話也是"],

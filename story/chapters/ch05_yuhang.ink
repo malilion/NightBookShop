@@ -489,6 +489,7 @@ VAR ending_kind = ""
     雨航說他想讀完，卻不想由妳替他決定該去開店。「把它交給我就好。要不要貼郵票，我自己想。」 # speaker:程雨航
     -> letter_start
 === letter_start ===
+-> tea_before_letter ->
 四片信紙並非預言，而是雨航每年重新寫給自己的話。排好順序、查看墨跡，再貼一枚過去、現在或未來的郵票。 # scene:counter # speaker:旁白 # section:letter # minigame:letter
 -> DONE
 === letter_result ===
@@ -716,5 +717,15 @@ VAR ending_kind = ""
     夜班前他偶爾泡一杯洋甘菊。那晚書店裡的那一杯讓他坐得住，他記得那種不用趕的感覺。 # speaker:旁白
 - tea_type == "hojicha":
     他後來喝焙茶時，會先把一杯喝完再出門。不是每次都做得到。 # speaker:旁白
+}
+->->
+=== tea_before_letter ===
+{
+- tea_type == "mint":
+    薄荷茶喝完了。雨航把杯子轉了半圈，讓把手朝向自己，不朝向門。 # speaker:旁白
+- tea_type == "chamomile":
+    洋甘菊的杯子還溫著。雨航的郵袋靠在椅腳，他一次也沒有伸手去摸。 # speaker:旁白
+- tea_type == "hojicha":
+    焙茶喝到一半。雨航看了一眼門口，沒有站起來。 # speaker:旁白
 }
 ->->

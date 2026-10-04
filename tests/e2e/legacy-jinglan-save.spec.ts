@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema } from "../../src/types/game";
 
-for (const version of ["jinglan-chapter-4", "jinglan-chapter-5", "jinglan-chapter-6", "jinglan-chapter-7", "jinglan-chapter-8", "jinglan-chapter-9", "jinglan-chapter-10"] as const) {
+for (const version of ["jinglan-chapter-4", "jinglan-chapter-5", "jinglan-chapter-6", "jinglan-chapter-7", "jinglan-chapter-8", "jinglan-chapter-9", "jinglan-chapter-10", "jinglan-chapter-11"] as const) {
 test(`${version} saves resume with their archived Ink`, async ({ page }) => {
   const archived = readFileSync(`public/story/compiled/${version}.json`, "utf8");
   const story = new StoryBridge(archived);

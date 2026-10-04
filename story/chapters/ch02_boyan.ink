@@ -401,6 +401,7 @@ VAR ending_close = ""
 * [把四句話拼在一起]
     -> letter_start
 === letter_start ===
+-> tea_before_letter ->
 三封辭職信攤在桌上。柏言要寫的，也許先是一封說明現況、界線、交接與下一步的信。順序與留下的空白都由他決定。 # scene:counter # speaker:旁白 # section:letter # minigame:letter
 -> DONE
 === letter_result ===
@@ -633,5 +634,15 @@ VAR ending_close = ""
     他仍喝紅茶提神，只是試著記得看時間：過了晚上十點，就先把杯子洗起來。 # speaker:旁白
 - tea_type == "mint":
     他的桌上有時放一杯薄荷茶。涼涼的，提醒他把今晚、明早和要找誰分成三欄。 # speaker:旁白
+}
+->->
+=== tea_before_letter ===
+{
+- tea_type == "chamomile":
+    洋甘菊喝到見底，柏言的肩膀比剛進門時低了一點。他自己沒有發現。 # speaker:旁白
+- tea_type == "black":
+    紅茶還剩一口。柏言端起來，想了想又放下：「這一口先留著。喝完我又會想開電腦。」 # speaker:旁白
+- tea_type == "mint":
+    薄荷茶的涼意還留在喉嚨裡。柏言把分好欄的那張紙翻到背面，讓空白的一面朝上。 # speaker:旁白
 }
 ->->

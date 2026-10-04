@@ -420,6 +420,7 @@
 靜蘭把深色墨水的那片翻過來。紙背的字看不清，她把它交給妳。「眼睛不太行了，替我看看。看清楚就好，先不要改。」
 -> letter_start
 === letter_start ===
+-> tea_before_letter ->
 先選碎片，再放到信上的位置。兩種墨跡各自留著一個年紀的她。 # scene:memory # speaker:旁白 # section:letter # minigame:letter
 -> DONE
 === letter_result ===
@@ -674,5 +675,15 @@
     她後來改喝熟普洱。學生來看她，她先倒一杯給對方，說這茶要慢慢喝，話也是。 # speaker:旁白
 - tea_type == "mint":
     她不太喝薄荷茶了，說涼得太快。不過那晚的話說得短，倒也剛好讓她自己帶回家。 # speaker:旁白
+}
+->->
+=== tea_before_letter ===
+{
+- tea_type == "osmanthus":
+    桂花的香氣已經淡了，杯底還留著幾粒小花。靜蘭用指尖碰了碰，像碰一下很久以前的那棵樹。 # speaker:旁白
+- tea_type == "puer":
+    熟普洱放涼了，顏色更深。靜蘭說這茶涼了也不難喝，像有些話，晚一點說也還能說。 # speaker:旁白
+- tea_type == "mint":
+    薄荷茶早就涼了。靜蘭沒有再喝，只把杯子留在手邊，像留著一個不必說滿的位置。 # speaker:旁白
 }
 ->->

@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-16.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-17.json", "utf8");
+const chapterSixteen = readFileSync("public/story/compiled/yuhang-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/yuhang-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/yuhang-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/yuhang-chapter-13.json", "utf8");
@@ -76,6 +77,19 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
 describe("Yuhang fifth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fifteen %s route readable", (target) => {
     expect(play(target, true, false, chapterFifteen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-sixteen %s route readable", (target) => {
+    expect(play(target, true, false, chapterSixteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["mint", "讓把手朝向自己，不朝向門"],
+    ["chamomile", "他一次也沒有伸手去摸"],
+    ["hojicha", "看了一眼門口，沒有站起來"],
+  ] as const)("lets the %s tea return just before the letter", (teaId, line) => {
+    const texts = play("yuhang-today", true, false, compiled, { teaId, garnish: "none" }).texts;
+    const at = texts.findIndex((text) => text.includes(line));
+    expect(at).toBeGreaterThan(-1);
+    expect(texts.slice(at + 1).some((text) => text.includes("四片信紙並非預言"))).toBe(true);
   });
   it.each([
     ["mint", "yuhang-today", "郵袋側袋多了一包薄荷茶"],

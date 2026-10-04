@@ -477,6 +477,7 @@ VAR ending_kind = ""
 * [把食譜正反兩面拼起來]
     -> letter_start
 === letter_start ===
+-> tea_before_letter ->
 三片紙的正面是蘋果麵包食譜，背面是母親留給葉暖的短箋。可以分別排列，再交還給她。 # scene:counter # speaker:旁白 # section:letter # minigame:letter
 -> DONE
 === letter_result ===
@@ -692,5 +693,15 @@ VAR ending_kind = ""
     她偶爾在打烊後泡一杯薰衣草伯爵，對著空下來的店，試著用「我」說今天發生了什麼。 # speaker:旁白
 - tea_type == "black":
     櫃台上的抹布，她試著擦完三遍就停，倒一杯紅茶坐下來。不是每次都做得到。 # speaker:旁白
+}
+->->
+=== tea_before_letter ===
+{
+- tea_type == "hojicha":
+    焙茶的焦香和麵包籃裡的味道混在一起。葉暖說，晨麥打烊以後就是這個味道。 # speaker:旁白
+- tea_type == "lavender":
+    薰衣草伯爵的香氣淡了。葉暖說起那晚時，已經不再說「那個女兒」。 # speaker:旁白
+- tea_type == "black":
+    蜜香紅茶的杯子放在擦乾淨的櫃台上。葉暖的手放在膝上，沒有去找抹布。 # speaker:旁白
 }
 ->->

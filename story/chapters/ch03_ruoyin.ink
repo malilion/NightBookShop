@@ -458,6 +458,7 @@ VAR ending_kind = ""
 * [回書店，拼起信的兩面]
     -> letter_start
 === letter_start ===
+-> tea_before_letter ->
 三片紙的正面寫給季晴，背面寫給十歲的若音。妳可以分別排列兩面，再把信交還給她。 # scene:counter # speaker:旁白 # section:letter # minigame:letter
 -> DONE
 === letter_result ===
@@ -707,5 +708,15 @@ VAR ending_kind = ""
     每到桂花開，她會想起放學公車上那首沒被打分數的歌，在路邊哼一兩句。 # speaker:旁白
 - tea_type == "black":
     她仍在練琴前喝一杯濃紅茶。有幾次喝到一半，她想起書店裡那張計畫表，停下來看了看手。 # speaker:旁白
+}
+->->
+=== tea_before_letter ===
+{
+- tea_type == "lavender":
+    薰衣草的香氣留在琴盒邊。若音的左手攤在桌上，第一次沒有握成拳。 # speaker:旁白
+- tea_type == "osmanthus":
+    桂花烏龍放涼了。若音聞了一下杯口，說桂花開的那幾天，她練琴總是比較慢。 # speaker:旁白
+- tea_type == "black":
+    濃紅茶的杯緣留著一圈茶漬。若音看著那份計畫表，筆在指間轉了一圈，沒有再加任何一行。 # speaker:旁白
 }
 ->->

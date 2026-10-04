@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-14.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-15.json", "utf8");
+const chapterFourteen = readFileSync("public/story/compiled/yenuan-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/yenuan-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/yenuan-chapter-12.json", "utf8");
 const chapterEleven = readFileSync("public/story/compiled/yenuan-chapter-11.json", "utf8");
@@ -81,6 +82,19 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
 describe("Yenuan fourth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-thirteen %s route readable", (target) => {
     expect(play(target, true, chapterThirteen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fourteen %s route readable", (target) => {
+    expect(play(target, true, chapterFourteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["hojicha", "晨麥打烊以後就是這個味道"],
+    ["lavender", "已經不再說「那個女兒」"],
+    ["black", "沒有去找抹布"],
+  ] as const)("lets the %s tea return just before the recipe", (teaId, line) => {
+    const texts = play("yenuan-rest", true, compiled, { teaId }).texts;
+    const at = texts.findIndex((text) => text.includes(line));
+    expect(at).toBeGreaterThan(-1);
+    expect(texts.slice(at + 1).some((text) => text.includes("正面是蘋果麵包食譜"))).toBe(true);
   });
   it.each([
     ["hojicha", "yenuan-share", "手邊總有一杯是給自己的"],

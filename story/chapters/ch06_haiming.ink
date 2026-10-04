@@ -544,6 +544,7 @@ VAR ending_kind = ""
 * [在柔光下拼回四片紙船]
     -> letter_start
 === letter_start ===
+-> tea_before_letter ->
 四片紙船上是海明寫給顧川的信。妳可以保留原句的停頓與矛盾，也可以修成流暢的英雄敘述；選擇會影響他是否能被兒子聽見。 # scene:counter # speaker:旁白 # section:letter # minigame:letter
 -> DONE
 === letter_result ===
@@ -771,5 +772,15 @@ VAR ending_kind = ""
     他慢慢講風向的那一段，後來總配著一杯熟普洱。聽的人不催，他就講得到船看見岸。 # speaker:旁白
 - tea_type == "mint":
     薄荷茶喝完以後，他會先確認今天的日期，再看窗外。說錯了也沒關係，他還是每天確認一次。 # speaker:旁白
+}
+->->
+=== tea_before_letter ===
+{
+- tea_type == "hojicha":
+    焙茶的焦香還在。海明說燈塔的廚房也是這個味道，說完又說了一次。妳沒有提醒他。 # speaker:旁白
+- tea_type == "puer":
+    熟普洱的顏色像夜裡的海。海明看著杯子，說風向剛好轉了。 # speaker:旁白
+- tea_type == "mint":
+    薄荷茶讓海明一直很清醒。他看了一眼日期，說今天是對的，才把紙船攤開。 # speaker:旁白
 }
 ->->

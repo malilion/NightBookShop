@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-16.json",
+  "public/story/compiled/ruoyin-chapter-17.json",
   "utf8",
 );
+const chapterSixteen = readFileSync("public/story/compiled/ruoyin-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/ruoyin-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/ruoyin-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/ruoyin-chapter-13.json", "utf8");
@@ -107,6 +108,19 @@ function play(
 describe("Ruoyin third night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fifteen %s route readable", (target) => {
     expect(play(target, true, chapterFifteen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-sixteen %s route readable", (target) => {
+    expect(play(target, true, chapterSixteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["lavender", "第一次沒有握成拳"],
+    ["osmanthus", "她練琴總是比較慢"],
+    ["black", "沒有再加任何一行"],
+  ] as const)("lets the %s tea return just before the letter", (teaId, line) => {
+    const texts = play("ruoyin-stage", true, compiled, { teaId }).texts;
+    const at = texts.findIndex((text) => text.includes(line));
+    expect(at).toBeGreaterThan(-1);
+    expect(texts.slice(at + 1).some((text) => text.includes("正面寫給季晴"))).toBe(true);
   });
   it.each([
     ["lavender", "ruoyin-one", "琴盒裡多了一小包薰衣草"],
