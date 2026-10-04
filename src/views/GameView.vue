@@ -13,6 +13,7 @@ import {
   playableChapters,
 } from "../data/catalog";
 import { audio } from "../audio/audioManager";
+import { portraitCues } from "../data/portraits";
 import GameIcon from "../components/common/GameIcon.vue";
 import DialoguePanel from "../components/dialogue/DialoguePanel.vue";
 import TeaBrewingScene from "../components/tea/TeaBrewingScene.vue";
@@ -118,15 +119,7 @@ const ending = computed(() =>
 const portrait = computed(() => {
   const frame = game.frame;
   if (frame?.mode !== "dialogue") return null;
-  if (frame.portrait === "owner-apology") return { src: assets.characters.ownerApology, kind: "owner" };
-  if (frame.portrait === "owner") return { src: assets.characters.owner, kind: "owner" };
-  if (frame.portrait === "lincheng-child") return { src: assets.characters.linchengChild, kind: "child" };
-  if (frame.portrait === "boyan-soft") return { src: assets.characters.boyanSoft, kind: "visitor" };
-  if (frame.portrait === "ruoyin-reflective") return { src: assets.characters.ruoyinReflective, kind: "visitor" };
-  if (frame.portrait === "yenuan-thoughtful") return { src: assets.characters.yenuanThoughtful, kind: "visitor" };
-  if (frame.portrait === "yuhang-hopeful") return { src: assets.characters.yuhangHopeful, kind: "visitor" };
-  if (frame.portrait === "haiming-searching") return { src: assets.characters.haimingSearching, kind: "visitor" };
-  if (frame.portrait === "haiming-warm") return { src: assets.characters.haimingWarm, kind: "visitor" };
+  if (frame.portrait !== "none") return portraitCues[frame.portrait];
   return frame.scene in assets.characters
     ? { src: assets.characters[frame.scene as keyof typeof assets.characters], kind: "visitor" }
     : null;

@@ -40,11 +40,29 @@
 | 雨航 | `yuhang.webp` | 29 歲夜間郵務員、深藍防水外套、郵袋與信封、木製書店鑰匙圈；透明背景全身立繪。 |
 | 海明 | `haiming.webp` | 68 歲退休燈塔守護人、舊針織衫與深藍外套、航海日誌，手提**未點亮**的舊燈；透明背景全身立繪。最初生成的燈誤亮，已用內建 `image_gen` 局部修正後才匯入。 |
 | 童年林澄 | `lincheng-child.webp` | 約九歲、深棕短髮，抱著信與黃色雨衣；沿用成年林澄的髮型輪廓與童年住處的黃色雨衣線索。 |
+| 成年林澄 | `lincheng.webp` | 參照第一夜書店場景左側的女性：黑色及下巴短鮑伯頭、齊瀏海、深藍寬大外套、米白襯衫、棕色皮革肩背包，外套胸前別小小的金色月亮店員徽章；沉靜溫和、帶一點好奇。 |
 | 店主 | `owner.webp` | 年近六十的臺灣男性、深色針織外衣與棕色圍裙，手持書店手冊；表情沉靜，不以反派形象呈現。 |
 
 第一夜書店對話另以原場景為參考，生成去除舊人物與非中文文字的橫向、直向背景 `public/images/jinglan-room.webp` 和 `public/images/jinglan-room-mobile.webp`；保留林澄、雨窗、書架與空訪客席，在右側疊加靜蘭立繪。章節選單的六張訪客縮圖也由各自背景與立繪組合。七章目前列出的 25 段記憶皆有專屬橫直背景；對應瀏覽器截圖與驗證範圍見 [驗證紀錄](VERIFICATION.md)。
 
 柏言、若音、葉暖、雨航與店主另有各一張情緒立繪，分別在坦承就醫、放下琴弓、想起第一顆麵包、拆開第一箱書、以及店主道歉時切換；海明已有搜尋與暖笑兩張。信紙拼圖碎片使用 CSS 紙纖維、舊紙色和撕邊紋理。製茶的「投茶」狀態使用 `tea-props/pot-leaves.webp`，壺口可見焙烏龍散茶；另八種茶罐與配料圖示保持既有素材。
+
+### 第二批表情立繪（2026-10-04）
+
+依 [生圖需求](../art-staging/PORTRAIT_BRIEF.md) 在 Codex 以內建 `image_gen` 生成 8 張透明 PNG，各以原立繪為參考，只改表情與姿勢；`npm run import:portraits`（`scripts/import-portraits.mjs`）檢查 2:3 比例與透明背景後，轉為 1024×1536 WebP（約 90–150 KiB）。原始 PNG 放在 `art-staging/portraits/`，不納入版本控制。
+
+| 劇情 cue | 檔案 | 出現的台詞 |
+| --- | --- | --- |
+| `jinglan-tearful` | `jinglan-tearful.webp` | 第一夜說起先生的日常，「眼睛卻紅了」與「想到那個月台，我也還是會難過」 |
+| `jinglan-smile` | `jinglan-smile.webp` | 普洱路線「我繞了四十年」；〈遲來的收件人〉寄出短箋後「今晚是我想寄」 |
+| `boyan-tense` | `boyan-tense.webp` | 薄荷茶路線，柏言把亮起工作群組訊息的手機翻面 |
+| `ruoyin-smile` | `ruoyin-smile.webp` | 〈只為一個人〉被問到手時說「有一點痠」 |
+| `yenuan-tearful` | `yenuan-tearful.webp` | 切開焦麵包後吃下一片，「甜的」，聲音有點啞 |
+| `yuhang-worried` | `yuhang-worried.webp` | 焙茶路線走到門口又回來，「家那一站，我不知道要怎麼下車」 |
+| `lincheng` | `lincheng.webp` | 終章林澄從櫃台後走出來，第一次坐上訪客席 |
+| `lincheng-tearful` | `lincheng-tearful.webp` | 終章讀完童年的信；請店主抱一下時 |
+
+成年林澄的立繪以 `data-portrait="self"` 顯示。第一夜的兩張隨 PWA 安裝預快取，其餘跟隨各章素材包。至此靜蘭、柏言、若音、葉暖、雨航、海明與店主都至少有兩種以上表情，成年林澄也有立繪。
 
 ## 訪客席主場景
 

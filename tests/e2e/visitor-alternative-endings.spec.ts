@@ -21,9 +21,9 @@ import { smallTargets } from "./touch-target-helpers";
 
 const chapters = [
   { version: STORY_VERSION, file: "main", tea: "osmanthus", fragments: ["address", "reason", "wait"] },
-  { version: "boyan-chapter-18", file: "boyan-chapter-18", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
-  { version: "ruoyin-chapter-17", file: "ruoyin-chapter-17", tea: "lavender", fragments: ["greeting", "fear", "music"] },
-  { version: "yenuan-chapter-15", file: "yenuan-chapter-15", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
+  { version: "boyan-chapter-19", file: "boyan-chapter-19", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
+  { version: "ruoyin-chapter-18", file: "ruoyin-chapter-18", tea: "lavender", fragments: ["greeting", "fear", "music"] },
+  { version: "yenuan-chapter-16", file: "yenuan-chapter-16", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
   { version: "haiming-chapter-22", file: "haiming-chapter-22", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
 ] as const satisfies readonly { version: StoryVersion; file: string; tea: TeaId; fragments: readonly string[] }[];
 const endings = [

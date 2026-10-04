@@ -466,7 +466,7 @@ VAR ending_kind = ""
     ~ ate_burnt_bread = true
     ~ understanding += 1
     葉暖把那片接過去，放在掌心看了一會，才咬下一小口。 # speaker:旁白
-    「甜的。」她說，聲音有點啞，「比我以為的甜。」她把剩下的也吃完，沒有替焦掉的那層找任何藉口。 # speaker:葉暖
+    「甜的。」她說，聲音有點啞，「比我以為的甜。」她把剩下的也吃完，沒有替焦掉的那層找任何藉口。 # speaker:葉暖 # portrait:yenuan-tearful
     -> bread_after
 * [讓她自己決定要不要吃]
     ~ trust += 1

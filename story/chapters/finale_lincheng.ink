@@ -183,7 +183,7 @@ VAR ending_kind = ""
     -> seat_return
 * [先坐到訪客席，替自己留一杯茶]
     ~ sat_down = true
-    妳從櫃台後走出來。椅子沒有把門鎖上，徽章仍在桌上。第一次，妳不用替下一位客人安排座位。 # speaker:旁白
+    妳從櫃台後走出來。椅子沒有把門鎖上，徽章仍在桌上。第一次，妳不用替下一位客人安排座位。 # speaker:旁白 # portrait:lincheng
     -> self_tea
 * [拒絕坐下，繼續替別人整理故事]
     ~ intervention += 1
@@ -552,7 +552,7 @@ VAR ending_kind = ""
 {
 - letter_understood:
     ~ understanding += 2
-    妳從第一句讀到最後一句。藏信是真的，害怕也是真的；那時妳同時想留住父親、保護母親，還想有人先抱一抱自己。 # scene:lincheng # speaker:旁白 # section:dawn-choice
+    妳從第一句讀到最後一句。藏信是真的，害怕也是真的；那時妳同時想留住父親、保護母親，還想有人先抱一抱自己。 # scene:lincheng # speaker:旁白 # section:dawn-choice # portrait:lincheng-tearful
 - letter_completion >= 50:
     信還有空白，已讀清的幾句也屬於妳。妳把未拼完的紙放在杯旁，沒有請店主替妳填字。 # scene:lincheng # speaker:旁白 # section:dawn-choice
 - else:
@@ -573,7 +573,7 @@ VAR ending_kind = ""
     妳想起靜蘭說到月台時，妳把紙巾放在桌角，手收回自己這一側。六夜裡妳遞過許多杯茶，沒有一次先問對方，要不要被抱一下。 # speaker:旁白
     ** [請店主現在抱妳一下]
         ~ embrace_kind = "owner"
-        可以抱一下嗎？不用很久。 # speaker:林澄
+        可以抱一下嗎？不用很久。 # speaker:林澄 # portrait:lincheng-tearful
         店主先問妳要站著還是坐著，才繞過櫃台。那個擁抱比妳想像中短，手臂也有點僵，像他同樣很久沒這樣做過。 # speaker:旁白
         這樣就夠了。不是因為它補回了那一晚，而是這一次妳先說出口，也有人聽見。
         -> dawn_return

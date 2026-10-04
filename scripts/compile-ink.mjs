@@ -3,12 +3,12 @@ import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 for (const [source, output] of [
   ["story/main.ink", "main.json"],
-  ["story/chapters/ch02_boyan.ink", "boyan-chapter-18.json"],
-  ["story/chapters/ch03_ruoyin.ink", "ruoyin-chapter-17.json"],
-  ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-15.json"],
-  ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-17.json"],
+  ["story/chapters/ch02_boyan.ink", "boyan-chapter-19.json"],
+  ["story/chapters/ch03_ruoyin.ink", "ruoyin-chapter-18.json"],
+  ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-16.json"],
+  ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-18.json"],
   ["story/chapters/ch06_haiming.ink", "haiming-chapter-22.json"],
-  ["story/chapters/finale_lincheng.ink", "lincheng-chapter-17.json"],
+  ["story/chapters/finale_lincheng.ink", "lincheng-chapter-18.json"],
 ]) {
   const file = resolve(source);
   const issues = [];

@@ -1,7 +1,8 @@
 import { z } from "zod";
-export const STORY_VERSION = "jinglan-chapter-12";
+export const STORY_VERSION = "jinglan-chapter-13";
 export const storyVersionSchema = z.enum([
   STORY_VERSION,
+  "jinglan-chapter-12",
   "jinglan-chapter-11",
   "jinglan-chapter-10",
   "jinglan-chapter-9",
@@ -30,6 +31,7 @@ export const storyVersionSchema = z.enum([
   "boyan-chapter-16",
   "boyan-chapter-17",
   "boyan-chapter-18",
+  "boyan-chapter-19",
   "ruoyin-chapter-1",
   "ruoyin-chapter-2",
   "ruoyin-chapter-3",
@@ -47,6 +49,7 @@ export const storyVersionSchema = z.enum([
   "ruoyin-chapter-15",
   "ruoyin-chapter-16",
   "ruoyin-chapter-17",
+  "ruoyin-chapter-18",
   "yenuan-chapter-1",
   "yenuan-chapter-2",
   "yenuan-chapter-3",
@@ -62,6 +65,7 @@ export const storyVersionSchema = z.enum([
   "yenuan-chapter-13",
   "yenuan-chapter-14",
   "yenuan-chapter-15",
+  "yenuan-chapter-16",
   "yuhang-chapter-1",
   "yuhang-chapter-2",
   "yuhang-chapter-3",
@@ -79,6 +83,7 @@ export const storyVersionSchema = z.enum([
   "yuhang-chapter-15",
   "yuhang-chapter-16",
   "yuhang-chapter-17",
+  "yuhang-chapter-18",
   "haiming-chapter-1",
   "haiming-chapter-2",
   "haiming-chapter-3",
@@ -118,6 +123,7 @@ export const storyVersionSchema = z.enum([
   "lincheng-chapter-15",
   "lincheng-chapter-16",
   "lincheng-chapter-17",
+  "lincheng-chapter-18",
   "jinglan-chapter-1",
   "jinglan-prototype-1",
 ]);
@@ -438,7 +444,16 @@ export const portraitCueSchema = z.enum([
   "yuhang-hopeful",
   "haiming-searching",
   "haiming-warm",
+  "jinglan-tearful",
+  "jinglan-smile",
+  "boyan-tense",
+  "ruoyin-smile",
+  "yenuan-tearful",
+  "yuhang-worried",
+  "lincheng",
+  "lincheng-tearful",
 ]);
+export type PortraitCue = z.infer<typeof portraitCueSchema>;
 export const resonanceChapterSchema = z.enum(["jinglan", "boyan", "ruoyin", "yenuan", "yuhang", "haiming"]);
 export type ResonanceChapterId = z.infer<typeof resonanceChapterSchema>;
 export const frameSchema = z.object({

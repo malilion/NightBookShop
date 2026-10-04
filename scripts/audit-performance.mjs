@@ -48,6 +48,8 @@ const mustPrecache = [
   "images/bookmarks/unfinished.webp",
   "images/bookmarks/intervention.webp",
   "images/characters/jinglan.webp",
+  "images/characters/jinglan-tearful.webp",
+  "images/characters/jinglan-smile.webp",
 ];
 for (const url of mustPrecache) {
   if (!precached.includes(url)) throw new Error(`第一夜離線資源未預快取：${url}`);

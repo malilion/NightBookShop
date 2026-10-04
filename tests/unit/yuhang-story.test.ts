@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-17.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-18.json", "utf8");
+const chapterSeventeen = readFileSync("public/story/compiled/yuhang-chapter-17.json", "utf8");
 const chapterSixteen = readFileSync("public/story/compiled/yuhang-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/yuhang-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/yuhang-chapter-14.json", "utf8");
@@ -77,6 +78,9 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
 describe("Yuhang fifth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fifteen %s route readable", (target) => {
     expect(play(target, true, false, chapterFifteen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-seventeen %s route readable", (target) => {
+    expect(play(target, true, false, chapterSeventeen).story.frame.endingId).toBe(target);
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-sixteen %s route readable", (target) => {
     expect(play(target, true, false, chapterSixteen).story.frame.endingId).toBe(target);

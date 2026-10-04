@@ -25,7 +25,8 @@
     "render:tea-props": "node scripts/render-tea-props.mjs",
     "render:tea-liquor": "node scripts/render-tea-liquor.mjs",
     "render:audio": "node scripts/render-audio.mjs",
-    "render:film-audio": "node scripts/render-film-audio.mjs"
+    "render:film-audio": "node scripts/render-film-audio.mjs",
+    "import:portraits": "node scripts/import-portraits.mjs"
   },
   "dependencies": {
     "@phosphor-icons/vue": "^2.2.1",

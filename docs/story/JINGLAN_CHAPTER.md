@@ -46,4 +46,4 @@
 
 四種後記的最後都會依當晚泡的茶多一句（`tea_afterword`），三種茶各一句，寫成四種結局都成立的樣子：桂花讓她在巷口的桂花樹下停一會，熟普洱讓她請來訪的學生慢慢喝、慢慢說，薄荷則讓她記得那晚話說得短，剛好帶得回家。
 
-現行章節使用 `jinglan-chapter-12`；更新前的 `main.json` 完整保留為 `jinglan-chapter-11.json`、`jinglan-chapter-10.json`、`jinglan-chapter-9.json`、`jinglan-chapter-8.json`、`jinglan-chapter-7.json` 與 `jinglan-chapter-6.json`，更早的編譯檔也保留供既有存檔讀取。靜蘭離開前留下她聽過的四音旋律。舊版存檔載入各自保留的原版編譯檔，不將 Ink 位置硬套進新故事；存檔卡會標示舊版短篇。原版存檔沒有的段落、線索、碎片欄位以預設值補齊。
+現行章節使用 `jinglan-chapter-13`（新增說起先生時的含淚立繪與兩處微笑立繪）；更新前的 `main.json` 完整保留為 `jinglan-chapter-12.json`、`jinglan-chapter-11.json`、`jinglan-chapter-10.json`、`jinglan-chapter-9.json`、`jinglan-chapter-8.json`、`jinglan-chapter-7.json` 與 `jinglan-chapter-6.json`，更早的編譯檔也保留供既有存檔讀取。靜蘭離開前留下她聽過的四音旋律。舊版存檔載入各自保留的原版編譯檔，不將 Ink 位置硬套進新故事；存檔卡會標示舊版短篇。原版存檔沒有的段落、線索、碎片欄位以預設值補齊。

@@ -193,7 +193,7 @@ VAR ending_kind = ""
     ~ walked_to_door = true
     ~ trust += 1
     雨航握住門把，門外的雨聲一下子變大。他站了一會，沒有推門，自己走回來坐下。 # speaker:旁白
-    「我每次話說到家，就想走。」他把郵袋放回椅腳，「不是因為還有信。是因為家那一站，我不知道要怎麼下車。」 # speaker:程雨航
+    「我每次話說到家，就想走。」他把郵袋放回椅腳，「不是因為還有信。是因為家那一站，我不知道要怎麼下車。」 # speaker:程雨航 # portrait:yuhang-worried
     -> tea_aftercare
 * [請他把茶喝完再走，路線不會跑掉]
     ~ finished_cup = true

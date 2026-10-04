@@ -150,7 +150,7 @@ VAR ending_close = ""
     他把報告放在「明早」，把尚未約好的回診寫進「要找人談」。「寫下來以後，我至少不用在腦子裡把兩件事一起趕完。」 # speaker:許柏言
     -> tea_quality_review
 * [問他哪件事暫時不必填進今晚]
-    「工作群組的新訊息。」柏言把手機翻面，腳尖還在輕敲椅腳。「我知道先不看比較好，卻還沒真的鬆下來。」 # speaker:許柏言
+    「工作群組的新訊息。」柏言把手機翻面，腳尖還在輕敲椅腳。「我知道先不看比較好，卻還沒真的鬆下來。」 # speaker:許柏言 # portrait:boyan-tense
     -> tea_quality_review
 === tea_quality_review ===
 {

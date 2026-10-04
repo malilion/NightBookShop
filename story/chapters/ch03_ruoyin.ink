@@ -582,7 +582,7 @@ VAR ending_kind = ""
 * [問她手還好嗎，等她自己說]
     ~ one_hand = "asked"
     ~ trust += 1
-    若音看著自己的手，想了一下才回答。「有一點痠。」她笑了，「這句我以前不會說，怕說了就不能上台。」 # speaker:沈若音
+    若音看著自己的手，想了一下才回答。「有一點痠。」她笑了，「這句我以前不會說，怕說了就不能上台。」 # speaker:沈若音 # portrait:ruoyin-smile
 - -> one_afterword
 === one_afterword ===
 書籤後記：若音後來偶爾在小場地演出。她仍會想起舊比賽，也仍須照顧手的狀況，但不再要求每一場都回答她的人生是否成功。 # scene:counter # speaker:旁白 # section:afterword
