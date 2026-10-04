@@ -59,6 +59,7 @@ VAR lincheng_mother = ""
 VAR lincheng_card = ""
 VAR lincheng_fear = ""
 VAR answered_visitors = false
+VAR ending_close = ""
 VAR ending_kind = ""
 -> threshold
 
@@ -649,7 +650,14 @@ VAR ending_kind = ""
 早晨的街道跟妳記得的一樣，也有妳以往沒看過的細節。那封兒時沒交出去的信不能重寄，但妳可以重新跟母親談談那段日子，也可以選擇先去吃早餐。
 {obs_door:妳走過門檻，沒有回頭確認它還開著。 # speaker:旁白}
 {thought_mother:妳想起過年的餃子。也許今年，可以在包到一半時先問一句：「那天晚上，妳怕不怕？」 # speaker:旁白}
--> dawn_afterword
+街角的早餐店剛拉開鐵門，口袋裡的手機也終於有了訊號。 # speaker:旁白
+* [先去吃一頓早餐]
+    ~ ending_close = "breakfast"
+    妳點了蛋餅和一杯熱豆漿，坐在靠窗的位子慢慢吃完。六夜裡妳替別人端了許多杯茶，這是第一份端給自己的早餐。 # speaker:旁白
+* [先打電話給母親]
+    ~ ending_close = "call"
+    電話響了三聲。母親問妳怎麼這麼早，妳說剛下班。她沒有追問，只說：「那快回去睡。」妳說好，又多講了一會天氣。 # speaker:旁白
+- -> dawn_afterword
 === dawn_afterword ===
 書籤後記：林澄回到自己的生活。有些晚上仍想起那封信，也會想起書店裡六個人各自走出門的樣子。 # scene:counter # speaker:旁白 # section:afterword
 她偶爾能在需要時找到書店，進門坐一會；不再需要靠忘記才能離開。
@@ -662,12 +670,22 @@ VAR ending_kind = ""
 {flipped_count == 6:她把六張書籤的影本夾在筆記本最後幾頁。有些晚上睡不著，她會翻一張，想想那個人現在在哪裡。 # speaker:旁白}
 {answered_visitors:訪客問過她的那幾個問題，她寫在同一頁上，每題底下留著回答。有幾題的答案，後來又改過。 # speaker:旁白}
 {answered_visitors && lincheng_card == "told":她回了父親今年的卡片，只有一行：「地址還對。」 # speaker:旁白}
+{ending_close == "breakfast":她後來常去那家早餐店。老闆記得她的口味，偶爾問她最近睡得好不好，她照實回答。 # speaker:旁白}
+{ending_close == "call":那天以後，她給母親打電話的次數多了一點。有時只講早餐吃了什麼。 # speaker:旁白}
 ~ ending_kind = "dawn"
 -> chapter_coda
 === end_keeper ===
 妳先把童年的信讀完，再把徽章拿回手裡。「如果我留下，是因為我願意，不是因為我還不能走。」妳讓店主確認門已能打開。 # speaker:旁白
 他點頭，把櫃台的鑰匙交給妳。天光照進來，書店門牌慢慢浮出「林澄」兩個字。 # clue:nameplate
--> keeper_afterword
+門牌上的名字還帶著一點濕氣。店主把椅子推回櫃台後，問妳第一晚想怎麼開始。 # speaker:旁白
+* [在手冊第一頁寫下自己的一條規則]
+    ~ ending_close = "rule"
+    妳在員工手冊撕掉的那一頁原處，寫下第一行：「店員也可以坐下。」店主看了，沒有改。 # speaker:旁白
+* [先把門關上，睡一覺再開店]
+    ~ ending_close = "rest"
+    ~ trust += 1
+    妳在門上掛了「今晚休息」，把燈一盞盞關掉。黑貓跳上櫃台，在妳的位置蜷成一團。 # speaker:旁白
+- -> keeper_afterword
 === keeper_afterword ===
 書籤後記：林澄成為下一任守夜人。有時她需要休息，便把茶席收好、讓門關一晚；她不再把照顧所有人當成離開自己的理由。 # scene:counter # speaker:旁白 # section:afterword
 有人帶著未寫完的信來時，她會先問對方願不願意坐下。
@@ -679,12 +697,21 @@ VAR ending_kind = ""
 {ink_word == "self":每位訪客的手記頁底，她都留一行空白，請對方寫一句給自己的話。 # speaker:旁白}
 {flipped_count == 6:她把六張書籤釘在櫃台後的牆上。新來的客人問那是什麼，她說：「之前坐過這張椅子的人。」 # speaker:旁白}
 {answered_visitors:有客人反問起她的事時，她不再說「今晚先說你的」。她會先回答一句，再把話還給對方。 # speaker:旁白}
+{ending_close == "rule":手冊第一頁仍是她寫的那一行：「店員也可以坐下。」後來每一任店員都讀得到。 # speaker:旁白}
+{ending_close == "rest":她當守夜人的第一晚，門上掛的是「今晚休息」。第二晚開門時，她的茶是熱的。 # speaker:旁白}
 ~ ending_kind = "keeper"
 -> chapter_coda
 === end_shelf ===
 妳把信放回書架，記下它的位置。妳知道自己藏過那封信，也知道那時很害怕；有些細節現在還不想讀，仍可由以後的妳來決定。 # speaker:旁白
 店主把門打開，沒有要求妳交出徽章或承諾回來。妳把徽章留在櫃台，帶著已讀的那幾句走出去。
--> shelf_afterword
+信放好以後，書背朝外，還沒有任何標記。 # speaker:旁白
+* [在書背貼一張便條]
+    ~ ending_close = "note"
+    妳在便條上寫：「等我想讀的那天。」不是日期，只是給以後的妳一個找得到的記號。 # speaker:旁白
+* [什麼都不寫，只記住它在第幾層]
+    ~ ending_close = "memorized"
+    妳數了數：從下面數上來第三層，左邊第七本。妳把這個數字記在心裡，沒有寫下來。 # speaker:旁白
+- -> shelf_afterword
 === shelf_afterword ===
 書籤後記：林澄回到日常。她記得書店的路，卻沒有每晚都去；某些記憶仍像信封裡的空白，不妨礙她往前生活。 # scene:counter # speaker:旁白 # section:afterword
 那封信留在書架上，名字朝外，等她哪天想再讀。
@@ -696,19 +723,30 @@ VAR ending_kind = ""
 {embrace_kind == "mother":她沒有每晚去書店，卻在某個週末回家，讓母親抱了一下。兩個人都沒說是為了哪一晚。 # speaker:旁白}
 {flipped_count == 6:她沒有帶走六張書籤。它們跟她的信放在同一層書架，名字朝外。 # speaker:旁白}
 {answered_visitors:六夜裡被問過的那些問題，她回答了想得到的幾題。其餘的，跟信一起留在書架上。 # speaker:旁白}
+{ending_close == "note":書背上的便條寫著「等我想讀的那天」。經過的客人看見，都沒有去翻。 # speaker:旁白}
+{ending_close == "memorized":第三層，左邊第七本。她偶爾在睡前想起這個數字，像確認一把鑰匙還在。 # speaker:旁白}
 ~ ending_kind = "shelf"
 -> chapter_coda
 === end_midnight ===
 妳把訪客席推回去，替下一個尚未到來的人擺好茶杯。店主問妳是否確定；妳說今晚還能先處理別人的事。 # scene:lincheng # speaker:旁白 # section:dawn-choice
 鐘聲響過十二下，又從第一下開始。門鈴終於響了，妳起身去開門，沒有再看那封寫給自己的信。
 {refuse_tried_door:妳知道那扇門能開。所以這一次留下，不是誰把妳關在裡面。 # speaker:旁白}
--> midnight_afterword
+起身時，那封寫給自己的信還留在桌上。妳沒有拆，只得先決定把它放在哪裡。 # speaker:旁白
+* [把信塞回櫃台最底下]
+    ~ ending_close = "drawer"
+    妳把信壓在帳冊和茶罐下面，抽屜關上時發出很輕的一聲。 # speaker:旁白
+* [把信放在那張空椅上]
+    ~ ending_close = "chair"
+    妳把信放在訪客席上，信封朝上。沒有坐過去，也沒有拆開，只是沒有把它收起來。 # speaker:旁白
+- -> midnight_afterword
 === midnight_afterword ===
 書籤後記：夜行書店仍在午夜開門。林澄接待了許多訪客，手冊一頁頁變厚，寫給自己的那封信一直留在櫃台最底下。 # scene:counter # speaker:旁白 # section:afterword
 黑貓偶爾會坐到那張空椅子上。今夜，她還沒願意坐過去。
 {refuse_read_notes:她的手記越寫越厚，每一頁都有人坐下過。只有最底下那一封，還沒有椅子。 # speaker:旁白}
 {flipped_count == 6:她把六張書籤翻過一遍又一遍。自己的那張一直在最底下，她沒有翻開過。 # speaker:旁白}
 {lincheng_destination != "" || lincheng_shift != "" || lincheng_paused != "" || lincheng_mother != "" || lincheng_card != "" || lincheng_fear != "":訪客們問過她的那幾個問題，她都記得。只是每次有人再問起，她仍說：「今晚先說你的。」 # speaker:旁白}
+{ending_close == "drawer":那封信一直壓在帳冊下面。每次她拿帳冊，都會碰到它的邊角。 # speaker:旁白}
+{ending_close == "chair":那封信一直放在空椅上。黑貓坐上去時，會先把它推到旁邊，不壓著。 # speaker:旁白}
 ~ ending_kind = "midnight"
 -> chapter_coda
 === chapter_coda ===

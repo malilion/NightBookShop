@@ -84,7 +84,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 - 繁體中文。旁白以第二人稱「妳」指林澄；店員說話時 `# speaker:林澄`。
 - 每行對話尾端用 tag 標說話者與畫面：`# speaker:顧海明 # portrait:haiming-warm`。只能用 `commandParser.ts` 允許的 tag，各章單元測試會檢查。
-- **結局收尾的二選一**：24 種訪客結局的收尾場景都以林澄的一個二選一收束，格式為 `* [選項] ~ 變數 = "值" 內容` 兩項，再以 `- -> xxx_afterword` 匯合，後記用 `{變數 == "值":一句話}` 回應。替訪客決定的結局裡，其中一項會再 `intervention += 1`。新加結局時沿用此格式。
+- **結局收尾的二選一**：24 種訪客結局與終章四種結局的收尾場景都以林澄的一個二選一收束，格式為 `* [選項] ~ 變數 = "值" 內容` 兩項，再以 `- -> xxx_afterword` 匯合，後記用 `{變數 == "值":一句話}` 回應。替訪客決定的結局裡，其中一項會再 `intervention += 1`。新加結局時沿用此格式。
 - **可略過的追問**模式：在結局選單或段落選單中放 `* {條件 && not 已問} [選項]`，內容結束後 `-> xxx_return`（一行過場）再回到選單。結局選項放在同一選單裡，玩家隨時能直接選結局。
 - **後記回響**：追問設一個變數，在相關結局的 `*_afterword` 用 `{變數:一句話}` 或 `{變數 == "值":一句話}` 留下痕跡。條件只依實際發生過的事，不要讓後記與結局矛盾。
 - **前夜回應**：`previous_ending` 是前一夜的首次結局。第二至六夜各有抵達、中段、後段三處回應。更早各夜的首次結局由 `gameStore` 傳入；章節 Ink 宣告 `VAR ending_jinglan = ""`（或 boyan、ruoyin、yenuan、yuhang）才會收到。目前第三夜讀 `ending_jinglan`、第六夜讀 `ending_jinglan` 與 `ending_ruoyin`，終章讀五夜全部。
@@ -112,7 +112,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 | 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-13` |
 | 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-15` |
 | 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-20` |
-| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-15` |
+| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-16` |
 
 升版後請更新此表。
 
@@ -132,7 +132,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 AI 可直接做：
 
-1. **擴寫章節內容**：PRD_GAP_AUDIT「PRD 章節時長」列。訪客反問（六夜＋終章回應）與結局收尾二選一（24 種結局）已完成。剩下的方向：記憶場景中更多可查看物件、非首選茶種在後段的回響、結局後記依更多中段選擇變化、終章三種離開或留下的結局收尾也加上林澄的選擇。每次照「改劇情的標準流程」升版。
+1. **擴寫章節內容**：PRD_GAP_AUDIT「PRD 章節時長」列。訪客反問（六夜＋終章回應）與結局收尾二選一（24 種訪客結局與終章四種結局）已完成。剩下的方向：記憶場景中更多可查看物件、非首選茶種在後段的回響、結局後記依更多中段選擇變化。每次照「改劇情的標準流程」升版。
 2. **跨章回應延伸到非相鄰章節**：程式已支援，PRD 列出的交叉細節都已回應（第三夜回應靜蘭，第六夜回應靜蘭與若音，都經由「四個音」）。若要再加，需要自行從各章已有細節找出合理連結，避免新增與原作矛盾的設定。
 3. **E2E 穩定性**：把各檔重複的 `advanceUntil`／`untilChoice` 收斂到共用 helper。
 4. **無障礙自動檢查**：擴充 axe 檢查到所有結局畫面與小遊戲操作後狀態。

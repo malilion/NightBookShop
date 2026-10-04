@@ -7,7 +7,8 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-15.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-16.json", "utf8");
+const chapterFifteen = readFileSync("public/story/compiled/lincheng-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/lincheng-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/lincheng-chapter-13.json", "utf8");
 const chapterTwelve = readFileSync("public/story/compiled/lincheng-chapter-12.json", "utf8");
@@ -87,6 +88,25 @@ const firstAnswers = { lincheng_destination: "home", lincheng_shift: "locked", l
 const secondAnswers = { lincheng_destination: "unsure", lincheng_shift: "fine", lincheng_paused: "unsure", lincheng_mother: "rarely", lincheng_card: "kept", lincheng_fear: "guests" };
 
 describe("Lincheng finale", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fifteen %s route readable", (target) => {
+    expect(play(target, true, chapterFifteen).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["lincheng-dawn", "先去吃一頓早餐", "第一份端給自己的早餐", "老闆記得她的口味"],
+    ["lincheng-dawn", "先打電話給母親", "那快回去睡。", "有時只講早餐吃了什麼"],
+    ["lincheng-keeper", "寫下自己的一條規則", "店員也可以坐下。」店主看了", "後來每一任店員都讀得到"],
+    ["lincheng-keeper", "先把門關上，睡一覺", "在妳的位置蜷成一團", "第二晚開門時，她的茶是熱的"],
+    ["lincheng-shelf", "在書背貼一張便條", "給以後的妳一個找得到的記號", "經過的客人看見"],
+    ["lincheng-shelf", "只記住它在第幾層", "左邊第七本。妳把這個數字", "像確認一把鑰匙還在"],
+    ["lincheng-midnight", "把信塞回櫃台最底下", "抽屜關上時", "都會碰到它的邊角"],
+    ["lincheng-midnight", "把信放在那張空椅上", "也沒有拆開", "先把它推到旁邊"],
+  ] as const)("lets %s end with Lin Cheng's choice to %s", (target, choice, scene, afterword) => {
+    const run = play(target, true, compiled, { refusal: [choice] });
+    const said = run.texts.join(" ");
+    expect(run.story.frame.endingId).toBe(target);
+    expect(said).toContain(scene);
+    expect(said).toContain(afterword);
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fourteen %s route readable", (target) => {
     expect(play(target, true, chapterFourteen).story.frame.endingId).toBe(target);
   });
