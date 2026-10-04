@@ -147,11 +147,15 @@ test("a garnish that a blend outweighs plays the leading tea's own film", async 
   await expect(completion.locator(".tea-film img")).toHaveAttribute("src", "/video/tea/brew-black-v1-still.webp");
 });
 
-test("a film that cannot load never holds the story back", async ({ page }) => {
-  await page.route("**/video/**", (route) => route.abort());
-  const { snapshot } = atTea({ teaId: "jasmine", temperature: 80, seconds: 30 });
-  const completion = await serve(page, snapshot);
-  await expect(completion.getByText("影片暫時無法播放，仍可繼續故事。")).toBeVisible();
-  await completion.getByRole("button", { name: "略過動畫，繼續故事" }).click();
-  await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
+test.describe("without a service worker", () => {
+  // page.route 攔不到 Service Worker 從預快取送出的影片；不封鎖時，影片是否「載入失敗」取決於 SW 何時接管頁面。
+  test.use({ serviceWorkers: "block" });
+  test("a film that cannot load never holds the story back", async ({ page }) => {
+    await page.route("**/video/**", (route) => route.abort());
+    const { snapshot } = atTea({ teaId: "jasmine", temperature: 80, seconds: 30 });
+    const completion = await serve(page, snapshot);
+    await expect(completion.getByText("影片暫時無法播放，仍可繼續故事。")).toBeVisible();
+    await completion.getByRole("button", { name: "略過動畫，繼續故事" }).click();
+    await expect(page.getByRole("region", { name: "故事對話" })).toBeVisible();
+  });
 });
