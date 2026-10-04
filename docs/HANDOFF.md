@@ -84,6 +84,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 - 繁體中文。旁白以第二人稱「妳」指林澄；店員說話時 `# speaker:林澄`。
 - 每行對話尾端用 tag 標說話者與畫面：`# speaker:顧海明 # portrait:haiming-warm`。只能用 `commandParser.ts` 允許的 tag，各章單元測試會檢查。
+- **拼信前的茶**：各訪客章的 `=== letter_start ===` 第一行呼叫 `-> tea_before_letter ->`，依 `tea_type` 給一句，再進入拼信小遊戲。
 - **後記的茶**：各訪客章檔尾有 `=== tea_afterword ===` 隧道，四種後記在設定 `ending_kind`／`afterword_kind`（柏言是 `-> coda_*`）前呼叫 `-> tea_afterword ->`。新增茶種或結局時記得補上，句子要對四種結局都成立。
 - **結局收尾的二選一**：24 種訪客結局與終章四種結局的收尾場景都以林澄的一個二選一收束，格式為 `* [選項] ~ 變數 = "值" 內容` 兩項，再以 `- -> xxx_afterword` 匯合，後記用 `{變數 == "值":一句話}` 回應。替訪客決定的結局裡，其中一項會再 `intervention += 1`。新加結局時沿用此格式。
 - **可略過的追問**模式：在結局選單或段落選單中放 `* {條件 && not 已問} [選項]`，內容結束後 `-> xxx_return`（一行過場）再回到選單。結局選項放在同一選單裡，玩家隨時能直接選結局。
@@ -98,6 +99,9 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - 單元測試的 `play()`／`complete()` helper 預設選第一個選項；要走特定追問時，用該檔已有的參數（`refusal`、`extra`、`chooseTexts`、`prefer`）依序指定選項文字。
 - E2E 寫入 IndexedDB（例如預先解鎖章節）後，**要 `page.reload()`**，否則 App 已讀過空收藏，章節仍是未解鎖。
 - 從結局選擇前的存檔接續的 E2E，推進迴圈必須也會點 `.dialogue-choices button`（參考 `visitor-alternative-endings.spec.ts`）。結局收尾現在都有選項，只按「繼續」會卡到逾時（2026-10-04 `fifth-night-endings.spec.ts` 踩過）。
+- 要模擬影片或素材載入失敗時，`page.route` 攔不到 Service Worker 從預快取送出的請求，須在該測試 `test.use({ serviceWorkers: "block" })`（見 `tea-brew-films.spec.ts`）。
+- 整輪 E2E 的背景指令上限是 2 小時；負載高時會跑不完。被停掉時，用 `grep "\[mobile\] › tests/e2e/<檔名>"` 比對日誌找出未執行的檔案，補跑即可，不必整輪重來。
+- 工作區可能有不屬於本專案提交範圍的目錄（例如另一個工作建立的 `trailer/`）。提交時明確列出路徑，不要用 `git add -A` 把它帶進去。
 - 「顯示全文」按鈕可能在點擊前因逐字完成而消失。點擊時要加短 timeout 並忽略失敗，否則整項卡到逾時。
 - `finale.spec.ts` 的手機版拒坐路線在長批次中偶爾停在「翻開終章」找不到（終章未解鎖），單獨或整檔連跑皆通過，原因未查明。遇到時先單獨重跑。
 - 第一夜〈替她決定的人〉之前還有一個確認選單（先選「替她把信寄出」，再選「仍替她封口」）。
@@ -153,6 +157,8 @@ AI 可直接做：
 
 | 提交 | 內容 |
 | --- | --- |
+| `9290e84` | `tea-brew-films.spec.ts` 的影片載入失敗情境改為封鎖 Service Worker（原本依 SW 接管時序時好時壞） |
+| `80b689e` | 六夜拼信開始前依當晚的茶多一句（`tea_before_letter`，共 18 句） |
 | `a7d6cb0` | 六夜後記依當晚的茶各多一句（`tea_afterword`，共 18 句） |
 | `744b8e1` | 終章 `lincheng-chapter-17`：林澄反問店主有沒有一封沒讀的信（不交代寫信人與內容） |
 | `a605895` | 終章 `lincheng-chapter-16`：四種最終結局收尾的二選一，28 種結局收尾都有林澄的選擇 |
