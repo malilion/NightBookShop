@@ -65,5 +65,8 @@
     "workbox-precaching": "7.4.1",
     "workbox-routing": "7.4.1",
     "workbox-strategies": "7.4.1"
+  },
+  "overrides": {
+    "serialize-javascript": "7.1.2"
   }
 }
