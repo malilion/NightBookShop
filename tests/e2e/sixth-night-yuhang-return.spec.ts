@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
 import { prepareOpening } from "./opening-helpers";
+import { appReady } from "./app-ready";
 
 const fifthNight = readFileSync("public/story/compiled/yuhang-chapter-19.json", "utf8");
 
@@ -45,6 +46,7 @@ for (const branch of [
     const errors: string[] = [];
     collectPageErrors(page, errors);
     await page.goto("/");
+    await appReady(page);
     await page.evaluate(async (snapshot) => {
       await new Promise<void>((resolve, reject) => {
         const request = indexedDB.open("night-bookshop");

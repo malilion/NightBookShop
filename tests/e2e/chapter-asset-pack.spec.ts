@@ -1,8 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 import { setOffline } from "./offline-helpers";
+import { appReady } from "./app-ready";
 
 async function unlock(page: Page, ids: string[]) {
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async (endingIds) => {
     await navigator.serviceWorker.ready;
     await new Promise<void>((resolve, reject) => {

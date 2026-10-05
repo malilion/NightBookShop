@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema, type StoryVersion } from "../../src/types/game";
 import { smallTargets } from "./touch-target-helpers";
+import { appReady } from "./app-ready";
 
 const cases = [
   { name: "通知", version: "boyan-chapter-20", mode: "notifications", selector: ".notification-panel", action: ".notification-card button" },
@@ -46,6 +47,7 @@ for (const scenario of cases) {
     test.skip(!info.project.name.endsWith("mobile"));
     const origin = process.env.PLAYWRIGHT_BASE_URL ?? "";
     await page.goto(`${origin}/`);
+    await appReady(page);
     await page.evaluate(async (snapshot) => {
       await new Promise<void>((resolve, reject) => {
         const request = indexedDB.open("night-bookshop");

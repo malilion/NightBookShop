@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema, STORY_VERSION } from "../../src/types/game";
+import { appReady } from "./app-ready";
 
 test("Jinglan's family question is visible in the hospital memory and survives reload", async ({ page }) => {
   const story = new StoryBridge(readFileSync("public/story/compiled/main.json", "utf8"));
@@ -32,6 +33,7 @@ test("Jinglan's family question is visible in the hospital memory and survives r
     letter: newLetter(),
   });
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async (data) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");

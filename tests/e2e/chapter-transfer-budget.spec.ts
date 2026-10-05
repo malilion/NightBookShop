@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { chapterImages, chapterImageCacheName } from "../../src/services/chapterAssetPack";
 import { nightName, playableChapters } from "../../src/data/catalog";
+import { appReady } from "./app-ready";
 
 test.use({ serviceWorkers: "block" });
 
@@ -17,6 +18,7 @@ const chapterBudget = 8 * 1024 * 1024;
 for (const [index, chapter] of playableChapters.entries()) {
   test(`${nightName(chapter)} first chapter visit stays within the resource budget`, async ({ page }) => {
     await page.goto("/");
+    await appReady(page);
     await page.evaluate(async (endingIds) => {
       await new Promise<void>((resolve, reject) => {
         const request = indexedDB.open("night-bookshop");

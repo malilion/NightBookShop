@@ -4,6 +4,7 @@ import { StoryBridge } from "../../src/story/storyBridge";
 import { endings } from "../../src/data/catalog";
 import { newLetter, newOpening, newTea, snapshotSchema, STORY_VERSION } from "../../src/types/game";
 import { smallTargets } from "./touch-target-helpers";
+import { appReady } from "./app-ready";
 
 function atFirstLetter() {
   const story = new StoryBridge(readFileSync("public/story/compiled/main.json", "utf8"));
@@ -51,6 +52,7 @@ test("mobile letter and collection touch targets", async ({ page }, info) => {
   await expect(page.locator(".archive-afterword")).toHaveCount(7);
   expect(await smallTargets(page), "unlocked collection controls").toEqual([]);
   await page.goto(`${origin}/`);
+  await appReady(page);
   await page.evaluate(async (snapshot) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");

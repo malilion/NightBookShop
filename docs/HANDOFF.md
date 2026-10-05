@@ -43,6 +43,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - E2E 共約 272 項（桌機＋手機各一輪），單一 worker，整輪 1～3 小時。開發時只跑相關檔案，例如 `npx playwright test tests/e2e/finale.spec.ts`。
 - E2E 由 `vite preview` 在 4173 提供 `dist/`。**E2E 執行中不要重新 build**，否則 `dist/` 被換掉會讓測試失敗。
 - Firefox（`npm run test:e2e:firefox`）沒有手機模擬，`firefox-mobile` 是 390×844 加觸控的窄螢幕；它把 `manifest.webmanifest` 當下載處理，需要「不執行 App 的同網域頁面」時用 `/favicon.svg`。Firefox 把元素捲進畫面時會捲到最上方，手機版固定在上方的信紙曾因此蓋住碎片，現在由 `--sticky-paper` 與 `scroll-margin-top` 預留高度。
+- 測試直接用原生 IndexedDB 寫入存檔或收藏前，先 `await appReady(page)`（`tests/e2e/app-ready.ts`）：搶在遊戲建好 Dexie 資料表前開啟資料庫，會建出空資料庫，寫入失敗而偶發逾時（2026-10-06 CI 踩過）。
 - 不要在一輪 E2E 進行中另開 Playwright：兩邊共用 `test-results/`，會互刪對方的 trace，造成假失敗。
 - 存檔快照格式目前是 `SAVE_VERSION = 2`（`src/types/saveMigrations.ts`）。改快照欄位時加一版並補遷移函式；`snapshotSchema` 會先遷移再驗證，所以既有測試以 `version: 1` 建的快照仍可讀。IndexedDB 結構改動另在 `database.ts` 加 Dexie 版本與 `upgrade`。
 - 機器負載高時（其他專案同時跑 Playwright、ffmpeg 等），對時間敏感的測試會逾時或卡住。先用 `uptime` 看負載，負載正常後再單獨重跑失敗項目，不要急著改測試。

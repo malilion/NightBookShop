@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { letterPieces } from "../../src/data/catalog";
 import { newLetter, newOpening, newTea, snapshotSchema, STORY_VERSION, type StoryFrame } from "../../src/types/game";
 import { playTo } from "../storyWalk";
+import { appReady } from "./app-ready";
 
 // 存檔管理（遊玩時間、刪除、章節快照）、音效字幕與拼信墨光。
 function snapshotAt(reached: (frame: StoryFrame) => boolean, playTimeSeconds = 0) {
@@ -49,6 +50,7 @@ test("letter slots glow when the held piece nears its place, and sounds are capt
     };
   }))).toBe(true);
   await page.goto("/");
+  await appReady(page);
   await putSave(page, { id: "auto-1", kind: "auto", snapshot: snapshotAt((frame) => frame.mode === "letter") });
   await page.goto("/");
   await page.getByRole("button", { name: "繼續故事" }).click();
@@ -69,6 +71,7 @@ test("letter slots glow when the held piece nears its place, and sounds are capt
 
 test("saves show play time, manual saves can be deleted, and chapter snapshots reopen the ending", async ({ page }) => {
   await page.goto("/");
+  await appReady(page);
   await putSave(page, { id: "auto-1", kind: "auto", snapshot: snapshotAt((frame) => frame.mode === "dialogue" && frame.choices.length > 1, 754) });
   await page.goto("/");
   await page.getByRole("button", { name: "繼續故事" }).click();

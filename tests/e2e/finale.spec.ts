@@ -6,6 +6,7 @@ import { scoreLamp } from "../../src/services/lampScoring";
 import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
+import { appReady } from "./app-ready";
 
 function completedJinglanSave(): GameSnapshot {
   const story = new StoryBridge(readFileSync("public/story/compiled/main.json", "utf8"));
@@ -92,6 +93,7 @@ test("finale lets Lincheng brew for herself, restore six clues, and leave at daw
   const errors: string[] = [];
   collectPageErrors(page, errors);
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async ({ chapterSave, jinglanSave }) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");
@@ -247,6 +249,7 @@ test("refusing the visitor seat reaches the endless midnight ending", async ({ p
   const errors: string[] = [];
   collectPageErrors(page, errors);
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async () => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");

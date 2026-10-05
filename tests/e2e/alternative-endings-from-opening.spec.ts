@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { collectPageErrors } from "./page-errors";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
+import { appReady } from "./app-ready";
 
 const nights = ["第一夜", "第二夜", "第三夜", "第四夜", "第五夜", "第六夜", "終章"] as const;
 const firstEndings = ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today", "haiming-light"] as const;
@@ -147,6 +148,7 @@ for (const ending of endings) {
     const errors: string[] = [];
     collectPageErrors(page, errors);
     await page.goto("/");
+    await appReady(page);
     await page.evaluate(async (ids) => {
       await new Promise<void>((resolve, reject) => {
         const request = indexedDB.open("night-bookshop");

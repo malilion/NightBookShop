@@ -3,6 +3,7 @@ import { collectPageErrors } from "./page-errors";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema } from "../../src/types/game";
+import { appReady } from "./app-ready";
 
 function officeQuestionSnapshot() {
   const story = new StoryBridge(readFileSync("public/story/compiled/boyan-chapter-20.json", "utf8"), "recipient");
@@ -153,6 +154,7 @@ test("chapter-ten Boyan save still opens its archived story", async ({ page }) =
     letter: newLetter(),
   });
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async (data) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");

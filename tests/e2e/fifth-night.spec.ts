@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { collectPageErrors } from "./page-errors";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
+import { appReady } from "./app-ready";
 
 async function advanceUntil(page: Page, target: string, max = 260) {
   for (let step = 0; step < max; step++) {
@@ -58,6 +59,7 @@ test("fifth night restores the route and letter stamp before Yuhang signs today"
   const errors: string[] = [];
   collectPageErrors(page, errors);
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async () => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");
@@ -173,6 +175,7 @@ for (const recipe of [
 ]) {
   test(`fifth night keeps ${recipe.ingredient} in the tea draft after reload`, async ({ page }, info) => {
     await page.goto("/");
+    await appReady(page);
     await page.evaluate(async () => {
       await new Promise<void>((resolve, reject) => {
         const request = indexedDB.open("night-bookshop");

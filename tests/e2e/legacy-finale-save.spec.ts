@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema } from "../../src/types/game";
+import { appReady } from "./app-ready";
 
 test("chapter-eight finale save resumes with its archived Ink", async ({ page }) => {
   const archived = readFileSync("public/story/compiled/lincheng-chapter-8.json", "utf8");
@@ -16,6 +17,7 @@ test("chapter-eight finale save resumes with its archived Ink", async ({ page })
     letter: newLetter(),
   });
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async (data) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");

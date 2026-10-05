@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { newLetter, newTea, snapshotSchema, STORY_VERSION, type StoryFrame, type TeaId } from "../../src/types/game";
 import { playTo } from "../storyWalk";
 import { lowContrastText } from "./contrast-helpers";
+import { appReady } from "./app-ready";
 
 // Every chapter, every kind of screen: WCAG 2.1 AA by axe, and text contrast
 // measured against the rendered artwork. Reports land in output/a11y/.
@@ -30,6 +31,7 @@ const screens = (minigame: string | null): Screen[] => [
 
 async function open(page: Page, snapshot: unknown) {
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async (saved) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");

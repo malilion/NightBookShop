@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema } from "../../src/types/game";
+import { appReady } from "./app-ready";
 
 for (const version of ["jinglan-chapter-4", "jinglan-chapter-5", "jinglan-chapter-6", "jinglan-chapter-7", "jinglan-chapter-8", "jinglan-chapter-9", "jinglan-chapter-10", "jinglan-chapter-11"] as const) {
 test(`${version} saves resume with their archived Ink`, async ({ page }) => {
@@ -17,6 +18,7 @@ test(`${version} saves resume with their archived Ink`, async ({ page }) => {
     letter: newLetter(),
   });
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async (data) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");

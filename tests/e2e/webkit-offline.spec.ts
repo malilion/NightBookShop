@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { prepareOpening } from "./opening-helpers";
+import { appReady } from "./app-ready";
 
 // Playwright's WebKit refuses service-worker responses while a context is set
 // offline, so Safari's offline play is checked the way it fails in real life:
@@ -72,6 +73,7 @@ test("Safari resumes the first night with the server gone", async ({ page }) => 
 
 test("Safari keeps a later chapter's story and art after the server goes away", async ({ page }) => {
   await page.goto(`${origin}/`);
+  await appReady(page);
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
     await new Promise<void>((resolve, reject) => {

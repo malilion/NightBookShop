@@ -5,6 +5,7 @@ import { StoryBridge } from "../../src/story/storyBridge";
 import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/types/game";
 import { prepareLeaves, pour, steepAndServe } from "./tea-helpers";
 import { prepareOpening } from "./opening-helpers";
+import { appReady } from "./app-ready";
 
 async function advanceUntil(page: Page, target: string, max = 220) {
   for (let step = 0; step < max; step++) {
@@ -69,6 +70,7 @@ test("third night saves the cup motif and both sides of the letter", async ({
   const errors: string[] = [];
   collectPageErrors(page, errors);
   await page.goto("/");
+  await appReady(page);
   await page.evaluate(async (jinglanSave) => {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open("night-bookshop");

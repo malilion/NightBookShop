@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { collectPageErrors } from "./page-errors";
 import { prepareOpening } from "./opening-helpers";
+import { appReady } from "./app-ready";
 
 const visitors = [
   { chapter: "第二夜", id: "boyan" },
@@ -15,6 +16,7 @@ for (const visitor of visitors) {
     const errors: string[] = [];
     collectPageErrors(page, errors);
     await page.goto("/");
+    await appReady(page);
     await page.evaluate(async () => {
       await new Promise<void>((resolve, reject) => {
         const request = indexedDB.open("night-bookshop");
