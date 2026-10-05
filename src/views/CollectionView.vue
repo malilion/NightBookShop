@@ -6,11 +6,13 @@ import {
   chapterForEnding,
   chapters,
   nightName,
-  playableChapters,
   type EndingId,
   type PlayableChapterId,
 } from "../data/catalog";
-import { chapterArchive, collectionAchievements } from "../data/collectionArchive";
+import { chapterArchive, collectionAchievements, bookmarkRarity, rarityLabel } from "../data/collectionArchive";
+import { unlockedAchievements } from "../services/achievements";
+import { scoreLetter } from "../services/letterScoring";
+import { teas } from "../data/catalog";
 import { bookmarkArt } from "../data/bookmarkArt";
 import PageHeader from "../components/common/PageHeader.vue";
 import GameIcon from "../components/common/GameIcon.vue";
@@ -51,6 +53,7 @@ async function selectNight(id: ArchiveItem) {
   try {
     const { result, journal: updated } = await clueJournal.connect(selectedNight.value, id, game.completedChapters);
     journal.value = updated;
+    if (result.status === "connected") void game.checkAchievements();
     compareFeedback.value = result.status === "connected" ? result.connection.explanation
       : result.status === "already" ? "這兩夜的關係已記在手記裡。"
       : result.status === "missing" ? "這兩夜似乎有關，但手記裡還缺少能證實的線索。回到故事再仔細查看。"
@@ -67,25 +70,41 @@ const bookmarkShelf = computed(() => chapters.map((chapter) => ({
   ...chapter,
   slots: (Object.keys(endings) as EndingId[]).filter((id) => chapterForEnding(id) === chapter.id),
 })));
+// 回顧玩家自己的那一夜：取自各夜第一次走到結局時留下的章節快照。
+function firstRun(id: PlayableChapterId) {
+  const save = game.saveList.find((s) => s.id === `chapter-${id}`);
+  if (!save) return null;
+  const { snapshot } = save;
+  const ending = snapshot.frame.endingId;
+  const tea = teas[snapshot.tea.teaId]?.name;
+  const blend = snapshot.tea.blendTeaId && snapshot.tea.blendLeaves > 0 ? teas[snapshot.tea.blendTeaId]?.name : "";
+  const minutes = Math.max(1, Math.round(snapshot.playTimeSeconds / 60));
+  return {
+    ending: ending ? endings[ending].title : "",
+    tea: blend ? `${tea}與${blend}` : tea,
+    letter: scoreLetter(snapshot.letter, id).completion,
+    clues: snapshot.frame.clues.length,
+    playTime: snapshot.playTimeSeconds ? `約 ${minutes} 分鐘` : "",
+    date: new Date(save.createdAt).toLocaleDateString("zh-TW"),
+  };
+}
 const archiveEntries = computed(() => chapters.map((chapter) => {
   const id = chapter.id as PlayableChapterId;
   return {
     ...chapter,
+    run: firstRun(id),
     archive: chapterArchive[id],
     unlocked: game.completedChapters.has(id),
     afterwordUnlocked: collected.value.has(chapterArchive[id].afterword.ending),
   };
 }));
-const achievements = computed(() => collectionAchievements.map((achievement) => ({
-  ...achievement,
-  unlocked: achievement.id === "first"
-    ? collected.value.size > 0
-    : achievement.id === "seven"
-      ? playableChapters.every((id) => game.completedChapters.has(id))
-      : achievement.id === "understanding"
-        ? playableChapters.every((id) => collected.value.has(chapterArchive[id].afterword.ending))
-        : collected.value.size === Object.keys(endings).length,
-})));
+const achievements = computed(() => {
+  const unlocked = unlockedAchievements(game.collection, journal.value);
+  return collectionAchievements.map((achievement) => ({
+    ...achievement,
+    unlocked: unlocked.has(achievement.id),
+  }));
+});
 </script>
 <template>
   <main id="main" tabindex="-1" class="library-page collection-page">
@@ -112,7 +131,7 @@ const achievements = computed(() => collectionAchievements.map((achievement) => 
       <article v-for="entry in entries" :key="entry.id" class="bookmark-entry" :class="{ 'bookmark-entry-golden': entry.golden }">
         <div
           class="bookmark-art"
-          :class="{ cracked: entry.id === 'intervention', golden: entry.golden }"
+          :class="{ cracked: bookmarkRarity(entry.id as EndingId) === 'crack', golden: entry.golden }"
         >
           <img
             :src="bookmarkArt[entry.id as EndingId]"
@@ -130,6 +149,7 @@ const achievements = computed(() => collectionAchievements.map((achievement) => 
             · {{ nightName(chapterForEnding(entry.id as EndingId)) }}
           </p>
           <h2>{{ entry.title }}</h2>
+          <p class="bookmark-rarity" :data-rarity="bookmarkRarity(entry.id as EndingId)">{{ rarityLabel[bookmarkRarity(entry.id as EndingId)] }}</p>
           <p v-if="entry.golden" class="golden-bookmark-label">共鳴之茶 · 金色書籤</p>
           <p>{{ entry.note }}</p>
           <blockquote>{{ entry.quote }}</blockquote>
@@ -149,7 +169,8 @@ const achievements = computed(() => collectionAchievements.map((achievement) => 
           <h3>{{ chapter.visitor }}</h3>
           <ol>
             <li v-for="(id, index) in chapter.slots" :key="id" :class="{ 'bookmark-slot-locked': !collected.has(id), 'bookmark-slot-golden': entries.some((entry) => entry.id === id && entry.golden) }">
-              <GameIcon :name="collected.has(id) ? 'bookmark' : 'lock'" :size="18" />
+              <span v-if="!collected.has(id)" class="bookmark-silhouette" aria-hidden="true"></span>
+              <GameIcon v-else name="bookmark" :size="18" />
               <span>{{ collected.has(id) ? endings[id].bookmark : `缺頁 ${index + 1}` }}</span>
             </li>
           </ol>
@@ -177,6 +198,16 @@ const achievements = computed(() => collectionAchievements.map((achievement) => 
               <div><dt>主線線索</dt><dd>{{ chapter.archive.clue }}</dd></div>
               <div><dt>茶方與留存</dt><dd><strong>{{ chapter.archive.recipe.title }}</strong><br />{{ chapter.archive.recipe.text }}</dd></div>
             </dl>
+            <div v-if="chapter.run" class="archive-run">
+              <p class="archive-label">你的那一夜 · {{ chapter.run.date }}</p>
+              <dl>
+                <div><dt>第一次走到的結局</dt><dd>〈{{ chapter.run.ending }}〉</dd></div>
+                <div><dt>泡給訪客的茶</dt><dd>{{ chapter.run.tea }}</dd></div>
+                <div><dt>拼回的信</dt><dd>{{ chapter.run.letter }}%</dd></div>
+                <div><dt>找到的線索</dt><dd>{{ chapter.run.clues }} 條</dd></div>
+                <div v-if="chapter.run.playTime"><dt>這一夜花了</dt><dd>{{ chapter.run.playTime }}</dd></div>
+              </dl>
+            </div>
             <details v-if="chapter.afterwordUnlocked" class="archive-afterword">
               <summary>閱讀後日談 · {{ chapter.archive.afterword.title }}</summary>
               <p>{{ chapter.archive.afterword.text }}</p>

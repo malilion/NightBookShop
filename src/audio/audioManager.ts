@@ -39,7 +39,25 @@ const defaults: AudioPreferences = {
   sfxVolume: 45,
 };
 
+// 音效字幕：聽不到或關掉聲音的玩家，也能從畫面得知剛才響了什麼。
+// 字幕不受音量與靜音影響，只要那個聲音「應該」發生就會送出。
+const cueCaptions: Record<AudioCue, string> = {
+  paper: "紙張翻動",
+  porcelain: "瓷器輕碰",
+  bell: "門鈴響起",
+  chime: "風鈴輕響",
+  drop: "水滴落下",
+};
+const sceneCaptions: Record<Exclude<AudioScene, null>, string> = {
+  rain: "窗外下著雨",
+  room: "雨聲遠去，屋裡很靜",
+};
+export type CaptionListener = (text: string) => void;
+
 class AudioManager {
+  private captionListeners = new Set<CaptionListener>();
+  private captionPour = false;
+  private captionBoil = false;
   private started = false;
   private visible = true;
   private scene: AudioScene = null;
@@ -58,8 +76,16 @@ class AudioManager {
     Howler.volume(this.visible ? 1 : 0);
     this.sync();
   }
+  onCaption(listener: CaptionListener) {
+    this.captionListeners.add(listener);
+    return () => this.captionListeners.delete(listener);
+  }
+  private caption(text: string) {
+    for (const listener of this.captionListeners) listener(text);
+  }
   setScene(scene: AudioScene) {
     if (this.scene === scene) return;
+    if (scene) this.caption(sceneCaptions[scene]);
     this.scene = scene;
     this.sync();
   }
@@ -72,6 +98,7 @@ class AudioManager {
     if (this.started) Howler.volume(visible ? 1 : 0);
   }
   cue(name: AudioCue) {
+    if (this.scene) this.caption(cueCaptions[name]);
     if (
       !this.started ||
       !this.visible ||
@@ -92,10 +119,18 @@ class AudioManager {
   }
   /** Water stream while a kettle or teapot is tilted; 0 stops it. */
   setPour(level: number) {
+    if (level > 0 !== this.captionPour) {
+      this.captionPour = level > 0;
+      if (level > 0 && this.scene) this.caption("注水聲");
+    }
     this.setEffect("pour", level, 0.55);
   }
   /** The kettle simmering on the stove, louder toward a rolling boil. */
   setBoil(level: number) {
+    if (level >= 0.7 !== this.captionBoil) {
+      this.captionBoil = level >= 0.7;
+      if (level >= 0.7 && this.scene) this.caption("水滾了，壺身輕響");
+    }
     this.setEffect("boil", level, 0.45);
   }
   /**

@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { BookshopDatabase } from "../../src/db/database";
-import { SaveRepository } from "../../src/db/saveRepository";
+import Dexie from "dexie";
+import { BACKUP_ID, SaveRepository } from "../../src/db/saveRepository";
+import { SAVE_VERSION } from "../../src/types/saveMigrations";
 import { ClueJournalRepository, compareClues } from "../../src/services/clueJournal";
 import { StoryBridge } from "../../src/story/storyBridge";
 import {
@@ -25,7 +27,8 @@ function snapshot(): GameSnapshot {
     readFileSync("public/story/compiled/main.json", "utf8"),
   );
   return {
-    version: 1,
+    version: 2,
+    playTimeSeconds: 0,
     storyVersion: STORY_VERSION,
     inkState: story.serialize(),
     frame: story.next(),
@@ -110,7 +113,7 @@ describe("local saves", () => {
     await repo.write(data, "manual", 1);
     expect((await repo.get("manual-1"))?.snapshot).toEqual(data);
     await db.saves.update("manual-1", {
-      snapshot: { ...data, version: 2 } as unknown as GameSnapshot,
+      snapshot: { ...data, version: SAVE_VERSION + 1 },
     });
     await expect(repo.get("manual-1")).rejects.toThrow();
     expect(await db.saves.count()).toBe(1);
@@ -306,5 +309,67 @@ describe("local saves", () => {
     await repo.write(data);
     expect((await repo.get("chapter-lincheng"))?.snapshot.archive.inspected).toHaveLength(6);
     expect((await db.collection.get("lincheng-dawn"))?.id).toBe("lincheng-dawn");
+  });
+});
+describe("save format", () => {
+  it("migrates version 1 snapshots and rejects saves from a newer format", () => {
+    const old = { ...snapshot(), version: 1, playTimeSeconds: undefined };
+    const parsed = snapshotSchema.parse(old);
+    expect(parsed.version).toBe(SAVE_VERSION);
+    expect(parsed.playTimeSeconds).toBe(0);
+    expect(() => snapshotSchema.parse({ ...snapshot(), version: SAVE_VERSION + 1 })).toThrow();
+  });
+  it("fills createdAt for rows written before it existed", async () => {
+    const updatedAt = new Date().toISOString();
+    const old: Omit<GameSnapshot, "playTimeSeconds"> & { playTimeSeconds?: number } = snapshot();
+    delete old.playTimeSeconds;
+    await db.saves.put({ id: "manual-2", kind: "manual", updatedAt, snapshot: { ...old, version: 1 } });
+    const [save] = await repo.list();
+    expect(save?.createdAt).toBe(updatedAt);
+    expect(save?.snapshot.playTimeSeconds).toBe(0);
+  });
+  it("keeps the first write time and play time when a manual slot is overwritten", async () => {
+    await repo.write(snapshot(), "manual", 4);
+    const first = await repo.get("manual-4");
+    await repo.write({ ...snapshot(), playTimeSeconds: 125 }, "manual", 4);
+    const second = await repo.get("manual-4");
+    expect(second?.createdAt).toBe(first?.createdAt);
+    expect(second!.updatedAt > first!.updatedAt).toBe(true);
+    expect(second?.snapshot.playTimeSeconds).toBe(125);
+  });
+  it("deletes only manual saves", async () => {
+    await repo.write(snapshot(), "manual", 2);
+    await repo.write(snapshot());
+    await repo.remove("manual-2");
+    expect(await repo.get("manual-2")).toBeUndefined();
+    await expect(repo.remove("auto-1")).rejects.toThrow();
+    expect(await repo.get("auto-1")).toBeDefined();
+  });
+  it("copies the latest playable save into a backup before an update", async () => {
+    await repo.write(snapshot());
+    await repo.write({ ...snapshot(), playTimeSeconds: 42 }, "manual", 1);
+    await repo.backupLatest();
+    const backup = await repo.get(BACKUP_ID);
+    expect(backup?.kind).toBe("backup");
+    expect(backup?.snapshot.playTimeSeconds).toBe(42);
+  });
+  it("upgrades a version 1 database in place", async () => {
+    const name = "test-bookshop-upgrade";
+    const legacy = new Dexie(name);
+    legacy.version(1).stores({ saves: "id, kind, updatedAt", collection: "id", preferences: "id" });
+    const updatedAt = new Date().toISOString();
+    const old: Omit<GameSnapshot, "playTimeSeconds"> & { playTimeSeconds?: number } = snapshot();
+    delete old.playTimeSeconds;
+    await legacy.table("saves").put({ id: "auto-1", kind: "auto", updatedAt, snapshot: { ...old, version: 1 } });
+    await legacy.table("collection").put({ id: "moonlight", unlockedAt: updatedAt });
+    legacy.close();
+    const upgraded = new BookshopDatabase(name);
+    const row = await upgraded.saves.get("auto-1");
+    expect(row?.createdAt).toBe(updatedAt);
+    expect(row?.snapshot.version).toBe(SAVE_VERSION);
+    expect(row?.snapshot.playTimeSeconds).toBe(0);
+    expect(await upgraded.collection.get("moonlight")).toBeDefined();
+    upgraded.close();
+    await Dexie.delete(name);
   });
 });

@@ -26,7 +26,8 @@ test("collection reveals each chapter's recap and earned afterword without spoil
   await expect(page.locator(".bookmark-shelf-row li")).toHaveCount(28);
   await expect(page.locator(".bookmark-slot-locked")).toHaveCount(28);
   await expect(page.getByText("信封背面印著夜行書店五十年前的地址；書店理應從未固定存在。")).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "尚未點亮的徽章" })).toHaveCount(4);
+  await expect(page.getByRole("heading", { name: "尚未點亮的徽章" })).toHaveCount(8);
+  await expect(page.locator(".bookmark-silhouette")).toHaveCount(28);
 
   await collect(page, ["recipient"]);
   await expect(page.getByText("信封背面印著夜行書店五十年前的地址；書店理應從未固定存在。")).toBeVisible();
@@ -56,6 +57,9 @@ test("collection reveals each chapter's recap and earned afterword without spoil
   await expect(page.locator(".bookmark-slot-locked")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "每一頁都讀過" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "讓他們自己決定" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "沒有說完的版本" })).toBeVisible();
+  await expect(page.locator(".bookmark-art.cracked")).toHaveCount(7);
+  await expect(page.locator('.bookmark-rarity[data-rarity="truth"]')).toHaveCount(7);
   await page.locator(".achievement-grid").screenshot({ path: `output/collection-achievements-${info.project.name}.png` });
 });
 

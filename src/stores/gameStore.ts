@@ -29,6 +29,9 @@ import {
   type ResonanceChapterId,
 } from "../types/game";
 import { database, type CollectionEntry } from "../db/database";
+import { SAVE_VERSION } from "../types/saveMigrations";
+import { CLUE_JOURNAL_ID, parseJournal } from "../services/clueJournal";
+import { newlyUnlocked, SEEN_ACHIEVEMENTS_ID, unlockedAchievements } from "../services/achievements";
 import { saves } from "../db/saveRepository";
 import { scoreTea } from "../services/teaScoring";
 import { scoreLetter } from "../services/letterScoring";
@@ -81,8 +84,25 @@ export const useGameStore = defineStore("game", () => {
   let queue = Promise.resolve();
   let pendingSaves = 0;
   const latest = computed(() =>
-    saveList.value.find((s) => s.kind !== "chapter"),
+    saveList.value.find((s) => s.kind === "auto" || s.kind === "manual"),
   );
+  // 遊玩時間：在每次存檔時累加距上次記錄的時間；分頁隱藏期間不算，
+  // 單段最長只算五分鐘，避免離開電腦的時間被計入。
+  const playTimeSeconds = ref(0);
+  let playClock = 0;
+  const MAX_PLAY_GAP = 5 * 60 * 1000;
+  function tickPlayTime() {
+    const now = Date.now();
+    const visible = typeof document === "undefined" || document.visibilityState !== "hidden";
+    if (playClock && visible)
+      playTimeSeconds.value += Math.round(Math.min(now - playClock, MAX_PLAY_GAP) / 1000);
+    playClock = visible ? now : 0;
+  }
+  if (typeof document !== "undefined")
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") tickPlayTime();
+      else playClock = Date.now();
+    });
   async function storyJson(version: StoryVersion = STORY_VERSION) {
     if (!compiled.has(version)) {
       const response = await fetch(
@@ -94,21 +114,39 @@ export const useGameStore = defineStore("game", () => {
     }
     return compiled.get(version)!;
   }
+  // 新點亮的徽章，由 App 以不攔截操作的提示顯示幾秒。
+  const achievementToast = ref<{ id: string; title: string; text: string }[]>([]);
+  async function checkAchievements(silent = false) {
+    const journal = parseJournal((await database.preferences.get(CLUE_JOURNAL_ID))?.value);
+    const unlocked = unlockedAchievements(collection.value, journal);
+    const row = await database.preferences.get(SEEN_ACHIEVEMENTS_ID);
+    const seen = Array.isArray(row?.value) ? (row.value as string[]) : null;
+    // 第一次啟用徽章提示時，已點亮的徽章直接記為看過，不一次跳出一串。
+    const fresh = seen && !silent ? newlyUnlocked(unlocked, seen) : [];
+    if (!seen || fresh.length || silent)
+      await database.preferences.put({ id: SEEN_ACHIEVEMENTS_ID, value: [...unlocked] });
+    if (fresh.length) achievementToast.value = [...achievementToast.value, ...fresh];
+  }
   async function refreshSaves() {
+    const before = collection.value.length;
     saveList.value = await saves.list();
     collection.value = await database.collection.toArray();
+    if (collection.value.length !== before) await checkAchievements().catch(() => undefined);
   }
   async function init() {
     try {
       await refreshSaves();
+      await checkAchievements(!(await database.preferences.get(SEEN_ACHIEVEMENTS_ID))).catch(() => undefined);
     } catch {
       error.value = "無法讀取本機存檔。資料仍保留，請確認瀏覽器允許本機儲存。";
     }
   }
   function snapshot(): GameSnapshot {
     if (!bridge || !frame.value) throw new Error("尚未開始故事。");
+    tickPlayTime();
     return snapshotSchema.parse({
-      version: 1,
+      version: SAVE_VERSION,
+      playTimeSeconds: playTimeSeconds.value,
       storyVersion: activeStoryVersion.value,
       inkState: bridge.serialize(),
       frame: toRaw(frame.value),
@@ -194,6 +232,8 @@ export const useGameStore = defineStore("game", () => {
             }
           : newLetter();
       frame.value = bridge.next();
+      playTimeSeconds.value = 0;
+      playClock = Date.now();
       await persist();
       void cacheChapterImages(chapter);
       return true;
@@ -226,6 +266,8 @@ export const useGameStore = defineStore("game", () => {
       archive.value = structuredClone(data.archive);
       notifications.value = structuredClone(data.notifications);
       opening.value = structuredClone(data.opening);
+      playTimeSeconds.value = data.playTimeSeconds;
+      playClock = Date.now();
       notice.value = "已回到留下的那一頁。";
       error.value = "";
       void cacheChapterImages(chapterForVersion(data.storyVersion));
@@ -235,6 +277,27 @@ export const useGameStore = defineStore("game", () => {
       return false;
     } finally {
       busy.value = false;
+    }
+  }
+  async function removeSave(id: string) {
+    await queue;
+    try {
+      await saves.remove(id);
+      await refreshSaves();
+      notice.value = "已刪除這一頁。";
+    } catch {
+      error.value = "這份存檔無法刪除。";
+    }
+  }
+  // 安裝新版前：先存下目前進度，再另留一份相容性快照。
+  async function backupBeforeUpdate() {
+    if (frame.value) await persist();
+    await queue;
+    try {
+      await saves.backupLatest();
+      await refreshSaves();
+    } catch {
+      error.value = "更新前的備份未成功；為了保護進度，這次先不更新。";
     }
   }
   function advance(choice?: number) {
@@ -379,5 +442,10 @@ export const useGameStore = defineStore("game", () => {
     finishArchive,
     finishNotifications,
     persist,
+    playTimeSeconds,
+    achievementToast,
+    checkAchievements,
+    removeSave,
+    backupBeforeUpdate,
   };
 });

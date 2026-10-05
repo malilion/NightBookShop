@@ -69,8 +69,32 @@ watch(
 function focusMain() {
   document.getElementById("main")?.focus();
 }
+// 音效字幕：最近一個聲音停留兩秒半；同時有好幾個聲音時保留最新的兩則。
+const captions = ref<{ id: number; text: string }[]>([]);
+let captionId = 0;
+const stopCaptions = audio.onCaption((text) => {
+  if (!settings.values.captions) return;
+  const id = ++captionId;
+  captions.value = [...captions.value.filter((c) => c.text !== text), { id, text }].slice(-2);
+  window.setTimeout(() => {
+    captions.value = captions.value.filter((c) => c.id !== id);
+  }, 2500);
+});
+onBeforeUnmount(stopCaptions);
+// 徽章提示：一次顯示一枚，數秒後自行收起；不攔截滑鼠與觸控，也不搶焦點。
+let toastTimer = 0;
+watch(
+  () => game.achievementToast[0]?.id,
+  (id) => {
+    window.clearTimeout(toastTimer);
+    if (id)
+      toastTimer = window.setTimeout(() => {
+        game.achievementToast = game.achievementToast.slice(1);
+      }, 6000);
+  },
+);
 async function installUpdate() {
-  if (game.frame) await game.persist();
+  await game.backupBeforeUpdate();
   if (!game.error) await update(true);
 }
 </script>
@@ -95,6 +119,15 @@ async function installUpdate() {
       {{ game.error
       }}<button aria-label="關閉提示" @click="game.error = ''">×</button>
     </aside>
+    <div v-if="settings.values.captions" class="sound-captions" aria-hidden="true">
+      <p v-for="caption in captions" :key="caption.id">［{{ caption.text }}］</p>
+    </div>
+    <div class="achievement-toast-region" aria-live="polite" aria-atomic="true">
+      <p v-if="game.achievementToast[0]" class="achievement-toast">
+        <strong>徽章點亮 · {{ game.achievementToast[0].title }}</strong>
+        <span>{{ game.achievementToast[0].text }}</span>
+      </p>
+    </div>
     <aside v-if="updateAvailable" class="update-banner">
       新的一頁已準備好。<button @click="installUpdate">儲存並更新</button
       ><button @click="updateAvailable = false">稍後</button>

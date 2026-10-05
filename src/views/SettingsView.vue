@@ -51,6 +51,21 @@ const settings = useSettingsStore();
               ($event.target as HTMLInputElement).checked,
             )
           "
+      /></label
+      ><label class="setting-row"
+        ><span
+          ><strong>音效字幕</strong
+          ><small>在畫面角落以文字標出雨聲、門鈴、注水等聲音；靜音時也會顯示。</small></span
+        ><input
+          type="checkbox"
+          role="switch"
+          :checked="settings.values.captions"
+          @change="
+            settings.update(
+              'captions',
+              ($event.target as HTMLInputElement).checked,
+            )
+          "
       /></label>
       <label class="setting-row"
         ><span

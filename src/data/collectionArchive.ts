@@ -85,4 +85,32 @@ export const collectionAchievements = [
   { id: "seven", title: "七夜的書架", text: "七個夜晚都有了自己的書籤。" },
   { id: "understanding", title: "讓他們自己決定", text: "七夜都留下最能理解當事人的結局。" },
   { id: "all", title: "每一頁都讀過", text: "二十八種結局都曾被好好讀完。" },
+  { id: "crack", title: "沒有說完的版本", text: "收下一枚有裂痕的書籤，也記得那一夜沒能說出口的話。" },
+  { id: "golden", title: "共鳴的茶香", text: "一杯剛好的茶，讓書籤染上金色。" },
+  { id: "golden-all", title: "六盞金色的燈", text: "六位訪客的書籤都曾因為一杯茶而發光。" },
+  { id: "threads", title: "城市的地圖", text: "手記裡的五段關係都已接上。" },
 ] as const;
+export type AchievementId = (typeof collectionAchievements)[number]["id"];
+
+// 每一夜的四種書籤：最能理解當事人的「真相」、一般的「故事」，與留下裂痕的「未完成版本」。
+export const crackedEndings = new Set<EndingId>([
+  "intervention",
+  "boyan-overwork",
+  "ruoyin-echo",
+  "yenuan-copy",
+  "yuhang-unknown",
+  "haiming-hero",
+  "lincheng-midnight",
+]);
+export type BookmarkRarity = "truth" | "story" | "crack";
+export function bookmarkRarity(id: EndingId): BookmarkRarity {
+  if (crackedEndings.has(id)) return "crack";
+  return Object.values(chapterArchive).some((chapter) => chapter.afterword.ending === id)
+    ? "truth"
+    : "story";
+}
+export const rarityLabel: Record<BookmarkRarity, string> = {
+  truth: "真相書籤",
+  story: "故事書籤",
+  crack: "裂痕書籤",
+};

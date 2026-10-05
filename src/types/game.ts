@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { migrateSnapshot, SAVE_VERSION } from "./saveMigrations";
 export const STORY_VERSION = "jinglan-chapter-14";
 export const storyVersionSchema = z.enum([
   STORY_VERSION,
@@ -511,8 +512,8 @@ export const frameSchema = z.object({
   ]),
 });
 export type StoryFrame = z.infer<typeof frameSchema>;
-export const snapshotSchema = z.object({
-  version: z.literal(1),
+export const snapshotSchema = z.preprocess(migrateSnapshot, z.object({
+  version: z.literal(SAVE_VERSION),
   storyVersion: storyVersionSchema,
   inkState: z.string(),
   frame: frameSchema,
@@ -525,14 +526,24 @@ export const snapshotSchema = z.object({
   archive: archiveSchema.default({ inspected: [], connections: [] }),
   notifications: notificationsSchema.default({ paused: [], repliedMother: false }),
   opening: openingSchema.default({ inspected: ["counter", "weather", "tea"], complete: true }),
-});
+  playTimeSeconds: z.number().int().nonnegative().default(0),
+}));
 export type GameSnapshot = z.infer<typeof snapshotSchema>;
-export const saveSchema = z.object({
-  id: z.string(),
-  kind: z.enum(["auto", "manual", "chapter"]),
-  updatedAt: z.string().datetime(),
-  snapshot: snapshotSchema,
-});
+// 「backup」是安裝新版前留下的相容性快照，不參與「繼續」。
+export const saveKindSchema = z.enum(["auto", "manual", "chapter", "backup"]);
+export const saveSchema = z.preprocess(
+  (row) =>
+    row && typeof row === "object" && !("createdAt" in row) && "updatedAt" in row
+      ? { ...row, createdAt: (row as { updatedAt: unknown }).updatedAt }
+      : row,
+  z.object({
+    id: z.string(),
+    kind: saveKindSchema,
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
+    snapshot: snapshotSchema,
+  }),
+);
 export type SaveGame = z.infer<typeof saveSchema>;
 export interface TeaResult {
   quality: number;

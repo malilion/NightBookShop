@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useGameStore } from "../../stores/gameStore";
 import {
   letterPieces,
@@ -58,6 +58,19 @@ const drag = ref<{
   moved: boolean;
 } | null>(null);
 let ignoreClick = false;
+// 墨光：拿著碎片靠近它原本的位置時，那一格會微微發亮（拖曳經過、或選取後指向／聚焦該格）。
+const hoverSlot = ref<number | null>(null);
+const heldPiece = computed(() => drag.value?.moved ? drag.value.id : selected.value);
+const glowSlot = computed(() =>
+  heldPiece.value !== null &&
+  hoverSlot.value !== null &&
+  pieces.value[hoverSlot.value]?.id === heldPiece.value
+    ? hoverSlot.value
+    : null,
+);
+watch(glowSlot, (index) => {
+  if (index !== null) feedback.value = `墨跡在第 ${index + 1} 格微微發亮。`;
+});
 
 function clampZoom(value: number) {
   return Math.round(Math.min(1.75, Math.max(1, value)) * 100) / 100;
@@ -238,11 +251,18 @@ function moveDrag(event: PointerEvent) {
     ) > 8
   )
     drag.value.moved = true;
+  if (drag.value.moved) {
+    const over = document
+      .elementFromPoint(event.clientX, event.clientY)
+      ?.closest<HTMLElement>("[data-letter-slot]");
+    hoverSlot.value = over ? Number(over.dataset.letterSlot) : null;
+  }
 }
 function endDrag(event: PointerEvent) {
   const current = drag.value;
   if (!current || current.pointerId !== event.pointerId) return;
   drag.value = null;
+  hoverSlot.value = null;
   if (!current.moved) return;
   ignoreClick = true;
   window.setTimeout(() => {
@@ -274,6 +294,7 @@ function endDrag(event: PointerEvent) {
 }
 function cancelDrag() {
   drag.value = null;
+  hoverSlot.value = null;
 }
 </script>
 
@@ -362,7 +383,7 @@ function cancelDrag() {
           v-for="(id, i) in activeSlots"
           :key="i"
           class="letter-slot"
-          :class="{ filled: id }"
+          :class="{ filled: id, 'ink-glow': glowSlot === i }"
           :data-letter-slot="i"
           :aria-label="`信紙第 ${i + 1} 格${id ? '：' + pieceText(id) : '，空白'}`"
           @click="onSlotClick(i)"
@@ -371,6 +392,10 @@ function cancelDrag() {
           @pointermove="moveDrag"
           @pointerup="endDrag"
           @pointercancel="cancelDrag"
+          @pointerenter="!drag && (hoverSlot = i)"
+          @pointerleave="!drag && hoverSlot === i && (hoverSlot = null)"
+          @focus="hoverSlot = i"
+          @blur="hoverSlot === i && (hoverSlot = null)"
         >
           <span v-if="id">{{ pieceText(id) }}</span>
           <span v-else class="empty-slot"

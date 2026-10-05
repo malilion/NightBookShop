@@ -13,6 +13,7 @@ const schema = z.object({
   bgmVolume: z.number().int().min(0).max(100).default(25),
   ambienceVolume: z.number().int().min(0).max(100).default(40),
   sfxVolume: z.number().int().min(0).max(100).default(45),
+  captions: z.boolean().default(false),
 });
 type Settings = z.infer<typeof schema>;
 export const useSettingsStore = defineStore("settings", () => {
@@ -26,6 +27,7 @@ export const useSettingsStore = defineStore("settings", () => {
     bgmVolume: 25,
     ambienceVolume: 40,
     sfxVolume: 45,
+    captions: false,
   });
   const error = ref("");
   async function init() {
