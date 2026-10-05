@@ -1,0 +1,18 @@
+Copyright (c) 2026 malilion. All rights reserved.
+
+《夜行書店》（The Midnight Bookshop）的程式碼、劇本、美術、影片、介面與文件，
+除下列第三方內容外，皆保留所有權利。本專案公開原始碼僅供閱覽；
+未經書面授權，不得複製、修改、散布、再授權或用於任何商業或非商業用途。
+
+The source code, story scripts, artwork, video, interface and documentation of
+The Midnight Bookshop are the property of the copyright holder. The repository
+is public for viewing only. No permission is granted to copy, modify,
+distribute, sublicense or otherwise use any part of it without prior written
+permission, except as allowed by applicable law.
+
+第三方內容 / Third-party content
+- 背景音樂：Erik Satie, Gymnopédie No. 1，Robin Alciatore 演奏（Musopen），
+  公有領域（public domain）。
+- 開放原始碼套件依各自的授權條款使用；建置時產生的 THIRD_PARTY_LICENSES.txt
+  列出打包進遊戲的套件與授權全文。
+- 素材來源詳見 docs/ASSET_LICENSES.md。

@@ -101,3 +101,7 @@ npx playwright test tests/e2e/chapter-transfer-budget.spec.ts
 存檔的 `version` 是資料格式，`storyVersion` 是編譯故事相容性契約。改動快照欄位時把 `SAVE_VERSION` 加一，並在 `src/types/saveMigrations.ts` 補上從上一版升級的函式；改動 Ink 結構時必須評估相容性並提升 storyVersion。不可直接刪除不相容存檔。
 
 API 實作依據：[inkjs 官方文件](https://github.com/y-lohse/inkjs/blob/master/README.md)、[Dexie transaction](<https://dexie.org/docs/Dexie/Dexie.transaction()>)、[Vite PWA 註冊與更新](https://vite-pwa-org.netlify.app/guide/register-service-worker)。
+
+## 授權
+
+本 repo 公開僅供閱覽，程式碼、劇本、美術與文件保留所有權利，未經書面授權不得使用，詳見 [LICENSE](LICENSE)。背景音樂為公有領域錄音，第三方套件依各自授權，素材來源見 [ASSET_LICENSES.md](docs/ASSET_LICENSES.md)。
