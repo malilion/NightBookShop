@@ -445,7 +445,9 @@ button:active:not(:disabled),
 }
 .night-divider {
   margin: 0 12px;
-  color: var(--gold);
+  /* 細小的分隔號壓在背景圖上；比 --gold 亮一階並加暗影，Linux 字型渲染下也達 4.5:1。 */
+  color: #ecd3a3;
+  text-shadow: 0 1px 6px #000;
 }
 .game-header > .icon-button {
   justify-self: end;
