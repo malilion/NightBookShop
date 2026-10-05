@@ -199,7 +199,8 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
       );
       await expect(
         page.getByRole("button", { name: "探索物件：獎學金便條" }),
-      ).toContainText("02");
+        // Its number is the choice's key; the paper boat question comes first.
+      ).toContainText("03");
     }
     if (scene === "hospital") {
       const familyQuestion = page.getByRole("button", {

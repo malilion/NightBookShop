@@ -14,7 +14,7 @@ import {
   type GameSnapshot,
 } from "../../src/types/game";
 
-const storyJson = readFileSync("public/story/compiled/lincheng-chapter-18.json", "utf8");
+const storyJson = readFileSync("public/story/compiled/lincheng-chapter-19.json", "utf8");
 const endings = [
   { id: "lincheng-keeper", choice: "自願成為下一任守夜人", title: "下一任守夜人", fullLetter: true },
   { id: "lincheng-shelf", choice: "讓信暫留書架", title: "留在書架上的信", fullLetter: false },
@@ -28,7 +28,7 @@ function beforeFinalChoice(choice: string, fullLetter: boolean): GameSnapshot {
     if (frame.mode === "dialogue" && frame.choices.some((item) => item.text.includes(choice))) {
       return snapshotSchema.parse({
         version: 1,
-        storyVersion: "lincheng-chapter-18",
+        storyVersion: "lincheng-chapter-19",
         inkState: story.serialize(),
         frame,
         tea: { ...newTea(), step: "serve", leaves: 3, water: 70, seconds: 45 },

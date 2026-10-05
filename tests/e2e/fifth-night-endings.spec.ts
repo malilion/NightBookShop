@@ -15,7 +15,7 @@ import {
   type GameSnapshot,
 } from "../../src/types/game";
 
-const storyJson = readFileSync("public/story/compiled/yuhang-chapter-18.json", "utf8");
+const storyJson = readFileSync("public/story/compiled/yuhang-chapter-19.json", "utf8");
 const endings = [
   { id: "yuhang-today", stamp: "present", choice: "今天自己簽收", title: "今日簽收" },
   { id: "yuhang-future", stamp: "future", choice: "寄往七年後，寫下", title: "寄往七年後" },
@@ -31,7 +31,7 @@ function beforeFinalChoice(stamp: (typeof endings)[number]["stamp"], choice: str
     if (frame.mode === "dialogue" && frame.choices.some((item) => item.text.includes(choice))) {
       return snapshotSchema.parse({
         version: 1,
-        storyVersion: "yuhang-chapter-18",
+        storyVersion: "yuhang-chapter-19",
         inkState: story.serialize(),
         frame,
         tea: { ...newTea(), teaId: "mint", garnish: "lemon", blackTea: 20, step: "serve", leaves: 3, water: 70, seconds: 30 },

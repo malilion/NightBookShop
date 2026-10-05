@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-19.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-20.json", "utf8");
+const chapterNineteen = readFileSync("public/story/compiled/boyan-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/boyan-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/boyan-chapter-17.json", "utf8");
 const chapterSixteen = readFileSync("public/story/compiled/boyan-chapter-16.json", "utf8");
@@ -85,6 +86,9 @@ function complete(
 describe("Boyan second night", () => {
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-sixteen %s route", (target) => {
     expect(complete(target, chapterSixteen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-nineteen %s route", (target) => {
+    expect(complete(target, chapterNineteen).story.frame.endingId).toBe(target);
   });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-eighteen %s route", (target) => {
     expect(complete(target, chapterEighteen).story.frame.endingId).toBe(target);

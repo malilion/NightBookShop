@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-18.json",
+  "public/story/compiled/ruoyin-chapter-19.json",
   "utf8",
 );
+const chapterEighteen = readFileSync("public/story/compiled/ruoyin-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/ruoyin-chapter-17.json", "utf8");
 const chapterSixteen = readFileSync("public/story/compiled/ruoyin-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/ruoyin-chapter-15.json", "utf8");
@@ -109,6 +110,9 @@ function play(
 describe("Ruoyin third night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fifteen %s route readable", (target) => {
     expect(play(target, true, chapterFifteen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eighteen %s route readable", (target) => {
+    expect(play(target, true, chapterEighteen).story.frame.endingId).toBe(target);
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-seventeen %s route readable", (target) => {
     expect(play(target, true, chapterSeventeen).story.frame.endingId).toBe(target);

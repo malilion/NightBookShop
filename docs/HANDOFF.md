@@ -6,7 +6,7 @@
 
 ## 一句話現況
 
-《夜行書店》是 Vue 3 + TypeScript + Ink 的網頁敘事遊戲。六位訪客與林澄終章共七章都能從開場玩到四種結局（共 28 種），並寫入收藏。劇情架構、玩法系統與自動化測試大致完成；尚未完成的是**章節篇幅的真人計時、部分人物表情立繪、實機與輔助科技驗收、發行準備**。粗估整體完成度約 75%～80%（見下方「完成度」）。
+《夜行書店》是 Vue 3 + TypeScript + Ink 的網頁敘事遊戲。六位訪客與林澄終章共七章都能從開場玩到四種結局（共 28 種），並寫入收藏。劇情架構、玩法系統與自動化測試大致完成；尚未完成的是**章節篇幅的真人計時、實機與輔助科技驗收、發行準備**。粗估整體完成度約 90%（見下方「完成度」）。
 
 ## 先讀哪些文件
 
@@ -87,6 +87,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - 繁體中文。旁白以第二人稱「妳」指林澄；店員說話時 `# speaker:林澄`。
 - 每行對話尾端用 tag 標說話者與畫面：`# speaker:顧海明 # portrait:haiming-warm`。只能用 `commandParser.ts` 允許的 tag，各章單元測試會檢查。
 - **拼信前的茶**：各訪客章的 `=== letter_start ===` 第一行呼叫 `-> tea_before_letter ->`，依 `tea_type` 給一句，再進入拼信小遊戲。
+- **篇幅守門**：`tests/unit/chapter-length.test.ts` 以首選路線（每次選第一項）估算各章時間，必須在快讀 40 分鐘以上、慢讀 60 分鐘以內。新增內容若讓某章超過上限，或刪減讓某章低於 40 分鐘，這個測試會失敗。編譯單章可用 `node scripts/compile-ink.mjs --only=ch04`。
 - **表情立繪**：台詞尾端加 `# portrait:<cue>`（可用值見 `portraitCueSchema`，圖片對照在 `src/data/portraits.ts`）。cue 只影響該行；沒有 cue 時顯示場景訪客的預設立繪。`tests/unit/portraits.test.ts` 會走到每個 cue 的台詞確認顯示正確。
 - **後記的茶**：各訪客章檔尾有 `=== tea_afterword ===` 隧道，四種後記在設定 `ending_kind`／`afterword_kind`（柏言是 `-> coda_*`）前呼叫 `-> tea_afterword ->`。新增茶種或結局時記得補上，句子要對四種結局都成立。
 - **結局收尾的二選一**：24 種訪客結局與終章四種結局的收尾場景都以林澄的一個二選一收束，格式為 `* [選項] ~ 變數 = "值" 內容` 兩項，再以 `- -> xxx_afterword` 匯合，後記用 `{變數 == "值":一句話}` 回應。替訪客決定的結局裡，其中一項會再 `intervention += 1`。新加結局時沿用此格式。
@@ -114,13 +115,13 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 | 章節 | Ink 原稿 | 目前版本 |
 | --- | --- | --- |
-| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-13`（`main.json`） |
-| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-19` |
-| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-18` |
-| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-16` |
-| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-18` |
-| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-22` |
-| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-18` |
+| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-14`（`main.json`） |
+| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-20` |
+| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-19` |
+| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-17` |
+| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-19` |
+| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-23` |
+| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-19` |
 
 升版後請更新此表。
 
@@ -129,7 +130,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 | 面向 | 估計 | 說明 |
 | --- | --- | --- |
 | 劇情架構 | ~100% | 七章 × 四結局皆可達、收藏、跨夜回應 |
-| 劇情篇幅 | ~60–70% | PRD 每章 35–60 分鐘；首選路線約 6,000–7,000 字，加小遊戲估 25–35 分鐘，未經真人計時 |
+| 劇情篇幅 | ~100%（估算） | 七章首選路線各約 9,700–10,900 字；以 `tests/chapterLength.ts` 的快讀模型（每分鐘 400 字、每行 0.8 秒、每個選擇 3 秒、小遊戲固定分鐘）皆為 40.5–41.2 分鐘，慢讀（每分鐘 250 字）約 55–57 分鐘，`chapter-length.test.ts` 守住 40–60 分鐘；仍需真人計時確認 |
 | 玩法系統 | ~90% | 茶席、拼信、六種小遊戲、存檔、PWA、午夜茶席模式 |
 | 美術 | ~100% | 背景、結局插畫齊；七位訪客與店主各有兩種以上表情立繪，成年林澄有平靜與含淚兩張（2026-10-04 第二批，見 CHAPTER_ART）；實機視覺驗收併入正式版品質 |
 | 聲音與影片 | ~100% | 十二支製茶影片各有同步音軌（`npm run render:film-audio`）；全部音效為原創程序式合成，真人聽感併入實機驗收 |

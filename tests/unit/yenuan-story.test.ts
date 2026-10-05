@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-16.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-17.json", "utf8");
+const chapterSixteen = readFileSync("public/story/compiled/yenuan-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/yenuan-chapter-15.json", "utf8");
 const chapterFourteen = readFileSync("public/story/compiled/yenuan-chapter-14.json", "utf8");
 const chapterThirteen = readFileSync("public/story/compiled/yenuan-chapter-13.json", "utf8");
@@ -83,6 +84,9 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
 describe("Yenuan fourth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-thirteen %s route readable", (target) => {
     expect(play(target, true, chapterThirteen).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-sixteen %s route readable", (target) => {
+    expect(play(target, true, chapterSixteen).story.frame.endingId).toBe(target);
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fifteen %s route readable", (target) => {
     expect(play(target, true, chapterFifteen).story.frame.endingId).toBe(target);

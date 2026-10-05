@@ -7,7 +7,8 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-18.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-19.json", "utf8");
+const chapterEighteen = readFileSync("public/story/compiled/lincheng-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/lincheng-chapter-17.json", "utf8");
 const chapterSixteen = readFileSync("public/story/compiled/lincheng-chapter-16.json", "utf8");
 const chapterFifteen = readFileSync("public/story/compiled/lincheng-chapter-15.json", "utf8");
@@ -90,6 +91,9 @@ const firstAnswers = { lincheng_destination: "home", lincheng_shift: "locked", l
 const secondAnswers = { lincheng_destination: "unsure", lincheng_shift: "fine", lincheng_paused: "unsure", lincheng_mother: "rarely", lincheng_card: "kept", lincheng_fear: "guests" };
 
 describe("Lincheng finale", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eighteen %s route readable", (target) => {
+    expect(play(target, true, chapterEighteen).story.frame.endingId).toBe(target);
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-seventeen %s route readable", (target) => {
     expect(play(target, true, chapterSeventeen).story.frame.endingId).toBe(target);
   });
@@ -175,8 +179,8 @@ describe("Lincheng finale", () => {
   });
   it("reads each night's answer back from a finished chapter save", () => {
     const sources = {
-      jinglan: "main.json", boyan: "boyan-chapter-19.json", ruoyin: "ruoyin-chapter-18.json",
-      yenuan: "yenuan-chapter-16.json", yuhang: "yuhang-chapter-18.json", haiming: "haiming-chapter-22.json",
+      jinglan: "main.json", boyan: "boyan-chapter-20.json", ruoyin: "ruoyin-chapter-19.json",
+      yenuan: "yenuan-chapter-17.json", yuhang: "yuhang-chapter-19.json", haiming: "haiming-chapter-23.json",
     } as const;
     for (const [visitor, variable] of Object.entries(visitorQuestionVariables)) {
       const chapter = new StoryBridge(readFileSync(`public/story/compiled/${sources[visitor as keyof typeof sources]}`, "utf8"));

@@ -248,6 +248,11 @@ describe("complete Jinglan chapter", () => {
     for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
       expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
   });
+  it("continues chapter-thirteen saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-13.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
   it("continues chapter-twelve saves against the exact archived compiled story", () => {
     const previous = readFileSync("public/story/compiled/jinglan-chapter-12.json", "utf8");
     for (const target of ["moonlight", "recipient", "unfinished", "intervention"])

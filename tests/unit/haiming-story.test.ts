@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-22.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-23.json", "utf8");
+const chapterTwentyTwo = readFileSync("public/story/compiled/haiming-chapter-22.json", "utf8");
 const chapterTwentyOne = readFileSync("public/story/compiled/haiming-chapter-21.json", "utf8");
 const chapterTwenty = readFileSync("public/story/compiled/haiming-chapter-20.json", "utf8");
 const chapterNineteen = readFileSync("public/story/compiled/haiming-chapter-19.json", "utf8");
@@ -83,6 +84,9 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
 describe("Haiming sixth night", () => {
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty %s route readable", (target) => {
     expect(play(target, target === "haiming-hero", chapterTwenty).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-two %s route readable", (target) => {
+    expect(play(target, target === "haiming-hero", chapterTwentyTwo).story.frame.endingId).toBe(target);
   });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-one %s route readable", (target) => {
     expect(play(target, target === "haiming-hero", chapterTwentyOne).story.frame.endingId).toBe(target);

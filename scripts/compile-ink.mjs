@@ -1,15 +1,17 @@
 import { Compiler } from "inkjs/full";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
+// `--only=ch04` compiles just the sources whose path contains that text.
+const only = process.argv.find((arg) => arg.startsWith("--only="))?.slice("--only=".length);
 for (const [source, output] of [
   ["story/main.ink", "main.json"],
-  ["story/chapters/ch02_boyan.ink", "boyan-chapter-19.json"],
-  ["story/chapters/ch03_ruoyin.ink", "ruoyin-chapter-18.json"],
-  ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-16.json"],
-  ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-18.json"],
-  ["story/chapters/ch06_haiming.ink", "haiming-chapter-22.json"],
-  ["story/chapters/finale_lincheng.ink", "lincheng-chapter-18.json"],
-]) {
+  ["story/chapters/ch02_boyan.ink", "boyan-chapter-20.json"],
+  ["story/chapters/ch03_ruoyin.ink", "ruoyin-chapter-19.json"],
+  ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-17.json"],
+  ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-19.json"],
+  ["story/chapters/ch06_haiming.ink", "haiming-chapter-23.json"],
+  ["story/chapters/finale_lincheng.ink", "lincheng-chapter-19.json"],
+].filter(([source]) => !only || source.includes(only))) {
   const file = resolve(source);
   const issues = [];
   let story;

@@ -4,7 +4,8 @@ export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false,
   workers: 1,
-  timeout: 180000,
+  // Full-chapter routes got longer with the 40-minute chapters.
+  timeout: 300000,
   use: { baseURL: externalBaseURL ?? "http://127.0.0.1:4173", trace: "retain-on-failure" },
   projects: [
     {
