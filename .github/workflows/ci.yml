@@ -26,8 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -37,7 +37,7 @@ jobs:
       - run: npm test
       # build 會再跑 typecheck、效能預算檢查，並產生 version.json、素材清單與第三方授權。
       - run: npm run build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist
@@ -49,13 +49,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist
@@ -67,7 +67,7 @@ jobs:
           tests/e2e/accessibility-audit.spec.ts
         env:
           CI: "true"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: e2e-smoke-report
@@ -91,16 +91,16 @@ jobs:
           if [ "${{ matrix.engine }}" = chromium ]; then run=true; fi
           if [ "${{ inputs.engines }}" = all ] || [ "${{ inputs.engines }}" = "${{ matrix.engine }}" ]; then run=true; fi
           echo "run=$run" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: steps.gate.outputs.run == 'true'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: steps.gate.outputs.run == 'true'
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
         if: steps.gate.outputs.run == 'true'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         if: steps.gate.outputs.run == 'true'
         with:
           name: dist
@@ -117,7 +117,7 @@ jobs:
             webkit) npm run test:e2e:webkit ;;
             firefox) npm run test:e2e:firefox ;;
           esac
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure() && steps.gate.outputs.run == 'true'
         with:
           name: e2e-${{ matrix.engine }}-report
