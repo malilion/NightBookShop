@@ -57,7 +57,7 @@ describe("character portraits", () => {
 
   it.each([
     ["jinglan-tearful", "jinglan", "osmanthus", ["聽她說一件和先生在一起的日常"], "眼睛卻紅了"],
-    ["jinglan-smile", "jinglan", "puer", ["是不是還沒準備好說那個約定"], "我繞了四十年"],
+    ["jinglan-smile", "jinglan", "puer", ["是不是還沒準備好說那個約定"], "我繞了五十年"],
     ["jinglan-smile", "jinglan", "osmanthus", ["是否願意把信寄到岳川的舊址", "陪她寫一張詢問收信意願的短箋"], "今晚是我想寄"],
     ["boyan-tense", "boyan", "mint", ["問他哪件事暫時不必填進今晚"], "工作群組的新訊息"],
     ["ruoyin-smile", "ruoyin", "lavender", ["把鉛筆交回若音", "只為一個人拉完", "問她手還好嗎"], "有一點痠"],

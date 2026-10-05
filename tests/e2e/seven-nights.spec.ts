@@ -89,7 +89,7 @@ async function playNight(page: Page, night: number, touch: boolean) {
 
 test("plays seven nights in order without seeding chapter unlocks", async ({ page }, info) => {
   // WebKit's test browser plays the same seven nights about twice as slowly.
-  test.setTimeout(info.project.name.startsWith("webkit") ? 2_400_000 : 900_000);
+  test.setTimeout(/^(webkit|firefox)/.test(info.project.name) ? 2_400_000 : 900_000);
   const errors: string[] = [];
   collectPageErrors(page, errors);
   await page.goto("/");

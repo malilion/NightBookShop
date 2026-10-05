@@ -316,7 +316,7 @@ describe("complete Jinglan chapter", () => {
     expect(teaching.text).toContain("他叫陳岳川");
     const notReady = route("unfinished", "是不是還沒準備好");
     expect(notReady.ending).toBe("unfinished");
-    expect(notReady.text).toContain("我繞了四十年");
+    expect(notReady.text).toContain("我繞了五十年");
     expect(notReady.text).toContain("可是我人已經在這裡了");
     expect(notReady.text).toContain("一個我答應過要去送他的人");
     expect(notReady.text).not.toContain("自己那一篇，一直沒交");

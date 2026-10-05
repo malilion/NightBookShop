@@ -2,6 +2,9 @@
   "name": "night-bookshop",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.12"
+  },
   "type": "module",
   "scripts": {
     "dev": "npm run build:ink && vite --host 127.0.0.1",
@@ -12,7 +15,9 @@
     "test": "vitest run",
     "test:e2e": "playwright test --project=desktop --project=mobile",
     "test:e2e:webkit": "playwright test --project=webkit-desktop --project=webkit-mobile",
-    "build": "npm run build:ink && npm run typecheck && vite build && npm run audit:performance",
+    "test:e2e:firefox": "playwright test --project=firefox-desktop --project=firefox-mobile",
+    "build": "npm run build:ink && npm run typecheck && vite build && npm run audit:performance && npm run release:manifest",
+    "release:manifest": "node scripts/release-manifest.mjs",
     "audit:performance": "node scripts/audit-performance.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint .",
@@ -27,16 +32,15 @@
     "render:tea-liquor": "node scripts/render-tea-liquor.mjs",
     "render:audio": "node scripts/render-audio.mjs",
     "render:film-audio": "node scripts/render-film-audio.mjs",
+    "import:theme": "node scripts/import-theme.mjs",
     "import:portraits": "node scripts/import-portraits.mjs"
   },
   "dependencies": {
     "@phosphor-icons/vue": "^2.2.1",
     "dexie": "^4.4.6",
-    "gsap": "^3.15.0",
     "howler": "^2.2.4",
     "inkjs": "^2.4.0",
     "pinia": "^4.0.3",
-    "pixi.js": "^8.21.0",
     "vue": "^3.5.43",
     "vue-router": "^5.3.1",
     "zod": "^4.6.5"

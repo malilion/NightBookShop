@@ -18,8 +18,9 @@ test("upgrading preserves a previously cached story for offline saved games", as
     letter: newLetter(),
   });
 
-  // The manifest document has the same origin without running the app's SW registration.
-  await page.goto("/manifest.webmanifest");
+  // A same-origin document that doesn't run the app's SW registration. Not the
+  // web manifest: Firefox downloads it instead of opening it.
+  await page.goto("/favicon.svg");
   await page.evaluate(async (json) => {
     const oldPrecache = await caches.open("workbox-precache-v2-previous-release");
     await oldPrecache.put(

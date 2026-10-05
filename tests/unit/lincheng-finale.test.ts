@@ -330,7 +330,7 @@ describe("Lincheng finale", () => {
     const refused = play("lincheng-midnight", true, compiled, { refusal: ["拒絕坐下，繼續替別人", "問他那張椅子", "試試它能不能打開", "翻看六位訪客的手記", "仍然拒絕坐下"] });
     const text = refused.texts.join(" ");
     expect(refused.choices).toContain("仍然拒絕坐下，繼續替別人整理故事");
-    for (const line of ["我不會替妳推過來", "門就開了一道縫", "六個人都坐下過", "所以這一次留下，不是誰把妳關在裡面", "只有最底下那一封，還沒有椅子"])
+    for (const line of ["我不會替妳推過來", "門就開了一道縫", "六個人都坐下過", "所以這一次留下，不是誰把妳關在裡面", "只有自己那一封，還沒有人坐下來讀"])
       expect(text).toContain(line);
     expect(refused.sections.has("self-letter")).toBe(false);
     expect(refused.story.frame.endingId).toBe("lincheng-midnight");

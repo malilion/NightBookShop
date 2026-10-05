@@ -337,7 +337,7 @@ describe("Ruoyin third night", () => {
   it("changes all four memory recaps according to inspected evidence", () => {
     const explored = play("ruoyin-stage").texts.join(" ");
     const skipped = play("ruoyin-stage", true, compiled, { skipObjects: true }).texts.join(" ");
-    for (const detail of ["雲朵旁的日期", "沒有折住的講評", "核對了那三分鐘", "坐過空椅"])
+    for (const detail of ["雲朵旁的日期", "沒有摺住的講評", "核對了那三分鐘", "坐過空椅"])
       expect(explored).toContain(detail);
     for (const detail of ["尚未查清的記憶", "還沒有讀全桌上的記錄", "尚未問門邊的人", "掌聲還在重複"])
       expect(skipped).toContain(detail);

@@ -28,6 +28,16 @@ export default defineConfig({
       name: "webkit-mobile",
       use: { ...devices["iPhone 13"] },
     },
+    // Firefox's engine, run with `npm run test:e2e:firefox`. Firefox has no
+    // mobile emulation (isMobile), so the phone run is a narrow touch viewport.
+    {
+      name: "firefox-desktop",
+      use: { ...devices["Desktop Firefox"], viewport: { width: 1440, height: 900 } },
+    },
+    {
+      name: "firefox-mobile",
+      use: { ...devices["Desktop Firefox"], viewport: { width: 390, height: 844 }, hasTouch: true },
+    },
   ],
   webServer: externalBaseURL ? undefined : {
     command: "npm run preview -- --port 4173",

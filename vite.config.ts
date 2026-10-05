@@ -2,7 +2,26 @@ import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { securityHeaders } from "./deploy/headers.mjs";
+const { version } = JSON.parse(readFileSync(new URL("package.json", import.meta.url), "utf8"));
+function commit() {
+  try {
+    return process.env.GITHUB_SHA?.slice(0, 7) || execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+  } catch {
+    return "local";
+  }
+}
 export default defineConfig({
+  // 版本資訊顯示在「關於」頁；完整清單另由 scripts/release-manifest.mjs 寫進 dist/version.json。
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+    __APP_COMMIT__: JSON.stringify(commit()),
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10)),
+  },
+  // 本機 preview（E2E 使用）套用正式站的安全標頭，CSP 擋到的資源會在測試中出錯。
+  preview: { headers: securityHeaders },
   build: {
     rolldownOptions: {
       // The tea house also ships as its own page, without the story engine.

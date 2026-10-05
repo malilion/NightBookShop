@@ -25,11 +25,12 @@ npm run validate:ink
 npm run build
 npm run test:e2e
 npm run test:e2e:webkit
+npm run test:e2e:firefox
 npx playwright test tests/e2e/accessibility-audit.spec.ts
 npx playwright test tests/e2e/chapter-transfer-budget.spec.ts
 ```
 
-首次跑瀏覽器測試若缺 Chromium：`npx playwright install chromium`；Safari 引擎（`test:e2e:webkit`，桌機與 iPhone）需 `npx playwright install webkit`。無障礙稽核在 `output/a11y/` 寫出每章報告。實機與讀屏的人工檢查見[實機與讀屏驗收清單](docs/DEVICE_QA.md)。E2E 使用正式 `dist/`，先執行 build；自動啟動 4173 preview。最後一項命令量測已載入程式主體後，各章首次進入的資源請求。截圖位於 `output/`，失敗 trace 位於 `test-results/`，兩者不列入 Git。
+首次跑瀏覽器測試若缺 Chromium：`npx playwright install chromium`；Safari 引擎（`test:e2e:webkit`，桌機與 iPhone）需 `npx playwright install webkit`，Firefox（`test:e2e:firefox`，桌機與窄螢幕觸控）需 `npx playwright install firefox`。無障礙稽核在 `output/a11y/` 寫出每章報告。實機與讀屏的人工檢查見[實機與讀屏驗收清單](docs/DEVICE_QA.md)。E2E 使用正式 `dist/`，先執行 build；自動啟動 4173 preview。最後一項命令量測已載入程式主體後，各章首次進入的資源請求。截圖位於 `output/`，失敗 trace 位於 `test-results/`，兩者不列入 Git。
 
 ## 已實作
 
@@ -49,7 +50,7 @@ npx playwright test tests/e2e/chapter-transfer-budget.spec.ts
 - 存檔格式逐版遷移（`src/types/saveMigrations.ts`，IndexedDB 結構另由 Dexie 升版），故事版本驗證、序列寫入、防覆寫確認、儲存錯誤提示。
 - 收藏頁每夜四枚書籤分為真相、故事與裂痕三種；未取得的以剪影與缺頁表示，不透露條件。七夜回顧列出玩家自己那一夜的首次結局、茶、拼信完成度、線索與時間。八枚書店徽章，新點亮時在畫面上方短暫提示。
 - 鍵盤操作（數字鍵 1–9 選擇選項）、音效字幕、文字放大、高對比閱讀、對話逐字顯示與四種文字速度、減少動態、手機直向介面。
-- 原創書店旋律、窗邊雨聲與室內環境音，以及紙張、茶杯、門鈴音效；首次操作後播放，可分組調整音量或全部靜音。音檔隨 PWA 離線快取。
+- 書店主題曲（薩提〈吉諾佩第一號〉公有領域錄音，做成無縫循環）、原創窗邊雨聲與室內環境音，以及紙張、茶杯、門鈴音效；首次操作後播放，可分組調整音量或全部靜音。音檔隨 PWA 離線快取。
 - PWA manifest、第一夜故事預快取、後續章節與影片按需快取、更新提示及舊版存檔相容。
 
 ## Remotion 製片
@@ -58,7 +59,7 @@ npx playwright test tests/e2e/chapter-transfer-budget.spec.ts
 
 ## 下一階段
 
-六位訪客、童年林澄與店主已有透明立繪；七章 25 段記憶各有桌機與手機背景，見[章節美術紀錄](docs/CHAPTER_ART.md)。柏言的列車通知、葉暖的蘋果乾、雨航的檸檬與海明的海鹽焦糖均已接入互動。六位訪客與店主各有兩種以上表情立繪，成年林澄在終章有平靜與含淚兩張立繪，依台詞切換（`npm run import:portraits` 匯入新立繪）。製茶影片的雙手是程序式 3D 渲染，不是實拍；十二支影片各有同步播放的程序式音軌（取茶、注水、倒茶、奉茶的聲音，依茶種與配料不同），以 `npm run render:film-audio` 重建。各章規劃的 35–60 分鐘目標時長仍需擴充內容並真人閱讀測量。28 種結局已有桌機／手機的結局畫面與收藏定向測試，21 種替代結局也各有一條從該夜開場玩到結局的瀏覽器路線。跨章回應已延伸到多處中段探索，仍待補齊其餘分支。詳細缺口見 [PRD 驗收表](docs/PRD_GAP_AUDIT.md)。GSAP 與 PixiJS 仍未匯入遊戲 runtime；Howler 用於聲音播放。沒有帳號、後端或雲端存檔。
+六位訪客、童年林澄與店主已有透明立繪；七章 25 段記憶各有桌機與手機背景，見[章節美術紀錄](docs/CHAPTER_ART.md)。柏言的列車通知、葉暖的蘋果乾、雨航的檸檬與海明的海鹽焦糖均已接入互動。六位訪客與店主各有兩種以上表情立繪，成年林澄在終章有平靜與含淚兩張立繪，依台詞切換（`npm run import:portraits` 匯入新立繪）。製茶影片的雙手是程序式 3D 渲染，不是實拍；十二支影片各有同步播放的程序式音軌（取茶、注水、倒茶、奉茶的聲音，依茶種與配料不同），以 `npm run render:film-audio` 重建。各章規劃的 35–60 分鐘目標時長仍需擴充內容並真人閱讀測量。28 種結局已有桌機／手機的結局畫面與收藏定向測試，21 種替代結局也各有一條從該夜開場玩到結局的瀏覽器路線。跨章回應已延伸到多處中段探索，仍待補齊其餘分支。詳細缺口見 [PRD 驗收表](docs/PRD_GAP_AUDIT.md)。技術規格原列的 GSAP 與 PixiJS 未被遊戲使用，已自相依移除（GSAP 不是開源授權）；動畫以 CSS 與 SVG 完成，Howler 用於聲音播放。沒有帳號、後端或雲端存檔。
 
 ## 導覽
 
@@ -74,6 +75,7 @@ npx playwright test tests/e2e/chapter-transfer-budget.spec.ts
 - [可拖曳茶席：操作、規則與架構](docs/HANDS_ON_TEA.md)
 - [午夜茶席：獨立製茶模式與評分](docs/TEA_HOUSE.md)
 - [拼信：拖曳、翻面與存檔](docs/LETTER_PUZZLE.md)
+- [發行與部署](docs/RELEASE.md)、[素材來源與授權](docs/ASSET_LICENSES.md)、[內容校閱紀錄](docs/CONTENT_REVIEW.md)
 - [書店聲音：素材、播放與控制](docs/AUDIO.md)
 - [製茶影片、重建與播放策略](docs/TEA_FILMS.md)
 - [開發計畫與階段驗收](docs/DEVELOPMENT_PLAN.md)

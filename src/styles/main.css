@@ -344,14 +344,16 @@ button:active:not(:disabled),
 }
 .title-submenu a {
   min-height: 44px;
+  min-width: 44px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 }
 .title-submenu a:hover {
   color: var(--gold);
 }
 .title-submenu span {
-  color: #8b8172;
+  color: #b3a690;
 }
 .vertical-verse {
   position: absolute;
@@ -1822,6 +1824,26 @@ button:active:not(:disabled),
 .settings-section {
   margin-bottom: 45px;
 }
+.about-list > div {
+  display: flex;
+  gap: 24px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.about-list dt {
+  min-width: 6em;
+  color: var(--muted);
+}
+.about-notes {
+  display: grid;
+  gap: 12px;
+  padding-left: 1.2em;
+  line-height: 1.9;
+}
+.about-notes-text {
+  line-height: 1.9;
+  margin-bottom: 8px;
+}
 .settings-section h2 {
   font-size: 20px;
   font-weight: 400;
@@ -2456,6 +2478,11 @@ button:active:not(:disabled),
     position: sticky;
     top: 8px;
     z-index: 1;
+  }
+  /* 捲進畫面時停在固定的信紙下方（高度由 LetterPuzzle 量測）。 */
+  .letter-layout .fragment,
+  .letter-layout .letter-tools button {
+    scroll-margin-top: calc(var(--sticky-paper, 0px) + 16px);
   }
   .letter-slot {
     font-size: 17px;

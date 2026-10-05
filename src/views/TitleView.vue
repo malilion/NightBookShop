@@ -50,7 +50,8 @@ async function resume() {
         >
         <div class="title-submenu">
           <RouterLink to="/chapters">今夜的訪客</RouterLink><span>／</span
-          ><RouterLink to="/saves">讀取存檔</RouterLink>
+          ><RouterLink to="/saves">讀取存檔</RouterLink><span>／</span
+          ><RouterLink to="/about">關於</RouterLink>
         </div>
       </div>
     </section>

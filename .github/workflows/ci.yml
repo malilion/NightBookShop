@@ -1,0 +1,125 @@
+# 技術架構 §20：PR 與 main 都跑 lint、型別、單元測試（含 Ink 驗證）與正式建置；
+# 瀏覽器測試在 PR 跑精簡的關鍵流程，main 與每週排程跑完整的桌機＋手機 Chromium。
+# Safari 與 Firefox 引擎各約一小時，手動觸發（Actions → CI → Run workflow）。
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 18 * * 0"
+  workflow_dispatch:
+    inputs:
+      engines:
+        description: "額外的瀏覽器引擎"
+        type: choice
+        options: [none, webkit, firefox, all]
+        default: none
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run validate:ink
+      - run: npm test
+      # build 會再跑 typecheck、效能預算檢查，並產生 version.json、素材清單與第三方授權。
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 14
+
+  e2e-smoke:
+    if: github.event_name == 'pull_request'
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - run: npx playwright install --with-deps chromium
+      - run: >-
+          npx playwright test --project=desktop --project=mobile
+          tests/e2e/first-night.spec.ts tests/e2e/gameplay-systems.spec.ts
+          tests/e2e/collection-archive.spec.ts tests/e2e/audio.spec.ts
+          tests/e2e/accessibility-audit.spec.ts
+        env:
+          CI: "true"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-smoke-report
+          path: test-results
+          retention-days: 7
+
+  e2e-full:
+    if: github.event_name != 'pull_request'
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit, firefox]
+    steps:
+      - name: 決定是否執行這個引擎
+        id: gate
+        run: |
+          run=false
+          if [ "${{ matrix.engine }}" = chromium ]; then run=true; fi
+          if [ "${{ inputs.engines }}" = all ] || [ "${{ inputs.engines }}" = "${{ matrix.engine }}" ]; then run=true; fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+        if: steps.gate.outputs.run == 'true'
+      - uses: actions/download-artifact@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          name: dist
+          path: dist
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
+        if: steps.gate.outputs.run == 'true'
+      - name: 瀏覽器測試
+        if: steps.gate.outputs.run == 'true'
+        env:
+          CI: "true"
+        run: |
+          case "${{ matrix.engine }}" in
+            chromium) npm run test:e2e ;;
+            webkit) npm run test:e2e:webkit ;;
+            firefox) npm run test:e2e:firefox ;;
+          esac
+      - uses: actions/upload-artifact@v4
+        if: failure() && steps.gate.outputs.run == 'true'
+        with:
+          name: e2e-${{ matrix.engine }}-report
+          path: test-results
+          retention-days: 7

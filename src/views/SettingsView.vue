@@ -174,7 +174,7 @@ const settings = useSettingsStore();
         </div>
         <div>
           <dt>選擇回應</dt>
-          <dd><kbd>1</kbd> 至 <kbd>4</kbd></dd>
+          <dd><kbd>1</kbd> 至 <kbd>9</kbd></dd>
         </div>
         <div>
           <dt>開啟選單</dt>
@@ -194,6 +194,7 @@ const settings = useSettingsStore();
         </div>
       </dl>
     </section>
+    <p class="about-link"><RouterLink class="text-link" to="/about">關於這間書店：版本、製作方式與你的資料</RouterLink></p>
     <p class="settings-footnote">
       第一夜包含八種茶的可拖曳茶席。開啟減少動態效果後，關閉蒸氣等裝飾，仍保留茶具操作與水量回饋。聲音於首次操作後播放；進度與偏好保存在此瀏覽器。
     </p>

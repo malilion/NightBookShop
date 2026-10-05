@@ -181,7 +181,10 @@ try {
     }
     let tone = 0;
     const from = Math.round(loopSeconds * rate);
-    render("midnight-theme", loopSeconds, (_t, i) => {
+    // 遊戲的主題曲已改用薩提〈吉諾佩第一號〉的公有領域錄音（scripts/import-theme.mjs）。
+    // 這段程序式旋律仍照樣計算，讓其餘音檔的亂數序列不變；只有明確指定
+    // `--only=midnight-theme` 時才會輸出並覆蓋主題曲。
+    if (only?.includes("midnight-theme")) render("midnight-theme", loopSeconds, (_t, i) => {
       // Soften the very top so nothing reads as a beep.
       tone += (dry[from + i] + wet[from + i] - tone) * 0.55;
       return Math.tanh(tone * 1.4) * 0.26;

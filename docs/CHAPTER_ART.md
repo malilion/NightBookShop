@@ -54,7 +54,7 @@
 | 劇情 cue | 檔案 | 出現的台詞 |
 | --- | --- | --- |
 | `jinglan-tearful` | `jinglan-tearful.webp` | 第一夜說起先生的日常，「眼睛卻紅了」與「想到那個月台，我也還是會難過」 |
-| `jinglan-smile` | `jinglan-smile.webp` | 普洱路線「我繞了四十年」；〈遲來的收件人〉寄出短箋後「今晚是我想寄」 |
+| `jinglan-smile` | `jinglan-smile.webp` | 普洱路線「我繞了五十年」；〈遲來的收件人〉寄出短箋後「今晚是我想寄」 |
 | `boyan-tense` | `boyan-tense.webp` | 薄荷茶路線，柏言把亮起工作群組訊息的手機翻面 |
 | `ruoyin-smile` | `ruoyin-smile.webp` | 〈只為一個人〉被問到手時說「有一點痠」 |
 | `yenuan-tearful` | `yenuan-tearful.webp` | 切開焦麵包後吃下一片，「甜的」，聲音有點啞 |

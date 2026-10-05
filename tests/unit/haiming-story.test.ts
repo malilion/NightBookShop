@@ -141,7 +141,7 @@ describe("Haiming sixth night", () => {
     ["haiming-boat", "忘記這幾晚的客人", "它替我記得", "那就讓她記"],
     ["haiming-hero", "忘記這幾晚的客人", "它替我記得", "傳記卻把他記得的方式刪掉了"],
   ] as const)("lets Haiming ask what Lin Cheng is afraid to forget before %s (%s)", (target, answer, reply, afterword) => {
-    const run = play(target, target === "haiming-hero", compiled, { extra: ["明天醒來，要怎麼記得今晚", "折個角", "怕忘記的事", answer] });
+    const run = play(target, target === "haiming-hero", compiled, { extra: ["明天醒來，要怎麼記得今晚", "摺個角", "怕忘記的事", answer] });
     const texts = run.texts.join(" ");
     expect(run.story.frame.endingId).toBe(target);
     expect(texts).toContain("妳有沒有怕忘記的事");
@@ -199,10 +199,10 @@ describe("Haiming sixth night", () => {
     expect(play(target, false, chapterFifteen).story.frame.endingId).toBe(target);
   });
   it.each([
-    ["haiming-light", "讓他自己念", "幫他在日誌今晚這一頁折個角", ["顧川等他從頭再念", "用一枚夾子夾住了"]],
+    ["haiming-light", "讓他自己念", "幫他在日誌今晚這一頁摺個角", ["顧川等他從頭再念", "用一枚夾子夾住了"]],
     ["haiming-light", "由妳念給他聽", "請他在住址卡背面寫一句", ["她念得比我好", "我收到了"]],
     ["haiming-voice", "讓他自己念", "請他在住址卡背面寫一句", ["第一次斷在一半", "第一件事是按下錄音鍵"]],
-    ["haiming-boat", "由妳念給他聽", "幫他在日誌今晚這一頁折個角", ["風把後半句吹散了", "也帶去了海邊"]],
+    ["haiming-boat", "由妳念給他聽", "幫他在日誌今晚這一頁摺個角", ["風把後半句吹散了", "也帶去了海邊"]],
     ["haiming-hero", "由妳念給他聽", "請他在住址卡背面寫一句", ["卻沒有把它寫進去", "那封信裡寫了什麼"]],
   ] as const)("lets Haiming read his line aloud and mark tonight before %s", (target, reader, mark, echoes) => {
     const texts = play(target, false, compiled, { extra: ["不知道怎麼回到你身邊", reader, "要怎麼記得今晚", mark] }).texts.join(" ");
@@ -212,9 +212,9 @@ describe("Haiming sixth night", () => {
     for (const echo of echoes) expect(texts).toContain(echo);
   });
   it("offers only the tonight question to a polished letter and keeps the talk optional", () => {
-    const polished = play("haiming-hero", true, compiled, { extra: ["要怎麼記得今晚", "幫他在日誌今晚這一頁折個角"] }).texts.join(" ");
+    const polished = play("haiming-hero", true, compiled, { extra: ["要怎麼記得今晚", "幫他在日誌今晚這一頁摺個角"] }).texts.join(" ");
     expect(polished).not.toContain("念出來，好像就真的是我說的了");
-    expect(polished).toContain("折角被壓平了");
+    expect(polished).toContain("摺角被壓平了");
     const skipped = play("haiming-voice").texts.join(" ");
     expect(skipped).not.toContain("紙船在桌上，燈還亮著");
     expect(skipped).not.toContain("第一件事是按下錄音鍵");

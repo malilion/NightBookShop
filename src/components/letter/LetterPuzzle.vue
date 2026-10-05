@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useGameStore } from "../../stores/gameStore";
 import {
   letterPieces,
@@ -58,6 +58,27 @@ const drag = ref<{
   moved: boolean;
 } | null>(null);
 let ignoreClick = false;
+// 手機版信紙固定在畫面上方（sticky）。量出它的高度交給 CSS 的 scroll-margin-top，
+// 讓 Tab 聚焦或瀏覽器把碎片捲進畫面時，不會停在信紙底下被遮住。
+const paper = ref<HTMLElement>();
+const stickyPaper = ref(0);
+let paperObserver: ResizeObserver | null = null;
+function measurePaper() {
+  const element = paper.value;
+  stickyPaper.value = element && getComputedStyle(element).position === "sticky" ? Math.ceil(element.getBoundingClientRect().height) : 0;
+}
+onMounted(() => {
+  measurePaper();
+  if (typeof ResizeObserver !== "undefined" && paper.value) {
+    paperObserver = new ResizeObserver(() => requestAnimationFrame(measurePaper));
+    paperObserver.observe(paper.value);
+  }
+  window.addEventListener("resize", measurePaper);
+});
+onBeforeUnmount(() => {
+  paperObserver?.disconnect();
+  window.removeEventListener("resize", measurePaper);
+});
 // 墨光：拿著碎片靠近它原本的位置時，那一格會微微發亮（拖曳經過、或選取後指向／聚焦該格）。
 const hoverSlot = ref<number | null>(null);
 const heldPiece = computed(() => drag.value?.moved ? drag.value.id : selected.value);
@@ -358,8 +379,8 @@ function cancelDrag() {
       <button type="button" :disabled="workspaceZoom >= 1.75" aria-label="放大拼信工作區" @click="changeZoom(workspaceZoom + 0.15)">＋</button>
       <span class="subtle">手機可雙指縮放</span>
     </div>
-    <div class="letter-layout" :class="{ 'letter-layout-zoomed': workspaceZoom > 1 }" :style="{ '--letter-zoom': workspaceZoom }" @touchstart="beginWorkspaceTouch" @touchmove="moveWorkspaceTouch" @touchend="endWorkspaceTouch" @touchcancel="endWorkspaceTouch">
-      <div class="letter-paper">
+    <div class="letter-layout" :class="{ 'letter-layout-zoomed': workspaceZoom > 1 }" :style="{ '--letter-zoom': workspaceZoom, '--sticky-paper': `${stickyPaper}px` }" @touchstart="beginWorkspaceTouch" @touchmove="moveWorkspaceTouch" @touchend="endWorkspaceTouch" @touchcancel="endWorkspaceTouch">
+      <div ref="paper" class="letter-paper">
         <p class="letter-date">
           {{
             isLincheng
