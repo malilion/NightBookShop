@@ -100,3 +100,94 @@ export function glazeTexture() {
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   return texture;
 }
+
+// Blue-and-white porcelain (青花): cobalt sprays, vines and rim bands painted on
+// a warm white glaze. Seeded, so every render paints the same pattern.
+export function porcelainTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#f3efe6";
+  ctx.fillRect(0, 0, 1024, 512);
+  let seed = 4127;
+  const rand = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+  const cobalt = "#24427f";
+  ctx.strokeStyle = cobalt;
+  ctx.fillStyle = cobalt;
+  ctx.lineCap = "round";
+  // Rim and foot bands.
+  for (const [y, w] of [[18, 10], [40, 3], [470, 3], [492, 10]]) {
+    ctx.lineWidth = w;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(1024, y);
+    ctx.stroke();
+  }
+  // A scrolling vine across the body.
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  for (let x = 0; x <= 1024; x += 8) {
+    const y = 256 + Math.sin((x / 1024) * Math.PI * 8) * 70;
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  const leaf = (x, y, angle, size) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(size * 0.5, -size * 0.45, size, 0);
+    ctx.quadraticCurveTo(size * 0.5, size * 0.45, 0, 0);
+    ctx.fill();
+    ctx.restore();
+  };
+  const flower = (x, y, r) => {
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.ellipse(x + Math.cos(a) * r * 0.62, y + Math.sin(a) * r * 0.62, r * 0.48, r * 0.3, a, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#f3efe6";
+    ctx.beginPath();
+    ctx.arc(x, y, r * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = cobalt;
+    ctx.beginPath();
+    ctx.arc(x, y, r * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+  };
+  for (let row = 0; row < 3; row++)
+    for (let i = 0; i < 7; i++) {
+      const x = (i + (row % 2 ? 0.5 : 0)) * (1024 / 7) + 30;
+      const y = 140 + row * 115 + (rand() - 0.5) * 20;
+      flower(x, y, 24 + rand() * 10);
+      for (let j = 0; j < 6; j++) {
+        const a = rand() * Math.PI * 2;
+        leaf(x + Math.cos(a) * 36, y + Math.sin(a) * 30, a, 16 + rand() * 12);
+      }
+    }
+  // Small sprays between the bands.
+  for (let i = 0; i < 16; i++) {
+    const x = (i + 0.25) * 64;
+    for (const y of [92, 420]) {
+      ctx.beginPath();
+      ctx.arc(x, y, 5 + rand() * 3, 0, Math.PI * 2);
+      ctx.fill();
+      leaf(x + 6, y, -0.6, 14);
+      leaf(x - 6, y, Math.PI + 0.6, 14);
+    }
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.anisotropy = 4;
+  texture.repeat.set(2, 1);
+  return texture;
+}

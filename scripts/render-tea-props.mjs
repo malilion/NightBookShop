@@ -47,7 +47,13 @@ try {
     const result = await page.evaluate((spec) => window.renderProp(spec), spec);
     const buffer = Buffer.from(result.image.split(",")[1], "base64");
     const file = `${dest}/${id}.webp`;
-    await sharp(buffer).webp({ quality: 92, alphaQuality: 100 }).toFile(file);
+    // 壺與杯在茶板上最多約 400 px 寬（手機 3 倍密度）；青花花紋細，輸出原尺寸會讓預快取超出預算，所以縮成一半。
+    const porcelain = kind === "pot" || kind === "cup";
+    const width = (await sharp(buffer).metadata()).width;
+    await sharp(buffer)
+      .resize(porcelain ? { width: Math.round(width / 2) } : undefined)
+      .webp(porcelain ? { quality: 80, alphaQuality: 90 } : { quality: 92, alphaQuality: 100 })
+      .toFile(file);
     const stats = await sharp(buffer).stats();
     if (stats.channels[3]?.min !== 0 || stats.channels[3]?.max !== 255)
       throw new Error(`Missing alpha: ${id}`);

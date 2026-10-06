@@ -9,6 +9,7 @@ import {
   hammeredTexture,
   teaTexture,
   glazeTexture,
+  porcelainTexture,
 } from "./tea-surfaces.js";
 export function createTeaSet(container, W = 1280, H = 720) {
   const scene = new THREE.Scene();
@@ -73,8 +74,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
       bumpScale: 0.002,
       envMapIntensity: 0.75,
     });
-  const navy = ceramic("#244740"),
-    brass = new THREE.MeshStandardMaterial({
+  const brass = new THREE.MeshStandardMaterial({
       color: "#9d8054",
       metalness: 0.85,
       roughness: 0.42,
@@ -89,6 +89,19 @@ export function createTeaSet(container, W = 1280, H = 720) {
       bumpMap: hammeredTexture(),
       bumpScale: 0.012,
     }),
+    // 青花瓷：茶壺、壺蓋、杯與杯碟（照介面概念圖）。
+    porcelain = new THREE.MeshPhysicalMaterial({
+      color: "#ffffff",
+      map: porcelainTexture(),
+      roughness: 0.22,
+      metalness: 0,
+      clearcoat: 0.8,
+      clearcoatRoughness: 0.12,
+      bumpMap: ceramicGrain,
+      bumpScale: 0.0008,
+      envMapIntensity: 0.85,
+    }),
+    porcelainPlain = ceramic("#f6f2ea"),
     black = material("#201c18", 0.02, 0.6),
     jarGlaze = ceramic("#234d47");
   function mesh(geometry, mat, pos = [0, 0, 0], parent = scene) {
@@ -336,7 +349,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
       [0.4, 0.16],
       [0, 0.16],
     ],
-    navy,
+    porcelain,
     pot,
   );
   ring(0.49, 0.012, brass, [0, 0.9, 0], pot);
@@ -349,13 +362,13 @@ export function createTeaSet(container, W = 1280, H = 720) {
       [1.21, 0.85, 0],
     ],
     0.088,
-    navy,
+    porcelainPlain,
     pot,
   );
   ring(0.09, 0.017, brass, [1.21, 0.85, 0], pot);
   const potHandle = mesh(
     new THREE.TorusGeometry(0.35, 0.05, 16, 64),
-    navy,
+    porcelainPlain,
     [-0.75, 0.47, 0],
     pot,
   );
@@ -368,12 +381,14 @@ export function createTeaSet(container, W = 1280, H = 720) {
     pot,
   );
   emblem.rotation.z = -0.7;
+  // 青花壺身已有花紋，不再嵌黃銅月牙。
+  emblem.visible = false;
   for (const [x, y] of [
     [0.23, 0.55],
     [-0.25, 0.37],
     [0.18, 0.3],
   ])
-    ball([0.014, 0.014, 0.012], brass, [x, y, 0.785], pot);
+    ball([0.014, 0.014, 0.012], brass, [x, y, 0.785], pot).visible = false;
   const lid = new THREE.Group();
   scene.add(lid);
   lid.position.set(0.8, 0.08, -0.9);
@@ -385,7 +400,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
       [0.31, 0.2],
       [0, 0.24],
     ],
-    navy,
+    porcelain,
     lid,
   );
   ball([0.09, 0.09, 0.09], brass, [0, 0.29, 0], lid);
@@ -402,7 +417,7 @@ export function createTeaSet(container, W = 1280, H = 720) {
       [0.42, 0.07],
       [0, 0.07],
     ],
-    navy,
+    porcelain,
     cup,
   );
   lathe(
@@ -417,13 +432,13 @@ export function createTeaSet(container, W = 1280, H = 720) {
       [0.23, 0.15],
       [0, 0.15],
     ],
-    cream,
+    porcelain,
     cup,
   );
   ring(0.397, 0.007, brass, [0, 0.556, 0], cup);
   const cupHandle = mesh(
     new THREE.TorusGeometry(0.15, 0.028, 16, 48),
-    cream,
+    porcelainPlain,
     [0.42, 0.35, 0],
     cup,
   );

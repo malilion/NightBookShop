@@ -150,7 +150,8 @@ try {
           pixelFormat: "yuv420p",
           imageFormat: "png",
           // Fewer WebGL pages at once keeps the GPU from dropping frames.
-          concurrency: 2,
+          // 機器負載高時第二個渲染分頁可能開不起來；可用 FILM_CONCURRENCY=1 改成單分頁。
+          concurrency: Number(process.env.FILM_CONCURRENCY ?? 2),
           onProgress: ({ progress }) => {
             const tenth = Math.floor(progress * 10);
             if (tenth > reported) {
@@ -225,7 +226,8 @@ try {
     }
     await sharp(first).webp({ quality: 88 }).toFile(`${base}-poster.webp`);
     // Reduced motion shows the served cup, the film's last frame.
-    await sharp(last).webp({ quality: 86 }).toFile(`${base}-still.webp`);
+    // 杯碟改成青花瓷後細節多，品質 86 的定格約大一倍；定格在 PWA 預快取裡，用 70 守住預算。
+    await sharp(last).webp({ quality: 70 }).toFile(`${base}-still.webp`);
     const files = [];
     for (const ext of ["mp4", "webm"]) {
       const file = `${base}.${ext}`;
