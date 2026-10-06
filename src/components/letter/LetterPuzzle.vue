@@ -286,10 +286,12 @@ function endDrag(event: PointerEvent) {
   drag.value = null;
   hoverSlot.value = null;
   if (!current.moved) return;
+  // 拖曳放開後瀏覽器可能再送一次 click；落在信紙格上會把剛放好的碎片又取下來。
+  // 有些瀏覽器的 click 不在同一個事件迴圈送達，所以擋 300 ms，不只到下一個 tick。
   ignoreClick = true;
   window.setTimeout(() => {
     ignoreClick = false;
-  }, 0);
+  }, 300);
   const target = document
     .elementFromPoint(event.clientX, event.clientY)
     ?.closest<HTMLElement>("[data-letter-slot]");

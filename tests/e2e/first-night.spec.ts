@@ -315,13 +315,17 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     await page.mouse.move(to.x, to.y, { steps: 10 });
     await page.mouse.up();
   }
+  // 先確認碎片真的放進第 1 格；沒有的話，把遊戲自己的回饋寫進錯誤訊息，方便從 CI 日誌判斷原因。
+  const placedFirst = page.getByRole("button", {
+    name: "信紙第 1 格：岳川，我不是不願意跟你走。",
+  });
+  if (!(await placedFirst.isVisible({ timeout: 2_000 }).catch(() => false)))
+    throw new Error(
+      `drag did not place the piece: feedback="${await page.locator(".letter-panel .panel-footer .subtle").textContent()}", from=${JSON.stringify(from)}, to=${JSON.stringify(to)}, hit=${await page.evaluate(({ x, y }) => { const hit = document.elementFromPoint(x, y); return hit ? `${hit.tagName}.${hit.className}` : "none"; }, to)}`,
+    );
   await flush(page);
   await page.reload();
-  await expect(
-    page.getByRole("button", {
-      name: "信紙第 1 格：岳川，我不是不願意跟你走。",
-    }),
-  ).toBeVisible();
+  await expect(placedFirst).toBeVisible();
   await page.getByRole("button", {
     name: "只是那一晚，我也有不能離開的人。",
     exact: true,
