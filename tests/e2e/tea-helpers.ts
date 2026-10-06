@@ -70,7 +70,7 @@ export async function pour(
 ) {
   const { layout: l, at } = await geometry(page);
   const target = kind === "kettle" ? l.pot : l.cup;
-  const resting = pourAnchor(target, kind);
+  const resting = pourAnchor(target, kind, l.kettleScale);
   const start = at(l[kind]),
     anchor = at(resting),
     tilted = at({ x: resting.x + 90, y: resting.y });

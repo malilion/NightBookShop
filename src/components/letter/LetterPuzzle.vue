@@ -640,10 +640,10 @@ onBeforeUnmount(() => window.clearTimeout(hintTimer));
       }}</span>
       <div class="letter-actions" role="group" aria-label="拼信輔助">
         <button type="button" class="quiet-button letter-hint" :disabled="hintsLeft <= 0 || allPlaced" :aria-label="`提示（剩 ${hintsLeft} 次）`" @click="useHint">
-          <GameIcon name="search" :size="18" />提示<span class="letter-hint-count" :data-count="hintsLeft" aria-hidden="true"></span>
+          <GameIcon name="bulb" :size="20" />提示<span class="letter-hint-count" :data-count="hintsLeft" aria-hidden="true"></span>
         </button>
         <button type="button" class="quiet-button letter-reset" :disabled="activeSlots.every((id) => !id)" @click="resetLetter">
-          <span class="letter-reset-mark" aria-hidden="true">↺</span>重置
+          <GameIcon name="reset" :size="20" />重置
         </button>
       </div>
       <button class="ornate-button letter-finish" @click="game.finishLetter">

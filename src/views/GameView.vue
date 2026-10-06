@@ -52,6 +52,7 @@ const background = computed(() =>
 const mobileBackground = computed(() => {
   const frame = game.frame;
   if (!game.opening.complete) return assets.scenes.counter;
+  if (frame?.mode === "tea" || frame?.mode === "letter") return background.value;
   if (frame?.mode === "ending") return assets.mobileScenes[game.chapterId];
   if (frame?.mode === "dialogue" && frame.scene in assets.mobileScenes)
     return assets.mobileScenes[frame.scene as keyof typeof assets.mobileScenes];
@@ -95,6 +96,11 @@ const portrait = computed(() => {
     ? { src: assets.characters[frame.scene as keyof typeof assets.characters], kind: "visitor" }
     : null;
 });
+// 第二至第六夜的店內背景沒有畫林澄；在前景補上她的背影，與訪客隔著櫃台相對。
+const showLinchengBack = computed(() => {
+  const frame = game.frame;
+  return frame?.mode === "dialogue" && ["boyan", "ruoyin", "yenuan", "yuhang", "haiming"].includes(frame.scene);
+});
 const memoryHub = computed(() => {
   const frame = game.frame;
   if (
@@ -127,6 +133,13 @@ const memoryHub = computed(() => {
 const showMemoryObjects = computed(
   () => memoryHub.value !== null && dialogue.value?.revealing === false,
 );
+// 「記憶」鈕上的紅點：手記裡有還沒翻過的線索時亮起。
+const seenClues = ref(0);
+const unreadClues = computed(() => (game.frame?.clues.length ?? 0) > seenClues.value);
+function openNotebook() {
+  seenClues.value = game.frame?.clues.length ?? 0;
+  notebook.value?.showModal();
+}
 function inspectMemory(index: number) {
   if (dialogue.value?.reveal()) return;
   audio.cue("paper");
@@ -202,15 +215,33 @@ onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
           >{{ nightTitle }}</span
         >
       </div>
-      <button
-        class="icon-button"
-        aria-label="開啟遊戲選單"
-        @click="menu?.showModal()"
-      >
-        <GameIcon name="book" :size="24" />
-      </button>
+      <nav class="game-hud-nav" aria-label="書店工具">
+        <div class="game-hud-pill">
+          <button
+            type="button"
+            :aria-label="`守夜手記 · 信紙 ${game.frame?.fragments.length || 0}/${fragmentTotal}`"
+            :disabled="!game.opening.complete"
+            @click="openNotebook"
+          >
+            <GameIcon name="book" :size="22" /><span>記憶</span
+            ><i v-if="unreadClues" class="game-hud-dot" aria-hidden="true"></i>
+          </button>
+          <RouterLink to="/tea"><GameIcon name="tea" :size="22" /><span>茶席</span></RouterLink>
+          <RouterLink to="/collection"><GameIcon name="compass" :size="22" /><span>收藏</span></RouterLink>
+          <RouterLink to="/saves"><GameIcon name="save" :size="22" /><span>存檔</span></RouterLink>
+        </div>
+        <button
+          class="icon-button game-hud-gear"
+          aria-label="開啟遊戲選單"
+          @click="menu?.showModal()"
+        >
+          <GameIcon name="settings" :size="24" />
+        </button>
+      </nav>
     </header>
     <div v-if="game.frame" class="game-content">
+      <!-- 放在小遊戲面板之前：疊在書桌插畫上，但在拼信的按鈕與縮放列之下。 -->
+      <img v-if="game.opening.complete && game.frame.mode === 'letter'" :src="assets.letterReader" class="letter-reader" alt="" aria-hidden="true" />
       <OpeningPrep v-if="!game.opening.complete" />
       <template v-else-if="game.frame.mode === 'dialogue'"
         ><div class="scene-caption">
@@ -221,6 +252,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
               : nightLabel
           }}</small>
         </div>
+        <img v-if="showLinchengBack" :src="assets.linchengBack" class="lincheng-back" alt="" aria-hidden="true" />
         <img v-if="portrait" :key="portrait.src" :src="portrait.src" class="character-portrait" :class="{ 'character-portrait-child': portrait.kind === 'child' }" :data-portrait="portrait.kind" :data-expression="game.frame.portrait === 'haiming-searching' ? 'searching' : game.frame.portrait === 'haiming-warm' ? 'warm' : undefined" alt="" aria-hidden="true" />
         <div
           v-if="showMemoryObjects && memoryHub"
@@ -291,10 +323,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", keyboard));
     </div>
     <footer class="game-footer">
       <span v-if="!game.opening.complete">開店準備 · {{ game.opening.inspected.length }}/3</span>
-      <button v-else class="text-link" @click="notebook?.showModal()">
-        守夜手記 · 信紙 {{ game.frame?.fragments.length || 0 }}/{{
-          fragmentTotal
-        }}</button
+      <span v-else>信紙 {{ game.frame?.fragments.length || 0 }}/{{ fragmentTotal }}</span
       ><span role="status" aria-label="存檔狀態">{{
         game.error
           ? "尚未儲存"

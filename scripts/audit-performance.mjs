@@ -12,7 +12,7 @@ if (precached.length < 30) throw new Error("無法讀取 PWA 預快取清單。�
 
 const size = (url) => statSync(new URL(url, dist)).size;
 const precacheBytes = precached.reduce((sum, url) => sum + size(url), 0);
-const imageBytes = size("images/rain-street.webp");
+const imageBytes = size("images/title-street.webp") + size("images/title-street-mobile.webp");
 // The story plays one brew film per tea when a cup is served, or that tea's
 // garnish film when the cup carries one.
 const teaIds = ["osmanthus", "puer", "mint", "jasmine", "black", "chamomile", "lavender", "hojicha"];
@@ -33,7 +33,10 @@ const jsBytes = readdirSync(new URL("assets/", dist))
 const mustPrecache = [
   "index.html",
   "story/compiled/main.json",
-  "images/rain-street.webp",
+  "images/title-street.webp",
+  "images/title-street-mobile.webp",
+  "images/tea-table-scene.webp",
+  "images/letter-desk-scene.webp",
   "images/counter.webp",
   "images/jinglan-room.webp",
   "images/jinglan-room-mobile.webp",

@@ -7,7 +7,10 @@ export function sceneBackground(
   chapterId: PlayableChapterId,
   openingComplete: boolean,
 ) {
-  if (!frame || !openingComplete || frame.mode === "tea") return assets.scenes.counter;
+  if (!frame || !openingComplete) return assets.scenes.counter;
+  // 茶席與拼信是滿版場景：泡茶在店內長桌，拼信在窗邊書桌。
+  if (frame.mode === "tea") return assets.teaScene;
+  if (frame.mode === "letter") return assets.letterScene;
   if (frame.mode === "ending") return assets.scenes[chapterId];
   if (frame.scene === "memory") {
     if (frame.section === "school") return assets.memories.school;

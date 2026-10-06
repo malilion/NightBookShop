@@ -478,7 +478,6 @@
 }
 /* 次數已在按鈕名稱裡；徽章只是裝飾，數字用 CSS 畫 */
 .letter-panel .letter-hint-count::after { content: attr(data-count); }
-.letter-panel .letter-reset-mark { color: var(--mg-gold-bright); font-size: 18px; line-height: 1; }
 .letter-panel .letter-finish { min-height: 58px; font-size: 19px; }
 
 @media (max-width: 900px) {

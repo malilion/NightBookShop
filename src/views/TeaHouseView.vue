@@ -187,7 +187,7 @@ onMounted(async () => {
 </script>
 <template>
   <main id="main" tabindex="-1" class="tea-house" :class="`tea-house-${screen}`">
-    <picture class="tea-house-art" aria-hidden="true"><img :src="assets.scenes.counter" alt="" /></picture>
+    <picture class="tea-house-art" aria-hidden="true"><img :src="assets.teaScene" alt="" /></picture>
     <div class="tea-house-shade"></div>
     <header class="tea-house-header">
       <button
@@ -274,27 +274,30 @@ onMounted(async () => {
           <button class="quiet-button" @click="askLeave">{{ free ? "離開茶席" : "結束今晚" }}</button>
         </div>
       </div>
-      <Transition name="ticket" mode="out-in">
-        <TeaOrderTicket
-          v-if="house.order"
-          :key="`${session.startedAt}-${session.index}`"
-          :order="house.order"
-          :index="session.index"
-          :total="session.orders.length"
-          :discovered="house.discovered"
-        />
-        <article v-else class="free-ticket">
-          <h2>自由茶席</h2>
-          <p>沒有客人的夜晚。試試不同的茶與配料；泡出有名字的組合，就會收進茶譜（{{ house.recipeCount }}／{{ signatureRecipes.length }}）。</p>
-        </article>
-      </Transition>
-      <ol v-if="!free && house.progress.served === 0 && !guideDismissed" class="tea-house-guide" aria-label="第一次營業">
-        <li><strong>讀茶單</strong>客人想要的口味，會在風味雷達上標成金色區段。</li>
-        <li><strong>選茶與配料</strong>雷達的虛線，會預告這樣配泡好時的味道。</li>
-        <li><strong>看準時機</strong>沙漏外環的金色弧線亮起，就提起茶壺。</li>
-        <li><button type="button" class="text-link" @click="guideDismissed = true">知道了</button></li>
-      </ol>
-      <BrewCompletion :steps="completion.steps" :percent="completion.percent" />
+      <!-- 茶單、首次引導與完成度：一般版面照原順序排（display: contents），滿版時收成左欄。 -->
+      <div class="tea-house-brief">
+        <Transition name="ticket" mode="out-in">
+          <TeaOrderTicket
+            v-if="house.order"
+            :key="`${session.startedAt}-${session.index}`"
+            :order="house.order"
+            :index="session.index"
+            :total="session.orders.length"
+            :discovered="house.discovered"
+          />
+          <article v-else class="free-ticket">
+            <h2>自由茶席</h2>
+            <p>沒有客人的夜晚。試試不同的茶與配料；泡出有名字的組合，就會收進茶譜（{{ house.recipeCount }}／{{ signatureRecipes.length }}）。</p>
+          </article>
+        </Transition>
+        <ol v-if="!free && house.progress.served === 0 && !guideDismissed" class="tea-house-guide" aria-label="第一次營業">
+          <li><strong>讀茶單</strong>客人想要的口味，會在風味雷達上標成金色區段。</li>
+          <li><strong>選茶與配料</strong>雷達的虛線，會預告這樣配泡好時的味道。</li>
+          <li><strong>看準時機</strong>沙漏外環的金色弧線亮起，就提起茶壺。</li>
+          <li><button type="button" class="text-link" @click="guideDismissed = true">知道了</button></li>
+        </ol>
+        <BrewCompletion :steps="completion.steps" :percent="completion.percent" />
+      </div>
       <div class="tea-table-layout tea-house-layout">
         <div class="tea-house-main">
           <TeaTable

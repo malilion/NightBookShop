@@ -1,0 +1,1448 @@
+/*
+ * 滿版場景版型：標題、對話、茶席與拼信都鋪滿整個視窗，介面以半透明夜藍面板
+ * 浮在插畫上（對照 art-staging/ui-reference/ 的四張概念圖）。
+ * 只覆寫版型與外觀；遊戲邏輯與無障礙名稱不在這裡。
+ */
+:root {
+  --hud-bg: linear-gradient(180deg, #0d1626e0, #0a111ee8);
+  --hud-line: #c9a46acc;
+  --hud-line-soft: #c9a46a55;
+  --hud-gold: #e8c98f;
+  --hud-glow: 0 0 18px #f0c06a33;
+  --hud-radius: 14px;
+}
+
+/* ---------- 共用：金框夜藍面板 ---------- */
+.hud-frame {
+  position: relative;
+  background: var(--hud-bg);
+  border: 1px solid var(--hud-line);
+  border-radius: var(--hud-radius);
+  box-shadow:
+    inset 0 0 0 4px #0a111e,
+    inset 0 0 0 5px var(--hud-line-soft),
+    0 14px 40px #02050c99;
+  backdrop-filter: blur(6px);
+}
+
+/* ---------- 遊戲頁頂端：右上角工具列 ---------- */
+.game-header {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 5;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 22px 2.4% 0;
+  background: none;
+  pointer-events: none;
+}
+.game-header > * {
+  pointer-events: auto;
+}
+/* 品牌連結與選單裡的「回到門前」重複，滿版時不顯示；夜數仍留給讀屏。 */
+.game-header .game-brand {
+  display: none;
+}
+.game-header .night-indicator {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.game-hud-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.game-hud-pill {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--hud-line);
+  border-radius: 999px;
+  background: #0a1120d9;
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px var(--hud-line-soft), 0 8px 26px #02050c99;
+  padding: 3px 10px;
+  backdrop-filter: blur(6px);
+}
+.game-hud-pill > :is(a, button) {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 20px;
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  color: #f1e3c6;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+.game-hud-pill > :is(a, button) + :is(a, button)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 30%;
+  bottom: 30%;
+  width: 1px;
+  background: var(--hud-line-soft);
+}
+.game-hud-pill svg {
+  color: var(--hud-gold);
+}
+.game-hud-pill > :is(a, button):is(:hover, :focus-visible):not(:disabled) {
+  color: #fff3d6;
+  text-shadow: 0 0 12px #f0c06a99;
+}
+.game-hud-dot {
+  position: absolute;
+  top: 6px;
+  left: 30px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e04a3c;
+  box-shadow: 0 0 8px #ff5a4a;
+}
+.game-hud-gear.icon-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid var(--hud-line);
+  background: #0a1120d9;
+  color: var(--hud-gold);
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px var(--hud-line-soft), 0 8px 26px #02050c99;
+}
+
+/* ---------- 對話畫面 ---------- */
+.game-page.mode-dialogue,
+.game-page.mode-tea,
+.game-page.mode-letter {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+.mode-dialogue .game-content {
+  min-height: 0;
+  padding: 0 6.2% 3.2vh;
+}
+.mode-dialogue .scene-shade {
+  background: linear-gradient(0deg, #060b16d9 0%, #060b1666 28%, transparent 48%), linear-gradient(180deg, #060b1680, transparent 22%);
+}
+.mode-dialogue .scene-caption {
+  top: 26px;
+  left: 2.4%;
+  margin: 0;
+  padding: 8px 18px;
+  border: 1px solid var(--hud-line-soft);
+  border-radius: 999px;
+  background: #0a1120b3;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 14px;
+  backdrop-filter: blur(4px);
+}
+.mode-dialogue .scene-caption > span {
+  font-size: 17px;
+}
+.mode-dialogue .scene-caption small {
+  font-size: 12px;
+}
+/* 林澄的背影：前景右下，與訪客隔著櫃台相對。 */
+.lincheng-back {
+  position: absolute;
+  right: -2%;
+  bottom: 0;
+  z-index: 0;
+  height: min(78vh, 720px);
+  width: auto;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 0 30px #02050caa);
+}
+.mode-dialogue .character-portrait {
+  right: auto;
+  left: 50%;
+  transform: translateX(-62%);
+  bottom: 18vh;
+  height: min(70vh, 640px);
+  max-width: 48%;
+  animation-name: portrait-arrive-center;
+}
+@keyframes portrait-arrive-center {
+  from { opacity: 0.25; transform: translate(-62%, 8px); }
+  to { opacity: 1; transform: translate(-62%, 0); }
+}
+.mode-dialogue .character-portrait-child {
+  height: min(50vh, 460px);
+}
+
+.dialogue-panel {
+  max-width: none;
+  margin: 0 auto;
+  min-height: 0;
+  padding: 44px 5.2% 34px;
+  border: 1px solid var(--hud-line);
+  border-radius: 22px;
+  background: linear-gradient(180deg, #0c1424d6, #080e1bec);
+  box-shadow:
+    inset 0 0 0 5px #0a111e,
+    inset 0 0 0 6px var(--hud-line-soft),
+    0 18px 60px #02050ccc;
+  backdrop-filter: blur(8px);
+}
+/* 下緣中央的四芒星。 */
+.dialogue-panel::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -11px;
+  width: 22px;
+  height: 22px;
+  transform: translateX(-50%);
+  background: #f3dcae;
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  filter: drop-shadow(0 0 6px #f0c06a);
+}
+.speaker-line {
+  position: absolute;
+  top: -24px;
+  left: 2.4%;
+  gap: 0;
+}
+.speaker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 0 46px 0 40px;
+  border: 1px solid var(--hud-line);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #121b2c, #0a1120);
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px var(--hud-line-soft), 0 6px 18px #02050c99;
+  color: #f6ead2;
+  font-size: 21px;
+  letter-spacing: 0.22em;
+}
+.speaker-line .speaker-rule {
+  display: none;
+}
+.speaker-line > svg {
+  margin-left: -34px;
+  color: var(--hud-gold);
+}
+.dialogue-text {
+  margin: 4px 0 22px;
+  font-size: calc(var(--reading) + 3px);
+  line-height: 1.85;
+  letter-spacing: 0.12em;
+  color: #f5ecdb;
+}
+.dialogue-choices {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 0;
+}
+.dialogue-choices button {
+  justify-content: center;
+  min-height: 54px;
+  padding: 10px 22px;
+  border: 1px solid var(--hud-line);
+  border-radius: 10px;
+  background: #0a1120cc;
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px #c9a46a26;
+  text-align: center;
+  letter-spacing: 0.14em;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.dialogue-choices button:is(:hover, :focus-visible) {
+  border-color: #f3d79f;
+  background: #141d30e6;
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px #e8c98f66, var(--hud-glow);
+}
+.dialogue-choices .choice-number {
+  font-size: 11px;
+  opacity: 0.85;
+}
+.dialogue-choices button > svg {
+  margin-left: 0;
+}
+.continue-button {
+  position: absolute;
+  right: 3%;
+  bottom: 14px;
+}
+.keyboard-hint {
+  display: none;
+}
+.mode-dialogue + .game-footer,
+.game-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  padding: 0 2.4% 6px;
+  background: none;
+  font-size: 10px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+.game-footer :is(button, a) {
+  pointer-events: auto;
+}
+
+@media (max-width: 640px) {
+  .game-header {
+    padding: 12px 12px 0;
+  }
+  .game-hud-pill {
+    padding: 2px 4px;
+  }
+  .game-hud-pill > :is(a, button) {
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+    padding: 0 10px;
+    gap: 0;
+  }
+  .game-hud-pill > :is(a, button) > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .game-hud-dot {
+    left: 24px;
+  }
+  .game-hud-gear.icon-button {
+    width: 46px;
+    height: 46px;
+  }
+  .mode-dialogue .scene-caption {
+    top: 70px;
+    left: 12px;
+  }
+  .mode-dialogue .game-content {
+    padding: 0 12px 26px;
+  }
+  .lincheng-back {
+    height: 44vh;
+    right: -18%;
+  }
+  .mode-dialogue .character-portrait {
+    left: 42%;
+    bottom: 34vh;
+    height: 46vh;
+    max-width: 80%;
+  }
+  .dialogue-panel {
+    padding: 34px 18px 26px;
+    border-radius: 16px;
+  }
+  .speaker {
+    min-height: 40px;
+    padding: 0 30px 0 22px;
+    font-size: 17px;
+  }
+  .speaker-line > svg {
+    margin-left: -26px;
+  }
+  .dialogue-text {
+    font-size: var(--reading);
+    margin-bottom: 16px;
+  }
+  .dialogue-choices {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .continue-button {
+    position: static;
+  }
+}
+
+.high-contrast :is(.dialogue-panel, .game-hud-pill, .game-hud-gear.icon-button, .speaker) {
+  background: #05080e;
+  backdrop-filter: none;
+}
+.high-contrast .lincheng-back {
+  opacity: 0.55;
+}
+
+/* ---------- 標題畫面 ---------- */
+.title-page {
+  height: 100dvh;
+  min-height: 560px;
+  background-position: center;
+}
+.title-scrim {
+  background:
+    radial-gradient(ellipse 46% 32% at 50% 24%, #060c1a8c, transparent 70%),
+    linear-gradient(0deg, #050a16cc 0%, transparent 26%),
+    linear-gradient(180deg, #050a1699 0%, transparent 16%);
+}
+.title-header {
+  padding: 24px 2.6%;
+}
+.title-header nav a {
+  padding: 0 16px;
+  border: 1px solid var(--hud-line-soft);
+  border-radius: 999px;
+  background: #0a1120a6;
+  backdrop-filter: blur(4px);
+}
+.title-content {
+  position: static;
+  width: auto;
+  flex: 1;
+  padding: 0 4% 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.title-mark {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: max(0px, 4vh - 40px);
+}
+.title-moon {
+  position: absolute;
+  top: -2%;
+  left: 14%;
+  width: clamp(70px, 8.6vw, 140px);
+  fill: #f6e3b8;
+  filter: drop-shadow(0 0 16px #f7d48c) drop-shadow(0 0 40px #f0b85a88);
+  opacity: 0.92;
+  pointer-events: none;
+}
+.title-content h1 {
+  position: relative;
+  font-size: clamp(64px, 9.6vw, 168px);
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  color: #fff6e2;
+  text-shadow:
+    0 0 6px #ffe7b0,
+    0 0 26px #f2c46ecc,
+    0 0 70px #e2a24a88,
+    0 4px 18px #050a16;
+}
+.title-content .english-title {
+  margin: 4px 0 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(20px, 2.5vw, 42px);
+  letter-spacing: 0.06em;
+  color: #fbf0d8;
+  text-shadow: 0 0 14px #f2c46e99, 0 2px 10px #050a16;
+}
+.title-content .title-rule {
+  width: clamp(240px, 26vw, 440px);
+  margin: 18px 0 0;
+  gap: 10px;
+  justify-content: center;
+}
+.title-content .title-rule span {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e8c98f);
+}
+.title-content .title-rule span:last-child {
+  background: linear-gradient(90deg, #e8c98f, transparent);
+}
+.title-content .title-rule i {
+  width: 16px;
+  height: 16px;
+  background: #fbe6b8;
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  filter: drop-shadow(0 0 6px #f0c06a);
+}
+.title-content .title-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin: auto 0 0;
+}
+.title-content .title-actions > :is(.ornate-button, .quiet-button, button) {
+  min-width: 230px;
+  min-height: 56px;
+  border-radius: 12px;
+  border: 1px solid var(--hud-line);
+  outline: none;
+  background: #0a1120d9;
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px var(--hud-line-soft), 0 10px 30px #02050ccc;
+  letter-spacing: 0.2em;
+  backdrop-filter: blur(6px);
+}
+.title-content .title-actions > .ornate-button {
+  border-color: #f0d49c;
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px #e8c98f88, 0 0 24px #f0c06a40, 0 10px 30px #02050ccc;
+}
+.title-content .title-actions > :is(.ornate-button, .quiet-button, button):is(:hover, :focus-visible):not(:disabled) {
+  background: #151f33f0;
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px #e8c98faa, 0 0 26px #f0c06a55;
+}
+.title-content .title-submenu {
+  margin-top: 6px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: #0a112099;
+  text-shadow: 0 1px 6px #000;
+}
+@media (max-width: 640px) {
+  .title-page {
+    background-image: var(--scene-image-mobile);
+  }
+  .title-header .shop-seal {
+    font-size: 11px;
+  }
+  .title-header nav {
+    gap: 8px;
+  }
+  .title-header nav a > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .title-moon {
+    left: 4%;
+  }
+  .title-content .title-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .title-content .title-actions > :is(.ornate-button, .quiet-button, button) {
+    width: min(300px, 100%);
+  }
+}
+.high-contrast .title-content .title-actions > :is(.ornate-button, .quiet-button, button) {
+  background: #05080e;
+  backdrop-filter: none;
+}
+
+/* 其他小遊戲與結局仍是置中面板；頂端工具列浮在上方，內容讓出它的高度。 */
+.game-page:not(.mode-dialogue) .game-content {
+  padding-top: 92px;
+  padding-bottom: 34px;
+}
+@media (max-width: 640px) {
+  .game-page:not(.mode-dialogue) .game-content {
+    padding-top: 72px;
+  }
+}
+
+/* ---------- 茶席：滿版長桌，五張 HUD 卡浮在四角 ---------- */
+.mode-tea .scene-shade {
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 62%, transparent 40%, #050a1680 100%),
+    linear-gradient(180deg, #050a1666, transparent 30%);
+}
+.mode-tea .game-content {
+  padding: 84px 2.2% 18px;
+  align-items: stretch;
+  justify-content: stretch;
+}
+.hands-on-tea.paper-frame {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: static;
+  /* 進場只淡入：位移動畫會留下 transform，左上角的牌子就不再對齊頁面。 */
+  animation-name: scene-panel-fade;
+  backdrop-filter: none;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.hands-on-tea.paper-frame::before,
+.hands-on-tea.paper-frame::after {
+  display: none;
+}
+/* 標題與重整鈕收成左上角的小牌子（與對話畫面的場景牌同一位置）。 */
+.hands-on-tea .tea-table-heading {
+  position: absolute;
+  top: 26px;
+  left: 2.4%;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding: 4px 6px 4px 18px;
+  border: 1px solid var(--hud-line-soft);
+  border-radius: 999px;
+  background: #0a1120c7;
+  backdrop-filter: blur(4px);
+}
+.hands-on-tea .tea-table-heading > div {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.hands-on-tea .tea-table-heading h2 {
+  font-size: 16px;
+  letter-spacing: 0.14em;
+}
+.hands-on-tea .tea-table-heading .subtle {
+  font-size: 12px;
+}
+.hands-on-tea .tea-table-heading .quiet-button {
+  min-height: 44px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+/* 製茶步驟：桌面下緣中央的一條細膠囊。 */
+.hands-on-tea .table-phases {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 4;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 4px 6px;
+  border: 1px solid var(--hud-line-soft);
+  border-radius: 999px;
+  background: #0a1120cc;
+  font-size: 12px;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+.hands-on-tea .table-phases li {
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.hands-on-tea .tea-hud-layout {
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: minmax(250px, 330px) minmax(0, 1fr) minmax(230px, 300px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: none;
+  gap: 14px 22px;
+  align-items: start;
+}
+/* 茶板占中欄全高、貼齊桌面下緣；四張卡片疊在它的四角與上緣。 */
+.hands-on-tea .tea-hud-temp { grid-area: 1 / 1; }
+.hands-on-tea .tea-hud-steep { grid-area: 1 / 2; }
+.hands-on-tea .tea-hud-flavor { grid-area: 1 / 3 / 3 / 4; }
+.hands-on-tea .tea-hud-board { grid-area: 1 / 2 / 4 / 3; }
+.hands-on-tea .tea-hud-recipe { grid-area: 3 / 1; }
+.hands-on-tea .tea-hud-done { grid-area: 3 / 3; }
+.hands-on-tea .tea-hud-steep {
+  justify-self: center;
+  width: min(300px, 100%);
+}
+.hands-on-tea .tea-hud-board {
+  align-self: end;
+  min-height: 0;
+  width: 100%;
+  max-height: 100%;
+}
+.hands-on-tea .tea-hud-recipe,
+.hands-on-tea .tea-hud-done {
+  align-self: end;
+  position: relative;
+  z-index: 2;
+}
+.hands-on-tea .tea-hud-flavor,
+.hands-on-tea .tea-hud-temp,
+.hands-on-tea .tea-hud-steep {
+  position: relative;
+  z-index: 2;
+}
+.hands-on-tea .tea-hud-card {
+  border-color: var(--hud-line);
+  border-radius: var(--hud-radius);
+  background: linear-gradient(180deg, #0d1626d9, #0a111ee6);
+  box-shadow: inset 0 0 0 4px #0a111e, inset 0 0 0 5px var(--hud-line-soft), 0 14px 36px #02050ccc;
+  backdrop-filter: blur(6px);
+}
+/* 茶板本身透明，器具直接放在插畫的桌面上。 */
+/* 寬度由可用高度與茶板比例推回來，外框永遠與茶板同比例（只用 max-height 會讓內容在較高的框裡置中，點擊座標對不上）。 */
+.hands-on-tea .tea-board {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+  width: min(100%, calc((100dvh - 340px) * var(--board-ratio, 1.408)));
+  margin: 0 auto;
+}
+.hands-on-tea .tea-gesture-hint {
+  display: none;
+}
+.hands-on-tea .tea-board .board-backdrop {
+  display: none;
+}
+.hands-on-tea .tea-board .board-mat {
+  fill: none;
+  stroke-opacity: 0;
+}
+.hands-on-tea .tea-board .shelf-inscription {
+  display: none;
+}
+/* 風味卡占右上，完成度卡在右下；卡片內縮排小一點，讓桌面露出來。 */
+.hands-on-tea .tea-hud-flavor .flavor-radar svg {
+  max-width: 190px;
+}
+.hands-on-tea .tea-hud-recipe .tea-hud-desc,
+.hands-on-tea .tea-hud-recipe > .subtle {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hands-on-tea .tea-recipe-slots {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.hands-on-tea .tea-recipe-slots li {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+  row-gap: 4px;
+  padding: 8px 4px;
+}
+.hands-on-tea .tea-slot-swatch,
+.hands-on-tea .tea-slot-plus {
+  grid-row: auto;
+  width: 46px;
+  height: 46px;
+}
+.hands-on-tea .tea-slot-name {
+  font-size: 12px;
+}
+.hands-on-tea .tea-hud-done .tea-action-feedback {
+  min-height: 0;
+}
+
+/* 視窗矮於 780 px 時，茶板高度會不足 600 px 寬而換成直式，改回上下排列。 */
+@media (max-width: 1180px), (max-height: 780px) {
+  .game-page.mode-tea {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .mode-tea .game-content {
+    padding-top: 78px;
+  }
+  .hands-on-tea .tea-hud-layout {
+    height: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-template-areas:
+      "temp   steep"
+      "board  board"
+      "recipe flavor"
+      "done   done";
+  }
+  .hands-on-tea .tea-hud-steep {
+    width: 100%;
+  }
+  .hands-on-tea :is(.tea-hud-temp, .tea-hud-steep, .tea-hud-flavor, .tea-hud-board, .tea-hud-recipe, .tea-hud-done) {
+    grid-area: auto;
+  }
+  .hands-on-tea .tea-hud-temp { grid-area: temp; }
+  .hands-on-tea .tea-hud-steep { grid-area: steep; }
+  .hands-on-tea .tea-hud-flavor { grid-area: flavor; }
+  .hands-on-tea .tea-hud-board { grid-area: board; }
+  .hands-on-tea .tea-hud-recipe { grid-area: recipe; }
+  .hands-on-tea .tea-hud-done { grid-area: done; }
+  .hands-on-tea .tea-board {
+    width: 100%;
+  }
+  .hands-on-tea .table-phases {
+    position: static;
+    transform: none;
+    justify-self: center;
+    margin: 0 auto 12px;
+    width: fit-content;
+    max-width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    white-space: normal;
+    border-radius: 16px;
+  }
+  .hands-on-tea .tea-table-heading {
+    position: static;
+    width: fit-content;
+    margin: 0 0 12px;
+  }
+}
+@media (max-width: 640px) {
+  .hands-on-tea .tea-hud-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "temp" "board" "steep" "recipe" "flavor" "done";
+  }
+  .hands-on-tea .tea-table-heading {
+    flex-wrap: wrap;
+    border-radius: 16px;
+  }
+  .hands-on-tea .tea-recipe-slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.high-contrast .hands-on-tea .tea-hud-card {
+  background: #05080e;
+  backdrop-filter: none;
+}
+
+@keyframes scene-panel-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ---------- 拼信：窗邊書桌，拼圖墊在中央、線索卡與木盒在右 ---------- */
+.mode-letter .scene-shade {
+  background:
+    radial-gradient(ellipse 60% 55% at 58% 58%, transparent 45%, #050a1673 100%),
+    linear-gradient(180deg, #050a1640, transparent 25%);
+}
+.mode-letter .game-content {
+  padding: 84px 2.4% 18px;
+  align-items: stretch;
+  justify-content: stretch;
+}
+.letter-panel.paper-frame {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: static;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  animation-name: scene-panel-fade;
+}
+.letter-panel.paper-frame::before,
+.letter-panel.paper-frame::after {
+  display: none;
+}
+.letter-panel > .panel-heading {
+  position: absolute;
+  top: 26px;
+  left: 2.4%;
+  z-index: 6;
+  margin: 0;
+  padding: 4px 22px 4px 6px;
+  gap: 12px;
+  border: 1px solid var(--hud-line-soft);
+  border-radius: 999px;
+  background: #0a1120c7;
+  backdrop-filter: blur(4px);
+}
+.letter-panel > .panel-heading > :first-child {
+  width: 40px;
+  height: 40px;
+}
+.letter-panel > .panel-heading > div {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.letter-panel > .panel-heading h2 {
+  font-size: 16px;
+  letter-spacing: 0.14em;
+}
+.letter-panel > .panel-heading .subtle {
+  font-size: 12px;
+}
+/* 縮放與翻面：收成左下角的小工具列，不佔版面。 */
+.letter-panel > .letter-zoom-controls {
+  position: absolute;
+  left: 2.4%;
+  bottom: 22px;
+  z-index: 4;
+  margin: 0;
+  padding: 2px 14px 2px 16px;
+  gap: 6px;
+  border: 1px solid var(--hud-line-soft);
+  border-radius: 999px;
+  background: #0a1120cc;
+  font-size: 13px;
+  backdrop-filter: blur(4px);
+}
+.letter-panel > .letter-zoom-controls .subtle {
+  display: none;
+}
+.letter-panel > .letter-side-buttons {
+  position: absolute;
+  left: 2.4%;
+  top: 92px;
+  z-index: 4;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.letter-panel .letter-layout {
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: 3vw;
+  padding: 0 0 0 clamp(0px, 20vw, 330px);
+  align-items: stretch;
+}
+/* 滿版時整頁不捲動，放大後的工作區自己捲動；手機仍捲整頁（工作區變成捲動容器會讓手指拖曳被當成捲動而取消）。 */
+@media (min-width: 1181px) and (min-height: 701px) {
+  .letter-panel .letter-layout-zoomed {
+    overflow: auto;
+  }
+}
+.letter-panel .letter-paper {
+  align-self: center;
+  width: 100%;
+  max-height: 100%;
+  padding: 26px 30px;
+  border: 1px solid var(--hud-line);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 6px #0d1526,
+    inset 0 0 0 7px #e8c98f66,
+    inset 0 0 40px #02050c,
+    0 24px 50px #02050ccc,
+    0 0 40px #f0c06a1f;
+}
+.letter-panel .letter-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  padding: 2px 4px 8px;
+}
+/* 只有滿版（整頁不捲動）時右欄自己捲動；手機與窄版仍捲整頁，碎片放進捲動容器會讓手指拖曳被當成捲動而取消。 */
+@media (min-width: 1181px) and (min-height: 701px) {
+  .letter-panel .letter-side {
+    overflow-y: auto;
+  }
+}
+/* 線索卡釘在右上，木盒在它下方（照參考圖）。 */
+.letter-panel .letter-side > .letter-clue {
+  order: -1;
+  flex: 0 0 auto;
+  transform: rotate(1.2deg);
+}
+.letter-panel .letter-side > .letter-clue .letter-clue-note {
+  display: none;
+}
+.letter-panel .letter-side > .letter-fragments {
+  flex: 0 0 auto;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 3px #1a110a, inset 0 0 0 4px #c9a46a55, 0 18px 40px #02050ccc;
+}
+/* 底部：提示、重置置中，完成鈕在右下。 */
+.letter-panel .panel-footer {
+  position: relative;
+  justify-content: center;
+  gap: 18px;
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  min-height: 64px;
+}
+/* 手機版的信紙是 sticky，格子加高會讓它蓋住下方木盒的碎片、手指一拖就變成捲動；手機沿用 minigames.css 的 112 px。 */
+@media (min-width: 641px) {
+  .letter-panel .letter-layout .letter-slot {
+    min-height: calc(150px * var(--letter-zoom, 1));
+  }
+}
+.letter-panel .letter-paper .letter-date {
+  font-size: calc(13px * var(--letter-zoom, 1));
+}
+.letter-panel .panel-footer > .subtle {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  max-width: 46%;
+  padding: 4px 16px;
+  border-radius: 999px;
+  background: #0a1120b3;
+  text-align: center;
+  font-size: 13px;
+  pointer-events: none;
+}
+.letter-panel .letter-actions .quiet-button {
+  min-width: 190px;
+  min-height: 56px;
+  border: 1px solid var(--hud-line);
+  border-radius: 14px;
+  background: #0a1120e0;
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px var(--hud-line-soft), 0 10px 26px #02050ccc;
+  font-size: 17px;
+  letter-spacing: 0.3em;
+}
+.letter-panel .letter-finish {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  min-width: 300px;
+  min-height: 64px;
+  border-radius: 14px;
+  font-size: 20px;
+  letter-spacing: 0.24em;
+  box-shadow: inset 0 0 0 3px #0a1120, inset 0 0 0 4px #e8c98f88, 0 0 30px #f0c06a40, 0 10px 30px #02050ccc;
+}
+
+@media (max-width: 1180px), (max-height: 700px) {
+  .game-page.mode-letter {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .letter-panel > .panel-heading,
+  .letter-panel > .letter-zoom-controls,
+  .letter-panel > .letter-side-buttons {
+    position: static;
+    width: fit-content;
+    margin: 0 0 12px;
+  }
+  .letter-panel .letter-layout {
+    padding: 0;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 1fr);
+  }
+  .letter-panel .letter-side {
+    overflow: visible;
+  }
+  .letter-panel .panel-footer {
+    flex-wrap: wrap;
+  }
+  .letter-panel .panel-footer > .subtle {
+    position: static;
+    transform: none;
+    max-width: none;
+    flex-basis: 100%;
+  }
+  .letter-panel .letter-finish {
+    position: static;
+  }
+}
+@media (max-width: 640px) {
+  .letter-panel .letter-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .letter-panel > .panel-heading {
+    border-radius: 16px;
+  }
+  .letter-panel .letter-actions .quiet-button,
+  .letter-panel .letter-finish {
+    min-width: 0;
+  }
+}
+/* 器具名稱壓在亮桌面上：加一圈深色描邊。 */
+.hands-on-tea .tea-board text {
+  paint-order: stroke;
+  stroke: #0a0f1a;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+/* 茶罐名稱：滿版時壓在亮桌面上，墊一塊深色名牌以維持 4.5:1。 */
+.jar-caption-plate {
+  display: none;
+}
+.hands-on-tea .tea-board .jar-caption-plate {
+  display: block;
+  fill: #0a1120;
+  fill-opacity: 0.9;
+  stroke: #c9a46a;
+  stroke-opacity: 0.45;
+}
+.hands-on-tea .tea-board .jar-caption {
+  fill: #f3e4c4;
+}
+.game-footer > * {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #050a16cc;
+}
+.letter-panel > .letter-side-buttons > .subtle {
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: #050a16d9;
+  color: #e6d8bd;
+}
+
+/* ---------- 午夜茶席：與故事茶席同一張長桌，滿版排列 ---------- */
+.tea-house-brief {
+  display: contents;
+}
+.tea-house.tea-house-service .tea-house-shade {
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 62%, transparent 40%, #050a1680 100%),
+    linear-gradient(180deg, #050a16a6, transparent 30%);
+}
+@media (min-width: 1181px) and (min-height: 800px) {
+  .tea-house.tea-house-service {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+  .tea-house.tea-house-service .tea-house-header {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 6;
+    padding: 14px 2.2%;
+  }
+  .tea-house.tea-house-service .tea-house-header > :is(a, .tea-house-rank) {
+    padding: 0 16px;
+    min-height: 44px;
+    border: 1px solid var(--hud-line-soft);
+    border-radius: 999px;
+    background: #0a1120c7;
+    backdrop-filter: blur(4px);
+  }
+  .tea-house.tea-house-service .tea-house-brand {
+    text-shadow: 0 2px 12px #000;
+  }
+  .tea-house.tea-house-service .tea-service.paper-frame {
+    position: absolute;
+    inset: 76px 2.2% 14px;
+    display: grid;
+    grid-template-columns: minmax(270px, 330px) minmax(0, 1fr) minmax(270px, 320px);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 10px 22px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    animation-name: scene-panel-fade;
+  }
+  .tea-house.tea-house-service .tea-service.paper-frame::before,
+  .tea-house.tea-house-service .tea-service.paper-frame::after {
+    display: none;
+  }
+  .tea-house.tea-house-service :is(.tea-table-layout.tea-house-layout, .tea-house-main) {
+    display: contents;
+  }
+  /* 左欄上半：茶單、首次引導、完成度；下半：配料盤。中欄只有工具列與茶板，茶板高度不受左欄影響。 */
+  .tea-house.tea-house-service .tea-house-brief {
+    grid-area: 1 / 1 / 3 / 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+  }
+  .tea-house.tea-house-service .tea-service-bar {
+    grid-area: 1 / 2;
+    align-self: start;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 8px 6px 18px;
+    border: 1px solid var(--hud-line-soft);
+    border-radius: 24px;
+    background: #0a1120c7;
+    backdrop-filter: blur(4px);
+  }
+  .tea-house.tea-house-service .tea-service-bar .quiet-button {
+    min-height: 44px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+  .tea-house.tea-house-service :is(.order-ticket, .free-ticket) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    margin: 0;
+    padding: 14px 18px;
+  }
+  .tea-house.tea-house-service .order-ticket :is(.ticket-line, .ticket-wishes) {
+    margin: 0;
+  }
+  .tea-house.tea-house-service .tea-house-guide {
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    background: #0a1120d9;
+    backdrop-filter: blur(4px);
+  }
+  /* 茶板只占中欄工具列以下的高度，不往上蓋住其他元件（否則拖曳會按在別的東西上）。 */
+  .tea-house.tea-house-service .tea-board-wrap {
+    grid-area: 2 / 2 / 4 / 3;
+    align-self: stretch;
+    justify-self: center;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    width: 100%;
+    min-height: 0;
+    container-type: size;
+  }
+  .tea-house.tea-house-service .tea-board {
+    width: min(100cqw, 100cqh * var(--board-ratio, 1.408));
+    height: auto;
+    margin: 0 auto;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .tea-house.tea-house-service .tea-board :is(.board-backdrop, .shelf-inscription) {
+    display: none;
+  }
+  .tea-house.tea-house-service .tea-board .board-mat {
+    fill: none;
+    stroke-opacity: 0;
+  }
+  .tea-house.tea-house-service .tea-board .jar-caption-plate {
+    display: block;
+    fill: #0a1120;
+    fill-opacity: 0.9;
+    stroke: #c9a46a;
+    stroke-opacity: 0.45;
+  }
+  .tea-house.tea-house-service .tea-board text {
+    paint-order: stroke;
+    stroke: #0a0f1a;
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+  .tea-house.tea-house-service .tea-gesture-hint {
+    display: none;
+  }
+  .tea-house.tea-house-service .ingredient-tray {
+    grid-area: 3 / 1 / 4 / 2;
+    align-self: stretch;
+    margin: 0;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .tea-house.tea-house-service .brew-completion {
+    margin: 0;
+    padding: 8px 14px;
+    border: 1px solid var(--hud-line-soft);
+    border-radius: 14px;
+    background: #0a1120d9;
+    backdrop-filter: blur(4px);
+  }
+  .tea-house.tea-house-service .tea-house-aside {
+    grid-area: 1 / 3 / 4 / 4;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 0;
+  }
+  .tea-house.tea-house-service .ingredient-tray ul {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .tea-house.tea-house-service .ingredient-tray li {
+    padding: 6px 8px;
+  }
+  .tea-house.tea-house-service .brew-completion {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .tea-house.tea-house-service .completion-steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .tea-house.tea-house-service .completion-steps li {
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+  .tea-house.tea-house-service :is(.ingredient-tray, .tea-house-aside) {
+    padding: 14px 16px;
+    border: 1px solid var(--hud-line);
+    border-radius: var(--hud-radius);
+    background: linear-gradient(180deg, #0d1626d9, #0a111ee6);
+    box-shadow: inset 0 0 0 4px #0a111e, inset 0 0 0 5px var(--hud-line-soft), 0 14px 36px #02050ccc;
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* 林澄的手：只在滿版的茶席（故事與午夜茶席）出現；手機與窄版的茶板不靠畫面下緣，手臂會懸空。 */
+.tea-board .tea-hand {
+  display: none;
+}
+@media (min-width: 1181px) and (min-height: 781px) {
+  .hands-on-tea .tea-board:not(.compact) .tea-hand {
+    display: inline;
+  }
+}
+@media (min-width: 1181px) and (min-height: 800px) {
+  .tea-house.tea-house-service .tea-board:not(.compact) .tea-hand {
+    display: inline;
+  }
+}
+
+/* 拼信時林澄在左下前景伏案，雙手停在拼圖墊前（只在滿版拼信顯示，不擋點擊）。 */
+.letter-reader {
+  display: none;
+}
+@media (min-width: 1181px) and (min-height: 701px) {
+  .mode-letter .letter-reader {
+    display: block;
+    position: absolute;
+    left: -8.5vw;
+    bottom: 0;
+    z-index: 0;
+    width: min(46vw, 82vh);
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 0 24px #02050c99);
+  }
+}
+/* 配料木盒（茶板寬版左前方）。 */
+.ingredient-box-frame {
+  fill: #4a2f1c;
+  stroke: #c9a46a;
+  stroke-opacity: 0.55;
+  stroke-width: 2;
+}
+.ingredient-box-floor {
+  fill: #2a1a10;
+}
+.ingredient-box-divider {
+  fill: none;
+  stroke: #6b4529;
+  stroke-width: 5;
+}
+
+/* ---------- 拼信（滿版）：照概念圖，大拼圖墊、木盒隔格裡的方形撕邊紙片 ---------- */
+@media (min-width: 1181px) and (min-height: 701px) {
+  .letter-panel .letter-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 380px);
+    gap: 2.4vw;
+    padding-left: clamp(0px, 17vw, 300px);
+  }
+  /* 拼圖墊撐滿書桌中央：上下拉滿，格子平均分高度。 */
+  .letter-panel .letter-paper {
+    position: relative;
+    align-self: stretch;
+    height: auto;
+    max-height: none;
+    padding: 30px 36px;
+    border-radius: 18px;
+    background:
+      radial-gradient(1.5px 1.5px at 18% 14%, #ffe2a6 50%, transparent 51%),
+      radial-gradient(1px 1px at 72% 9%, #ffe2a6cc 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 91% 46%, #ffe2a6 50%, transparent 51%),
+      radial-gradient(1px 1px at 6% 62%, #ffe2a6aa 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 44% 94%, #ffe2a6 50%, transparent 51%),
+      radial-gradient(ellipse at 50% 40%, #1f2b48, #111a2e 70%, #0b1222);
+  }
+  /* 四角的金色花飾。 */
+  .letter-panel .letter-paper::before {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border-radius: 12px;
+    pointer-events: none;
+    --c: #e8c98f;
+    background:
+      linear-gradient(var(--c), var(--c)) top left / 46px 1.5px,
+      linear-gradient(var(--c), var(--c)) top left / 1.5px 46px,
+      linear-gradient(var(--c), var(--c)) top right / 46px 1.5px,
+      linear-gradient(var(--c), var(--c)) top right / 1.5px 46px,
+      linear-gradient(var(--c), var(--c)) bottom left / 46px 1.5px,
+      linear-gradient(var(--c), var(--c)) bottom left / 1.5px 46px,
+      linear-gradient(var(--c), var(--c)) bottom right / 46px 1.5px,
+      linear-gradient(var(--c), var(--c)) bottom right / 1.5px 46px;
+    background-repeat: no-repeat;
+    opacity: 0.85;
+  }
+  .letter-panel .letter-layout .letter-slot {
+    min-height: 0;
+  }
+  /* 木盒：兩欄隔格，碎片是方形撕邊紙，小圖放大、字在下方。 */
+  .letter-panel .letter-side > .letter-fragments {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 12px;
+    padding: 16px 14px;
+  }
+  .letter-panel .letter-fragments > :not(.fragment) {
+    grid-column: 1 / -1;
+  }
+  /* 木盒要在 900 px 高的視窗裡放下四片與共鳴碎片，不靠捲動；碎片太高時最後一片會被木盒下緣切掉。 */
+  .letter-panel .letter-layout .fragment {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-height: calc(104px * var(--letter-zoom, 1));
+    padding: 10px 10px 12px;
+    text-align: center;
+    font-size: calc(14px * var(--letter-zoom, 1));
+    line-height: 1.5;
+  }
+  .letter-panel .letter-layout .fragment-paper {
+    flex: 0 0 auto;
+    width: calc(44px * var(--letter-zoom, 1));
+    height: calc(44px * var(--letter-zoom, 1));
+  }
+  .letter-panel .letter-layout .fragment > svg:last-child {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+  }
+  .letter-panel .letter-side > .letter-clue {
+    padding: 14px 18px 12px;
+  }
+  .letter-panel .letter-clue .letter-clue-text {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+@media (min-width: 1181px) and (min-height: 701px) {
+  /* 拼圖墊從視窗約三成高處開始，上方留出窗外雨景（照概念圖）。 */
+  .letter-panel .letter-layout {
+    padding-top: max(0px, 18vh - 84px);
+    padding-bottom: 40px;
+  }
+  .letter-panel .letter-side {
+    margin-top: min(0px, 84px - 18vh);
+  }
+  /* 林澄伏在拼圖墊左下角，雙手壓在墊上；縮放列移到左上角牌子下方，免得被她擋住。 */
+  .mode-letter .letter-reader {
+    z-index: 1;
+  }
+  .letter-panel > .letter-zoom-controls {
+    top: 88px;
+    bottom: auto;
+  }
+  /* 兩面信的翻面鈕原本在 top 92px，會被移上來的縮放列蓋住而點不到；排在縮放列下方。 */
+  .letter-panel > .letter-side-buttons {
+    top: 146px;
+  }
+}
+@media (min-width: 1181px) and (min-height: 701px) {
+  /* 放上墊子的紙片：小圖放大成插畫（照概念圖紙片上的素描）。 */
+  .letter-panel .letter-slot.filled .slot-motif svg {
+    width: calc(76px * var(--letter-zoom, 1));
+    height: calc(76px * var(--letter-zoom, 1));
+    opacity: 0.85;
+  }
+  .letter-panel .letter-slot.filled {
+    gap: 22px;
+    padding-left: 34px;
+  }
+}

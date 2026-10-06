@@ -17,6 +17,16 @@ import {
   PhMagnifyingGlass,
   PhSpeakerHigh,
   PhSpeakerSlash,
+  PhCoffee,
+  PhCompass,
+  PhChatCircleDots,
+  PhLightbulb,
+  PhArrowsClockwise,
+  PhSparkle,
+  PhThermometerSimple,
+  PhHourglassSimple,
+  PhCaretDown,
+  PhFlowerTulip,
 } from "@phosphor-icons/vue";
 defineProps<{
   name:
@@ -36,7 +46,17 @@ defineProps<{
     | "check"
     | "search"
     | "sound"
-    | "muted";
+    | "muted"
+    | "tea"
+    | "compass"
+    | "chat"
+    | "bulb"
+    | "reset"
+    | "sparkle"
+    | "thermometer"
+    | "hourglass"
+    | "caret"
+    | "flower";
   size?: number;
 }>();
 const icons = {
@@ -57,6 +77,16 @@ const icons = {
   search: PhMagnifyingGlass,
   sound: PhSpeakerHigh,
   muted: PhSpeakerSlash,
+  tea: PhCoffee,
+  compass: PhCompass,
+  chat: PhChatCircleDots,
+  bulb: PhLightbulb,
+  reset: PhArrowsClockwise,
+  sparkle: PhSparkle,
+  thermometer: PhThermometerSimple,
+  hourglass: PhHourglassSimple,
+  caret: PhCaretDown,
+  flower: PhFlowerTulip,
 };
 </script>
 <template>

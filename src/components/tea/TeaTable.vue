@@ -22,6 +22,7 @@ import {
 } from "../../services/teaInteraction";
 import { useTeaBrew } from "./useTeaBrew";
 import TeaObject from "./TeaObject.vue";
+import { assets } from "../../data/assets";
 import "../../styles/teaTable.css";
 const props = withDefaults(
   defineProps<{
@@ -74,7 +75,7 @@ const target = computed(() =>
   held.value === "pot" ? layout.value.cup : layout.value.pot,
 );
 const tip = computed(() =>
-  spout(position, tilt.value, held.value === "pot" ? "pot" : "kettle"),
+  spout(position, tilt.value, held.value === "pot" ? "pot" : "kettle", layout.value.kettleScale),
 );
 const coldKettle = computed(() => props.boiling && draft.kettleTemp < minPourTemperature);
 const flowing = computed(
@@ -220,7 +221,8 @@ function place(kind: string): Point {
 }
 function transform(kind: string) {
   const p = place(kind);
-  return `translate(${p.x} ${p.y}) rotate(${held.value === kind ? tilt.value : 0})`;
+  const scale = kind === "kettle" ? ` scale(${layout.value.kettleScale})` : "";
+  return `translate(${p.x} ${p.y}) rotate(${held.value === kind ? tilt.value : 0})${scale}`;
 }
 function allowed(kind: string) {
   if (kind.startsWith("jar:") || kind === "jarLid") return canChooseJar.value;
@@ -280,7 +282,7 @@ function move(event: PointerEvent) {
   position.x = clamp(p.x - offset.x, 50, layout.value.width - 70);
   position.y = clamp(p.y - offset.y, 45, layout.value.height - 65);
   if (["pot", "kettle"].includes(held.value)) {
-    const anchor = pourAnchor(target.value, held.value as "pot" | "kettle");
+    const anchor = pourAnchor(target.value, held.value as "pot" | "kettle", layout.value.kettleScale);
     if (distance(position, anchor) < 48) {
       Object.assign(position, anchor);
       locked.value = true;
@@ -554,7 +556,7 @@ defineExpose({ hint, cancel });
       :data-held="held"
       :data-tilt="tilt"
       :viewBox="`0 0 ${layout.width} ${layout.height}`"
-      :style="{ aspectRatio: `${layout.width}/${layout.height}` }"
+      :style="{ aspectRatio: `${layout.width}/${layout.height}`, '--board-ratio': layout.width / layout.height }"
       aria-label="可操作的茶席"
       @pointermove="move"
       @pointerup="up"
@@ -697,18 +699,21 @@ defineExpose({ hint, cancel });
           <stop offset="1" stop-color="#e2562a" />
         </linearGradient>
       </defs>
-      <rect width="100%" height="100%" fill="#152229" />
+      <rect class="board-backdrop" width="100%" height="100%" fill="#152229" />
       <path
+        class="board-backdrop"
         :d="`M0 ${layout.shelfBottom}H${layout.width}V${layout.height}H0Z`"
         fill="url(#table-wood)"
       />
       <rect
+        class="board-backdrop"
         :y="layout.shelfBottom"
         width="100%"
         :height="layout.height - layout.shelfBottom"
         fill="url(#wood-lines)"
       />
       <rect
+        class="board-mat"
         x="30"
         :y="layout.shelfBottom + 70"
         :width="layout.width - 60"
@@ -719,6 +724,7 @@ defineExpose({ hint, cancel });
         stroke-opacity=".65"
       />
       <rect
+        class="board-mat"
         x="37"
         :y="layout.shelfBottom + 77"
         :width="layout.width - 74"
@@ -733,7 +739,7 @@ defineExpose({ hint, cancel });
       </text>
       <g v-for="(id, i) in ids" :key="id">
         <path
-          :d="`M${layout.jarSlot(i).x - 53} ${layout.jarSlot(i).y + 65}h108v10h-108Z`"
+          :d="compact ? `M${layout.jarSlot(i).x - 53} ${layout.jarSlot(i).y + 65}h108v10h-108Z` : `M${layout.jarSlot(i).x - 44} ${layout.jarSlot(i).y + 65}h88v10h-88Z`"
           fill="#6c4e37"
           stroke="#ab8455"
           stroke-opacity=".4"
@@ -762,9 +768,25 @@ defineExpose({ hint, cancel });
             :color="teas[id].color"
             :label="teas[id].name"
           />
+          <rect x="-46" y="72" width="92" height="24" rx="12" class="jar-caption-plate" pointer-events="none" />
           <text y="88" text-anchor="middle" class="jar-caption">
             {{ teas[id].name }}
           </text>
+        </g>
+      </g>
+      <!-- 配料木盒：寬版桌面左前方的擺設，照介面概念圖；實際加配料仍在配方卡／配料盤。 -->
+      <g
+        v-if="!compact"
+        class="ingredient-box"
+        :transform="`translate(${layout.tray.x} ${layout.tray.y})`"
+        pointer-events="none"
+        aria-hidden="true"
+      >
+        <rect x="-152" y="-62" width="304" height="124" rx="8" class="ingredient-box-frame" />
+        <rect x="-142" y="-52" width="284" height="104" rx="4" class="ingredient-box-floor" />
+        <path d="M-71-52V52M0-52V52M71-52V52M-142 0H142" class="ingredient-box-divider" />
+        <g v-for="(id, i) in Object.keys(ingredients)" :key="id" :transform="`translate(${-106.5 + (i % 4) * 71} ${i < 4 ? -26 : 26})`">
+          <image :href="`/images/tea-ingredients/${id}.webp`" x="-21" y="-21" width="42" height="42" />
         </g>
       </g>
       <ellipse
@@ -776,10 +798,21 @@ defineExpose({ hint, cancel });
         stroke="#bea171"
         stroke-dasharray="3 5"
       />
+      <!-- 名牌放在圓墊上方：滿版時林澄握水壺的左手會蓋住圓墊下方。 -->
+      <rect
+        v-if="draft.step === 'select'"
+        :x="layout.jar.x - 62"
+        :y="layout.jar.y - 12"
+        width="124"
+        height="24"
+        rx="12"
+        class="jar-caption-plate"
+        pointer-events="none"
+      />
       <text
         v-if="draft.step === 'select'"
         :x="layout.jar.x"
-        :y="layout.jar.y + 88"
+        :y="layout.jar.y + 5"
         text-anchor="middle"
         class="table-label"
       >
@@ -876,7 +909,7 @@ defineExpose({ hint, cancel });
       />
       <g
         v-if="['water', 'steep', 'serving'].includes(draft.step)"
-        :transform="`translate(${pourAnchor(phase < 3 ? layout.pot : layout.cup, phase < 3 ? 'kettle' : 'pot').x} ${(phase < 3 ? layout.pot : layout.cup).y - 145})`"
+        :transform="`translate(${pourAnchor(phase < 3 ? layout.pot : layout.cup, phase < 3 ? 'kettle' : 'pot', layout.kettleScale).x} ${(phase < 3 ? layout.pot : layout.cup).y - 145})`"
         class="pour-target"
         :class="{ matched: locked }"
         pointer-events="none"
@@ -888,7 +921,7 @@ defineExpose({ hint, cancel });
       </g>
       <g
         v-if="boiling"
-        :transform="`translate(${layout.kettle.x} ${layout.kettle.y})`"
+        :transform="`translate(${layout.kettle.x} ${layout.kettle.y}) scale(${layout.kettleScale})`"
         role="button"
         tabindex="0"
         :aria-label="`風爐：${fireNames[draft.fire]}，壺中水溫 ${Math.round(draft.kettleTemp)} 度（按一下調整火力）`"
@@ -929,6 +962,12 @@ defineExpose({ hint, cancel });
           fill="transparent"
         />
         <TeaObject kind="kettle" />
+        <!-- 林澄的手只在滿版茶席顯示（scenes.css）。水壺在右：左手圖左右翻轉成右手，從畫面右下伸來握提把（以提把中心 x=-5 為軸），跟著水壺移動。 -->
+        <g class="tea-hand" pointer-events="none" aria-hidden="true" transform="translate(-10 0) scale(-1 1)">
+          <!-- 袖子沿著前臂的斜角延伸出畫面（圖的切口在左緣與下緣）。 -->
+          <path d="M-188 44L-93 87L-304 304L-399 261Z" fill="#1e1823" />
+          <image :href="assets.handLeftKettle" x="-192" y="-129" width="220" height="220" />
+        </g>
       </g>
       <g
         :transform="transform('pot')"
@@ -951,6 +990,12 @@ defineExpose({ hint, cancel });
           :tea-type="dominantTeaId"
           :color="selected.color"
         />
+        <!-- 茶壺的把手在左：右手圖翻轉成左手，從畫面左下伸來扶著壺身左側。 -->
+        <g class="tea-hand" pointer-events="none" aria-hidden="true" transform="translate(-12 0) scale(-1 1)">
+          <!-- 袖子沿著前臂的斜角延伸出畫面（圖的切口在右緣與下緣）。 -->
+          <path d="M226 120L149 164L350 387L427 343Z" fill="#1e1823" />
+          <image :href="assets.handRightPot" x="18" y="-44" width="210" height="210" />
+        </g>
         <g v-if="potIngredients.length" transform="translate(40 -82)" pointer-events="none" aria-hidden="true" class="ingredient-markers">
           <g v-for="(item, i) in potIngredients" :key="`${item.id}-${item.count}`" :transform="`translate(${i * 30} 0)`">
             <g class="ingredient-drop">
@@ -1101,7 +1146,7 @@ defineExpose({ hint, cancel });
       </g>
       <g
         v-if="boiling"
-        :transform="`translate(${layout.kettle.x} ${layout.kettle.y})`"
+        :transform="`translate(${layout.kettle.x} ${layout.kettle.y}) scale(${layout.kettleScale})`"
         pointer-events="none"
         aria-hidden="true"
         class="kettle-state"

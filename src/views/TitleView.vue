@@ -15,7 +15,7 @@ async function resume() {
     id="main"
     tabindex="-1"
     class="title-page"
-    :style="{ '--scene-image': `url(${assets.title})` }"
+    :style="{ '--scene-image': `url(${assets.title})`, '--scene-image-mobile': `url(${assets.titleMobile})` }"
   >
     <div class="title-scrim"></div>
     <header class="title-header">
@@ -29,12 +29,14 @@ async function resume() {
       </nav>
     </header>
     <section class="title-content">
-      <div class="title-rule">
-        <span></span><GameIcon name="moon" :size="28" /><span></span>
+      <div class="title-mark">
+        <svg class="title-moon" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="M78 10a50 50 0 1 0 32 74A42 42 0 1 1 78 10Z" />
+        </svg>
+        <h1>夜行書店</h1>
+        <p class="english-title">The Midnight Bookshop</p>
+        <div class="title-rule" aria-hidden="true"><span></span><i></i><span></span></div>
       </div>
-      <h1>夜行書店</h1>
-      <p class="english-title">The Midnight Bookshop</p>
-      <p class="title-quote">有些故事，<br />只會在夜裡相遇。</p>
       <div class="title-actions">
         <button
           v-if="game.latest"
@@ -48,25 +50,12 @@ async function resume() {
           class="quiet-button tea-house-entry"
           ><GameIcon name="leaf" />午夜茶席<GameIcon name="arrow" /></RouterLink
         >
-        <div class="title-submenu">
-          <RouterLink to="/chapters">今夜的訪客</RouterLink><span>／</span
-          ><RouterLink to="/saves">讀取存檔</RouterLink><span>／</span
-          ><RouterLink to="/about">關於</RouterLink>
-        </div>
+      </div>
+      <div class="title-submenu">
+        <RouterLink to="/chapters">今夜的訪客</RouterLink><span>／</span
+        ><RouterLink to="/saves">讀取存檔</RouterLink><span>／</span
+        ><RouterLink to="/about">關於</RouterLink>
       </div>
     </section>
-    <div class="vertical-verse" aria-hidden="true">
-      在夜裡，<br />每個人都能被聽見。
-    </div>
-    <footer class="title-footer">
-      <span>一杯茶，一封信，一個未完的夜晚。</span
-      ><span>第一夜 · 月下未寄出的信</span>
-    </footer>
   </main>
 </template>
-<style scoped>
-.title-actions > .tea-house-entry {
-  min-width: 255px;
-  letter-spacing: 0.12em;
-}
-</style>

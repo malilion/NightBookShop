@@ -11,6 +11,9 @@ export const clamp = (value: number, min: number, max: number) =>
 /**
  * Table positions. On a boiling table the kettle sits on its stove, so the
  * spoon moves to a clear spot.
+ *
+ * 寬版照介面概念圖排：茶罐兩排立在左後方，配料木盒在左前，茶壺在中央，
+ * 水壺（與風爐）在右，茶杯在右前。倒水時把水壺提到茶壺左上方（pourAnchor）。
  */
 export function tableLayout(compact: boolean, boiling = false) {
   const width = compact ? 600 : 1000,
@@ -19,18 +22,22 @@ export function tableLayout(compact: boolean, boiling = false) {
     width,
     height,
     shelfBottom: compact ? 390 : 210,
-    jar: { x: compact ? 95 : 135, y: compact ? 460 : 370 },
-    blendJar: { x: compact ? 270 : 340, y: compact ? 460 : 370 },
-    spoon: boiling ? { x: compact ? 130 : 330, y: compact ? 800 : 625 } : { x: compact ? 110 : 200, y: compact ? 710 : 580 },
-    kettle: { x: compact ? 100 : 180, y: compact ? 610 : 510 },
-    pot: { x: compact ? 330 : 545, y: compact ? 590 : 465 },
-    cup: { x: compact ? 470 : 815, y: compact ? 790 : 555 },
-    lid: { x: compact ? 475 : 720, y: compact ? 470 : 360 },
-    hourglass: { x: compact ? 310 : 540, y: compact ? 820 : 610 },
+    jar: { x: compact ? 95 : 110, y: compact ? 460 : 430 },
+    blendJar: { x: compact ? 270 : 265, y: compact ? 460 : 430 },
+    spoon: boiling ? { x: compact ? 130 : 400, y: compact ? 800 : 395 } : { x: compact ? 110 : 400, y: compact ? 710 : 395 },
+    kettle: { x: compact ? 100 : 850, y: compact ? 610 : 470 },
+    pot: { x: compact ? 330 : 560, y: compact ? 590 : 470 },
+    cup: { x: compact ? 470 : 730, y: compact ? 790 : 615 },
+    lid: { x: compact ? 475 : 700, y: compact ? 470 : 360 },
+    hourglass: { x: compact ? 310 : 470, y: compact ? 820 : 630 },
+    /** 寬版的水壺（連同風爐）放大 1.4 倍，接近概念圖的比例；倒水的對位一起放大。 */
+    kettleScale: compact ? 1 : 1.4,
+    /** 配料木盒（只在寬版畫）。 */
+    tray: { x: 168, y: 615 },
     jarSlot(i: number) {
       return {
-        x: compact ? 80 + (i % 4) * 145 : 75 + i * 120,
-        y: compact ? 100 + Math.floor(i / 4) * 180 : 105,
+        x: compact ? 80 + (i % 4) * 145 : 60 + (i % 4) * 95,
+        y: compact ? 100 + Math.floor(i / 4) * 180 : 100 + Math.floor(i / 4) * 160,
       };
     },
   };
@@ -74,16 +81,18 @@ export function steepWindow(idealSeconds: number): [number, number] {
   return [Math.max(0, idealSeconds - 4), idealSeconds + 4];
 }
 /** Keep the full 15–75 degree pouring arc above the opening. */
-export function pourAnchor(target: Point, kind: "kettle" | "pot"): Point {
-  return { x: target.x - (kind === "kettle" ? 80 : 60), y: target.y - 145 };
+export function pourAnchor(target: Point, kind: "kettle" | "pot", kettleScale = 1): Point {
+  return { x: target.x - (kind === "kettle" ? 80 * kettleScale : 60), y: target.y - 145 };
 }
 export function spout(
   position: Point,
   tilt: number,
   kind: "kettle" | "pot",
+  kettleScale = 1,
 ): Point {
   const angle = (tilt * Math.PI) / 180;
-  const local = props3d[kind].spout;
+  const scale = kind === "kettle" ? kettleScale : 1;
+  const local = { x: props3d[kind].spout.x * scale, y: props3d[kind].spout.y * scale };
   return {
     x: position.x + local.x * Math.cos(angle) - local.y * Math.sin(angle),
     y: position.y + local.x * Math.sin(angle) + local.y * Math.cos(angle),

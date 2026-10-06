@@ -1,5 +1,12 @@
 export const assets = {
-  title: "/images/rain-street.webp",
+  title: "/images/title-street.webp",
+  titleMobile: "/images/title-street-mobile.webp",
+  linchengBack: "/images/lincheng-back.webp",
+  handLeftKettle: "/images/hand-left-kettle.webp",
+  handRightPot: "/images/hand-right-pot.webp",
+  letterReader: "/images/letter-reader.webp",
+  teaScene: "/images/tea-table-scene.webp",
+  letterScene: "/images/letter-desk-scene.webp",
   scenes: {
     counter: "/images/counter.webp",
     jinglan: "/images/jinglan-room.webp",

@@ -6,7 +6,7 @@
 
 - **唯一的外部素材是公有領域的主題曲錄音。** 沒有圖庫、音效庫、取樣、下載的 3D 模型或內嵌字型（CSS 只用系統字型）。
 - **背景音樂是公有領域錄音，其餘聲音與影片由本專案的程式產生。** 主題曲為薩提〈吉諾佩第一號〉，Robin Alciatore 演奏（Musopen，公有領域）；音效、環境音與製茶影片音軌為程序式合成；製茶影片由 `video/` 的 Remotion 專案以程序式 3D 渲染；茶具圖由 three.js 腳本渲染。
-- **圖片多為 AI 生成。** 背景、記憶場景、人物立繪、書籤插畫與茶點材料共 123 張，由 Codex 內建 `image_gen`（OpenAI 圖像模型）生成，另有 4 張由 AI 生成的概念圖縮製。
+- **圖片多為 AI 生成。** 背景、記憶場景、人物立繪、書籤插畫與茶點材料共 123 張，由 Codex 內建 `image_gen`（OpenAI 圖像模型）生成，另有 4 張由 AI 生成的概念圖縮製；2026-10-06 的滿版介面另有 9 張由 ChatGPT 圖像生成。
 - **程式相依皆為開放原始碼授權。** 原列於相依、但遊戲未使用的 GSAP（GreenSock 自訂授權）與 PixiJS 已移除。打包進遊戲的套件授權全文在發行檔 `THIRD_PARTY_LICENSES.txt`，遊戲內「關於」頁有連結。
 
 ## 分類
@@ -18,6 +18,7 @@
 | Remotion 影片 | 54 | `video/` 的 TeaBrew、TeaPour、TeaComplete 合成，程序式 3D 手部與茶具 | [video/README.md](../video/README.md)、[TEA_FILMS.md](TEA_FILMS.md) |
 | 腳本渲染 | 81 | three.js 茶具 60 張（`render-tea-props.mjs`）、茶湯遮罩 3 個（`render-tea-liquor.mjs`）、舊六段影片 18 個（`render-tea-films.mjs`） | [TEA_PROPS.md](TEA_PROPS.md) |
 | AI 生成圖片 | 123 | Codex 內建 `image_gen`：書籤 28、立繪 23、記憶背景 50、書店場景 14、茶點材料 8 | [BOOKMARK_ART.md](BOOKMARK_ART.md)、[CHAPTER_ART.md](CHAPTER_ART.md) |
+| AI 生成圖片（滿版介面） | 9 | 2026-10-06 依 `art-staging/ui-reference/` 四張介面概念圖，請 ChatGPT 圖像生成畫成去掉文字與介面的背景：標題街景（桌機 `title-street`、手機 `title-street-mobile`）、茶席長桌 `tea-table-scene`、拼信窗邊書桌 `letter-desk-scene`、林澄背影去背立繪 `lincheng-back`、茶席上的左右手 `hand-left-kettle`／`hand-right-pot`、拼信時伏案的林澄 `letter-reader`；原圖留在 `art-staging/ui-generated/`，以 `cwebp` 轉成 webp | [UI_STYLE.md](UI_STYLE.md) |
 | 衍生 | 6 | `scripts/optimize-assets.mjs` 由根目錄概念圖縮製 4 張場景（`rain-street`、`counter`、`memory`、`moon-sea`；概念圖帶 OpenAI 的 C2PA 簽章）、由 `favicon.svg` 轉出 2 個 PWA 圖示 | [UI_STYLE.md](UI_STYLE.md) |
 | 手繪 | 1 | `favicon.svg`（兩個向量形狀的月亮） | — |
 

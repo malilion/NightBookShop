@@ -73,7 +73,7 @@ async function playNight(page: Page, night: number, touch: boolean) {
       continue;
     }
     if (await page.locator(".letter-panel").isVisible()) {
-      await page.locator(".letter-panel .panel-footer button").click();
+      await page.locator(".letter-panel .letter-finish").click();
       continue;
     }
     const reveal = page.getByRole("button", { name: "顯示全文" });

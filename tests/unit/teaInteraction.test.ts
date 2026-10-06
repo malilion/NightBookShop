@@ -23,6 +23,11 @@ describe("hands-on tea rules", () => {
       }
     }
   });
+  it("keeps the larger wide-table kettle's spout over the pot throughout the arc", () => {
+    const target = { x: 560, y: 470 };
+    for (const tilt of [16, 30, 45, 60, 75])
+      expect(catchesWater(spout(pourAnchor(target, "kettle", 1.4), tilt, "kettle", 1.4), target, "kettle")).toBe(true);
+  });
   it("only catches a tilted stream above the vessel, with water and spill conserved", () => {
     const target = { x: 545, y: 465 },
       tip = spout({ x: 465, y: 320 }, 60, "kettle");
