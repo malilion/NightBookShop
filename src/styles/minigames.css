@@ -1,0 +1,591 @@
+/*
+ * 小遊戲外觀：夜色玻璃面板、金色細框與角飾、撕邊信紙、燭光發亮的格子與圓角金框按鈕。
+ * 只改外觀，不改結構與文字；高對比模式在檔尾還原成純色。
+ */
+:root {
+  --mg-gold: #e3c48a;
+  --mg-gold-bright: #ffdca0;
+  --mg-gold-line: #d7b68170;
+  --mg-glass: linear-gradient(180deg, #141d30e6, #0b1020ee 70%);
+  --mg-parchment:
+    radial-gradient(ellipse at 18% 22%, #fffaea80 0 10%, transparent 55%),
+    radial-gradient(ellipse at 80% 78%, #9b763e2a 0 12%, transparent 60%),
+    radial-gradient(ellipse at 60% 10%, #b38b4e1f 0 6%, transparent 40%),
+    linear-gradient(135deg, #f3e6c9, #e2cda5 55%, #d4bb8f);
+  --mg-ink: #3b2b1c;
+  --mg-torn: polygon(0 3%, 6% 0, 14% 4%, 23% 1%, 31% 3%, 42% 0, 51% 3%, 60% 1%, 71% 4%, 80% 0, 89% 3%, 100% 1%, 99% 22%, 100% 41%, 98% 58%, 100% 77%, 99% 97%, 90% 100%, 81% 96%, 70% 100%, 61% 97%, 49% 100%, 40% 96%, 29% 99%, 19% 96%, 9% 100%, 0 97%, 1% 76%, 0 55%, 2% 37%, 0 18%);
+  --mg-wood: linear-gradient(160deg, #3c281a, #2a1b11 60%, #22160e);
+}
+
+/* ── 面板：夜色玻璃＋金色雙線＋四角飾 ── */
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea).paper-frame {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid var(--mg-gold-line);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 50% -10%, #f2b75a1c, transparent 55%),
+    var(--mg-glass);
+  box-shadow:
+    inset 0 0 0 6px #0b102080,
+    inset 0 0 0 7px #d7b68126,
+    0 0 0 1px #05091080,
+    0 0 60px #f0b45a14,
+    0 24px 80px #03060cb0;
+  backdrop-filter: blur(6px);
+}
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea).paper-frame::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 12px;
+  border-radius: 12px;
+  pointer-events: none;
+  --c: var(--mg-gold);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / 26px 1px,
+    linear-gradient(var(--c), var(--c)) top left / 1px 26px,
+    linear-gradient(var(--c), var(--c)) top right / 26px 1px,
+    linear-gradient(var(--c), var(--c)) top right / 1px 26px,
+    linear-gradient(var(--c), var(--c)) bottom left / 26px 1px,
+    linear-gradient(var(--c), var(--c)) bottom left / 1px 26px,
+    linear-gradient(var(--c), var(--c)) bottom right / 26px 1px,
+    linear-gradient(var(--c), var(--c)) bottom right / 1px 26px;
+  background-repeat: no-repeat;
+  opacity: 0.8;
+}
+/* 頂端中央的小星飾 */
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea).paper-frame::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  transform: translateX(-50%) rotate(45deg);
+  border: 1px solid var(--mg-gold);
+  background: #0e1424;
+  box-shadow: 0 0 10px #ffd18a88;
+  pointer-events: none;
+}
+
+/* 標題：圖示放進金圈徽章，標題帶一點燭光 */
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) .panel-heading > :first-child {
+  display: grid;
+  place-items: center;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  padding: 12px;
+  border: 1px solid var(--mg-gold-line);
+  border-radius: 50%;
+  color: var(--mg-gold-bright);
+  background: radial-gradient(circle, #f2b75a2e, #0d1322 70%);
+  box-shadow: 0 0 0 4px #0b102099, 0 0 0 5px #d7b68133, 0 0 22px #f0b45a2e;
+  font-size: 26px;
+  line-height: 1;
+}
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) :is(.panel-heading h2, .tea-table-heading h2) {
+  color: #f8e6c0;
+  text-shadow: 0 0 18px #f2b75a55;
+}
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) .panel-heading .subtle {
+  color: var(--mg-gold);
+  letter-spacing: 0.12em;
+}
+
+/* 說明文字：像釘在一旁的線索卡 */
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) > .tea-clue {
+  position: relative;
+  padding: 16px 22px 16px 46px;
+  border: 1px solid #b8975f;
+  border-radius: 4px;
+  color: var(--mg-ink);
+  background: var(--mg-parchment);
+  box-shadow: inset 0 0 22px #8a65302e, 0 6px 18px #0007;
+  font-size: 16px;
+}
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) > .tea-clue::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  left: 19px;
+  width: 11px;
+  height: 11px;
+  transform: rotate(45deg);
+  background: #8a5a22;
+  box-shadow: 0 0 0 3px #e9d5ac, 0 0 0 4px #8a5a2299;
+}
+
+/* 底部分隔：中間亮、兩端淡出的金線 */
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) .panel-footer {
+  border-top: 0;
+  background: linear-gradient(90deg, transparent, var(--mg-gold) 50%, transparent) top / 100% 1px no-repeat;
+}
+
+/* ── 按鈕：圓角金框、燭光描邊 ── */
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) :is(.quiet-button, .hearth-actions button, .route-actions button, .lamp-actions button, .notification-card button, .letter-zoom-controls button) {
+  border: 1px solid #d7b681a6;
+  border-radius: 999px;
+  color: #f6e7c8;
+  background: linear-gradient(180deg, #1d2639, #10172a);
+  box-shadow: inset 0 0 0 3px #0c1222, inset 0 0 0 4px #d7b68124, 0 3px 10px #0007;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) :is(.quiet-button, .hearth-actions button, .route-actions button, .lamp-actions button, .notification-card button, .letter-zoom-controls button):is(:hover, :focus-visible):not(:disabled),
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) :is(.quiet-button, .hearth-actions button, .route-actions button, .lamp-actions button)[aria-pressed="true"] {
+  border-color: var(--mg-gold-bright);
+  background: linear-gradient(180deg, #2a2a2e, #171a26);
+  box-shadow: inset 0 0 0 3px #0c1222, inset 0 0 0 4px #ffdca04d, 0 0 16px #f2b75a59;
+}
+
+/* 主要按鈕：像「完成」那顆，兩側有菱形星飾 */
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) .ornate-button {
+  position: relative;
+  padding-inline: 46px;
+  border: 1px solid var(--mg-gold);
+  border-radius: 14px;
+  outline: 1px solid #d7b68155;
+  outline-offset: 4px;
+  color: #fff1d2;
+  background: linear-gradient(180deg, #2b2418, #16120d 70%);
+  box-shadow: inset 0 0 0 3px #16120d, inset 0 0 0 4px #e3c48a55, 0 0 26px #f0b45a33;
+  text-shadow: 0 0 12px #ffcf7a66;
+}
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) .ornate-button:hover:not(:disabled) {
+  background: linear-gradient(180deg, #3a3020, #1d170f 70%);
+  box-shadow: inset 0 0 0 3px #1d170f, inset 0 0 0 4px #ffdca080, 0 0 34px #f0b45a5c;
+}
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) .ornate-button::before,
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) .ornate-button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  background: var(--mg-gold-bright);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  filter: drop-shadow(0 0 4px #ffd18a);
+  transform: translateY(-50%);
+}
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) .ornate-button::before { left: 18px; }
+:is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea) .ornate-button::after { right: 18px; }
+
+/* ── 拼信：深藍拼圖墊、發亮虛線格、撕邊信紙、木盒碎片 ── */
+.letter-zoom-controls button { border-radius: 999px; }
+.letter-panel .letter-paper {
+  border: 1px solid #c9a76a99;
+  border-radius: 10px;
+  color: #f1e0bd;
+  background:
+    radial-gradient(1px 1px at 12% 18%, #ffe2a6 50%, transparent 51%),
+    radial-gradient(1px 1px at 83% 12%, #ffe2a6aa 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 92% 88%, #ffe2a6 50%, transparent 51%),
+    radial-gradient(1px 1px at 8% 82%, #ffe2a6aa 50%, transparent 51%),
+    radial-gradient(ellipse at 50% 40%, #1f2b48, #111a2e 70%, #0b1222);
+  box-shadow: inset 0 0 0 7px #0d152699, inset 0 0 0 8px #c9a76a40, inset 0 0 40px #02050c, 0 12px 30px #0009;
+  transform: none;
+}
+.letter-panel .letter-date {
+  color: var(--mg-gold);
+  letter-spacing: 0.18em;
+}
+.letter-panel .letter-slot {
+  position: relative;
+  isolation: isolate;
+  border: 1.5px dashed #f0c97ab3;
+  border-radius: 4px;
+  color: #f4e4c3;
+  background: #f0c97a0d;
+  box-shadow: inset 0 0 18px #f0c97a1f, 0 0 10px #f0c97a1a;
+}
+.letter-panel .letter-slot .empty-slot { color: #ecd8b0; }
+.letter-panel .letter-slot .empty-slot small { color: #d8bf8f; letter-spacing: 0.08em; }
+.letter-panel .letter-slot.ink-glow {
+  border-color: var(--mg-gold-bright);
+  border-style: solid;
+  box-shadow: 0 0 0 1px #ffdca099, 0 0 24px 6px #f2b75a73, inset 0 0 18px #ffdca055;
+}
+/* 放上的碎片：一張撕邊信紙，邊框交給偽元素，焦點外框不會被裁掉 */
+.letter-panel .letter-slot.filled {
+  border-color: transparent;
+  color: var(--mg-ink);
+  background: none;
+  box-shadow: 0 0 18px #f2b75a33;
+}
+.letter-panel .letter-slot.filled::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -4px -6px;
+  background: var(--mg-parchment);
+  clip-path: var(--mg-torn);
+}
+.letter-panel .letter-slot.filled.ink-glow { box-shadow: 0 0 26px 6px #f2b75a80; }
+.letter-panel .letter-signature {
+  color: var(--mg-gold-bright);
+  text-shadow: 0 0 14px #f2b75a66;
+}
+
+/* 碎片收納：木盒 */
+.letter-panel .letter-fragments {
+  align-self: start;
+  padding: 18px;
+  border: 1px solid #8b6237;
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(95deg, #ffffff05 0 2px, transparent 2px 9px),
+    var(--mg-wood);
+  box-shadow: inset 0 0 0 5px #1b110a, inset 0 0 0 6px #8b623755, inset 0 10px 24px #000a, 0 10px 26px #0008;
+}
+.letter-panel .fragment {
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  border-radius: 0;
+  color: var(--mg-ink);
+  background: none;
+  box-shadow: none;
+  filter: drop-shadow(0 3px 4px #000a);
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+.letter-panel .fragment::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--mg-parchment);
+  clip-path: var(--mg-torn);
+}
+.letter-panel .fragment:nth-of-type(odd) { transform: rotate(-0.8deg); }
+.letter-panel .fragment:nth-of-type(even) { transform: rotate(0.9deg); }
+.letter-panel .fragment:hover:not(:disabled) {
+  transform: translateY(-2px) rotate(0deg);
+  filter: drop-shadow(0 6px 8px #000c) drop-shadow(0 0 8px #f2b75a55);
+}
+.letter-panel .fragment[aria-pressed="true"] {
+  border: 0;
+  box-shadow: none;
+  transform: translateY(-3px) rotate(0deg);
+  filter: drop-shadow(0 0 2px #ffdca0) drop-shadow(0 0 12px #f2b75acc);
+}
+.letter-panel .fragment:disabled { opacity: 0.42; filter: grayscale(0.4) drop-shadow(0 2px 3px #0008); }
+.letter-panel .fragment-paper {
+  border-color: #9c7a4c;
+  background:
+    linear-gradient(145deg, #1d2a46, #0f1729),
+    #0f1729;
+  clip-path: polygon(0 0, 100% 0, 100% 83%, 90% 79%, 84% 91%, 75% 86%, 66% 100%, 0 96%);
+  box-shadow: inset 0 0 0 2px #c9a76a88;
+}
+.letter-panel .letter-fragments :is(.text-link, .inspect-ink) { color: var(--mg-gold-bright); }
+.letter-panel .ink-note {
+  border-left-color: var(--mg-gold);
+  border-radius: 0 6px 6px 0;
+  color: #f3e3c4;
+  background: #0b0704a6;
+}
+.letter-panel .letter-stamps {
+  border-color: #8b623799;
+  border-radius: 8px;
+  background: #0b0704a6;
+}
+.letter-panel .letter-stamps label { border-radius: 999px; border-color: #c9a76a80; }
+.letter-panel .letter-stamps label:has(input:checked) {
+  border-color: var(--mg-gold-bright);
+  box-shadow: 0 0 12px #f2b75a59;
+}
+.letter-drag-ghost {
+  border: 0;
+  color: var(--mg-ink);
+  background: var(--mg-parchment);
+  clip-path: var(--mg-torn);
+}
+
+/* ── 茶席：右側像遊戲 HUD 的資訊卡 ── */
+.hands-on-tea .table-phases li {
+  padding: 4px 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+.hands-on-tea .table-phases li.active {
+  border-color: #ffdca0b3;
+  color: var(--mg-gold-bright);
+  background: #f2b75a1f;
+  box-shadow: 0 0 14px #f2b75a40;
+  text-shadow: 0 0 10px #f2b75a88;
+}
+.hands-on-tea .tea-recipe-note {
+  padding: 18px;
+  border: 1px solid var(--mg-gold-line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #121a2ce6, #0b1020f0);
+  box-shadow: inset 0 0 0 5px #0b102099, inset 0 0 0 6px #d7b68122, 0 10px 28px #0008;
+}
+.hands-on-tea .tea-recipe-note h3 {
+  color: #f8e2b4;
+  text-shadow: 0 0 16px #f2b75a55;
+}
+.hands-on-tea .tea-recipe-note dl {
+  padding: 12px 14px;
+  border: 1px solid #d7b68140;
+  border-radius: 10px;
+  background: #060a14b3;
+}
+.hands-on-tea .tea-recipe-note .range-label {
+  padding: 12px 14px;
+  border: 1px solid #d7b68140;
+  border-radius: 10px;
+  background: #060a14b3;
+}
+.hands-on-tea .tea-recipe-note .range-label output {
+  color: var(--mg-gold-bright);
+  font-size: 20px;
+  text-shadow: 0 0 10px #f2b75a66;
+}
+/* 水溫：冷藍到橘紅的溫度條（保留 44px 觸控高度，只把軌道畫細） */
+.hands-on-tea .range-label input[type="range"] {
+  appearance: none;
+  background: transparent;
+}
+.hands-on-tea .range-label input[type="range"]::-webkit-slider-runnable-track {
+  height: 10px;
+  border: 1px solid #d7b68166;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4f7fd9, #9fb3d8 30%, #f0b45a 70%, #e0603a);
+}
+.hands-on-tea .range-label input[type="range"]::-moz-range-track {
+  height: 10px;
+  border: 1px solid #d7b68166;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4f7fd9, #9fb3d8 30%, #f0b45a 70%, #e0603a);
+}
+.hands-on-tea .range-label input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 26px;
+  margin-top: -9px;
+  border: 1px solid #fff1d2;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ffe7b5, #c8913f);
+  box-shadow: 0 0 10px #f2b75acc;
+}
+.hands-on-tea .range-label input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 26px;
+  border: 1px solid #fff1d2;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ffe7b5, #c8913f);
+  box-shadow: 0 0 10px #f2b75acc;
+}
+.hands-on-tea .range-label input[type="range"]:disabled { opacity: 0.55; }
+.hands-on-tea .tea-board {
+  border: 1px solid var(--mg-gold-line);
+  border-radius: 12px;
+  box-shadow: 0 0 0 4px #0b102099, 0 0 0 5px #d7b68126, 0 12px 30px #0009;
+}
+.hands-on-tea .tea-action-feedback {
+  border-left: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #d7b68140;
+  background: #f2b75a12;
+}
+
+/* ── 旋律 ── */
+.melody-panel .melody-key {
+  border: 1px solid #d7b68199;
+  border-radius: 14px;
+  background:
+    radial-gradient(ellipse at 50% 0, #f2b75a26, transparent 70%),
+    linear-gradient(180deg, #1b2438, #0e1424);
+  box-shadow: inset 0 0 0 4px #0c1222, inset 0 0 0 5px #d7b68124, 0 6px 16px #0008;
+}
+.melody-panel .melody-key:hover:not(:disabled),
+.melody-panel .melody-key:focus-visible {
+  border-color: var(--mg-gold-bright);
+  background:
+    radial-gradient(ellipse at 50% 0, #f2b75a4d, transparent 70%),
+    linear-gradient(180deg, #232a3a, #121828);
+  box-shadow: inset 0 0 0 4px #0c1222, inset 0 0 0 5px #ffdca04d, 0 0 22px #f2b75a59;
+}
+.melody-panel .melody-key span { color: var(--mg-gold-bright); text-shadow: 0 0 12px #f2b75a88; }
+.melody-panel .melody-sequence span {
+  border: 1px solid #d7b68166;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f2b75a1f, #0b1020 70%);
+  box-shadow: 0 0 12px #f2b75a26;
+}
+
+/* ── 爐火、守燈：放在有角飾的小舞台裡 ── */
+:is(.hearth-panel .hearth-visual, .lamp-panel .lamp-visual) {
+  border: 1px solid var(--mg-gold-line);
+  border-radius: 14px;
+  background:
+    radial-gradient(ellipse at 50% 35%, #f2a24a2e, transparent 60%),
+    linear-gradient(180deg, #0f1626e6, #080c18f0);
+  box-shadow: inset 0 0 0 6px #080c1899, inset 0 0 0 7px #d7b68124, inset 0 0 50px #000a;
+}
+.hearth-panel .hearth-gauge {
+  height: 12px;
+  border-radius: 999px;
+  border-color: #d7b68166;
+  background: #050810;
+  overflow: hidden;
+}
+.hearth-panel .hearth-gauge span {
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7a3a22, #e0873f 70%, #ffd28a);
+  box-shadow: 0 0 12px #f0a04acc;
+}
+.hearth-panel .hearth-prompt,
+.lamp-panel .lamp-prompt {
+  margin: 18px 0;
+  padding: 14px 18px;
+  border-left: 2px solid var(--mg-gold);
+  border-radius: 0 10px 10px 0;
+  background: #f2b75a0f;
+}
+
+/* ── 投遞：夜色地圖、羊皮紙投遞紀錄 ── */
+.route-panel .route-map {
+  border: 1px solid var(--mg-gold-line);
+  border-radius: 14px;
+  background:
+    linear-gradient(#d7b68112 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(90deg, #d7b68112 1px, transparent 1px) 0 0 / 28px 28px,
+    radial-gradient(circle at 50% 50%, #26324a, #0e1526 72%);
+  box-shadow: inset 0 0 0 6px #0b102099, inset 0 0 0 7px #d7b68124, inset 0 0 40px #000a;
+}
+.route-panel .route-map-stop {
+  border: 1px dashed #f0c97a99;
+  border-radius: 10px;
+  color: #f1e0bd;
+  background: #f0c97a0d;
+  box-shadow: inset 0 0 14px #f0c97a1a;
+}
+.route-panel .route-log li {
+  border-left: 0;
+  border-radius: 3px;
+  color: #3f2f1f;
+  background: var(--mg-parchment);
+  box-shadow: 0 3px 8px #0008;
+}
+.route-panel .route-log strong { color: var(--mg-ink); }
+
+/* ── 終章地圖：每份紀錄是一張羊皮紙 ── */
+.archive-panel .archive-record {
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  border-radius: 0;
+  color: var(--mg-ink);
+  background: none;
+  filter: drop-shadow(0 4px 6px #000b);
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+.archive-panel .archive-record::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--mg-parchment);
+  clip-path: var(--mg-torn);
+}
+.archive-panel .archive-record:nth-child(odd) { transform: rotate(-0.5deg); }
+.archive-panel .archive-record:nth-child(even) { transform: rotate(0.6deg); }
+.archive-panel .archive-record:hover { transform: translateY(-2px); }
+.archive-panel .archive-record.inspected::before { filter: sepia(0.25) brightness(0.93); }
+.archive-panel .archive-record.selected {
+  border: 0;
+  box-shadow: none;
+  transform: translateY(-3px);
+  filter: drop-shadow(0 0 2px #ffdca0) drop-shadow(0 0 14px #f2b75acc);
+}
+.archive-panel .archive-record-name { color: #4f2d0c; }
+.archive-panel :is(.archive-record-back, .archive-record-hint) { color: #3f2f1f; }
+.archive-panel .archive-record-hint { color: #4f2d0c; }
+.archive-panel .archive-connections {
+  border: 1px solid var(--mg-gold-line);
+  border-radius: 12px;
+  background: #060a14c4;
+}
+.archive-panel .archive-center {
+  border: 1.5px dashed #f0c97a99;
+  border-radius: 12px;
+  background: #f0c97a0a;
+  box-shadow: inset 0 0 18px #f0c97a1a;
+}
+.archive-panel .archive-center.complete {
+  border-color: var(--mg-gold-bright);
+  box-shadow: 0 0 22px #f2b75a59, inset 0 0 18px #f0c97a33;
+}
+.archive-panel .archive-map-art { border-radius: 8px; border-color: var(--mg-gold); box-shadow: 0 0 24px #f2b75a33; }
+
+/* ── 通知：手機外殼收成金框 ── */
+.notification-panel .notification-phone {
+  border-color: var(--mg-gold-line);
+  border-radius: 24px;
+  box-shadow: inset 0 0 0 6px #080c1899, inset 0 0 0 7px #d7b68124, 0 10px 30px #0009;
+}
+.notification-panel .notification-card {
+  border-radius: 12px;
+  border-color: #d7b68155;
+}
+
+@media (max-width: 640px) {
+  :is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea).paper-frame {
+    border-radius: 14px;
+  }
+  :is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea).paper-frame::before { inset: 7px; }
+  :is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) .panel-heading > :first-child {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 9px;
+    font-size: 21px;
+  }
+  :is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) > .tea-clue {
+    padding: 14px 16px 14px 38px;
+  }
+  :is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) > .tea-clue::before { left: 15px; }
+  .letter-panel .letter-fragments { padding: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter-panel .fragment,
+  .archive-panel .archive-record { transition: none; }
+}
+
+/* ── 高對比：拿掉裝飾與羊皮紙，回到純色與實線 ── */
+.high-contrast :is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea).paper-frame::before,
+.high-contrast :is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel, .hands-on-tea).paper-frame::after,
+.high-contrast :is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) > .tea-clue::before {
+  display: none;
+}
+.high-contrast :is(.letter-panel, .melody-panel, .hearth-panel, .route-panel, .lamp-panel, .archive-panel, .notification-panel) > .tea-clue,
+.high-contrast .route-panel .route-log li {
+  color: var(--ink);
+  background: var(--night);
+  border: 1px solid var(--gold);
+  box-shadow: none;
+}
+.high-contrast .route-panel .route-log strong { color: var(--ink); }
+.high-contrast :is(.letter-panel .letter-slot.filled, .letter-panel .fragment, .archive-panel .archive-record)::before {
+  clip-path: none;
+  background: var(--night);
+  filter: none;
+}
+.high-contrast :is(.letter-panel .letter-slot.filled, .letter-panel .fragment, .archive-panel .archive-record) {
+  color: var(--ink);
+  border: 1px solid var(--gold);
+  filter: none;
+  transform: none;
+}
+.high-contrast .archive-panel :is(.archive-record-name, .archive-record-back, .archive-record-hint) { color: var(--ink); }
+.high-contrast .letter-drag-ghost {
+  clip-path: none;
+  color: var(--ink);
+  background: var(--night);
+  border: 1px solid var(--gold);
+}
