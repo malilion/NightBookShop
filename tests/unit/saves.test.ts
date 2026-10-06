@@ -184,6 +184,13 @@ describe("local saves", () => {
     expect((await db.collection.get("moonlight"))?.golden).toBe(true);
     expect(snapshotSchema.parse({ ...ordinary, frame: { ...ordinary.frame, resonanceFragment: undefined }, letter: { ...ordinary.letter, resonanceInspected: undefined } }).frame.resonanceFragment).toBeNull();
   });
+  it("reads letters saved before hints as having all three hints left", () => {
+    const saved = snapshot();
+    const older: Partial<typeof saved.letter> = { ...saved.letter };
+    delete older.hintsUsed;
+    expect(snapshotSchema.parse({ ...saved, letter: older }).letter.hintsUsed).toBe(0);
+    expect(() => snapshotSchema.parse({ ...saved, letter: { ...saved.letter, hintsUsed: 4 } })).toThrow();
+  });
   it.each([
     ["jinglan", "moonlight"],
     ["boyan", "boyan-rest"],

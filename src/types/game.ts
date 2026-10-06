@@ -401,6 +401,8 @@ export const letterSchema = z.object({
     .default([null, null, null]),
   activeSide: z.enum(["front", "back"]).default("front"),
   stamp: z.enum(["none", "past", "present", "future"]).default("none"),
+  // 拼信的提示次數（每封信三次）；舊存檔沒有這個欄位，視為還沒用過。
+  hintsUsed: z.number().int().min(0).max(3).default(0),
 });
 export type LetterDraft = z.infer<typeof letterSchema>;
 export const melodySchema = z.object({
@@ -592,6 +594,7 @@ export const newLetter = (): LetterDraft => ({
   reverseSlots: [null, null, null],
   activeSide: "front",
   stamp: "none",
+  hintsUsed: 0,
 });
 export const newMelody = (): MelodyDraft => ({ notes: [] });
 export const newHearth = (): HearthDraft => ({ responses: [] });

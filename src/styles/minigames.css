@@ -302,7 +302,200 @@
   clip-path: var(--mg-torn);
 }
 
-/* ── 茶席：右側像遊戲 HUD 的資訊卡 ── */
+/* ── 拼信的版面：左邊拼圖墊、右邊線索卡與木盒、下方提示／重置／完成 ── */
+.letter-panel { width: min(1180px, 100%); }
+.letter-panel .letter-layout {
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr);
+  align-items: stretch;
+}
+.letter-panel .letter-paper:is(.letter-grid-3, .letter-grid-4) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto repeat(2, minmax(0, 1fr)) auto;
+}
+.letter-panel .letter-paper > :is(.letter-date, .letter-signature) { grid-column: 1 / -1; }
+.letter-panel .letter-paper > .letter-signature { justify-self: end; }
+.letter-panel .letter-paper.letter-grid-3 > .letter-slot:first-of-type { grid-column: 1 / -1; }
+.letter-panel .letter-layout .letter-slot {
+  min-height: calc(112px * var(--letter-zoom, 1));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.letter-panel .letter-slot .empty-slot { flex: 1; align-self: stretch; }
+.letter-panel .slot-motif {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #2c4170;
+}
+/* 提示放回的那一格閃一下 */
+.letter-panel .letter-slot.ink-glow.filled::before { filter: brightness(1.06); }
+
+.letter-panel .letter-side { display: grid; gap: 18px; align-content: start; }
+/* 線索卡：釘在一旁的羊皮紙 */
+.letter-panel .letter-clue {
+  position: relative;
+  isolation: isolate;
+  padding: 18px 20px 16px;
+  color: var(--mg-ink);
+  transform: rotate(0.6deg);
+  filter: drop-shadow(0 8px 12px #000b);
+}
+.letter-panel .letter-clue::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--mg-parchment);
+  box-shadow: inset 0 0 26px #8a65303d;
+  clip-path: polygon(0 1%, 9% 0, 22% 1.2%, 37% 0, 52% 1%, 66% 0, 81% 1.4%, 100% 0, 99.4% 30%, 100% 62%, 99.2% 100%, 84% 99%, 69% 100%, 53% 98.8%, 38% 100%, 21% 99%, 7% 100%, 0 99%, 0.8% 66%, 0 33%);
+}
+.letter-panel .letter-clue h3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: #3a2614;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+}
+.letter-panel .letter-clue h3::before,
+.letter-panel .letter-clue h3::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #8a5a22);
+}
+.letter-panel .letter-clue h3::after { background: linear-gradient(90deg, #8a5a22, transparent); }
+.letter-panel .letter-clue-preview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid #8a6a3e;
+  background: #f6ead0;
+  box-shadow: inset 0 0 0 3px #f6ead0, inset 0 0 0 4px #8a6a3e55;
+}
+.letter-panel .letter-clue-preview.letter-grid-3 > :first-child { grid-column: 1 / -1; }
+.letter-panel .letter-clue-cell {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr 1fr;
+  align-items: center;
+  column-gap: 8px;
+  min-height: 46px;
+  padding: 6px 8px;
+  border: 1px dashed #8a6a3e99;
+  color: #2c4170;
+}
+.letter-panel .letter-clue-cell > .letter-motif { grid-row: 1 / -1; }
+.letter-panel .letter-clue-cell > i {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: #5a4630;
+  opacity: 0.35;
+}
+.letter-panel .letter-clue-cell > i:last-child { width: 62%; }
+.letter-panel .letter-clue-cell.placed {
+  border-style: solid;
+  border-color: #b07d2e;
+  background: #ffe2a040;
+  box-shadow: 0 0 8px #e0a64a66;
+}
+.letter-panel .letter-clue .letter-clue-text {
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+  color: var(--mg-ink);
+  background: none;
+  box-shadow: none;
+  font-size: 14px;
+  line-height: 1.75;
+}
+.letter-panel .letter-clue-note { margin-top: 6px; color: #4f2d0c; font-size: 13px; }
+
+/* 木盒的隔格：每片碎片躺在自己的小格裡 */
+.letter-panel .letter-fragments { gap: 14px; }
+.letter-panel .fragment,
+.letter-panel .fragment:nth-of-type(odd),
+.letter-panel .fragment:nth-of-type(even) { transform: none; }
+.letter-panel .fragment::after {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: -7px -8px;
+  border-radius: 4px;
+  background: #160d07;
+  box-shadow: inset 0 3px 8px #000, inset 0 0 0 1px #8b623744;
+}
+.letter-panel .fragment:nth-of-type(odd)::before { transform: rotate(-1.2deg); }
+.letter-panel .fragment:nth-of-type(even)::before { transform: rotate(1deg); }
+.letter-panel .fragment:hover:not(:disabled),
+.letter-panel .fragment[aria-pressed="true"] { transform: translateY(-2px); }
+.letter-panel .letter-layout .fragment-paper {
+  display: grid;
+  place-items: center;
+  flex: 0 0 calc(42px * var(--letter-zoom, 1));
+  height: calc(42px * var(--letter-zoom, 1));
+  border: 1px solid #9c7a4c;
+  color: #2c4170;
+  background: #f8eed8;
+  clip-path: polygon(0 4%, 100% 0, 97% 100%, 3% 96%);
+  box-shadow: inset 0 0 0 2px #f8eed8, inset 0 0 0 3px #9c7a4c66;
+}
+
+/* 下方動作列 */
+.letter-panel .panel-footer { flex-wrap: wrap; }
+.letter-panel .letter-actions { display: flex; gap: 12px; }
+.letter-panel .letter-actions .quiet-button {
+  position: relative;
+  min-width: 112px;
+  min-height: 48px;
+  padding-inline: 22px;
+  letter-spacing: 0.2em;
+}
+.letter-panel .letter-hint-count {
+  position: absolute;
+  top: -9px;
+  right: -6px;
+  display: grid;
+  place-items: center;
+  min-width: 2em;
+  height: 2em;
+  padding: 0 0.3em;
+  border-radius: 999px;
+  color: #fff1d2;
+  background: #10172a;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0;
+  /* 金圈畫在盒子外，文字背後只有深色底 */
+  box-shadow: 0 0 0 1px var(--mg-gold), 0 0 8px #f2b75a66;
+}
+/* 次數已在按鈕名稱裡；徽章只是裝飾，數字用 CSS 畫 */
+.letter-panel .letter-hint-count::after { content: attr(data-count); }
+.letter-panel .letter-reset-mark { color: var(--mg-gold-bright); font-size: 18px; line-height: 1; }
+.letter-panel .letter-finish { min-height: 58px; font-size: 19px; }
+
+@media (max-width: 900px) {
+  .letter-panel .letter-layout { grid-template-columns: 1fr; align-items: start; }
+  .letter-panel .letter-paper:is(.letter-grid-3, .letter-grid-4) { grid-template-rows: none; }
+}
+@media (max-width: 640px) {
+  .letter-panel .letter-paper:is(.letter-grid-3, .letter-grid-4) { grid-template-columns: 1fr; grid-template-rows: none; }
+  .letter-panel .letter-clue-preview { grid-template-columns: 1fr; }
+  .letter-panel .letter-layout .letter-slot { min-height: calc(76px * var(--letter-zoom, 1)); }
+  .letter-panel .letter-actions { width: 100%; }
+  .letter-panel .letter-actions .quiet-button { flex: 1; }
+  .letter-panel .letter-finish { width: 100%; }
+}
+
+/* ── 茶席：桌面在中間，四周是 HUD 卡（水溫、浸泡、風味、配方、完成度） ── */
+.hands-on-tea { width: min(1400px, 100%); }
 .hands-on-tea .table-phases li {
   padding: 4px 12px;
   border: 1px solid transparent;
@@ -315,52 +508,99 @@
   box-shadow: 0 0 14px #f2b75a40;
   text-shadow: 0 0 10px #f2b75a88;
 }
-.hands-on-tea .tea-recipe-note {
-  padding: 18px;
+.hands-on-tea .tea-hud-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 270px) minmax(0, 1fr) minmax(230px, 270px);
+  grid-template-areas:
+    "temp   steep  flavor"
+    "recipe board  flavor"
+    "recipe board  done";
+  grid-template-rows: auto auto 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.hands-on-tea .tea-hud-temp { grid-area: temp; }
+.hands-on-tea .tea-hud-steep { grid-area: steep; }
+.hands-on-tea .tea-hud-flavor { grid-area: flavor; }
+.hands-on-tea .tea-hud-board { grid-area: board; min-width: 0; }
+.hands-on-tea .tea-hud-recipe { grid-area: recipe; }
+.hands-on-tea .tea-hud-done { grid-area: done; }
+
+.hands-on-tea .tea-hud-card {
+  position: relative;
+  padding: 14px 16px 16px;
   border: 1px solid var(--mg-gold-line);
-  border-radius: 14px;
-  background: linear-gradient(180deg, #121a2ce6, #0b1020f0);
-  box-shadow: inset 0 0 0 5px #0b102099, inset 0 0 0 6px #d7b68122, 0 10px 28px #0008;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #131b2ce8, #0a0f1df2);
+  box-shadow: inset 0 0 0 4px #0a0f1d99, inset 0 0 0 5px #d7b68122, 0 10px 26px #0008;
+  line-height: 1.7;
 }
-.hands-on-tea .tea-recipe-note h3 {
+.hands-on-tea .tea-hud-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 10px;
+  padding-bottom: 8px;
   color: #f8e2b4;
-  text-shadow: 0 0 16px #f2b75a55;
+  background: linear-gradient(90deg, #d7b68199, transparent) bottom / 100% 1px no-repeat;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 12px #f2b75a55;
 }
-.hands-on-tea .tea-recipe-note dl {
-  padding: 12px 14px;
-  border: 1px solid #d7b68140;
-  border-radius: 10px;
-  background: #060a14b3;
-}
-.hands-on-tea .tea-recipe-note .range-label {
-  padding: 12px 14px;
-  border: 1px solid #d7b68140;
-  border-radius: 10px;
-  background: #060a14b3;
-}
-.hands-on-tea .tea-recipe-note .range-label output {
+.hands-on-tea .tea-hud-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d7b68166;
+  border-radius: 50%;
   color: var(--mg-gold-bright);
-  font-size: 20px;
+  font-size: 15px;
+  letter-spacing: 0;
+  font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", serif;
+}
+.hands-on-tea .tea-hud-hint { margin: 6px 0 0; color: #d9cbb2; font-size: 13px; }
+.hands-on-tea .tea-hud-note { margin: 4px 0 0; padding: 8px 10px; border: 1px solid #d7b68133; border-radius: 8px; color: #e7d6b6; font-size: 13px; }
+
+/* 水溫 */
+.hands-on-tea .tea-thermo {
+  max-width: none;
+  margin: 0;
+  align-items: center;
+}
+.hands-on-tea .tea-thermo .tea-thermo-name { color: #cfc2aa; font-size: 13px; }
+.hands-on-tea .tea-thermo output {
+  color: var(--mg-gold-bright);
+  font-size: 26px;
   text-shadow: 0 0 10px #f2b75a66;
 }
+.hands-on-tea .tea-thermo-ticks {
+  display: flex;
+  justify-content: space-between;
+  margin: -4px 4px 0;
+  color: #b8ab92;
+  font: 11px Georgia, serif;
+}
+.hands-on-tea .tea-thermo-ticks .ideal { color: var(--mg-gold-bright); }
 /* 水溫：冷藍到橘紅的溫度條（保留 44px 觸控高度，只把軌道畫細） */
-.hands-on-tea .range-label input[type="range"] {
+.hands-on-tea .tea-thermo input[type="range"] {
   appearance: none;
   background: transparent;
 }
-.hands-on-tea .range-label input[type="range"]::-webkit-slider-runnable-track {
+.hands-on-tea .tea-thermo input[type="range"]::-webkit-slider-runnable-track {
   height: 10px;
   border: 1px solid #d7b68166;
   border-radius: 999px;
   background: linear-gradient(90deg, #4f7fd9, #9fb3d8 30%, #f0b45a 70%, #e0603a);
 }
-.hands-on-tea .range-label input[type="range"]::-moz-range-track {
+.hands-on-tea .tea-thermo input[type="range"]::-moz-range-track {
   height: 10px;
   border: 1px solid #d7b68166;
   border-radius: 999px;
   background: linear-gradient(90deg, #4f7fd9, #9fb3d8 30%, #f0b45a 70%, #e0603a);
 }
-.hands-on-tea .range-label input[type="range"]::-webkit-slider-thumb {
+.hands-on-tea .tea-thermo input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   width: 14px;
   height: 26px;
@@ -370,7 +610,7 @@
   background: linear-gradient(180deg, #ffe7b5, #c8913f);
   box-shadow: 0 0 10px #f2b75acc;
 }
-.hands-on-tea .range-label input[type="range"]::-moz-range-thumb {
+.hands-on-tea .tea-thermo input[type="range"]::-moz-range-thumb {
   width: 14px;
   height: 26px;
   border: 1px solid #fff1d2;
@@ -378,18 +618,146 @@
   background: linear-gradient(180deg, #ffe7b5, #c8913f);
   box-shadow: 0 0 10px #f2b75acc;
 }
-.hands-on-tea .range-label input[type="range"]:disabled { opacity: 0.55; }
+.hands-on-tea .tea-thermo input[type="range"]:disabled { opacity: 0.55; }
 .hands-on-tea .tea-board {
   border: 1px solid var(--mg-gold-line);
   border-radius: 12px;
   box-shadow: 0 0 0 4px #0b102099, 0 0 0 5px #d7b68126, 0 12px 30px #0009;
 }
+
+/* 浸泡：金色圓形計時 */
+.hands-on-tea .tea-hud-steep { display: grid; grid-template-columns: auto 1fr; column-gap: 16px; align-items: center; }
+.hands-on-tea .tea-hud-steep .tea-hud-title { grid-column: 1 / -1; }
+.hands-on-tea .tea-steep-clock { position: relative; width: 116px; height: 116px; }
+.hands-on-tea .tea-steep-clock svg { width: 100%; height: 100%; overflow: visible; }
+.hands-on-tea .steep-clock-track { fill: #060a14; stroke: #d7b68133; stroke-width: 5; }
+.hands-on-tea .steep-clock-window { fill: none; stroke: #d8b56a; stroke-opacity: 0.45; stroke-width: 9; }
+.hands-on-tea .steep-clock-progress { fill: none; stroke: #ffe2a6; stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 4px #f2b75a); transition: stroke-dasharray 0.3s linear; }
+.hands-on-tea .tea-steep-clock.ready .steep-clock-window { stroke-opacity: 1; filter: drop-shadow(0 0 6px #ffd98e); }
+.hands-on-tea .tea-steep-clock p {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  line-height: 1.1;
+}
+.hands-on-tea .tea-steep-clock strong { color: #fff1d2; font: 26px Georgia, serif; text-shadow: 0 0 10px #f2b75a88; }
+.hands-on-tea .tea-steep-clock small { color: #cfc2aa; font: 12px Georgia, serif; }
+
+/* 風味 */
+.hands-on-tea .tea-hud-flavor .flavor-radar svg { max-width: 220px; }
+
+/* 配方：一排小格，像參考圖的配方欄 */
+.hands-on-tea .tea-hud-recipe.tea-recipe-note { padding: 14px 16px 16px; }
+.hands-on-tea .tea-hud-recipe > .subtle { font-size: 13px; line-height: 1.6; }
+.hands-on-tea .tea-hud-cup { margin: 6px 0 2px; color: #ecd1a3; font-size: 21px; font-weight: 400; text-shadow: 0 0 12px #f2b75a44; }
+.hands-on-tea .tea-hud-desc { font-size: 13px; color: #e2d5bd; }
+.hands-on-tea .tea-recipe-slots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.hands-on-tea .tea-recipe-slots li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 8px;
+  padding: 8px;
+  border: 1px dashed #d7b68155;
+  border-radius: 8px;
+  background: #060a14b3;
+}
+.hands-on-tea .tea-recipe-slots li.filled { border-style: solid; border-color: #d7b68199; box-shadow: inset 0 0 12px #f2b75a1f; }
+.hands-on-tea .tea-slot-swatch,
+.hands-on-tea .tea-slot-plus {
+  grid-row: 1 / -1;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d7b68166;
+  border-radius: 8px;
+  background: #1a2234;
+  color: var(--mg-gold-bright);
+  font-size: 20px;
+}
+.hands-on-tea .tea-slot-swatch { border-radius: 50%; box-shadow: inset 0 -6px 10px #0006; }
+.hands-on-tea .tea-slot-name { color: #f0dfbd; font-size: 14px; line-height: 1.3; }
+.hands-on-tea .tea-recipe-slots small { color: #cfc2aa; font: 12px Georgia, serif; }
+.hands-on-tea .tea-blend-split { margin: 8px 0 0; color: #e7d6b6; font-size: 13px; }
+.hands-on-tea .tea-hud-recipe .tea-garnish { margin: 12px 0 0; border-radius: 8px; }
+
+/* 完成度：金色進度條與三顆星 */
+.hands-on-tea .tea-done-meter { display: flex; align-items: center; gap: 12px; margin: 6px 0 14px; }
+.hands-on-tea .tea-done-meter strong { color: #fff1d2; font: 22px Georgia, serif; min-width: 3.2em; text-align: right; }
+.hands-on-tea .tea-done-track {
+  position: relative;
+  flex: 1;
+  height: 14px;
+  border: 1px solid #d7b68177;
+  border-radius: 999px;
+  background: #050810;
+}
+.hands-on-tea .tea-done-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8a5a22, #e3b25e 70%, #ffe2a6);
+  box-shadow: 0 0 12px #f2b75a99;
+  transition: width 0.4s ease;
+}
+/* 星星用圖形畫，不是文字 */
+.hands-on-tea .tea-done-star {
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+  background: #6b6455;
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+.hands-on-tea .tea-done-star.lit { background: #ffe2a6; filter: drop-shadow(0 0 4px #f2b75a); }
 .hands-on-tea .tea-action-feedback {
-  border-left: 0;
-  padding: 10px 14px;
-  border-radius: 10px;
+  min-height: 58px;
+  padding: 10px 12px;
   border: 1px solid #d7b68140;
+  border-left-width: 1px;
+  border-radius: 10px;
   background: #f2b75a12;
+  font-size: 14px;
+}
+.hands-on-tea .tea-hud-done .ornate-button { width: 100%; margin-top: 12px; padding-inline: 40px; white-space: normal; }
+.hands-on-tea .tea-hud-done .tea-keyboard-help { margin-top: 10px; font-size: 13px; color: #bdb49f; }
+.hands-on-tea .tea-hud-done .tea-keyboard-help summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; text-decoration: underline; text-underline-offset: 5px; }
+.hands-on-tea .tea-board {
+  border: 1px solid var(--mg-gold-line);
+  border-radius: 12px;
+  box-shadow: 0 0 0 4px #0b102099, 0 0 0 5px #d7b68126, 0 12px 30px #0009;
+}
+
+@media (max-width: 1180px) {
+  .hands-on-tea .tea-hud-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-template-areas:
+      "temp   steep"
+      "board  board"
+      "recipe flavor"
+      "done   done";
+  }
+}
+@media (max-width: 640px) {
+  .hands-on-tea .tea-hud-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas: "temp" "board" "steep" "recipe" "flavor" "done";
+    gap: 12px;
+  }
 }
 
 /* ── 旋律 ── */
@@ -583,6 +951,14 @@
   transform: none;
 }
 .high-contrast .archive-panel :is(.archive-record-name, .archive-record-back, .archive-record-hint) { color: var(--ink); }
+.high-contrast .letter-panel .letter-clue::before { clip-path: none; background: var(--night); border: 1px solid var(--gold); box-shadow: none; }
+.high-contrast .letter-panel .letter-clue,
+.high-contrast .letter-panel .letter-clue :is(h3, .letter-clue-text, .letter-clue-note) { color: var(--ink); filter: none; transform: none; }
+.high-contrast .letter-panel .letter-clue-preview { background: var(--night); box-shadow: none; border-color: var(--gold); }
+.high-contrast .letter-panel :is(.letter-clue-cell, .slot-motif, .fragment-paper) { color: var(--ink); }
+.high-contrast .letter-panel .letter-clue-cell > i { background: var(--ink); }
+.high-contrast .letter-panel .fragment::after { display: none; }
+.high-contrast .letter-panel .letter-layout .fragment-paper { background: var(--night); border-color: var(--gold); box-shadow: none; }
 .high-contrast .letter-drag-ghost {
   clip-path: none;
   color: var(--ink);

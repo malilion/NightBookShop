@@ -13,6 +13,7 @@ import {
 import { audio } from "../../audio/audioManager";
 import { resonanceFragments } from "../../data/resonanceFragments";
 import GameIcon from "../common/GameIcon.vue";
+import LetterMotif, { type LetterMotifName } from "./LetterMotif.vue";
 
 const game = useGameStore();
 const pieces = computed(() =>
@@ -317,6 +318,68 @@ function cancelDrag() {
   drag.value = null;
   hoverSlot.value = null;
 }
+
+// 每片紙上的小圖（依碎片原本的位置排列）；線索卡的縮圖照同一順序畫出整封信。
+const motifSets: Record<string, LetterMotifName[]> = {
+  jinglan: ["moon", "lantern", "tree"],
+  boyan: ["clock", "train", "envelope", "moon"],
+  ruoyin: ["note", "star", "moon"],
+  yenuan: ["wheat", "apple", "house"],
+  yuhang: ["stamp", "sprig", "moon", "house"],
+  haiming: ["lighthouse", "wave", "boat", "moon"],
+  lincheng: ["envelope", "cat", "sprig", "star"],
+};
+const motifs = computed(() => motifSets[game.chapterId] ?? motifSets.jinglan!);
+function motifFor(id: string) {
+  return motifs.value[pieceIndex(id)] ?? "moon";
+}
+
+// 提示：每封信三次，把第一片還沒放對的碎片放回原位。
+const HINTS = 3;
+const hintsLeft = computed(() => HINTS - (game.letter.hintsUsed ?? 0));
+const slotsKey = computed(() =>
+  hasTwoSides.value && game.letter.activeSide === "back" ? "reverseSlots" : "slots",
+);
+const allPlaced = computed(() =>
+  activeSlots.value.every((id, index) => id === pieces.value[index]?.id),
+);
+const hintSlot = ref<number | null>(null);
+let hintTimer = 0;
+function useHint() {
+  if (hintsLeft.value <= 0) return;
+  const index = activeSlots.value.findIndex((id, i) => id !== pieces.value[i]?.id);
+  if (index < 0) {
+    feedback.value = "每一片都已經在原來的位置。";
+    return;
+  }
+  const id = pieces.value[index]!.id;
+  const slots = activeSlots.value.map((slot) => (slot === id ? null : slot));
+  slots[index] = id;
+  const angles = [...game.letter.angles];
+  angles[index] = 0;
+  game.updateLetter({
+    [slotsKey.value]: slots,
+    angles,
+    hintsUsed: (game.letter.hintsUsed ?? 0) + 1,
+  });
+  selected.value = null;
+  audio.cue("paper");
+  hintSlot.value = index;
+  window.clearTimeout(hintTimer);
+  hintTimer = window.setTimeout(() => (hintSlot.value = null), 1600);
+  feedback.value = `提示：「${pieceText(id)}」回到第 ${index + 1} 格。還剩 ${hintsLeft.value} 次提示。`;
+}
+function resetLetter() {
+  game.updateLetter({
+    [slotsKey.value]: activeSlots.value.map(() => null),
+    angles: game.letter.angles.map(() => 0),
+    ...(hasTwoSides.value ? {} : { flipped: game.letter.flipped.map(() => false) }),
+  });
+  selected.value = null;
+  feedback.value = "碎片都回到木盒裡了，可以重新排一次。";
+  audio.cue("paper");
+}
+onBeforeUnmount(() => window.clearTimeout(hintTimer));
 </script>
 
 <template>
@@ -344,21 +407,6 @@ function cancelDrag() {
         <h2>{{ isYenuan ? "把食譜的兩面拼回來" : isYuhang ? "把藍色信拼回來" : isHaiming ? "展開紙船，留下他的字" : isLincheng ? "把自己的信拼回來" : "把未完的話，放回信裡" }}</h2>
       </div>
     </div>
-    <p class="tea-clue">
-      {{
-        isLincheng
-          ? "四片信紙是小時候的妳寫給如今的自己。可以慢慢排好、看紙背，再決定想取回多少細節。"
-          : isHaiming
-          ? "四片紙船留著海明反覆修改的話。查看筆跡後，可保留停頓與矛盾，或修成流暢的英雄敘述。"
-          : isYuhang
-          ? "四片信紙有每年重寫的痕跡。排好順序，查看墨跡，再選一枚郵票決定送往哪一個時間。"
-          : isYenuan
-          ? "正面是蘋果麵包的做法，背面是母親留給葉暖的話。兩面各自排列，可拖曳或先選碎片再選格子。"
-          : isRuoyin
-          ? "同一組碎片有兩面：正面寫給季晴，背面寫給年輕的若音。兩面各自排列，可拖曳或先選碎片再選格子。"
-          : "拖動碎片到信上的位置，或先選碎片再選格子。鍵盤可用 Tab 聚焦、方向鍵移動碎片；選中碎片可旋轉、翻面，也可以留白。"
-      }}
-    </p>
     <div v-if="hasTwoSides" class="letter-side-buttons button-row">
       <button class="quiet-button" type="button" @click="turnLetter">
         {{
@@ -380,7 +428,7 @@ function cancelDrag() {
       <span class="subtle">手機可雙指縮放</span>
     </div>
     <div class="letter-layout" :class="{ 'letter-layout-zoomed': workspaceZoom > 1 }" :style="{ '--letter-zoom': workspaceZoom, '--sticky-paper': `${stickyPaper}px` }" @touchstart="beginWorkspaceTouch" @touchmove="moveWorkspaceTouch" @touchend="endWorkspaceTouch" @touchcancel="endWorkspaceTouch">
-      <div ref="paper" class="letter-paper">
+      <div ref="paper" class="letter-paper" :class="`letter-grid-${activeSlots.length}`">
         <p class="letter-date">
           {{
             isLincheng
@@ -404,7 +452,7 @@ function cancelDrag() {
           v-for="(id, i) in activeSlots"
           :key="i"
           class="letter-slot"
-          :class="{ filled: id, 'ink-glow': glowSlot === i }"
+          :class="{ filled: id, 'ink-glow': glowSlot === i || hintSlot === i }"
           :data-letter-slot="i"
           :aria-label="`信紙第 ${i + 1} 格${id ? '：' + pieceText(id) : '，空白'}`"
           @click="onSlotClick(i)"
@@ -418,7 +466,7 @@ function cancelDrag() {
           @focus="hoverSlot = i"
           @blur="hoverSlot === i && (hoverSlot = null)"
         >
-          <span v-if="id">{{ pieceText(id) }}</span>
+          <template v-if="id"><span class="slot-motif"><LetterMotif :name="motifFor(id)" :size="40" /></span><span>{{ pieceText(id) }}</span></template>
           <span v-else class="empty-slot"
             >{{
               (isLincheng
@@ -441,7 +489,33 @@ function cancelDrag() {
           isLincheng ? "林澄" : isHaiming ? "海明" : isYuhang ? "雨航" : isYenuan ? "葉暖" : isRuoyin ? "若音" : isBoyan ? "柏言" : "靜蘭"
         }}</span>
       </div>
-      <div class="letter-fragments">
+      <div class="letter-side">
+        <div class="letter-clue" role="group" aria-labelledby="letter-clue-title">
+          <h3 id="letter-clue-title"><GameIcon name="search" :size="18" />線索</h3>
+          <div class="letter-clue-preview" :class="`letter-grid-${activeSlots.length}`" aria-hidden="true">
+            <span v-for="(motif, i) in motifs.slice(0, activeSlots.length)" :key="i" class="letter-clue-cell" :class="{ placed: activeSlots[i] === pieces[i]?.id }">
+              <LetterMotif :name="motif" :size="22" />
+              <i></i><i></i>
+            </span>
+          </div>
+          <p class="tea-clue letter-clue-text">
+            {{
+              isLincheng
+                ? "四片信紙是小時候的妳寫給如今的自己。可以慢慢排好、看紙背，再決定想取回多少細節。"
+                : isHaiming
+                ? "四片紙船留著海明反覆修改的話。查看筆跡後，可保留停頓與矛盾，或修成流暢的英雄敘述。"
+                : isYuhang
+                ? "四片信紙有每年重寫的痕跡。排好順序，查看墨跡，再選一枚郵票決定送往哪一個時間。"
+                : isYenuan
+                ? "正面是蘋果麵包的做法，背面是母親留給葉暖的話。兩面各自排列，可拖曳或先選碎片再選格子。"
+                : isRuoyin
+                ? "同一組碎片有兩面：正面寫給季晴，背面寫給年輕的若音。兩面各自排列，可拖曳或先選碎片再選格子。"
+                : "拖動碎片到信上的位置，或先選碎片再選格子。鍵盤可用 Tab 聚焦、方向鍵移動碎片；選中碎片可旋轉、翻面，也可以留白。"
+            }}
+          </p>
+          <p class="letter-clue-note">每片紙上的小圖，在縮圖裡都有自己的位置。</p>
+        </div>
+      <div class="letter-fragments" aria-label="碎片木盒" role="group">
         <div v-if="resonanceFragment" class="resonance-fragment">
           <p class="resonance-fragment-label">共鳴之茶 · 特殊信件碎片</p>
           <button
@@ -475,7 +549,7 @@ function cancelDrag() {
               transform: `rotate(${game.letter.angles[pieceIndex(piece.id)]! * 90}deg)`,
             }"
             aria-hidden="true"
-          ></span>
+          ><LetterMotif :name="motifFor(piece.id)" :size="26" /></span>
           <span>{{ pieceText(piece.id) }}</span>
           <GameIcon v-if="activeSlots.includes(piece.id)" name="check" />
         </button>
@@ -544,6 +618,7 @@ function cancelDrag() {
           </label>
         </fieldset>
       </div>
+      </div>
     </div>
     <div
       v-if="drag?.moved"
@@ -561,7 +636,15 @@ function cancelDrag() {
       <span class="subtle" aria-live="polite">{{
         feedback || "每一道摺痕，都留著不同的時間。"
       }}</span>
-      <button class="ornate-button" @click="game.finishLetter">
+      <div class="letter-actions" role="group" aria-label="拼信輔助">
+        <button type="button" class="quiet-button letter-hint" :disabled="hintsLeft <= 0 || allPlaced" :aria-label="`提示（剩 ${hintsLeft} 次）`" @click="useHint">
+          <GameIcon name="search" :size="18" />提示<span class="letter-hint-count" :data-count="hintsLeft" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="quiet-button letter-reset" :disabled="activeSlots.every((id) => !id)" @click="resetLetter">
+          <span class="letter-reset-mark" aria-hidden="true">↺</span>重置
+        </button>
+      </div>
+      <button class="ornate-button letter-finish" @click="game.finishLetter">
         {{
           isLincheng
             ? "把信放在自己面前"

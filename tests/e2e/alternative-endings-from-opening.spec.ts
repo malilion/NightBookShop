@@ -49,7 +49,7 @@ async function fillLetter(page: Page, ending: Ending) {
     }
     await page.getByRole("button", { name: "查看童年的筆跡" }).click();
   }
-  await page.locator(".letter-panel .panel-footer button").click();
+  await page.locator(".letter-panel .panel-footer .letter-finish").click();
 }
 
 async function choose(page: Page, ending: Ending) {
