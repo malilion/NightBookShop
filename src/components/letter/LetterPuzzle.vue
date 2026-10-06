@@ -490,31 +490,6 @@ onBeforeUnmount(() => window.clearTimeout(hintTimer));
         }}</span>
       </div>
       <div class="letter-side">
-        <div class="letter-clue" role="group" aria-labelledby="letter-clue-title">
-          <h3 id="letter-clue-title"><GameIcon name="search" :size="18" />線索</h3>
-          <div class="letter-clue-preview" :class="`letter-grid-${activeSlots.length}`" aria-hidden="true">
-            <span v-for="(motif, i) in motifs.slice(0, activeSlots.length)" :key="i" class="letter-clue-cell" :class="{ placed: activeSlots[i] === pieces[i]?.id }">
-              <LetterMotif :name="motif" :size="22" />
-              <i></i><i></i>
-            </span>
-          </div>
-          <p class="tea-clue letter-clue-text">
-            {{
-              isLincheng
-                ? "四片信紙是小時候的妳寫給如今的自己。可以慢慢排好、看紙背，再決定想取回多少細節。"
-                : isHaiming
-                ? "四片紙船留著海明反覆修改的話。查看筆跡後，可保留停頓與矛盾，或修成流暢的英雄敘述。"
-                : isYuhang
-                ? "四片信紙有每年重寫的痕跡。排好順序，查看墨跡，再選一枚郵票決定送往哪一個時間。"
-                : isYenuan
-                ? "正面是蘋果麵包的做法，背面是母親留給葉暖的話。兩面各自排列，可拖曳或先選碎片再選格子。"
-                : isRuoyin
-                ? "同一組碎片有兩面：正面寫給季晴，背面寫給年輕的若音。兩面各自排列，可拖曳或先選碎片再選格子。"
-                : "拖動碎片到信上的位置，或先選碎片再選格子。鍵盤可用 Tab 聚焦、方向鍵移動碎片；選中碎片可旋轉、翻面，也可以留白。"
-            }}
-          </p>
-          <p class="letter-clue-note">每片紙上的小圖，在縮圖裡都有自己的位置。</p>
-        </div>
       <div class="letter-fragments" aria-label="碎片木盒" role="group">
         <div v-if="resonanceFragment" class="resonance-fragment">
           <p class="resonance-fragment-label">共鳴之茶 · 特殊信件碎片</p>
@@ -618,6 +593,31 @@ onBeforeUnmount(() => window.clearTimeout(hintTimer));
           </label>
         </fieldset>
       </div>
+        <div class="letter-clue" role="group" aria-labelledby="letter-clue-title">
+          <h3 id="letter-clue-title"><GameIcon name="search" :size="18" />線索</h3>
+          <div class="letter-clue-preview" :class="`letter-grid-${activeSlots.length}`" aria-hidden="true">
+            <span v-for="(motif, i) in motifs.slice(0, activeSlots.length)" :key="i" class="letter-clue-cell" :class="{ placed: activeSlots[i] === pieces[i]?.id }">
+              <LetterMotif :name="motif" :size="22" />
+              <i></i><i></i>
+            </span>
+          </div>
+          <p class="tea-clue letter-clue-text">
+            {{
+              isLincheng
+                ? "四片信紙是小時候的妳寫給如今的自己。可以慢慢排好、看紙背，再決定想取回多少細節。"
+                : isHaiming
+                ? "四片紙船留著海明反覆修改的話。查看筆跡後，可保留停頓與矛盾，或修成流暢的英雄敘述。"
+                : isYuhang
+                ? "四片信紙有每年重寫的痕跡。排好順序，查看墨跡，再選一枚郵票決定送往哪一個時間。"
+                : isYenuan
+                ? "正面是蘋果麵包的做法，背面是母親留給葉暖的話。兩面各自排列，可拖曳或先選碎片再選格子。"
+                : isRuoyin
+                ? "同一組碎片有兩面：正面寫給季晴，背面寫給年輕的若音。兩面各自排列，可拖曳或先選碎片再選格子。"
+                : "拖動碎片到信上的位置，或先選碎片再選格子。鍵盤可用 Tab 聚焦、方向鍵移動碎片；選中碎片可旋轉、翻面，也可以留白。"
+            }}
+          </p>
+          <p class="letter-clue-note">每片紙上的小圖，在縮圖裡都有自己的位置。</p>
+        </div>
       </div>
     </div>
     <div
