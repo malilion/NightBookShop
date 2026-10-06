@@ -112,6 +112,8 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - 要模擬影片或素材載入失敗時，`page.route` 攔不到 Service Worker 從預快取送出的請求，須在該測試 `test.use({ serviceWorkers: "block" })`（見 `tea-brew-films.spec.ts`）。
 - 整輪 E2E 的背景指令上限是 2 小時；負載高時會跑不完。被停掉時，用 `grep "\[mobile\] › tests/e2e/<檔名>"` 比對日誌找出未執行的檔案，補跑即可，不必整輪重來。
 - 工作區可能有不屬於本專案提交範圍的目錄（例如另一個工作建立的 `trailer/`）。提交時明確列出路徑，不要用 `git add -A` 把它帶進去。
+- 重新渲染製茶影片：`npm run video:render:brew -- --tea=<茶> --publish`、`-- --garnish=<配料|all> --publish`。系統負載高時渲染用的瀏覽器會當掉或啟動逾時；設 `FILM_CONCURRENCY=1` 並一支一支跑，失敗時腳本不會發佈任何檔案，重試即可。一支約 20 分鐘。
+- `playwright.config.ts` 另有 `webkit-*`、`firefox-*` 專案，本機沒有安裝這兩個瀏覽器；直接 `npx playwright test <檔案>` 會連它們一起跑，每項幾毫秒就失敗。本機請加 `--project=desktop --project=mobile`（`npm run test:e2e` 已預設只跑 Chromium）。
 - 「顯示全文」按鈕可能在點擊前因逐字完成而消失。點擊時要加短 timeout 並忽略失敗，否則整項卡到逾時。
 - `finale.spec.ts` 的手機版拒坐路線在長批次中偶爾停在「翻開終章」找不到（終章未解鎖），單獨或整檔連跑皆通過，原因未查明。遇到時先單獨重跑。
 - 拼信面板底部現在有「提示」「重置」與完成鈕三顆按鈕；要按完成請用 `.letter-panel .letter-finish`，不要用 `.panel-footer button`（會同時選到三顆）。茶席的茶名是「配方」卡裡的 `h4`，五張 HUD 卡標題（水溫、浸泡、風味、配方、完成度）是 `h3`。
@@ -168,6 +170,7 @@ AI 可直接做：
 
 | 提交 | 內容 |
 | --- | --- |
+| `541cda4` | 茶壺、杯碟改為青花瓷，茶席器物與十二支製茶影片全部用新模型重新渲染 |
 | `9290e84` | `tea-brew-films.spec.ts` 的影片載入失敗情境改為封鎖 Service Worker（原本依 SW 接管時序時好時壞） |
 | `80b689e` | 六夜拼信開始前依當晚的茶多一句（`tea_before_letter`，共 18 句） |
 | `a7d6cb0` | 六夜後記依當晚的茶各多一句（`tea_afterword`，共 18 句） |
