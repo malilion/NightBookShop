@@ -165,12 +165,15 @@ AI 可直接做：
 
 ## 交接時的工作狀態
 
+**未提交的進行中工作（2026-10-07）**：配樂改為每夜一首（`src/audio/audioManager.ts` 的 `setMusic`、`App.vue`／`TeaApp.vue` 依場景切換、`src/sw.js` 的音樂快取、`vite.config.ts` 預快取 `audio/music/theme`、`scripts/generate-music.mjs`／`import-music.mjs` 與 `package.json` 兩個指令）。`public/audio/music/` 還沒有任何音檔，原本的 `midnight-theme` 也已不再播放，所以這批改動提交前必須先產出並匯入曲子，否則遊戲沒有背景音樂。`trailer/`（宣傳片原始檔）與 `art-staging/ui-screenshots/`（改版前後截圖）也未提交。
+
 接手前先執行 `git status` 與 `git log --oneline -5`。本文件撰寫時的最新提交與驗證結果記在 [VERIFICATION.md](VERIFICATION.md) 最後幾段。
 
 2026-10-03～04 這一輪完成並已驗證的提交：
 
 | 提交 | 內容 |
 | --- | --- |
+| `aa1b7c4` | 滿版介面：標題、對話、茶席、拼信改為鋪滿視窗的場景（新圖 9 張）；提交前修正拼信木盒切掉碎片、手機拖曳變捲動、翻面鈕被縮放列蓋住 |
 | `541cda4` | 茶壺、杯碟改為青花瓷，茶席器物與十二支製茶影片全部用新模型重新渲染 |
 | `9290e84` | `tea-brew-films.spec.ts` 的影片載入失敗情境改為封鎖 Service Worker（原本依 SW 接管時序時好時壞） |
 | `80b689e` | 六夜拼信開始前依當晚的茶多一句（`tea_before_letter`，共 18 句） |
