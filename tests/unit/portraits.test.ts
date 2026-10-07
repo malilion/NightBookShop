@@ -14,7 +14,7 @@ const current = {
   yenuan: "yenuan-chapter-19.json",
   yuhang: "yuhang-chapter-21.json",
   haiming: "haiming-chapter-25.json",
-  lincheng: "lincheng-chapter-19.json",
+  lincheng: "lincheng-chapter-20.json",
 } as const;
 const storyJson = (chapter: keyof typeof current) =>
   readFileSync(`public/story/compiled/${current[chapter]}`, "utf8");

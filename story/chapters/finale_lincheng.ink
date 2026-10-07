@@ -55,6 +55,12 @@ VAR flipped_yenuan = false
 VAR flipped_yuhang = false
 VAR flipped_haiming = false
 VAR flipped_count = 0
+VAR tea_jinglan = ""
+VAR tea_boyan = ""
+VAR tea_ruoyin = ""
+VAR tea_yenuan = ""
+VAR tea_yuhang = ""
+VAR tea_haiming = ""
 VAR lincheng_destination = ""
 VAR lincheng_shift = ""
 VAR lincheng_paused = ""
@@ -108,6 +114,14 @@ VAR ending_kind = ""
         書籤上壓著一片乾掉的桂花，聞起來仍有一點甜。 # speaker:旁白
     }
     妳想起她第一晚坐在椅子前緣，手提包一直抱在膝上，像隨時準備起身。後來熱茶入口，她才把包從腿邊推遠一點。 # speaker:旁白
+    {
+    - tea_jinglan == "osmanthus":
+        那晚妳替她泡的是桂花烏龍。桂花樹下輪流讀詩的事，是那杯茶先替她想起來的。 # speaker:旁白
+    - tea_jinglan == "puer":
+        那晚妳替她泡的是熟普洱。她先說了三十年的教書，才說到月台。 # speaker:旁白
+    - tea_jinglan == "mint":
+        那晚妳替她泡的是薄荷茶。茶涼得快，她只說了一半，另一半是她自己決定帶回家的。 # speaker:旁白
+    }
     -> seat_return
 * {not flipped_boyan} [翻開柏言的書籤]
     ~ flipped_boyan = true
@@ -125,6 +139,14 @@ VAR ending_kind = ""
         書籤上畫著一只停住的錶，指針在十一點四十七分。 # speaker:旁白
     }
     妳記得他把手機翻面以後，手還是先伸過去一次，像不看它反而更累。 # speaker:旁白
+    {
+    - tea_boyan == "chamomile":
+        那晚是洋甘菊。杯子見底時，他的肩膀比進門時低了一點。 # speaker:旁白
+    - tea_boyan == "black":
+        那晚是濃紅茶。他喝完又想開電腦，最後是自己把筆電合上的。 # speaker:旁白
+    - tea_boyan == "mint":
+        那晚是薄荷茶。他把今晚、明早和要找誰，分成了三欄。 # speaker:旁白
+    }
     -> seat_return
 * {not flipped_ruoyin} [翻開若音的書籤]
     ~ flipped_ruoyin = true
@@ -142,6 +164,14 @@ VAR ending_kind = ""
         書籤上抄著四個音，最後一個音沒有寫完。 # speaker:旁白
     }
     她握著琴弓，琴盒擱在腳邊，很久都沒有打開。盒角那些演出標籤，妳到現在還記得幾張。 # speaker:旁白
+    {
+    - tea_ruoyin == "lavender":
+        那晚是薰衣草。她的左手攤在桌上，第一次沒有握成拳。 # speaker:旁白
+    - tea_ruoyin == "osmanthus":
+        那晚是桂花烏龍。茶香讓她念起了音樂院的名次。 # speaker:旁白
+    - tea_ruoyin == "black":
+        那晚是濃紅茶。她寫了一份沒有提到手傷的復出計畫。 # speaker:旁白
+    }
     -> seat_return
 * {not flipped_yenuan} [翻開葉暖的書籤]
     ~ flipped_yenuan = true
@@ -159,6 +189,14 @@ VAR ending_kind = ""
         書籤上沾著一點麵粉，拍不太掉。 # speaker:旁白
     }
     她進門後先替別人切麵包，切得很整齊，自己那一份留在盤邊，一口也沒吃。 # speaker:旁白
+    {
+    - tea_yenuan == "hojicha":
+        那晚是焙茶。焦香和她麵包籃裡的味道混在一起。 # speaker:旁白
+    - tea_yenuan == "lavender":
+        那晚是薰衣草伯爵。她起先把那晚說成別人家女兒的故事。 # speaker:旁白
+    - tea_yenuan == "black":
+        那晚是蜜香紅茶。她喝了一口，就起身去擦本來就乾淨的櫃台。 # speaker:旁白
+    }
     -> seat_return
 * {not flipped_yuhang} [翻開雨航的書籤]
     ~ flipped_yuhang = true
@@ -176,6 +214,14 @@ VAR ending_kind = ""
         書籤上有一枚郵戳，日期在七年後。 # speaker:旁白
     }
     他起先站在門外，把郵袋壓在膝旁，不肯跨過門檻。郵袋裡的信都是乾的，只有一封藍色的滲著雨水。 # speaker:旁白
+    {
+    - tea_yuhang == "mint":
+        那晚是薄荷茶。他喝完，把杯把轉向自己，不朝向門。 # speaker:旁白
+    - tea_yuhang == "chamomile":
+        那晚是洋甘菊。他的郵袋靠在椅腳，一次也沒有去摸。 # speaker:旁白
+    - tea_yuhang == "hojicha":
+        那晚是焙茶。話一說到家，他就站起來想走。 # speaker:旁白
+    }
     -> seat_return
 * {not flipped_haiming} [翻開海明的書籤]
     ~ flipped_haiming = true
@@ -193,6 +239,14 @@ VAR ending_kind = ""
         書籤上是燈塔的剪影，燈還亮著。 # speaker:旁白
     }
     海明說過，他怕自己忘記。那時妳只顧著替他記，沒想到自己也有一段忘掉的東西，還等著被翻開。 # speaker:旁白
+    {
+    - tea_haiming == "hojicha":
+        那晚是焙茶。他說燈塔的廚房也是這個味道，說了兩次。 # speaker:旁白
+    - tea_haiming == "puer":
+        那晚是熟普洱。他從那天的風向，慢慢說起。 # speaker:旁白
+    - tea_haiming == "mint":
+        那晚是薄荷茶。他一直很清醒，先確認了今天的日期。 # speaker:旁白
+    }
     -> seat_return
 * [先坐到訪客席，替自己留一杯茶]
     ~ sat_down = true

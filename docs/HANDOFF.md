@@ -97,6 +97,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - **拼信前的茶**：各訪客章的 `=== letter_start ===` 第一行呼叫 `-> tea_before_letter ->`，依 `tea_type` 給一句，再進入拼信小遊戲。
 - **篇幅守門**：`tests/unit/chapter-length.test.ts` 以首選路線（每次選第一項）估算各章時間，必須在快讀 40 分鐘以上、慢讀 60 分鐘以內。新增內容若讓某章超過上限，或刪減讓某章低於 40 分鐘，這個測試會失敗。編譯單章可用 `node scripts/compile-ink.mjs --only=ch04`。
 - **表情立繪**：台詞尾端加 `# portrait:<cue>`（可用值見 `portraitCueSchema`，圖片對照在 `src/data/portraits.ts`）。cue 只影響該行；沒有 cue 時顯示場景訪客的預設立繪。`tests/unit/portraits.test.ts` 會走到每個 cue 的台詞確認顯示正確。
+- **終章書籤的茶**：`gameStore` 開終章時除了 `lincheng_*` 回答，也把各夜章節存檔的 `tea_type` 傳成 `tea_<訪客>`（含海明）；終章翻書籤時依此各給一句。章節存檔沒有茶時不出現，所以不影響篇幅測試。
 - **後記的中段選擇**：各訪客章檔尾有 `=== choice_afterword ===`，四種後記在 `-> tea_afterword ->` 前呼叫；每章兩個非第一項選項各設一個變數，各一句、四種結局都成立。新增時沿用，句子不要假設特定結局。
 - **後記的茶**：各訪客章檔尾有 `=== tea_afterword ===` 隧道，四種後記在設定 `ending_kind`／`afterword_kind`（柏言是 `-> coda_*`）前呼叫 `-> tea_afterword ->`。新增茶種或結局時記得補上，句子要對四種結局都成立。
 - **結局收尾的二選一**：24 種訪客結局與終章四種結局的收尾場景都以林澄的一個二選一收束，格式為 `* [選項] ~ 變數 = "值" 內容` 兩項，再以 `- -> xxx_afterword` 匯合，後記用 `{變數 == "值":一句話}` 回應。替訪客決定的結局裡，其中一項會再 `intervention += 1`。新加結局時沿用此格式。
@@ -117,6 +118,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - 可能有另一個工作階段同時在這個儲存庫工作（2026-10-07 宣傳片原始檔就是由另一個工作階段提交，與本工作階段的提交只差 40 秒）。提交時明確列出路徑，不要用 `git add -A`；提交後看 `git log` 確認順序，推送前先 `git fetch`。
 - 重新渲染製茶影片：`npm run video:render:brew -- --tea=<茶> --publish`、`-- --garnish=<配料|all> --publish`。系統負載高時渲染用的瀏覽器會當掉或啟動逾時；設 `FILM_CONCURRENCY=1` 並一支一支跑，失敗時腳本不會發佈任何檔案，重試即可。一支約 20 分鐘。
 - `playwright.config.ts` 另有 `webkit-*`、`firefox-*` 專案，本機沒有安裝這兩個瀏覽器；直接 `npx playwright test <檔案>` 會連它們一起跑，每項幾毫秒就失敗。本機請加 `--project=desktop --project=mobile`（`npm run test:e2e` 已預設只跑 Chromium）。
+- 單元測試約 1,100 項；機器負載高（其他工作階段同時跑）時，預設平行數下會有十來項在 15–115 秒逾時。先看 `uptime`，用 `npx vitest run --maxWorkers=3` 重跑確認，不要急著改測試。
 - 「顯示全文」按鈕可能在點擊前因逐字完成而消失。點擊時要加短 timeout 並忽略失敗，否則整項卡到逾時。
 - `finale.spec.ts` 的手機版拒坐路線在長批次中偶爾停在「翻開終章」找不到（終章未解鎖），單獨或整檔連跑皆通過，原因未查明。遇到時先單獨重跑。
 - 拼信面板底部現在有「提示」「重置」與完成鈕三顆按鈕；要按完成請用 `.letter-panel .letter-finish`，不要用 `.panel-footer button`（會同時選到三顆）。茶席的茶名是「配方」卡裡的 `h4`，五張 HUD 卡標題（水溫、浸泡、風味、配方、完成度）是 `h3`。
@@ -134,7 +136,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 | 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-19` |
 | 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-21` |
 | 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-25` |
-| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-19` |
+| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-20` |
 
 升版後請更新此表。
 
@@ -178,6 +180,7 @@ AI 可直接做：
 
 | 提交 | 內容 |
 | --- | --- |
+| （本次） | 終章 `lincheng-chapter-20`：翻開六位訪客的書籤時想起那一夜泡的茶（18 句，從章節存檔帶入） |
 | `93d57d3` | 每章兩個非第一項的中段選擇在四種後記各留一句（`choice_afterword`，共 12 句）；首選路線篇幅不變 |
 | `b4f0dea` | 兩面信的翻面鈕墊深色底板（桌機若音、葉暖拼信畫面文字對比 4.41 → 合格） |
 | `c446543` | （PR #5，他人合併）標題與遊戲頁改為靜態載入，修正 CI 上第一夜重新整理後 GameView 載入中斷 |

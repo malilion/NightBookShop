@@ -192,7 +192,7 @@ export const useGameStore = defineStore("game", () => {
       if (prerequisite && !completedChapters.value.has(prerequisite))
         throw new Error("請先完成前一夜，再翻開這一章。");
       const version: StoryVersion =
-        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-22" : chapter === "ruoyin" ? "ruoyin-chapter-21" : chapter === "yenuan" ? "yenuan-chapter-19" : chapter === "yuhang" ? "yuhang-chapter-21" : chapter === "haiming" ? "haiming-chapter-25" : "lincheng-chapter-19";
+        chapter === "jinglan" ? STORY_VERSION : chapter === "boyan" ? "boyan-chapter-22" : chapter === "ruoyin" ? "ruoyin-chapter-21" : chapter === "yenuan" ? "yenuan-chapter-19" : chapter === "yuhang" ? "yuhang-chapter-21" : chapter === "haiming" ? "haiming-chapter-25" : "lincheng-chapter-20";
       const previousEnding = prerequisite
         ? saveList.value.find((save) => save.id === `chapter-${prerequisite}`)?.snapshot.frame.endingId || ""
         : "";
@@ -211,6 +211,9 @@ export const useGameStore = defineStore("game", () => {
           const inkState = saveList.value.find((save) => save.id === `chapter-${visitor}`)?.snapshot.inkState;
           const answer = inkState ? readInkString(inkState, variable) : "";
           if (answer) carriedAnswers[variable] = answer;
+          // 那一夜林澄替訪客泡的茶，終章翻書籤時會想起（終章宣告 tea_<訪客>）。
+          const tea = inkState ? readInkString(inkState, "tea_type") : "";
+          if (tea) carriedAnswers[`tea_${visitor}`] = tea;
         }
       bridge = new StoryBridge(await storyJson(version), previousEnding, priorEndings, carriedAnswers);
       activeStoryVersion.value = version;

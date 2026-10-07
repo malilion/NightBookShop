@@ -7,7 +7,8 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-19.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-20.json", "utf8");
+const chapter19Archived = readFileSync("public/story/compiled/lincheng-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/lincheng-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/lincheng-chapter-17.json", "utf8");
 const chapterSixteen = readFileSync("public/story/compiled/lincheng-chapter-16.json", "utf8");
@@ -91,6 +92,36 @@ const firstAnswers = { lincheng_destination: "home", lincheng_shift: "locked", l
 const secondAnswers = { lincheng_destination: "unsure", lincheng_shift: "fine", lincheng_paused: "unsure", lincheng_mother: "rarely", lincheng_card: "kept", lincheng_fear: "guests" };
 
 describe("Lincheng finale", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-nineteen %s route readable", (target) => {
+    expect(play(target, true, chapter19Archived).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    [{ tea_jinglan: "osmanthus", tea_boyan: "chamomile", tea_ruoyin: "lavender", tea_yenuan: "hojicha", tea_yuhang: "mint", tea_haiming: "hojicha" },
+      ["桂花樹下輪流讀詩", "肩膀比進門時低了一點", "第一次沒有握成拳", "焦香和她麵包籃裡", "把杯把轉向自己", "說了兩次。"]],
+    [{ tea_jinglan: "puer", tea_boyan: "black", tea_ruoyin: "osmanthus", tea_yenuan: "lavender", tea_yuhang: "chamomile", tea_haiming: "puer" },
+      ["先說了三十年的教書", "自己把筆電合上的", "念起了音樂院的名次", "別人家女兒的故事", "一次也沒有去摸", "慢慢說起。"]],
+    [{ tea_jinglan: "mint", tea_boyan: "mint", tea_ruoyin: "black", tea_yenuan: "black", tea_yuhang: "hojicha", tea_haiming: "mint" },
+      ["她只說了一半", "分成了三欄", "沒有提到手傷的復出計畫", "本來就乾淨的櫃台", "他就站起來想走", "先確認了今天的日期"]],
+  ] as const)("remembers the tea poured on each night when turning the bookmarks", (carried, lines) => {
+    const said = play("lincheng-dawn", true, compiled, { carried }).texts.join(" ");
+    for (const line of lines) expect(said).toContain(line);
+  });
+  it("turns the bookmarks without tea lines when no night was saved", () => {
+    const said = play("lincheng-dawn").texts.join(" ");
+    expect(said).toContain("乾掉的桂花");
+    for (const line of ["那晚妳替她泡的是", "那晚是洋甘菊", "那晚是焙茶", "那晚是薄荷茶"]) expect(said).not.toContain(line);
+  });
+  it("reads the tea back from a finished chapter save", () => {
+    const chapter = new StoryBridge(readFileSync("public/story/compiled/yuhang-chapter-21.json", "utf8"));
+    chapter.next();
+    for (let step = 0; step < 200 && chapter.frame.mode !== "tea"; step++) {
+      if (chapter.frame.canContinue) chapter.next();
+      else chapter.choose(chapter.frame.choices[chapter.frame.choices.length - 1]!.index);
+    }
+    expect(chapter.frame.mode).toBe("tea");
+    chapter.finishTea({ teaId: "hojicha", garnish: "none", quality: 80, emotionalMatch: 80 });
+    expect(readInkString(chapter.serialize(), "tea_type")).toBe("hojicha");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-eighteen %s route readable", (target) => {
     expect(play(target, true, chapterEighteen).story.frame.endingId).toBe(target);
   });
