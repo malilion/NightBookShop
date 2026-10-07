@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-23.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-24.json", "utf8");
+const chapter23Archived = readFileSync("public/story/compiled/yuhang-chapter-23.json", "utf8");
 const chapter22Archived = readFileSync("public/story/compiled/yuhang-chapter-22.json", "utf8");
 const chapter21Archived = readFileSync("public/story/compiled/yuhang-chapter-21.json", "utf8");
 const chapter20Archived = readFileSync("public/story/compiled/yuhang-chapter-20.json", "utf8");
@@ -81,6 +82,20 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
 }
 
 describe("Yuhang fifth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-three %s route readable", (target) => {
+    expect(play(target, true, false, chapter23Archived).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["chamomile", "第一次沒有先看手錶"],
+    ["hojicha", "卻沒有轉身"],
+  ] as const)("lets the %s tea return in the last remaining memory", (teaId, line) => {
+    expect(play("yuhang-today", true, false, compiled, { teaId, garnish: "none" }).texts.join(" ")).toContain(line);
+  });
+  it("keeps the last remaining memory unchanged for the suggested tea", () => {
+    const texts = play("yuhang-today").texts.join(" ");
+    expect(texts).not.toContain("第一次沒有先看手錶");
+    expect(texts).not.toContain("卻沒有轉身");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-two %s route readable", (target) => {
     expect(play(target, true, false, chapter22Archived).story.frame.endingId).toBe(target);
   });

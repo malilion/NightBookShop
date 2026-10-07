@@ -43,7 +43,7 @@ test("starting a later chapter makes its unvisited memories available offline", 
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第六夜" }).click();
-  await expectStoryCached(page, "haiming-chapter-27");
+  await expectStoryCached(page, "haiming-chapter-28");
 
   const chapterImages = [
     "/images/characters/haiming.webp",
@@ -102,7 +102,7 @@ test("third-night memories load from the chapter pack offline", async ({ page, c
   await unlock(page, ["moonlight", "boyan-rest"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第三夜" }).click();
-  await expectStoryCached(page, "ruoyin-chapter-23");
+  await expectStoryCached(page, "ruoyin-chapter-24");
   await expectImagesCached(page, [
     "/images/characters/ruoyin.webp",
     ...["practice-room", "backstage", "banquet", "grandstage"].flatMap((scene) => [
@@ -126,7 +126,7 @@ test("fourth-night memories load from the chapter pack offline", async ({ page, 
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第四夜" }).click();
-  await expectStoryCached(page, "yenuan-chapter-21");
+  await expectStoryCached(page, "yenuan-chapter-22");
   await expectImagesCached(page, [
     "/images/characters/yenuan.webp",
     ...["bakery", "anniversary", "hospital-return", "old-oven"].flatMap((scene) => [
@@ -150,7 +150,7 @@ test("fifth-night memories load from the chapter pack offline", async ({ page, c
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第五夜" }).click();
-  await expectStoryCached(page, "yuhang-chapter-23");
+  await expectStoryCached(page, "yuhang-chapter-24");
   await expectImagesCached(page, [
     "/images/characters/yuhang.webp",
     ...["post-office", "last-bus", "empty-shop", "bookshop-door"].flatMap((scene) => [

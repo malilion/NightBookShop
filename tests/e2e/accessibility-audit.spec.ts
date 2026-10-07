@@ -11,10 +11,10 @@ import { appReady } from "./app-ready";
 const chapters = [
   { id: "jinglan", file: "main.json", version: STORY_VERSION, tea: "osmanthus", minigame: null },
   { id: "boyan", file: "boyan-chapter-24.json", version: "boyan-chapter-24", tea: "chamomile", minigame: "notifications" },
-  { id: "ruoyin", file: "ruoyin-chapter-23.json", version: "ruoyin-chapter-23", tea: "lavender", minigame: "melody" },
-  { id: "yenuan", file: "yenuan-chapter-21.json", version: "yenuan-chapter-21", tea: "hojicha", minigame: "hearth" },
-  { id: "yuhang", file: "yuhang-chapter-23.json", version: "yuhang-chapter-23", tea: "mint", minigame: "route" },
-  { id: "haiming", file: "haiming-chapter-27.json", version: "haiming-chapter-27", tea: "hojicha", minigame: "lamp" },
+  { id: "ruoyin", file: "ruoyin-chapter-24.json", version: "ruoyin-chapter-24", tea: "lavender", minigame: "melody" },
+  { id: "yenuan", file: "yenuan-chapter-22.json", version: "yenuan-chapter-22", tea: "hojicha", minigame: "hearth" },
+  { id: "yuhang", file: "yuhang-chapter-24.json", version: "yuhang-chapter-24", tea: "mint", minigame: "route" },
+  { id: "haiming", file: "haiming-chapter-28.json", version: "haiming-chapter-28", tea: "hojicha", minigame: "lamp" },
   { id: "lincheng", file: "lincheng-chapter-20.json", version: "lincheng-chapter-20", tea: "osmanthus", minigame: "archive" },
 ] as const;
 

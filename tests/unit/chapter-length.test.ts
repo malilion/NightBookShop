@@ -9,10 +9,10 @@ import { measure, readingModel } from "../chapterLength";
 const chapters: [string, string, TeaId][] = [
   ["jinglan", "main.json", "osmanthus"],
   ["boyan", "boyan-chapter-24.json", "chamomile"],
-  ["ruoyin", "ruoyin-chapter-23.json", "lavender"],
-  ["yenuan", "yenuan-chapter-21.json", "hojicha"],
-  ["yuhang", "yuhang-chapter-23.json", "mint"],
-  ["haiming", "haiming-chapter-27.json", "hojicha"],
+  ["ruoyin", "ruoyin-chapter-24.json", "lavender"],
+  ["yenuan", "yenuan-chapter-22.json", "hojicha"],
+  ["yuhang", "yuhang-chapter-24.json", "mint"],
+  ["haiming", "haiming-chapter-28.json", "hojicha"],
   ["lincheng", "lincheng-chapter-20.json", "osmanthus"],
 ];
 

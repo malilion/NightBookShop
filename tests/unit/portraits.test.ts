@@ -10,10 +10,10 @@ const publicFile = (url: string) => new URL(`../../public${url}`, import.meta.ur
 const current = {
   jinglan: "main.json",
   boyan: "boyan-chapter-24.json",
-  ruoyin: "ruoyin-chapter-23.json",
-  yenuan: "yenuan-chapter-21.json",
-  yuhang: "yuhang-chapter-23.json",
-  haiming: "haiming-chapter-27.json",
+  ruoyin: "ruoyin-chapter-24.json",
+  yenuan: "yenuan-chapter-22.json",
+  yuhang: "yuhang-chapter-24.json",
+  haiming: "haiming-chapter-28.json",
   lincheng: "lincheng-chapter-20.json",
 } as const;
 const storyJson = (chapter: keyof typeof current) =>

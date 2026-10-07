@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-21.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-22.json", "utf8");
+const chapter21Archived = readFileSync("public/story/compiled/yenuan-chapter-21.json", "utf8");
 const chapter20Archived = readFileSync("public/story/compiled/yenuan-chapter-20.json", "utf8");
 const chapter19Archived = readFileSync("public/story/compiled/yenuan-chapter-19.json", "utf8");
 const chapter18Archived = readFileSync("public/story/compiled/yenuan-chapter-18.json", "utf8");
@@ -86,6 +87,20 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
 }
 
 describe("Yenuan fourth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-one %s route readable", (target) => {
+    expect(play(target, true, chapter21Archived).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["lavender", "說完自己也愣了一下"],
+    ["black", "摺好，又攤開"],
+  ] as const)("lets the %s tea return in the last remaining memory", (teaId, line) => {
+    expect(play("yenuan-rest", true, compiled, { teaId }).texts.join(" ")).toContain(line);
+  });
+  it("keeps the last remaining memory unchanged for the suggested tea", () => {
+    const texts = play("yenuan-share").texts.join(" ");
+    expect(texts).not.toContain("說完自己也愣了一下");
+    expect(texts).not.toContain("摺好，又攤開");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty %s route readable", (target) => {
     expect(play(target, true, chapter20Archived).story.frame.endingId).toBe(target);
   });
