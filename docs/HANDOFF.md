@@ -167,7 +167,7 @@ AI 可直接做：
 
 ## 交接時的工作狀態
 
-**CI（2026-10-07）**：`5e95959` 的 CI 只失敗兩項，都是 `seven-nights.spec.ts` 的拼信完成鈕選擇器，已在 `aa1b7c4` 修正。推送 `08a7120` 觸發的 CI：`check` 通過、WebKit／Firefox 依設定只在手動觸發時跑（數秒內略過），完整 Chromium 在寫這段時仍在執行，結果請看 GitHub Actions。
+**CI（2026-10-07）**：`77ef571` 那一輪完整 Chromium 304 通過、1 失敗（第一夜重新整理後 GameView 延遲載入中斷），由 PR #5（`c446543`）修正，`c446543` 的 CI 全數通過。之後推送的 `b4f0dea` 只改拼信翻面鈕的樣式，CI 結果請看 GitHub Actions。WebKit／Firefox 依設定只在手動觸發時跑。
 
 **未提交的進行中工作（2026-10-07）**：配樂改為每夜一首（`src/audio/audioManager.ts` 的 `setMusic`、`App.vue`／`TeaApp.vue` 依場景切換、`src/sw.js` 的音樂快取、`vite.config.ts` 預快取 `audio/music/theme`、`scripts/generate-music.mjs`／`import-music.mjs` 與 `package.json` 兩個指令）。`public/audio/music/` 還沒有任何音檔，原本的 `midnight-theme` 也已不再播放，所以這批改動提交前必須先產出並匯入曲子，否則遊戲沒有背景音樂。`trailer/`（宣傳片原始檔）與 `art-staging/ui-screenshots/`（改版前後截圖）也未提交。
 
@@ -177,6 +177,8 @@ AI 可直接做：
 
 | 提交 | 內容 |
 | --- | --- |
+| `b4f0dea` | 兩面信的翻面鈕墊深色底板（桌機若音、葉暖拼信畫面文字對比 4.41 → 合格） |
+| `c446543` | （PR #5，他人合併）標題與遊戲頁改為靜態載入，修正 CI 上第一夜重新整理後 GameView 載入中斷 |
 | `ebe6a96` | 六夜第二段記憶進場時，兩種非首選的茶各多一句（共 12 句）；首選路線篇幅不變 |
 | `aa1b7c4` | 滿版介面：標題、對話、茶席、拼信改為鋪滿視窗的場景（新圖 9 張）；提交前修正拼信木盒切掉碎片、手機拖曳變捲動、翻面鈕被縮放列蓋住 |
 | `541cda4` | 茶壺、杯碟改為青花瓷，茶席器物與十二支製茶影片全部用新模型重新渲染 |
