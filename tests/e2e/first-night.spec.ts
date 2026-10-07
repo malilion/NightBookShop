@@ -325,6 +325,8 @@ test("complete first-night loop, reload minigames, collect and restore a manual 
     );
   await flush(page);
   await page.reload();
+  // Reload must bring back GameView; a failed lazy chunk leaves only the skip link.
+  await expect(page.locator(".letter-panel")).toBeVisible();
   await expect(placedFirst).toBeVisible();
   await page.getByRole("button", {
     name: "只是那一晚，我也有不能離開的人。",
