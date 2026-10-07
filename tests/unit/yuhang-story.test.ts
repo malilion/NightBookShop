@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-19.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-20.json", "utf8");
+const chapter19Archived = readFileSync("public/story/compiled/yuhang-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/yuhang-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/yuhang-chapter-17.json", "utf8");
 const chapterSixteen = readFileSync("public/story/compiled/yuhang-chapter-16.json", "utf8");
@@ -77,6 +78,20 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
 }
 
 describe("Yuhang fifth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-nineteen %s route readable", (target) => {
+    expect(play(target, true, false, chapter19Archived).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["chamomile", "第一次沒有去數還有幾站"],
+    ["hojicha", "在下車鈴上停了一下"],
+  ] as const)("lets the %s tea return on the last bus", (teaId, line) => {
+    expect(play("yuhang-today", true, false, compiled, { teaId, garnish: "none" }).texts.join(" ")).toContain(line);
+  });
+  it("keeps the last bus unchanged for mint", () => {
+    const texts = play("yuhang-today").texts.join(" ");
+    expect(texts).not.toContain("第一次沒有去數還有幾站");
+    expect(texts).not.toContain("在下車鈴上停了一下");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-fifteen %s route readable", (target) => {
     expect(play(target, true, false, chapterFifteen).story.frame.endingId).toBe(target);
   });

@@ -125,12 +125,12 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 | 章節 | Ink 原稿 | 目前版本 |
 | --- | --- | --- |
-| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-14`（`main.json`） |
-| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-20` |
-| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-19` |
-| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-17` |
-| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-19` |
-| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-23` |
+| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-15`（`main.json`） |
+| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-21` |
+| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-20` |
+| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-18` |
+| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-20` |
+| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-24` |
 | 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-19` |
 
 升版後請更新此表。
@@ -151,7 +151,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 AI 可直接做：
 
-1. **擴寫章節內容**：PRD_GAP_AUDIT「PRD 章節時長」列。訪客反問（六夜＋終章回應）與結局收尾二選一（24 種訪客結局與終章四種結局）已完成。後記依當晚的茶各多一句也已完成（`tea_afterword`）。剩下的方向：記憶場景中更多可查看物件、非首選茶種在記憶場景中的回響（拼信前一句已完成，`tea_before_letter`）、結局後記依更多中段選擇變化。每次照「改劇情的標準流程」升版。
+1. **擴寫章節內容**：PRD_GAP_AUDIT「PRD 章節時長」列。訪客反問（六夜＋終章回應）與結局收尾二選一（24 種訪客結局與終章四種結局）已完成。後記依當晚的茶各多一句也已完成（`tea_afterword`）。剩下的方向：記憶場景中更多可查看物件、非首選茶種在其餘記憶場景中的回響（第二段記憶與拼信前已完成）、結局後記依更多中段選擇變化。每次照「改劇情的標準流程」升版。
 2. **跨章回應延伸到非相鄰章節**：程式已支援，PRD 列出的交叉細節都已回應（第三夜回應靜蘭，第六夜回應靜蘭與若音，都經由「四個音」）。若要再加，需要自行從各章已有細節找出合理連結，避免新增與原作矛盾的設定。
 3. **E2E 穩定性**：把各檔重複的 `advanceUntil`／`untilChoice` 收斂到共用 helper。
 4. **無障礙自動檢查**：擴充 axe 檢查到所有結局畫面與小遊戲操作後狀態。

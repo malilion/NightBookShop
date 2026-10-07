@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-20.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-21.json", "utf8");
+const chapter20Archived = readFileSync("public/story/compiled/boyan-chapter-20.json", "utf8");
 const chapterNineteen = readFileSync("public/story/compiled/boyan-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/boyan-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/boyan-chapter-17.json", "utf8");
@@ -84,6 +85,21 @@ function complete(
 }
 
 describe("Boyan second night", () => {
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-twenty %s route", (target) => {
+    expect(complete(target, chapter20Archived).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["black", "算到一半才停下"],
+    ["mint", "排到「之後再說」"],
+  ] as const)("lets the %s tea return in the clinic memory", (teaId, line) => {
+    const teaDraft = { ...newTea(), teaId, leaves: 3, water: 70, temperature: teaId === "black" ? 95 : 85, seconds: 55 };
+    expect(complete("boyan-rest", compiled, { teaDraft }).texts.join(" ")).toContain(line);
+  });
+  it("keeps the clinic memory unchanged for chamomile", () => {
+    const texts = complete("boyan-rest").texts.join(" ");
+    expect(texts).not.toContain("算到一半才停下");
+    expect(texts).not.toContain("排到「之後再說」");
+  });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-sixteen %s route", (target) => {
     expect(complete(target, chapterSixteen).story.frame.endingId).toBe(target);
   });

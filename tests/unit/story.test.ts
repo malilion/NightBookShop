@@ -273,6 +273,22 @@ describe("complete Jinglan chapter", () => {
     expect(at).toBeGreaterThan(-1);
     expect(texts.slice(at + 1).some((text) => text.includes("先選碎片，再放到信上的位置"))).toBe(true);
   });
+  it("continues chapter-fourteen saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-14.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["puer", "有人在等，有人不能走"],
+    ["mint", "這一段是後一半"],
+  ] as const)("lets the %s tea return in the hospital memory", (teaId, line) => {
+    expect(play(2, "moonlight", false, compiled, "explore", false, { teaId, quality: 100 }).texts.join(" ")).toContain(line);
+  });
+  it("keeps the hospital memory unchanged for osmanthus", () => {
+    const text = play(2, "moonlight").texts.join(" ");
+    expect(text).not.toContain("有人在等，有人不能走");
+    expect(text).not.toContain("這一段是後一半");
+  });
   it.each([
     ["osmanthus", "moonlight", "巷口的桂花開了"],
     ["puer", "unfinished", "這茶要慢慢喝，話也是"],

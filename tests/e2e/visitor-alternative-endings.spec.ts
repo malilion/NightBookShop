@@ -22,10 +22,10 @@ import { smallTargets } from "./touch-target-helpers";
 
 const chapters = [
   { version: STORY_VERSION, file: "main", tea: "osmanthus", fragments: ["address", "reason", "wait"] },
-  { version: "boyan-chapter-20", file: "boyan-chapter-20", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
-  { version: "ruoyin-chapter-19", file: "ruoyin-chapter-19", tea: "lavender", fragments: ["greeting", "fear", "music"] },
-  { version: "yenuan-chapter-17", file: "yenuan-chapter-17", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
-  { version: "haiming-chapter-23", file: "haiming-chapter-23", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
+  { version: "boyan-chapter-21", file: "boyan-chapter-21", tea: "chamomile", fragments: ["status", "boundary", "handoff", "next"] },
+  { version: "ruoyin-chapter-20", file: "ruoyin-chapter-20", tea: "lavender", fragments: ["greeting", "fear", "music"] },
+  { version: "yenuan-chapter-18", file: "yenuan-chapter-18", tea: "hojicha", fragments: ["flour", "apple", "waiting"] },
+  { version: "haiming-chapter-24", file: "haiming-chapter-24", tea: "hojicha", fragments: ["light", "shore", "return", "remember"] },
 ] as const satisfies readonly { version: StoryVersion; file: string; tea: TeaId; fragments: readonly string[] }[];
 const endings = [
   { chapter: 0, id: "recipient", choice: "陪她寫一張詢問收信意願的短箋", title: "遲來的收件人" },
