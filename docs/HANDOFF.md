@@ -170,7 +170,7 @@ AI 可直接做：
 
 **CI（2026-10-07）**：`77ef571` 那一輪完整 Chromium 304 通過、1 失敗（第一夜重新整理後 GameView 延遲載入中斷），由 PR #5（`c446543`）修正，`c446543` 的 CI 全數通過。之後推送的 `b4f0dea` 只改拼信翻面鈕的樣式，CI 結果請看 GitHub Actions。WebKit／Firefox 依設定只在手動觸發時跑。
 
-**未提交的進行中工作（2026-10-07）**：配樂改為每夜一首（`src/audio/audioManager.ts` 的 `setMusic`、`App.vue`／`TeaApp.vue` 依場景切換、`src/sw.js` 的音樂快取、`vite.config.ts` 預快取 `audio/music/theme`、`scripts/generate-music.mjs`／`import-music.mjs` 與 `package.json` 兩個指令）。`public/audio/music/` 還沒有任何音檔，原本的 `midnight-theme` 也已不再播放，所以這批改動提交前必須先產出並匯入曲子，否則遊戲沒有背景音樂。`art-staging/ui-screenshots/`（改版前後截圖）也未提交。宣傳片原始檔 `trailer/` 已提交（成品在本機 `trailer/build/`，不進版本控制）。
+**配樂（進行中，已提交）**：每夜一首的切換程式、音樂快取與 `generate:music`／`import:music` 兩支腳本已提交，但 `public/audio/music/` 還沒有曲子，`importedMusic` 為空，所有場景暫時播原本的書店主題曲；匯入一首就把 id 加進 `audioManager.ts` 的 `importedMusic`，詳見 [AUDIO.md](AUDIO.md#每夜配樂進行中)。`trailer/`（80 秒宣傳片的原始檔，`build/` 被它自己的 `.gitignore` 排除）與 `art-staging/ui-screenshots/`（滿版改版前後截圖）也已提交。
 
 接手前先執行 `git status` 與 `git log --oneline -5`。本文件撰寫時的最新提交與驗證結果記在 [VERIFICATION.md](VERIFICATION.md) 最後幾段。
 
