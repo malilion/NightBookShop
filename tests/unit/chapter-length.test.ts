@@ -13,7 +13,7 @@ const chapters: [string, string, TeaId][] = [
   ["yenuan", "yenuan-chapter-23.json", "hojicha"],
   ["yuhang", "yuhang-chapter-25.json", "mint"],
   ["haiming", "haiming-chapter-29.json", "hojicha"],
-  ["lincheng", "lincheng-chapter-20.json", "osmanthus"],
+  ["lincheng", "lincheng-chapter-21.json", "osmanthus"],
 ];
 
 describe("chapter length", () => {

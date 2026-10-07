@@ -15,7 +15,7 @@ const chapters = [
   { id: "yenuan", file: "yenuan-chapter-23.json", version: "yenuan-chapter-23", tea: "hojicha", minigame: "hearth" },
   { id: "yuhang", file: "yuhang-chapter-25.json", version: "yuhang-chapter-25", tea: "mint", minigame: "route" },
   { id: "haiming", file: "haiming-chapter-29.json", version: "haiming-chapter-29", tea: "hojicha", minigame: "lamp" },
-  { id: "lincheng", file: "lincheng-chapter-20.json", version: "lincheng-chapter-20", tea: "osmanthus", minigame: "archive" },
+  { id: "lincheng", file: "lincheng-chapter-21.json", version: "lincheng-chapter-21", tea: "osmanthus", minigame: "archive" },
 ] as const;
 
 type Screen = { name: string; reached: (frame: StoryFrame) => boolean };

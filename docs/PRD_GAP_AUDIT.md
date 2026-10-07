@@ -1,5 +1,7 @@
 # PRD 完成度與待驗收項目
 
+終章新版 `lincheng-chapter-21` 讓林澄替自己泡的茶也跟進童年住處：七種非桂花的茶在進入童年住處時各多一句。桂花是首選路線的茶，篇幅不變。舊 `-20` 編譯檔保留。
+
 第二批中段選擇回響：新版 `jinglan-chapter-19`、`boyan-chapter-25`、`ruoyin-chapter-25`、`yenuan-chapter-23`、`yuhang-chapter-25`、`haiming-chapter-29` 再讓 9 個原本選了也不會被記得的非第一項選項（例如問靜蘭是不是嫁錯了人、開門時問雨航要不要進來躲雨）在四種後記各留一句。首選路線不變。舊編譯檔保留。
 
 若音後台、葉暖老烤箱、雨航書店門外、海明白色房間也在進場時回應兩種非首選的茶（新版 `ruoyin-chapter-24`、`yenuan-chapter-22`、`yuhang-chapter-24`、`haiming-chapter-28`，8 句）。至此六位訪客的每一段記憶都會回應當晚不是推薦的那杯茶；首選路線不變。舊編譯檔保留。

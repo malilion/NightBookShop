@@ -11,7 +11,7 @@ const cases = [
   { name: "爐火", version: "yenuan-chapter-23", mode: "hearth", selector: ".hearth-panel", action: ".hearth-actions button" },
   { name: "投遞", version: "yuhang-chapter-25", mode: "route", selector: ".route-panel", action: ".route-actions button" },
   { name: "守燈", version: "haiming-chapter-29", mode: "lamp", selector: ".lamp-panel", action: ".lamp-actions button" },
-  { name: "地圖", version: "lincheng-chapter-20", mode: "archive", selector: ".archive-panel", action: ".archive-record" },
+  { name: "地圖", version: "lincheng-chapter-21", mode: "archive", selector: ".archive-panel", action: ".archive-record" },
 ] as const;
 
 function atMode(version: StoryVersion, target: (typeof cases)[number]["mode"]) {

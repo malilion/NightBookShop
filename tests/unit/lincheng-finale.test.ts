@@ -7,7 +7,8 @@ import { archiveConnections, connectionBetween, scoreArchive } from "../../src/s
 import { scoreLetter } from "../../src/services/letterScoring";
 import { chapterForVersion } from "../../src/data/catalog";
 
-const compiled = readFileSync("public/story/compiled/lincheng-chapter-20.json", "utf8");
+const compiled = readFileSync("public/story/compiled/lincheng-chapter-21.json", "utf8");
+const chapter20Archived = readFileSync("public/story/compiled/lincheng-chapter-20.json", "utf8");
 const chapter19Archived = readFileSync("public/story/compiled/lincheng-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/lincheng-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/lincheng-chapter-17.json", "utf8");
@@ -92,6 +93,24 @@ const firstAnswers = { lincheng_destination: "home", lincheng_shift: "locked", l
 const secondAnswers = { lincheng_destination: "unsure", lincheng_shift: "fine", lincheng_paused: "unsure", lincheng_mother: "rarely", lincheng_card: "kept", lincheng_fear: "guests" };
 
 describe("Lincheng finale", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty %s route readable", (target) => {
+    expect(play(target, true, chapter20Archived).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["puer", "只能一直喝水"],
+    ["mint", "醒著不等於要把每個聲音都聽完"],
+    ["jasmine", "是長大以後的妳自己選的"],
+    ["black", "又收了回來"],
+    ["chamomile", "沒有像小時候那樣縮成一團"],
+    ["lavender", "那裡面也有停下來的時候"],
+    ["hojicha", "現在妳替自己留了一杯熱的"],
+  ] as const)("lets her own %s tea follow her into the childhood home", (teaId, line) => {
+    expect(play("lincheng-dawn", true, compiled, { teaId }).texts.join(" ")).toContain(line);
+  });
+  it("keeps the childhood home unchanged for osmanthus", () => {
+    const said = play("lincheng-dawn").texts.join(" ");
+    for (const line of ["只能一直喝水", "又收了回來", "現在妳替自己留了一杯熱的"]) expect(said).not.toContain(line);
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-nineteen %s route readable", (target) => {
     expect(play(target, true, chapter19Archived).story.frame.endingId).toBe(target);
   });
@@ -452,7 +471,8 @@ describe("Lincheng finale", () => {
     story.finishArchive(scoreArchive(completeArchive));
     while (story.frame.section !== "hidden-room") story.next();
     expect(story.frame.text).toContain("收藏室");
-  });
+    // 二十多條完整終章路線、每一步都還原比對，單獨跑也要一分多鐘。
+  }, 240_000);
   it("does not rewrite the visitors' choices in the closing narration", () => {
     const hero = play("lincheng-shelf", true, compiled, { previousEnding: "haiming-hero" });
     const closing = hero.texts.find((text) => text.includes("六位訪客的書籤仍在書架上"));

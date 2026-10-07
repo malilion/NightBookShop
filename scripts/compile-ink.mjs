@@ -10,7 +10,7 @@ for (const [source, output] of [
   ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-23.json"],
   ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-25.json"],
   ["story/chapters/ch06_haiming.ink", "haiming-chapter-29.json"],
-  ["story/chapters/finale_lincheng.ink", "lincheng-chapter-20.json"],
+  ["story/chapters/finale_lincheng.ink", "lincheng-chapter-21.json"],
 ].filter(([source]) => !only || source.includes(only))) {
   const file = resolve(source);
   const issues = [];

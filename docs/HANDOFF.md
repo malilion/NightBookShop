@@ -136,7 +136,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 | 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-23` |
 | 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-25` |
 | 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-29` |
-| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-20` |
+| 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-21` |
 
 升版後請更新此表。
 
@@ -180,6 +180,7 @@ AI 可直接做：
 
 | 提交 | 內容 |
 | --- | --- |
+| （本次） | 終章 `lincheng-chapter-21`：林澄替自己泡的七種非桂花茶在童年住處各多一句 |
 | `9195320` | 第二批中段選擇回響：再 9 個非第一項選項在四種後記各留一句；海明一項連跑五條路線的測試時限放寬為 120 秒 |
 | `4ebdcb6` | 若音、葉暖、雨航、海明最後一段沒有茶回響的記憶也補上（8 句）；六位訪客每段記憶都會回應非首選的茶 |
 | `08a2c62` | 六夜第一段記憶進場時，兩種非首選的茶各多一句（共 12 句）；首選路線篇幅不變 |

@@ -45,8 +45,8 @@ async function resume(page: Page, snapshot: unknown) {
 for (const { cue, kind, file, version, teaId, hints, line } of [
   { cue: "jinglan-tearful", kind: "visitor", file: "main.json", version: STORY_VERSION, teaId: "osmanthus", hints: ["聽她說一件和先生在一起的日常"], line: "眼睛卻紅了" },
   { cue: "boyan-tense", kind: "visitor", file: "boyan-chapter-25.json", version: "boyan-chapter-25", teaId: "mint", hints: ["問他哪件事暫時不必填進今晚"], line: "工作群組的新訊息" },
-  { cue: "lincheng", kind: "self", file: "lincheng-chapter-20.json", version: "lincheng-chapter-20", teaId: "osmanthus", hints: ["先坐到訪客席"], line: "第一次，妳不用替下一位客人安排座位" },
-  { cue: "lincheng-tearful", kind: "self", file: "lincheng-chapter-20.json", version: "lincheng-chapter-20", teaId: "osmanthus", hints: ["先坐到訪客席"], line: "藏信是真的" },
+  { cue: "lincheng", kind: "self", file: "lincheng-chapter-21.json", version: "lincheng-chapter-21", teaId: "osmanthus", hints: ["先坐到訪客席"], line: "第一次，妳不用替下一位客人安排座位" },
+  { cue: "lincheng-tearful", kind: "self", file: "lincheng-chapter-21.json", version: "lincheng-chapter-21", teaId: "osmanthus", hints: ["先坐到訪客席"], line: "藏信是真的" },
 ] as const) {
   test(`shows the ${cue} portrait on its line`, async ({ page }, info) => {
     const errors: string[] = [];
