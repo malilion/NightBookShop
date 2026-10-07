@@ -44,7 +44,7 @@ async function resume(page: Page, snapshot: unknown) {
 
 for (const { cue, kind, file, version, teaId, hints, line } of [
   { cue: "jinglan-tearful", kind: "visitor", file: "main.json", version: STORY_VERSION, teaId: "osmanthus", hints: ["聽她說一件和先生在一起的日常"], line: "眼睛卻紅了" },
-  { cue: "boyan-tense", kind: "visitor", file: "boyan-chapter-23.json", version: "boyan-chapter-23", teaId: "mint", hints: ["問他哪件事暫時不必填進今晚"], line: "工作群組的新訊息" },
+  { cue: "boyan-tense", kind: "visitor", file: "boyan-chapter-24.json", version: "boyan-chapter-24", teaId: "mint", hints: ["問他哪件事暫時不必填進今晚"], line: "工作群組的新訊息" },
   { cue: "lincheng", kind: "self", file: "lincheng-chapter-20.json", version: "lincheng-chapter-20", teaId: "osmanthus", hints: ["先坐到訪客席"], line: "第一次，妳不用替下一位客人安排座位" },
   { cue: "lincheng-tearful", kind: "self", file: "lincheng-chapter-20.json", version: "lincheng-chapter-20", teaId: "osmanthus", hints: ["先坐到訪客席"], line: "藏信是真的" },
 ] as const) {

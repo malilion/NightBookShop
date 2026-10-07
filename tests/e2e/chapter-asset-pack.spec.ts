@@ -43,7 +43,7 @@ test("starting a later chapter makes its unvisited memories available offline", 
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share", "yuhang-today"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第六夜" }).click();
-  await expectStoryCached(page, "haiming-chapter-26");
+  await expectStoryCached(page, "haiming-chapter-27");
 
   const chapterImages = [
     "/images/characters/haiming.webp",
@@ -78,7 +78,7 @@ test("second-night clinic and train load from the chapter pack offline", async (
   await unlock(page, ["moonlight"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第二夜" }).click();
-  await expectStoryCached(page, "boyan-chapter-23");
+  await expectStoryCached(page, "boyan-chapter-24");
   await expectImagesCached(page, [
     "/images/characters/boyan.webp",
     ...["office", "clinic", "train"].flatMap((scene) => [
@@ -102,7 +102,7 @@ test("third-night memories load from the chapter pack offline", async ({ page, c
   await unlock(page, ["moonlight", "boyan-rest"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第三夜" }).click();
-  await expectStoryCached(page, "ruoyin-chapter-22");
+  await expectStoryCached(page, "ruoyin-chapter-23");
   await expectImagesCached(page, [
     "/images/characters/ruoyin.webp",
     ...["practice-room", "backstage", "banquet", "grandstage"].flatMap((scene) => [
@@ -126,7 +126,7 @@ test("fourth-night memories load from the chapter pack offline", async ({ page, 
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第四夜" }).click();
-  await expectStoryCached(page, "yenuan-chapter-20");
+  await expectStoryCached(page, "yenuan-chapter-21");
   await expectImagesCached(page, [
     "/images/characters/yenuan.webp",
     ...["bakery", "anniversary", "hospital-return", "old-oven"].flatMap((scene) => [
@@ -150,7 +150,7 @@ test("fifth-night memories load from the chapter pack offline", async ({ page, c
   await unlock(page, ["moonlight", "boyan-rest", "ruoyin-one", "yenuan-share"]);
   await page.goto("/#/chapters");
   await page.getByRole("button", { name: "翻開第五夜" }).click();
-  await expectStoryCached(page, "yuhang-chapter-22");
+  await expectStoryCached(page, "yuhang-chapter-23");
   await expectImagesCached(page, [
     "/images/characters/yuhang.webp",
     ...["post-office", "last-bus", "empty-shop", "bookshop-door"].flatMap((scene) => [

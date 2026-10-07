@@ -10,11 +10,11 @@ import { appReady } from "./app-ready";
 // measured against the rendered artwork. Reports land in output/a11y/.
 const chapters = [
   { id: "jinglan", file: "main.json", version: STORY_VERSION, tea: "osmanthus", minigame: null },
-  { id: "boyan", file: "boyan-chapter-23.json", version: "boyan-chapter-23", tea: "chamomile", minigame: "notifications" },
-  { id: "ruoyin", file: "ruoyin-chapter-22.json", version: "ruoyin-chapter-22", tea: "lavender", minigame: "melody" },
-  { id: "yenuan", file: "yenuan-chapter-20.json", version: "yenuan-chapter-20", tea: "hojicha", minigame: "hearth" },
-  { id: "yuhang", file: "yuhang-chapter-22.json", version: "yuhang-chapter-22", tea: "mint", minigame: "route" },
-  { id: "haiming", file: "haiming-chapter-26.json", version: "haiming-chapter-26", tea: "hojicha", minigame: "lamp" },
+  { id: "boyan", file: "boyan-chapter-24.json", version: "boyan-chapter-24", tea: "chamomile", minigame: "notifications" },
+  { id: "ruoyin", file: "ruoyin-chapter-23.json", version: "ruoyin-chapter-23", tea: "lavender", minigame: "melody" },
+  { id: "yenuan", file: "yenuan-chapter-21.json", version: "yenuan-chapter-21", tea: "hojicha", minigame: "hearth" },
+  { id: "yuhang", file: "yuhang-chapter-23.json", version: "yuhang-chapter-23", tea: "mint", minigame: "route" },
+  { id: "haiming", file: "haiming-chapter-27.json", version: "haiming-chapter-27", tea: "hojicha", minigame: "lamp" },
   { id: "lincheng", file: "lincheng-chapter-20.json", version: "lincheng-chapter-20", tea: "osmanthus", minigame: "archive" },
 ] as const;
 

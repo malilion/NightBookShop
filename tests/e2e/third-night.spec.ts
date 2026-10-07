@@ -61,7 +61,7 @@ function unfinishedJinglanSave(): GameSnapshot {
     else story.choose((story.frame.choices.find((entry) => entry.text.includes("把信交還給她，今晚")) ?? story.frame.choices[0])!.index);
   }
   if (story.frame.endingId !== "unfinished") throw new Error("Jinglan fixture did not reach the unfinished ending");
-  return snapshotSchema.parse({ version: 1, storyVersion: "jinglan-chapter-17", inkState: story.serialize(), frame: story.frame, tea: newTea(), letter: newLetter() });
+  return snapshotSchema.parse({ version: 1, storyVersion: "jinglan-chapter-18", inkState: story.serialize(), frame: story.frame, tea: newTea(), letter: newLetter() });
 }
 
 test("third night saves the cup motif and both sides of the letter", async ({

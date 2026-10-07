@@ -5,11 +5,11 @@ import { resolve, dirname } from "node:path";
 const only = process.argv.find((arg) => arg.startsWith("--only="))?.slice("--only=".length);
 for (const [source, output] of [
   ["story/main.ink", "main.json"],
-  ["story/chapters/ch02_boyan.ink", "boyan-chapter-23.json"],
-  ["story/chapters/ch03_ruoyin.ink", "ruoyin-chapter-22.json"],
-  ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-20.json"],
-  ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-22.json"],
-  ["story/chapters/ch06_haiming.ink", "haiming-chapter-26.json"],
+  ["story/chapters/ch02_boyan.ink", "boyan-chapter-24.json"],
+  ["story/chapters/ch03_ruoyin.ink", "ruoyin-chapter-23.json"],
+  ["story/chapters/ch04_yenuan.ink", "yenuan-chapter-21.json"],
+  ["story/chapters/ch05_yuhang.ink", "yuhang-chapter-23.json"],
+  ["story/chapters/ch06_haiming.ink", "haiming-chapter-27.json"],
   ["story/chapters/finale_lincheng.ink", "lincheng-chapter-20.json"],
 ].filter(([source]) => !only || source.includes(only))) {
   const file = resolve(source);

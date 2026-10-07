@@ -6,7 +6,7 @@ import { newLetter, newTea, snapshotSchema, type GameSnapshot } from "../../src/
 import { prepareOpening } from "./opening-helpers";
 import { appReady } from "./app-ready";
 
-const fifthNight = readFileSync("public/story/compiled/yuhang-chapter-22.json", "utf8");
+const fifthNight = readFileSync("public/story/compiled/yuhang-chapter-23.json", "utf8");
 
 function futureEndingSave(): GameSnapshot {
   const story = new StoryBridge(fifthNight);
@@ -22,7 +22,7 @@ function futureEndingSave(): GameSnapshot {
   if (story.frame.endingId !== "yuhang-future") throw new Error("Future-stamp fixture did not finish fifth night");
   return snapshotSchema.parse({
     version: 1,
-    storyVersion: "yuhang-chapter-22",
+    storyVersion: "yuhang-chapter-23",
     inkState: story.serialize(),
     frame: story.frame,
     tea: newTea(),
