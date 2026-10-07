@@ -112,7 +112,7 @@ describe("Lincheng finale", () => {
     for (const line of ["那晚妳替她泡的是", "那晚是洋甘菊", "那晚是焙茶", "那晚是薄荷茶"]) expect(said).not.toContain(line);
   });
   it("reads the tea back from a finished chapter save", () => {
-    const chapter = new StoryBridge(readFileSync("public/story/compiled/yuhang-chapter-21.json", "utf8"));
+    const chapter = new StoryBridge(readFileSync("public/story/compiled/yuhang-chapter-22.json", "utf8"));
     chapter.next();
     for (let step = 0; step < 200 && chapter.frame.mode !== "tea"; step++) {
       if (chapter.frame.canContinue) chapter.next();
@@ -210,8 +210,8 @@ describe("Lincheng finale", () => {
   });
   it("reads each night's answer back from a finished chapter save", () => {
     const sources = {
-      jinglan: "main.json", boyan: "boyan-chapter-22.json", ruoyin: "ruoyin-chapter-21.json",
-      yenuan: "yenuan-chapter-19.json", yuhang: "yuhang-chapter-21.json", haiming: "haiming-chapter-25.json",
+      jinglan: "main.json", boyan: "boyan-chapter-23.json", ruoyin: "ruoyin-chapter-22.json",
+      yenuan: "yenuan-chapter-20.json", yuhang: "yuhang-chapter-22.json", haiming: "haiming-chapter-26.json",
     } as const;
     for (const [visitor, variable] of Object.entries(visitorQuestionVariables)) {
       const chapter = new StoryBridge(readFileSync(`public/story/compiled/${sources[visitor as keyof typeof sources]}`, "utf8"));

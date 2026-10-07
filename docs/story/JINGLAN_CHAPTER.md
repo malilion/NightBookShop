@@ -44,6 +44,8 @@
 
 選了「問她，如果重來一次會不會離開」或「再看一眼空著的長椅」的人，四種後記各多一句：她後來先問那時的自己想要什麼，以及有個店員替她確認長椅上沒有留下任何東西。這些選項都不是選單的第一項，首選路線不會經過，篇幅不變。
 
+月台的記憶進場時，兩種非首選的茶也各多一句：熟普洱讓她說繞了這麼遠才走到月台，反而不急了；薄荷讓她說這一段原本打算留到下次。
+
 醫院走廊的記憶進場時，兩種非首選的茶各多一句：熟普洱讓她想起學生作文裡同樣的走廊，薄荷讓她說這一段是今晚原本沒打算說的後一半。這些句子只在非首選的茶出現，不改變篇幅測試量的首選路線。
 
 拼信開始前也會依當晚的茶多一句（`tea_before_letter`），讓茶在中後段留下回響：桂花的杯底留著幾粒小花，熟普洱涼了也還能喝，薄荷茶涼了她便不再喝，只留著杯子。
@@ -52,4 +54,4 @@
 
 2026-10-05 擴寫首選路線篇幅（約 9,850 字／37.5 分鐘 → 約 10,890 字／40.6 分鐘，以 `tests/chapterLength.ts` 的快讀模型計）：泡茶前林澄燙杯失手、靜蘭說起先生從不燙杯（`tea_start`）；碎片倒進碟子後林澄不急著拼（`tea_story`）；校刊室新增可選的窗台紙船（`saw_paper_boat`，「周主編」與抽屜裡沒丟成的七艘），桂花斑點原來不是茶漬（`school_departure`）；病房走廊新增可選的長椅下帆布袋（`saw_canvas_bag`，那雙要穿去外地、一次也沒穿出門的新鞋），林澄問她明知來不及為何還去車站（`hospital_departure`）；月台出口她說票根原來是這樣留下的（`platform_fragment`）；回到書店後她重說五十年來那句「那天我沒去」（`reunion`）；寫給自己的信不知先誇還是先罵（`end_moonlight`），林澄沒說出口的「下次也許我已不在這裡」（`moonlight_departure`）。兩項新追問都放在原選單第一項並回到選單，不跳過任何內容。
 
-現行章節使用 `jinglan-chapter-16`；更新前的 `main.json` 完整保留為 `jinglan-chapter-15.json`、`jinglan-chapter-14.json`（上述擴寫）、`jinglan-chapter-13.json`（新增說起先生時的含淚立繪與兩處微笑立繪）、`jinglan-chapter-12.json`、`jinglan-chapter-11.json`、`jinglan-chapter-10.json`、`jinglan-chapter-9.json`、`jinglan-chapter-8.json`、`jinglan-chapter-7.json` 與 `jinglan-chapter-6.json`，更早的編譯檔也保留供既有存檔讀取。靜蘭離開前留下她聽過的四音旋律。舊版存檔載入各自保留的原版編譯檔，不將 Ink 位置硬套進新故事；存檔卡會標示舊版短篇。原版存檔沒有的段落、線索、碎片欄位以預設值補齊。
+現行章節使用 `jinglan-chapter-17`；更新前的 `main.json` 完整保留為 `jinglan-chapter-16.json`、`jinglan-chapter-15.json`、`jinglan-chapter-14.json`（上述擴寫）、`jinglan-chapter-13.json`（新增說起先生時的含淚立繪與兩處微笑立繪）、`jinglan-chapter-12.json`、`jinglan-chapter-11.json`、`jinglan-chapter-10.json`、`jinglan-chapter-9.json`、`jinglan-chapter-8.json`、`jinglan-chapter-7.json` 與 `jinglan-chapter-6.json`，更早的編譯檔也保留供既有存檔讀取。靜蘭離開前留下她聽過的四音旋律。舊版存檔載入各自保留的原版編譯檔，不將 Ink 位置硬套進新故事；存檔卡會標示舊版短篇。原版存檔沒有的段落、線索、碎片欄位以預設值補齊。

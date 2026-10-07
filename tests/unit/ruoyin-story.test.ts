@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-21.json",
+  "public/story/compiled/ruoyin-chapter-22.json",
   "utf8",
 );
+const chapter21Archived = readFileSync("public/story/compiled/ruoyin-chapter-21.json", "utf8");
 const chapter20Archived = readFileSync("public/story/compiled/ruoyin-chapter-20.json", "utf8");
 const chapter19Archived = readFileSync("public/story/compiled/ruoyin-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/ruoyin-chapter-18.json", "utf8");
@@ -110,6 +111,20 @@ function play(
 }
 
 describe("Ruoyin third night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-one %s route readable", (target) => {
+    expect(play(target, true, chapter21Archived).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["osmanthus", "台上的燈卻只照一個人"],
+    ["black", "左手卻先縮了一下"],
+  ] as const)("lets the %s tea return in the later memory", (teaId, line) => {
+    expect(play("ruoyin-stage", true, compiled, { teaId }).texts.join(" ")).toContain(line);
+  });
+  it("keeps the later memory unchanged for the suggested tea", () => {
+    const texts = play("ruoyin-stage").texts.join(" ");
+    expect(texts).not.toContain("台上的燈卻只照一個人");
+    expect(texts).not.toContain("左手卻先縮了一下");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty %s route readable", (target) => {
     expect(play(target, true, chapter20Archived).story.frame.endingId).toBe(target);
   });

@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-25.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-26.json", "utf8");
+const chapter25Archived = readFileSync("public/story/compiled/haiming-chapter-25.json", "utf8");
 const chapter24Archived = readFileSync("public/story/compiled/haiming-chapter-24.json", "utf8");
 const chapter23Archived = readFileSync("public/story/compiled/haiming-chapter-23.json", "utf8");
 const chapterTwentyTwo = readFileSync("public/story/compiled/haiming-chapter-22.json", "utf8");
@@ -84,6 +85,20 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
 }
 
 describe("Haiming sixth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-five %s route readable", (target) => {
+    expect(play(target, target === "haiming-hero", chapter25Archived).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["puer", "才說到那張邀請"],
+    ["mint", "卻說不出那天為什麼沒有走"],
+  ] as const)("lets the %s tea return in the later memory", (teaId, line) => {
+    expect(play("haiming-light", false, compiled, { teaId }).texts.join(" ")).toContain(line);
+  });
+  it("keeps the later memory unchanged for the suggested tea", () => {
+    const texts = play("haiming-light").texts.join(" ");
+    expect(texts).not.toContain("才說到那張邀請");
+    expect(texts).not.toContain("卻說不出那天為什麼沒有走");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-four %s route readable", (target) => {
     expect(play(target, target === "haiming-hero", chapter24Archived).story.frame.endingId).toBe(target);
   });

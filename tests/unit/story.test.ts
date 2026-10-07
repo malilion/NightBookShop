@@ -278,6 +278,22 @@ describe("complete Jinglan chapter", () => {
     for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
       expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
   });
+  it("continues chapter-sixteen saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-16.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
+  it.each([
+    ["puer", "她反而不急了"],
+    ["mint", "原本打算留到下次再說"],
+  ] as const)("lets the %s tea return on the platform", (teaId, line) => {
+    expect(play(2, "moonlight", false, compiled, "explore", false, { teaId, quality: 100 }).texts.join(" ")).toContain(line);
+  });
+  it("keeps the platform unchanged for osmanthus", () => {
+    const text = play(2, "moonlight").texts.join(" ");
+    expect(text).not.toContain("她反而不急了");
+    expect(text).not.toContain("原本打算留到下次再說");
+  });
   it("continues chapter-fifteen saves against the exact archived compiled story", () => {
     const previous = readFileSync("public/story/compiled/jinglan-chapter-15.json", "utf8");
     for (const target of ["moonlight", "recipient", "unfinished", "intervention"])

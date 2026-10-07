@@ -1,5 +1,7 @@
 # PRD 完成度與待驗收項目
 
+非首選的茶在下一段記憶也有回響：新版 `jinglan-chapter-17`、`boyan-chapter-23`、`ruoyin-chapter-22`、`yenuan-chapter-20`、`yuhang-chapter-22`、`haiming-chapter-26` 在第二段記憶之後的那段記憶進場時，依當晚的茶再多一句，只寫兩種非首選的茶（共 12 句）。首選路線不變。舊編譯檔保留。
+
 終章新版 `lincheng-chapter-20` 讓林澄翻開六位訪客的書籤時，也想起那一夜替對方泡的茶：`gameStore` 從各夜章節存檔讀出 `tea_type` 傳入終章，六位各三種茶共 18 句。沒有章節存檔時不出現，篇幅測試量到的首選路線不變。舊 `-19` 編譯檔保留。
 
 宣傳片原始檔（`trailer/`）：80 秒宣傳片的配樂合成（`score.py`）、素材準備（`prep.py`）、逐幀 Canvas 合成（`stage.html`）與 Playwright＋ffmpeg 渲染（`render.mjs`），可重新產生橫式 16:9 與直式 9:16 兩版，用法見 [trailer/README.md](../trailer/README.md)。成品與中間檔在 `trailer/build/`，不進版本控制。不影響遊戲本體、Ink 與存檔。
