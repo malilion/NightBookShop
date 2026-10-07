@@ -54,6 +54,8 @@ VAR voice_close = ""
 VAR boat_mark = ""
 VAR hero_cuts = ""
 VAR ending_kind = ""
+VAR went_along_light = false
+VAR ordered_years = false
 -> arrival
 
 === arrival ===
@@ -427,6 +429,7 @@ VAR ending_kind = ""
     他把紙對摺，放進襯衫口袋，又隔著布拍了一下，像交班前確認值班室的鑰匙還在。
     -> fog_after
 * [順著他說，今晚的燈有人守著]
+    ~ went_along_light = true
     ~ trust += 1
     「今晚的燈有人守著，是可靠的人。」妳說。海明的肩膀鬆了一點。 # speaker:林澄
     他低頭看了一會日誌，自己開口：「這裡不是塔吧。有茶的味道。是書店？」妳說是。他笑了一下，像找回一個熟悉的座標。 # speaker:旁白
@@ -546,6 +549,7 @@ VAR ending_kind = ""
     妳照著他的停頓抄，連「不知道」後面空出來的位置也留著。海明探頭看了一眼，說：「對，就是那麼長。」 # speaker:旁白
     -> letter_invitation
 * [先替他排好年份，再請他核對]
+    ~ ordered_years = true
     ~ intervention += 1
     妳把日期依序排開。海明看得出風暴與婚禮各在何年，卻找不到自己為什麼把同一句「想回家」寫了兩遍；他請妳先別刪。 # speaker:旁白
     -> letter_invitation
@@ -680,6 +684,7 @@ VAR ending_kind = ""
 {lincheng_fear == "guests":顧川在日誌最後一頁看到父親記的一行：「鉛筆借給書店的店員了。她也在寫航海誌。」 # speaker:旁白}
 {light_space == "back":顧川後來說，那晚他記得最清楚的是書店很安靜，安靜到聽得見父親換氣。 # speaker:旁白}
 {light_space == "tea":顧川家裡多了一罐焙茶。他泡給父親時，會多放一點焦糖。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "light"
 -> chapter_coda
@@ -710,6 +715,7 @@ VAR ending_kind = ""
 {lincheng_fear == "guests":錄音快結束時他說：「那枝鉛筆借給書店的店員了。她要記得她的客人。」 # speaker:旁白}
 {voice_close == "goodnight":錄音最後是一句晚安。有幾晚海明在旁邊，跟著錄音又說了一次。 # speaker:旁白}
 {voice_close == "joke":錄音停在那個笑話。顧川每次聽到最後都會笑，有時笑完才發現自己在哭。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "voice"
 -> chapter_coda
@@ -740,6 +746,7 @@ VAR ending_kind = ""
 {lincheng_fear == "guests":回來以後他找那枝常用的鉛筆，才想起借給了書店的店員。他笑了，說那就讓她記。 # speaker:旁白}
 {boat_mark == "pocket":那艘紙船一直在他外套內袋，摺痕被摸得發軟。 # speaker:旁白}
 {boat_mark == "name":船身上寫著「小川」。顧川第一次看見時沒有說話，只把船還給父親，讓他自己拿著。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "boat"
 -> chapter_coda
@@ -771,6 +778,7 @@ VAR ending_kind = ""
 {lincheng_fear == "guests":那枝借出去的鉛筆沒有寫進傳記。他說過，忘掉的時候，紙會替人記得；傳記卻把他記得的方式刪掉了。 # speaker:旁白}
 {hero_cuts == "kept":那個信封放在海明床頭，一直沒拆。顧川問是什麼，他說：「我說得不好的那些。」顧川把它收進自己的包裡。 # speaker:旁白}
 {hero_cuts == "thrown":刪掉的稿紙早就被清走了。後來顧川問父親那晚有沒有說過想回家，海明想不起來，也沒有地方可以查。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "hero"
 -> chapter_coda
@@ -822,4 +830,8 @@ VAR ending_kind = ""
 - tea_type == "mint":
     薄荷茶讓海明一直很清醒。他看了一眼日期，說今天是對的，才把紙船攤開。 # speaker:旁白
 }
+->->
+=== choice_afterword ===
+{went_along_light:有人順著他說過，今晚的燈有人守著。後來他迷路時，顧川也學著這樣說；海明聽了，常常自己就找回了座標。 # speaker:旁白}
+{ordered_years:那晚有人替他把年份排好，他看見自己把「想回家」寫了兩遍，請人先別刪。那兩句後來有沒有留下，要看寄出的是哪一封。 # speaker:旁白}
 ->->

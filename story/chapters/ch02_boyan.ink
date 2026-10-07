@@ -40,6 +40,8 @@ VAR asked_colleague = false
 VAR read_train_window = false
 VAR lincheng_shift = ""
 VAR ending_close = ""
+VAR asked_who_sees = false
+VAR left_cup_phone = false
 -> arrival
 
 === arrival ===
@@ -187,6 +189,7 @@ VAR ending_close = ""
     「我怕明早有人找不到我，就覺得整件事會壞掉。」他說完才發現，自己把每個人的責任都裝進同一個晚上。 # speaker:許柏言
     -> tea_aftercare
 * [先讓杯子和手機都留在桌上]
+    ~ left_cup_phone = true
     妳沒有催他回答。他看著兩樣東西，說想先弄清楚身體現在是否還撐得住，再談明天的工作。 # speaker:旁白
     -> tea_aftercare
 === tea_aftercare ===
@@ -201,6 +204,7 @@ VAR ending_close = ""
     柏言在手機備忘錄記下「十二點五十幾分，胸口悶，坐下後稍微好一點」。他看著那一行說，這是他第一次替身體寫進度，而不是替專案。 # speaker:許柏言
     -> office
 * [問他最怕誰看到辭職信]
+    ~ asked_who_sees = true
     他說主管會失望，母親會擔心，團隊會做不完。「我好像排在他們後面。」 # speaker:許柏言
     -> office
 === office ===
@@ -562,6 +566,7 @@ VAR ending_close = ""
 {lincheng_shift == "fine":醫師問他最近好不好，他差點說還好，想起書店那個也說還好的店員，改口說了胸悶。 # speaker:旁白}
 {ending_close == "sent":主管隔天早上七點回了「好，保重」。他把那三個字截圖存著。 # speaker:旁白}
 {ending_close == "morning":他睡了一覺才送出請假訊息。醒來時胸口不悶，他還是照約去了醫院。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 -> coda_rest
 === leave ===
@@ -591,6 +596,7 @@ VAR ending_close = ""
 {lincheng_shift == "fine":母親問他還好嗎，他沒有說還好。他說有點累，說完覺得像替某個人也說了一次。 # speaker:旁白}
 {ending_close == "helpers":信旁那張求助名單，他後來真的打了第二個電話。對方說：「你怎麼現在才打。」 # speaker:旁白}
 {ending_close == "first-week":離職後第一個星期，他回家住了五天。電腦放在公司，沒有帶回去。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 -> coda_leave
 === boundary ===
@@ -619,6 +625,7 @@ VAR ending_close = ""
 {lincheng_shift == "fine":主管問他撐不撐得住，他沒說還好。那兩個字有人在書店裡也說過，他聽得出那不是真話。 # speaker:旁白}
 {ending_close == "clinic":回診那天的行事曆上，他用紅字寫著「不可改期」。 # speaker:旁白}
 {ending_close == "rehearse":主管果然先說「大家都辛苦」。他在書店聽過一次，這次沒有愣住。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 -> coda_boundary
 === overwork ===
@@ -646,6 +653,7 @@ VAR ending_close = ""
 {lincheng_shift == "fine":主管問他還好嗎，他說還好。說完他想起書店的店員也這樣說過，那時他聽得出來不是真的。 # speaker:旁白}
 {ending_close == "watched":報告寄出的時間是凌晨一點多。寄件備份裡一直留著那個時間，他偶爾滑到，會停一下。 # speaker:旁白}
 {ending_close == "water":後來熬夜交件以前，他會先倒一杯水。喝不喝完，至少手邊有。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 -> coda_overwork
 === coda_rest ===
@@ -710,4 +718,8 @@ VAR ending_close = ""
 - tea_type == "mint":
     薄荷茶的涼意還留在喉嚨裡。柏言把分好欄的那張紙翻到背面，讓空白的一面朝上。 # speaker:旁白
 }
+->->
+=== choice_afterword ===
+{asked_who_sees:那張把自己排在主管、母親和團隊後面的名單，他後來偶爾會想起。有幾次寫重要的信以前，他先把自己的名字寫在最上面，再決定要不要寄。 # speaker:旁白}
+{left_cup_phone:那晚他先問的是身體撐不撐得住，不是明天的工作。這個順序他沒有每次都記得；記得的時候，手機會先翻到背面。 # speaker:旁白}
 ->->

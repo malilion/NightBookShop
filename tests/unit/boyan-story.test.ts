@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-21.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-22.json", "utf8");
+const chapter21Archived = readFileSync("public/story/compiled/boyan-chapter-21.json", "utf8");
 const chapter20Archived = readFileSync("public/story/compiled/boyan-chapter-20.json", "utf8");
 const chapterNineteen = readFileSync("public/story/compiled/boyan-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/boyan-chapter-18.json", "utf8");
@@ -85,6 +86,21 @@ function complete(
 }
 
 describe("Boyan second night", () => {
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-twenty-one %s route", (target) => {
+    expect(complete(target, chapter21Archived).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("remembers the second-choice talks in the %s afterword", (target) => {
+    // 「先讓杯子和手機都留在桌上」只在普通品質的茶之後出現。
+    const middling = { ...newTea(), teaId: "chamomile" as const, garnish: "none" as const, leaves: 1, water: 40, temperature: 75, seconds: 10 };
+    const texts = complete(target, compiled, { teaDraft: middling, teaFollowup: "leave", extra: ["問他最怕誰看到辭職信"] }).texts.join(" ");
+    expect(texts).toContain("先把自己的名字寫在最上面");
+    expect(texts).toContain("手機會先翻到背面");
+  });
+  it("leaves those afterword lines out on the first-choice route", () => {
+    const texts = complete("boyan-rest").texts.join(" ");
+    expect(texts).not.toContain("先把自己的名字寫在最上面");
+    expect(texts).not.toContain("手機會先翻到背面");
+  });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-twenty %s route", (target) => {
     expect(complete(target, chapter20Archived).story.frame.endingId).toBe(target);
   });

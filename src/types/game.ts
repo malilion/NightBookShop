@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { migrateSnapshot, SAVE_VERSION } from "./saveMigrations";
-export const STORY_VERSION = "jinglan-chapter-15";
+export const STORY_VERSION = "jinglan-chapter-16";
 export const storyVersionSchema = z.enum([
   STORY_VERSION,
+  "jinglan-chapter-15",
   "jinglan-chapter-14",
   "jinglan-chapter-13",
   "jinglan-chapter-12",
@@ -37,6 +38,7 @@ export const storyVersionSchema = z.enum([
   "boyan-chapter-19",
   "boyan-chapter-20",
   "boyan-chapter-21",
+  "boyan-chapter-22",
   "ruoyin-chapter-1",
   "ruoyin-chapter-2",
   "ruoyin-chapter-3",
@@ -57,6 +59,7 @@ export const storyVersionSchema = z.enum([
   "ruoyin-chapter-18",
   "ruoyin-chapter-19",
   "ruoyin-chapter-20",
+  "ruoyin-chapter-21",
   "yenuan-chapter-1",
   "yenuan-chapter-2",
   "yenuan-chapter-3",
@@ -75,6 +78,7 @@ export const storyVersionSchema = z.enum([
   "yenuan-chapter-16",
   "yenuan-chapter-17",
   "yenuan-chapter-18",
+  "yenuan-chapter-19",
   "yuhang-chapter-1",
   "yuhang-chapter-2",
   "yuhang-chapter-3",
@@ -95,6 +99,7 @@ export const storyVersionSchema = z.enum([
   "yuhang-chapter-18",
   "yuhang-chapter-19",
   "yuhang-chapter-20",
+  "yuhang-chapter-21",
   "haiming-chapter-1",
   "haiming-chapter-2",
   "haiming-chapter-3",
@@ -119,6 +124,7 @@ export const storyVersionSchema = z.enum([
   "haiming-chapter-22",
   "haiming-chapter-23",
   "haiming-chapter-24",
+  "haiming-chapter-25",
   "lincheng-chapter-1",
   "lincheng-chapter-2",
   "lincheng-chapter-3",

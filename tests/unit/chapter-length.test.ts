@@ -8,11 +8,11 @@ import { measure, readingModel } from "../chapterLength";
 // route must reach 40 minutes, so a reader at 300 a minute takes about 50.
 const chapters: [string, string, TeaId][] = [
   ["jinglan", "main.json", "osmanthus"],
-  ["boyan", "boyan-chapter-21.json", "chamomile"],
-  ["ruoyin", "ruoyin-chapter-20.json", "lavender"],
-  ["yenuan", "yenuan-chapter-18.json", "hojicha"],
-  ["yuhang", "yuhang-chapter-20.json", "mint"],
-  ["haiming", "haiming-chapter-24.json", "hojicha"],
+  ["boyan", "boyan-chapter-22.json", "chamomile"],
+  ["ruoyin", "ruoyin-chapter-21.json", "lavender"],
+  ["yenuan", "yenuan-chapter-19.json", "hojicha"],
+  ["yuhang", "yuhang-chapter-21.json", "mint"],
+  ["haiming", "haiming-chapter-25.json", "hojicha"],
   ["lincheng", "lincheng-chapter-19.json", "osmanthus"],
 ];
 

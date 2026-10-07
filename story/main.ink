@@ -38,5 +38,7 @@ VAR afterword_kind = ""
 VAR lincheng_destination = ""
 VAR recipient_wait = ""
 VAR intervention_after = ""
+VAR asked_if_again = false
+VAR looked_back_bench = false
 INCLUDE chapters/ch01_jinglan.ink
 -> prologue

@@ -59,6 +59,8 @@ VAR future_reminder = ""
 VAR past_lid = ""
 VAR unknown_parting = ""
 VAR ending_kind = ""
+VAR kept_ledger_closed = false
+VAR read_recipient_line = false
 -> arrival
 
 === arrival ===
@@ -176,6 +178,7 @@ VAR ending_kind = ""
     「我記得每個人的門牌，卻很久沒寫過自己的。」他念出住處的街名，第一次沒有用派送路線代替回答。 # clue:own-address # speaker:程雨航
     -> tea_aftercare
 * [讓他先看清信的收件欄]
+    ~ read_recipient_line = true
     他把信翻正，承認上面寫的是自己的名字。「地址等我想好再填。」 # speaker:程雨航
     -> tea_mood
 === tea_mood ===
@@ -295,6 +298,7 @@ VAR ending_kind = ""
     妳沒有催他現在簽收，只讓他看清兩封信的不同。
     -> post_hub
 * [讓他先把派送簿收好]
+    ~ kept_ledger_closed = true
     ~ trust += 1
     「這是我父親的紀錄，也是別人的信。」他把簿子合上，只把自己需要記住的兩個日期寫在掌心。 # speaker:程雨航
     你們沿著舊郵局的紅漆線往前走，沒有把葉暖的選擇當作雨航必須照做的答案。
@@ -661,6 +665,7 @@ VAR ending_kind = ""
 {today_first == "blank":休假第一天那格，他真的什麼都沒排。下午他在公園坐到路燈亮，才想起今天不用上班。 # speaker:旁白}
 {today_first == "his":休假第一天，他吃了一頓不用趕的早餐。吐司點了兩份，吃完一份才想起不必替誰外帶。 # speaker:旁白}
 {asked_first_visit:看店面那天，他從門口走到窗邊，數到第十四步才停下。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "today"
 -> chapter_coda
@@ -688,6 +693,7 @@ VAR ending_kind = ""
 {lincheng_card == "kept":他在給七年後自己的信末多寫一句：站牌下那位店員也還沒送出自己的信，希望她那時已經送了。 # speaker:旁白}
 {future_reminder == "phone":提醒響起那天他還在送信。送完那一區，他請了半天假，回家打開第一箱。 # speaker:旁白}
 {future_reminder == "colleague":下個月那天，同事在打卡鐘旁問他：「箱子開了沒？」他說開了，裡面第一本是妹妹的旅遊書。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "future"
 -> chapter_coda
@@ -718,6 +724,7 @@ VAR ending_kind = ""
 {past_lid == "closed":紀念盒蓋好以後放在書櫃最上層。每年妹妹生日，他拿下來一次。 # speaker:旁白}
 {past_lid == "ajar":盒蓋一直沒有蓋緊。有時他經過，會把那張明信片拿出來看一眼，再放回去。 # speaker:旁白}
 {read_post_slot:在海邊的郵筒前，他把寄給自己的信投進去，把耳朵貼近聽了一下。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "past"
 -> chapter_coda
@@ -748,6 +755,7 @@ VAR ending_kind = ""
 {unknown_parting == "returned":那晚以後，他摸到袋底那封信時，信封總是乾的。他不知道是誰放回去的，也沒有問。 # speaker:旁白}
 {unknown_parting == "said":他記得門口那句「信會一直在這裡」。有幾晚，他經過書店那條街時放慢腳步，沒有進去。 # speaker:旁白}
 {asked_route_left:每晚送完最後一戶，他照舊一個人走回局裡。那段沒有東西要送的路，他仍走得很快。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "unknown"
 -> chapter_coda
@@ -797,4 +805,8 @@ VAR ending_kind = ""
 - tea_type == "hojicha":
     焙茶喝到一半。雨航看了一眼門口，沒有站起來。 # speaker:旁白
 }
+->->
+=== choice_afterword ===
+{kept_ledger_closed:父親的派送簿他沒有再翻開，只記得那晚寫在掌心的兩個日期。那是別人的信，他終於分得清楚。 # speaker:旁白}
+{read_recipient_line:信封收件欄上自己的名字，他在書店裡看清過一次。後來不論有沒有簽收，他都知道那個名字是自己的。 # speaker:旁白}
 ->->

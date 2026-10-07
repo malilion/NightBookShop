@@ -51,6 +51,8 @@ VAR stage_post = ""
 VAR score_first = ""
 VAR echo_reply = ""
 VAR ending_kind = ""
+VAR heard_hurtful_line = false
+VAR asked_big_stage = false
 -> arrival
 
 === arrival ===
@@ -341,6 +343,7 @@ VAR ending_kind = ""
     寫到「怕」那個字時，她的筆停了很久。「這個字我從來沒對她說過。在她面前，我只會說累。」 # speaker:沈若音
     -> backstage_depart
 * [先讓她把那句傷人的話原樣念完]
+    ~ heard_hurtful_line = true
     她念到一半停住。「她那時說，只是想問我有沒有吃飯。我連這句都沒讓她說完。」 # speaker:沈若音
     妳不替季晴回答會不會原諒。若音把未寫完的道歉留在信上，決定等讀完背面，再想要不要寄。 # speaker:旁白
     -> backstage_depart
@@ -518,6 +521,7 @@ VAR ending_kind = ""
     她把手放回琴盒上，等那一點聲音完全停住，才說可以回去看信。 # speaker:旁白
     -> grandstage_depart
 * [問她是否仍想站上真正的大舞台]
+    ~ asked_big_stage = true
     「有時想。」她說得很慢。「我不想把想上台的自己說成錯。但如果每次都要先忘記疼痛、忘記台下的人，才能站上去，我還需要時間想清楚。」 # speaker:沈若音
     -> grandstage_depart
 === grandstage_depart ===
@@ -674,6 +678,7 @@ VAR ending_kind = ""
 {lincheng_paused == "unsure":演出時，她在空拍那裡等一下。有時會想起書店裡那個說想不起來的店員。 # speaker:旁白}
 {one_hand == "towel":演出結束後，她會先把手泡進溫水裡，再出去跟聽眾說話。 # speaker:旁白}
 {one_hand == "asked":有人問她手還好嗎，她會照實說：「有一點痠。」說完仍把下一首拉完，或者不拉。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "one"
 -> chapter_coda
@@ -699,6 +704,7 @@ VAR ending_kind = ""
 {lincheng_paused == "unsure":她在給季晴的信裡寫：休止符不一定是結束。這句話，她先對一個店員說過。 # speaker:旁白}
 {stage_post == "tonight":季晴說那封信的郵戳是半夜。她也是在半夜讀完的。 # speaker:旁白}
 {stage_post == "tomorrow":掛號回執寄回來時，簽名欄是季晴的字。若音把它夾進樂譜，和那張舊票根放在一起。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "stage"
 -> chapter_coda
@@ -723,6 +729,7 @@ VAR ending_kind = ""
 {lincheng_paused == "unsure":簿子最後留了一頁空白，標題寫著：「給還想不起來的人。」 # speaker:旁白}
 {score_first == "self":簿子第一頁是她自己的四個音。後來每個人翻開，都會先聽見那個雨天。 # speaker:旁白}
 {score_first == "guest":第一個在簿子裡留信的人，是一位夜班的計程車司機。他只寫了一句，若音替那一句寫了八小節。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "score"
 -> chapter_coda
@@ -750,6 +757,7 @@ VAR ending_kind = ""
 {lincheng_paused == "unsure":比賽曲裡沒有休止符。她撕給店員的那一小角，是她那陣子畫過的唯一一個。 # speaker:旁白}
 {echo_reply == "retract":比賽前一晚，她想起書店店員說過可以再想。她還是去了，只是那晚提早一小時收琴。 # speaker:旁白}
 {echo_reply == "copied":練習表是書店店員替她抄的，字很工整。她照著練，一格也沒有空下來。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ ending_kind = "echo"
 -> chapter_coda
@@ -798,4 +806,8 @@ VAR ending_kind = ""
 - tea_type == "black":
     濃紅茶的杯緣留著一圈茶漬。若音看著那份計畫表，筆在指間轉了一圈，沒有再加任何一行。 # speaker:旁白
 }
+->->
+=== choice_afterword ===
+{heard_hurtful_line:季晴那句「有沒有吃飯」，她後來在心裡讓它說完了，不再截在一半。 # speaker:旁白}
+{asked_big_stage:她說過有時仍想站上大舞台，這句話她沒有收回。想上台的自己，她不再說成錯的。 # speaker:旁白}
 ->->

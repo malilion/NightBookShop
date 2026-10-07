@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-20.json",
+  "public/story/compiled/ruoyin-chapter-21.json",
   "utf8",
 );
+const chapter20Archived = readFileSync("public/story/compiled/ruoyin-chapter-20.json", "utf8");
 const chapter19Archived = readFileSync("public/story/compiled/ruoyin-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/ruoyin-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/ruoyin-chapter-17.json", "utf8");
@@ -109,6 +110,19 @@ function play(
 }
 
 describe("Ruoyin third night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty %s route readable", (target) => {
+    expect(play(target, true, chapter20Archived).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("remembers the second-choice talks in the %s afterword", (target) => {
+    const texts = play(target, true, compiled, { chooseTexts: ["把那句傷人的話原樣念完", "是否仍想站上真正的大舞台"] }).texts.join(" ");
+    expect(texts).toContain("不再截在一半");
+    expect(texts).toContain("她不再說成錯的");
+  });
+  it("leaves those afterword lines out on the first-choice route", () => {
+    const texts = play("ruoyin-one").texts.join(" ");
+    expect(texts).not.toContain("不再截在一半");
+    expect(texts).not.toContain("她不再說成錯的");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-nineteen %s route readable", (target) => {
     expect(play(target, true, chapter19Archived).story.frame.endingId).toBe(target);
   });

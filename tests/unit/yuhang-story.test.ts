@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-20.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-21.json", "utf8");
+const chapter20Archived = readFileSync("public/story/compiled/yuhang-chapter-20.json", "utf8");
 const chapter19Archived = readFileSync("public/story/compiled/yuhang-chapter-19.json", "utf8");
 const chapterEighteen = readFileSync("public/story/compiled/yuhang-chapter-18.json", "utf8");
 const chapterSeventeen = readFileSync("public/story/compiled/yuhang-chapter-17.json", "utf8");
@@ -33,7 +34,7 @@ const targets = {
   "yuhang-unknown": { stamp: "none", choice: "拒絕簽收" },
 } as const;
 
-function play(target: keyof typeof targets, fullLetter = true, detour = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; teaId?: "mint" | "chamomile" | "hojicha"; garnish?: TeaDraft["garnish"]; blackTea?: number; promiseChoice?: string; deferPostmarkComparison?: boolean; chooseTexts?: string[] } = {}) {
+function play(target: keyof typeof targets, fullLetter = true, detour = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; teaId?: "mint" | "chamomile" | "hojicha"; garnish?: TeaDraft["garnish"]; blackTea?: number; promiseChoice?: string; deferPostmarkComparison?: boolean; chooseTexts?: string[]; quality?: number } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding);
   story.next();
   const sections = new Set<string>();
@@ -44,7 +45,7 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
     sections.add(story.frame.section);
     texts.push(story.frame.text);
     if (story.frame.mode === "tea")
-      story.finishTea({ teaId: options.teaId ?? "mint", garnish: options.garnish ?? "lemon", blackTea: options.blackTea ?? 20, quality: 100, emotionalMatch: 100 });
+      story.finishTea({ teaId: options.teaId ?? "mint", garnish: options.garnish ?? "lemon", blackTea: options.blackTea ?? 20, quality: options.quality ?? 100, emotionalMatch: 100 });
     else if (story.frame.mode === "route")
       story.finishRoute(scoreRoute({ stops: detour ? ["bookshop-door", "post-office", "last-bus"] : ["post-office", "last-bus", "empty-shop"] }));
     else if (story.frame.mode === "letter") {
@@ -78,6 +79,19 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
 }
 
 describe("Yuhang fifth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty %s route readable", (target) => {
+    expect(play(target, true, false, chapter20Archived).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("remembers the second-choice talks in the %s afterword", (target) => {
+    const texts = play(target, true, false, compiled, { quality: 60, deferPostmarkComparison: true, chooseTexts: ["讓他先看清信的收件欄"] }).texts.join(" ");
+    expect(texts).toContain("他終於分得清楚");
+    expect(texts).toContain("他都知道那個名字是自己的");
+  });
+  it("leaves those afterword lines out on the first-choice route", () => {
+    const texts = play("yuhang-today").texts.join(" ");
+    expect(texts).not.toContain("他終於分得清楚");
+    expect(texts).not.toContain("他都知道那個名字是自己的");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-nineteen %s route readable", (target) => {
     expect(play(target, true, false, chapter19Archived).story.frame.endingId).toBe(target);
   });

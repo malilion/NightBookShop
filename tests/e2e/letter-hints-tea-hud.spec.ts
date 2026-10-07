@@ -13,7 +13,7 @@ function firstNightAt(target: "tea" | "letter") {
     if (frame.mode === target)
       return snapshotSchema.parse({
         version: 1,
-        storyVersion: "jinglan-chapter-15",
+        storyVersion: "jinglan-chapter-16",
         inkState: story.serialize(),
         frame,
         tea: newTea(),

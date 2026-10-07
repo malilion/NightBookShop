@@ -258,6 +258,7 @@ VAR saw_canvas_bag = false
     靜蘭低頭看著掌心。「原來還有人記得。我這些年總跟人說，都是小時候不懂事。」 # speaker:旁白
     -> school_departure
 * [問她，如果重來一次會不會離開]
+    ~ asked_if_again = true
     我不知道。妳問現在的我，我會先問誰照顧父親、母親要怎麼辦。可妳看，那時候的我，連這些話都還沒學會問。 # speaker:周靜蘭
     妳把信紙收進冊子，沒有再要求她回答。 # speaker:旁白
     -> school_departure
@@ -412,6 +413,7 @@ VAR saw_canvas_bag = false
     她說完又想了想，說大概兩樣都有。妳沒有接話，陪她在出口多站了一會。 # speaker:旁白
     -> reunion
 * [再看一眼空著的長椅]
+    ~ looked_back_bench = true
     椅子上沒有留下任何東西。妳等了一會，確認不會有新的字，再轉身跟上靜蘭。 # speaker:旁白
     -> reunion
 === reunion ===
@@ -588,6 +590,7 @@ VAR saw_canvas_bag = false
 書店裡，那片桂花斑點留在新書籤上。妳碰了碰，指尖沒有沾到顏色。
 {lincheng_destination == "home":電話快掛斷時，她提起那晚書店裡一個淋濕的年輕店員，說不知道對方後來有沒有回家換衣服。 # speaker:旁白}
 {lincheng_destination == "unsure":她在給自己的信背面多寫了一行，像替誰留的作業：「白卷可以晚交，名字要先寫上。」 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ afterword_kind = "moonlight"
 -> final_bookmark
@@ -621,6 +624,7 @@ VAR saw_canvas_bag = false
 {lincheng_destination == "unsure":校刊最後一頁是空白的投稿欄。她看了一會，想起有個店員也還沒交自己那一篇。 # speaker:旁白}
 {recipient_wait == "stood":收到回信那天，她在信箱前站了一會才打開。站一會就夠了，這句話她記得是自己說的。 # speaker:旁白}
 {recipient_wait == "alone":收到回信那天，她一個人在廚房讀完，才打電話告訴孫女。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ afterword_kind = "recipient"
 -> final_bookmark
@@ -646,6 +650,7 @@ VAR saw_canvas_bag = false
 {lincheng_destination == "home":孫女要出門時，她追到門口塞了一把傘，說有人淋著雨回家，她會記掛很久。 # speaker:旁白}
 {lincheng_destination == "unsure":孫女說作文還沒寫，她沒有催，只說：「名字先寫上，其他的慢慢來。」那是她那晚對一個店員說過的話。 # speaker:旁白}
 書籤的末尾留著空白。妳沒有替它補上日期，把它放進能夠再次翻開的那一頁。
+-> choice_afterword ->
 -> tea_afterword ->
 ~ afterword_kind = "unfinished"
 -> final_bookmark
@@ -675,6 +680,7 @@ VAR saw_canvas_bag = false
 {lincheng_destination == "unsure":她說過別一直不交那一篇。如今妳替她交了她的，自己那一篇仍是白卷。 # speaker:旁白}
 {intervention_after == "noted":手冊那一頁寫著「等等」兩個字。妳後來每次想替人決定，都會先翻到那裡。 # speaker:旁白}
 {intervention_after == "apologized":妳的道歉她收下了，沒有說原諒。原不原諒，是她的事。 # speaker:旁白}
+-> choice_afterword ->
 -> tea_afterword ->
 ~ afterword_kind = "intervention"
 -> final_bookmark
@@ -725,4 +731,8 @@ VAR saw_canvas_bag = false
 - tea_type == "mint":
     薄荷茶早就涼了。靜蘭沒有再喝，只把杯子留在手邊，像留著一個不必說滿的位置。 # speaker:旁白
 }
+->->
+=== choice_afterword ===
+{asked_if_again:有人問過她，重來一次會不會走。她後來想起這個問題時，會先問那時的自己想要什麼，再問誰需要照顧；順序換了，答案仍沒有一定。 # speaker:旁白}
+{looked_back_bench:月台那張空長椅，她後來沒有再夢見。偶爾想起時，她記得有個店員替她多看了一眼，確認上面沒有留下任何東西。 # speaker:旁白}
 ->->

@@ -278,6 +278,40 @@ describe("complete Jinglan chapter", () => {
     for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
       expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
   });
+  it("continues chapter-fifteen saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-15.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
+  it.each(["moonlight", "recipient", "unfinished", "intervention"])("remembers the second-choice talks in the %s afterword", (target) => {
+    const story = new StoryBridge(compiled);
+    story.next();
+    const texts: string[] = [];
+    const desired = { moonlight: "陪她寫一封信", recipient: "問她，是否願意", unfinished: "把信交還給她，今晚", intervention: "替她把信寄出" }[target]!;
+    for (let steps = 0; story.frame.mode !== "ending"; steps++) {
+      expect(steps).toBeLessThan(700);
+      texts.push(story.frame.text);
+      if (story.frame.mode === "tea") story.finishTea({ teaId: "osmanthus", quality: 100, emotionalMatch: 100 });
+      else if (story.frame.mode === "letter") story.finishLetter({ completion: 100, understood: true, alternate: false });
+      else if (story.frame.canContinue) story.next();
+      else {
+        const choices = story.frame.choices;
+        const choice = choices.find((c) => c.text.includes("如果重來一次") || c.text.includes("再看一眼空著的長椅"))
+          ?? choices.find((c) => c.text.includes(desired))
+          ?? choices.find((c) => c.text.includes("仍替她封口"))
+          ?? choices[0]!;
+        story.choose(choice.index);
+      }
+    }
+    const text = texts.join(" ");
+    expect(story.frame.endingId).toBe(target);
+    expect(text).toContain("順序換了，答案仍沒有一定");
+    expect(text).toContain("確認上面沒有留下任何東西。");
+  });
+  it("leaves those afterword lines out on the first-choice route", () => {
+    const text = play(2, "moonlight").texts.join(" ");
+    expect(text).not.toContain("順序換了，答案仍沒有一定");
+  });
   it.each([
     ["puer", "有人在等，有人不能走"],
     ["mint", "這一段是後一半"],
