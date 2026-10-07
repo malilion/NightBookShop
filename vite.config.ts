@@ -60,6 +60,7 @@ export default defineConfig({
           "**/*.{js,css,html,svg,png,webmanifest}",
           "story/compiled/main.json",
           "audio/*.{ogg,mp3}",
+          "audio/music/theme.{ogg,mp3}",
           "images/tea-props/*.webp",
           "images/tea-ingredients/*.webp",
           "images/title-street*.webp",

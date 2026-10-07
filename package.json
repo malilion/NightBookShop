@@ -34,6 +34,8 @@
     "render:audio": "node scripts/render-audio.mjs",
     "render:film-audio": "node scripts/render-film-audio.mjs",
     "import:theme": "node scripts/import-theme.mjs",
+    "generate:music": "node scripts/generate-music.mjs",
+    "import:music": "node scripts/import-music.mjs",
     "import:portraits": "node scripts/import-portraits.mjs"
   },
   "dependencies": {

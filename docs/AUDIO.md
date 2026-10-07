@@ -8,6 +8,12 @@ Howler 在玩家首次指標或鍵盤操作後開始播放。遊戲中的書店�
 
 奉茶時的十二支製茶影片各有一條 10 秒音軌，放在影片旁的 `public/video/tea/`，以 `npm run render:film-audio` 從 `scripts/render-film-audio.mjs` 重建。影片播放、暫停與定位時音軌跟著影片時間走，音量使用音效設定；它與影片一起按需快取，不在安裝預快取內。細節見[製茶影片](TEA_FILMS.md#音軌)。
 
+## 每夜配樂（進行中）
+
+`audioManager.setMusic` 依場景切換背景音樂：標題與選單是書店主題曲，每夜一首、記憶與結局的月海各一首、午夜茶席另一首（`App.vue`、`TeaApp.vue`）。新曲以 `npm run generate:music`（Google Lyria 3.5，需 `GEMINI_API_KEY`，輸出到 `art-staging/music/lyria/`，帶 SynthID 浮水印）產生候選，選定後以 `npm run import:music` 剪成無縫循環，輸出到 `public/audio/music/<id>.{ogg,mp3}`；Service Worker 在首次播放時快取。
+
+2026-10-07 時 `public/audio/music/` 還沒有任何曲子。`audioManager.ts` 的 `importedMusic` 是空集合，所有場景都併到同一條書店主題曲（`midnight-theme`，已在預快取內），換場景時不會從頭重播。每匯入一首，就把它的 id 加進 `importedMusic`；授權與來源也要同步寫進 [ASSET_LICENSES.md](ASSET_LICENSES.md)。
+
 ## 主題曲
 
 2026-10-05 起改用公有領域錄音：薩提〈吉諾佩第一號〉（Gymnopédie No. 1），Robin Alciatore 演奏，錄音來自 Musopen，取自 [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Erik_Satie_-_gymnopedies_-_la_1_ere._lent_et_douloureux.ogg)，作者已釋出至公有領域；Musopen 希望署名，「關於」頁有列出。原檔保留在 `art-staging/music/satie-gymnopedie-1-alciatore.ogg`。

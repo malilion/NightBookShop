@@ -8,7 +8,20 @@ export interface AudioPreferences {
   ambienceVolume: number;
   sfxVolume: number;
 }
-type LoopName = "theme" | "rain" | "room";
+/** Background music: the bookshop theme, one track per night and a few shared scenes. */
+export type MusicTrack =
+  | "theme"
+  | "jinglan"
+  | "boyan"
+  | "ruoyin"
+  | "yenuan"
+  | "yuhang"
+  | "haiming"
+  | "lincheng"
+  | "memory"
+  | "ending"
+  | "midnight-tea";
+type LoopName = "rain" | "room" | `music:${MusicTrack}`;
 type LoopTrack = {
   howl: Howl;
   active: boolean;
@@ -16,7 +29,6 @@ type LoopTrack = {
   stopTimer?: ReturnType<typeof setTimeout>;
 };
 const files = {
-  theme: "midnight-theme",
   rain: "rain-window",
   room: "bookshop-room",
   paper: "paper",
@@ -32,6 +44,19 @@ const sources = (name: keyof typeof files) => [
   `/audio/${files[name]}.ogg`,
   `/audio/${files[name]}.mp3`,
 ];
+/**
+ * Tracks already imported to public/audio/music/ by `npm run import:music`.
+ * Until a track is listed here, its scene plays the original bookshop theme,
+ * so the game never falls silent while the new score is still being made.
+ */
+const importedMusic: ReadonlySet<MusicTrack> = new Set<MusicTrack>([]);
+const loopSources = (name: LoopName) => {
+  if (!name.startsWith("music:")) return sources(name as "rain" | "room");
+  const track = name.slice(6) as MusicTrack;
+  return importedMusic.has(track)
+    ? [`/audio/music/${track}.ogg`, `/audio/music/${track}.mp3`]
+    : ["/audio/midnight-theme.ogg", "/audio/midnight-theme.mp3"];
+};
 const defaults: AudioPreferences = {
   muted: false,
   bgmVolume: 25,
@@ -61,6 +86,7 @@ class AudioManager {
   private started = false;
   private visible = true;
   private scene: AudioScene = null;
+  private music: MusicTrack | null = null;
   private preferences = defaults;
   private loops: Partial<Record<LoopName, LoopTrack>> = {};
   private cues: Partial<Record<AudioCue, Howl>> = {};
@@ -70,7 +96,6 @@ class AudioManager {
   start() {
     if (this.started) return;
     this.started = true;
-    this.track("theme");
     if (Howler.usingWebAudio && Howler.ctx?.resume)
       void Howler.ctx.resume().catch(() => undefined);
     Howler.volume(this.visible ? 1 : 0);
@@ -87,6 +112,14 @@ class AudioManager {
     if (this.scene === scene) return;
     if (scene) this.caption(sceneCaptions[scene]);
     this.scene = scene;
+    this.sync();
+  }
+  /** Crossfades to another music track; null fades the music out. */
+  setMusic(requested: MusicTrack | null) {
+    // 尚未匯入的曲子都併到同一條主題曲，換場景時不會從頭重播。
+    const music = requested && !importedMusic.has(requested) ? "theme" : requested;
+    if (this.music === music) return;
+    this.music = music;
     this.sync();
   }
   setPreferences(preferences: AudioPreferences) {
@@ -201,7 +234,7 @@ class AudioManager {
     if (!this.loops[name]) {
       this.loops[name] = {
         howl: new Howl({
-          src: sources(name),
+          src: loopSources(name),
           loop: true,
           volume: 0,
         }),
@@ -232,6 +265,11 @@ class AudioManager {
         if (current.target === 0) {
           current.howl.stop();
           current.active = false;
+          // A decoded music track holds tens of megabytes; free the ones not playing.
+          if (name.startsWith("music:")) {
+            current.howl.unload();
+            delete this.loops[name];
+          }
         }
       }, 750);
     }
@@ -239,9 +277,11 @@ class AudioManager {
   private sync() {
     if (!this.started) return;
     const enabled = !this.preferences.muted && this.scene !== null;
-    const bgm = enabled ? this.preferences.bgmVolume / 100 : 0;
+    const bgm = this.preferences.muted ? 0 : this.preferences.bgmVolume / 100;
     const ambience = enabled ? this.preferences.ambienceVolume / 100 : 0;
-    this.updateLoop("theme", bgm);
+    if (this.music) this.updateLoop(`music:${this.music}`, bgm);
+    for (const name of Object.keys(this.loops) as LoopName[])
+      if (name.startsWith("music:") && name !== `music:${this.music}`) this.updateLoop(name, 0);
     this.updateLoop("rain", this.scene === "rain" ? ambience : 0);
     this.updateLoop("room", this.scene === "room" ? ambience : 0);
     for (const cue of Object.values(this.cues))

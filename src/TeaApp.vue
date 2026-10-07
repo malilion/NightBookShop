@@ -10,6 +10,7 @@ onMounted(async () => {
   await settings.init();
   ready.value = true;
   audio.setScene("rain");
+  audio.setMusic("midnight-tea");
   window.addEventListener("pointerdown", enableAudio, { capture: true });
   window.addEventListener("keydown", enableAudio, { capture: true });
   document.addEventListener("visibilitychange", updateVisibility);
@@ -20,6 +21,7 @@ onBeforeUnmount(() => {
   window.removeEventListener("keydown", enableAudio, true);
   document.removeEventListener("visibilitychange", updateVisibility);
   audio.setScene(null);
+  audio.setMusic(null);
 });
 function enableAudio() {
   audio.start();

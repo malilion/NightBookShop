@@ -28,6 +28,7 @@ onBeforeUnmount(() => {
   window.removeEventListener("keydown", enableAudio, true);
   document.removeEventListener("visibilitychange", updateVisibility);
   audio.setScene(null);
+  audio.setMusic(null);
 });
 function enableAudio() {
   audio.start();
@@ -57,6 +58,18 @@ watch(
           ? "room"
           : "rain",
       );
+  },
+  { immediate: true },
+);
+// 書店主題曲在標題與選單；每夜有自己的曲子，記憶與結局的月海各有一首，午夜茶席另一首。
+watch(
+  () => [route.name, game.frame?.scene, game.chapterId],
+  () => {
+    if (route.name === "tea") audio.setMusic("midnight-tea");
+    else if (route.name !== "game" || !game.frame) audio.setMusic("theme");
+    else if (game.frame.scene === "memory") audio.setMusic("memory");
+    else if (game.frame.scene === "moon-sea") audio.setMusic("ending");
+    else audio.setMusic(game.chapterId);
   },
   { immediate: true },
 );
