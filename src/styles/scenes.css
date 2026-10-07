@@ -1433,6 +1433,12 @@
   .letter-panel > .letter-side-buttons {
     top: 146px;
   }
+  /* 移到這裡後，膠囊按鈕圓角外露出的是較亮的插畫（文字對比稽核量到 4.41:1）；整組墊一塊深色底板。 */
+  .letter-panel > .letter-side-buttons {
+    padding: 8px;
+    border-radius: 24px;
+    background: #050a16d9;
+  }
 }
 @media (min-width: 1181px) and (min-height: 701px) {
   /* 放上墊子的紙片：小圖放大成插畫（照概念圖紙片上的素描）。 */
