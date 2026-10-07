@@ -92,6 +92,8 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 - 繁體中文。旁白以第二人稱「妳」指林澄；店員說話時 `# speaker:林澄`。
 - 每行對話尾端用 tag 標說話者與畫面：`# speaker:顧海明 # portrait:haiming-warm`。只能用 `commandParser.ts` 允許的 tag，各章單元測試會檢查。
+- **篇幅上限**：`tests/unit/chapter-length.test.ts` 量每章首選路線（每個選單都選第一項、配推薦茶），要求快速閱讀至少 40 分鐘、慢速（每分鐘 250 字）不超過 60 分鐘。2026-10-07 各章慢速約 55–57 分鐘，只剩 3–5 分鐘（約 750–1,200 字）。新內容請放在首選路線不經過的地方：非首選的茶、不是第一項的選項、替代結局；若要加在第一項或推薦茶路線上，先跑這個測試確認沒有超過上限。
+- **記憶裡的茶**：各訪客章第二段記憶的進場段落（靜蘭醫院、柏言候診區、若音婚宴、葉暖週年、雨航末班車、海明夏日探訪）在進入物件選單前，依 `tea_type` 只為兩種非首選的茶各給一句。
 - **拼信前的茶**：各訪客章的 `=== letter_start ===` 第一行呼叫 `-> tea_before_letter ->`，依 `tea_type` 給一句，再進入拼信小遊戲。
 - **篇幅守門**：`tests/unit/chapter-length.test.ts` 以首選路線（每次選第一項）估算各章時間，必須在快讀 40 分鐘以上、慢讀 60 分鐘以內。新增內容若讓某章超過上限，或刪減讓某章低於 40 分鐘，這個測試會失敗。編譯單章可用 `node scripts/compile-ink.mjs --only=ch04`。
 - **表情立繪**：台詞尾端加 `# portrait:<cue>`（可用值見 `portraitCueSchema`，圖片對照在 `src/data/portraits.ts`）。cue 只影響該行；沒有 cue 時顯示場景訪客的預設立繪。`tests/unit/portraits.test.ts` 會走到每個 cue 的台詞確認顯示正確。
@@ -165,6 +167,8 @@ AI 可直接做：
 
 ## 交接時的工作狀態
 
+**CI（2026-10-07）**：`5e95959` 的 CI 只失敗兩項，都是 `seven-nights.spec.ts` 的拼信完成鈕選擇器，已在 `aa1b7c4` 修正。推送 `08a7120` 觸發的 CI：`check` 通過、WebKit／Firefox 依設定只在手動觸發時跑（數秒內略過），完整 Chromium 在寫這段時仍在執行，結果請看 GitHub Actions。
+
 **未提交的進行中工作（2026-10-07）**：配樂改為每夜一首（`src/audio/audioManager.ts` 的 `setMusic`、`App.vue`／`TeaApp.vue` 依場景切換、`src/sw.js` 的音樂快取、`vite.config.ts` 預快取 `audio/music/theme`、`scripts/generate-music.mjs`／`import-music.mjs` 與 `package.json` 兩個指令）。`public/audio/music/` 還沒有任何音檔，原本的 `midnight-theme` 也已不再播放，所以這批改動提交前必須先產出並匯入曲子，否則遊戲沒有背景音樂。`trailer/`（宣傳片原始檔）與 `art-staging/ui-screenshots/`（改版前後截圖）也未提交。
 
 接手前先執行 `git status` 與 `git log --oneline -5`。本文件撰寫時的最新提交與驗證結果記在 [VERIFICATION.md](VERIFICATION.md) 最後幾段。
@@ -173,6 +177,7 @@ AI 可直接做：
 
 | 提交 | 內容 |
 | --- | --- |
+| `ebe6a96` | 六夜第二段記憶進場時，兩種非首選的茶各多一句（共 12 句）；首選路線篇幅不變 |
 | `aa1b7c4` | 滿版介面：標題、對話、茶席、拼信改為鋪滿視窗的場景（新圖 9 張）；提交前修正拼信木盒切掉碎片、手機拖曳變捲動、翻面鈕被縮放列蓋住 |
 | `541cda4` | 茶壺、杯碟改為青花瓷，茶席器物與十二支製茶影片全部用新模型重新渲染 |
 | `9290e84` | `tea-brew-films.spec.ts` 的影片載入失敗情境改為封鎖 Service Worker（原本依 SW 接管時序時好時壞） |
