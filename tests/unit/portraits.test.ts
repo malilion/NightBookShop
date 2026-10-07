@@ -9,11 +9,11 @@ import { portraitCueSchema } from "../../src/types/game";
 const publicFile = (url: string) => new URL(`../../public${url}`, import.meta.url).pathname;
 const current = {
   jinglan: "main.json",
-  boyan: "boyan-chapter-24.json",
-  ruoyin: "ruoyin-chapter-24.json",
-  yenuan: "yenuan-chapter-22.json",
-  yuhang: "yuhang-chapter-24.json",
-  haiming: "haiming-chapter-28.json",
+  boyan: "boyan-chapter-25.json",
+  ruoyin: "ruoyin-chapter-25.json",
+  yenuan: "yenuan-chapter-23.json",
+  yuhang: "yuhang-chapter-25.json",
+  haiming: "haiming-chapter-29.json",
   lincheng: "lincheng-chapter-20.json",
 } as const;
 const storyJson = (chapter: keyof typeof current) =>

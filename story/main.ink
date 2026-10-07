@@ -40,5 +40,7 @@ VAR recipient_wait = ""
 VAR intervention_after = ""
 VAR asked_if_again = false
 VAR looked_back_bench = false
+VAR asked_wrong_marriage = false
+VAR urged_to_forget = false
 INCLUDE chapters/ch01_jinglan.ink
 -> prologue

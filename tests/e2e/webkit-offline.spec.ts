@@ -94,7 +94,7 @@ test("Safari keeps a later chapter's story and art after the server goes away", 
   await controlled(page);
   await page.goto(`${origin}/#/chapters`);
   await page.getByRole("button", { name: "翻開第二夜" }).click();
-  await expect.poll(() => page.evaluate(async () => !!(await (await caches.open("night-bookshop-stories-v1")).match("/story/compiled/boyan-chapter-24.json")))).toBe(true);
+  await expect.poll(() => page.evaluate(async () => !!(await (await caches.open("night-bookshop-stories-v1")).match("/story/compiled/boyan-chapter-25.json")))).toBe(true);
   const art = ["/images/characters/boyan.webp", "/images/characters/boyan-tense.webp", "/images/memory-train-mobile.webp"];
   await expect.poll(() => page.evaluate(async (urls) => {
     const cache = await caches.open("night-bookshop-chapter-images-v1");
@@ -104,7 +104,7 @@ test("Safari keeps a later chapter's story and art after the server goes away", 
   const fetched = await page.evaluate(async (urls) => Promise.all(urls.map(async (url) => {
     const response = await fetch(url);
     return response.ok && (await response.blob()).size > 0;
-  })), [...art, "/story/compiled/boyan-chapter-24.json"]);
+  })), [...art, "/story/compiled/boyan-chapter-25.json"]);
   expect(fetched).toEqual([true, true, true, true]);
   await page.reload();
   await expect(page.getByRole("region", { name: "每晚開店準備" })).toContainText("第二夜");

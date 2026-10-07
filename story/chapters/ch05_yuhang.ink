@@ -61,6 +61,7 @@ VAR unknown_parting = ""
 VAR ending_kind = ""
 VAR kept_ledger_closed = false
 VAR read_recipient_line = false
+VAR offered_shelter = false
 -> arrival
 
 === arrival ===
@@ -87,6 +88,7 @@ VAR read_recipient_line = false
     妳把信封翻到背面。寄件人欄的字比收件人欄小，筆畫壓得很重，像寫的人很怕它被雨沖掉。 # speaker:旁白
     -> observe
 * [問他要不要進來躲雨]
+    ~ offered_shelter = true
     他說沒關係，卻把郵袋往屋簷下挪了一點。黑貓坐在門檻正中間，替他留了一條進來的路。 # speaker:旁白
     -> observe
 === observe ===
@@ -827,4 +829,5 @@ VAR read_recipient_line = false
 === choice_afterword ===
 {kept_ledger_closed:父親的派送簿他沒有再翻開，只記得那晚寫在掌心的兩個日期。那是別人的信，他終於分得清楚。 # speaker:旁白}
 {read_recipient_line:信封收件欄上自己的名字，他在書店裡看清過一次。後來不論有沒有簽收，他都知道那個名字是自己的。 # speaker:旁白}
+{offered_shelter:那晚有人問他要不要進來躲雨。他說沒關係，卻把郵袋往屋簷下挪了一點；後來每逢下雨，他仍會先替信找地方躲。 # speaker:旁白}
 ->->

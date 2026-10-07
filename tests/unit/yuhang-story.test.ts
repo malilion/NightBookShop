@@ -7,7 +7,8 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreRoute } from "../../src/services/routeScoring";
 import { deliveryRouteScene } from "../../src/data/deliveryRouteNarrative";
 
-const compiled = readFileSync("public/story/compiled/yuhang-chapter-24.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yuhang-chapter-25.json", "utf8");
+const chapter24Archived = readFileSync("public/story/compiled/yuhang-chapter-24.json", "utf8");
 const chapter23Archived = readFileSync("public/story/compiled/yuhang-chapter-23.json", "utf8");
 const chapter22Archived = readFileSync("public/story/compiled/yuhang-chapter-22.json", "utf8");
 const chapter21Archived = readFileSync("public/story/compiled/yuhang-chapter-21.json", "utf8");
@@ -82,6 +83,17 @@ function play(target: keyof typeof targets, fullLetter = true, detour = false, s
 }
 
 describe("Yuhang fifth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-four %s route readable", (target) => {
+    expect(play(target, true, false, chapter24Archived).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("remembers more overlooked choices in the %s afterword", (target) => {
+    const texts = play(target, true, false, compiled, { chooseTexts: ["問他要不要進來躲雨"] }).texts.join(" ");
+    expect(texts).toContain("仍會先替信找地方躲");
+  });
+  it("leaves the newer overlooked-choice lines out of the first-choice route", () => {
+    const texts = play("yuhang-today").texts.join(" ");
+    expect(texts).not.toContain("仍會先替信找地方躲");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-three %s route readable", (target) => {
     expect(play(target, true, false, chapter23Archived).story.frame.endingId).toBe(target);
   });

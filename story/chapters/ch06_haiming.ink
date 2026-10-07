@@ -56,6 +56,7 @@ VAR hero_cuts = ""
 VAR ending_kind = ""
 VAR went_along_light = false
 VAR ordered_years = false
+VAR waited_for_page = false
 -> arrival
 
 === arrival ===
@@ -190,6 +191,7 @@ VAR ordered_years = false
     他指著一句「今天風很大，我也害怕」，說這一行不必修成勇敢的樣子；日誌裡還有他自己的聲音。 # clue:today-page # speaker:顧海明
     -> tea_mood
 * [先等他選好頁碼]
+    ~ waited_for_page = true
     他慢慢翻過兩頁，停在自己認得的字上。「這一頁可以先看，後面的再說。」 # speaker:顧海明
     -> tea_mood
 === tea_mood ===
@@ -852,4 +854,5 @@ VAR ordered_years = false
 === choice_afterword ===
 {went_along_light:有人順著他說過，今晚的燈有人守著。後來他迷路時，顧川也學著這樣說；海明聽了，常常自己就找回了座標。 # speaker:旁白}
 {ordered_years:那晚有人替他把年份排好，他看見自己把「想回家」寫了兩遍，請人先別刪。那兩句後來有沒有留下，要看寄出的是哪一封。 # speaker:旁白}
+{waited_for_page:那晚有人等他自己選好頁碼。後來顧川也學著不替他翻頁，讓他停在認得的字上。 # speaker:旁白}
 ->->

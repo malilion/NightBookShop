@@ -6,7 +6,8 @@ import { frameSchema, newLetter, newTea, type LetterDraft, type TeaDraft } from 
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreTea } from "../../src/services/teaScoring";
 
-const compiled = readFileSync("public/story/compiled/boyan-chapter-24.json", "utf8");
+const compiled = readFileSync("public/story/compiled/boyan-chapter-25.json", "utf8");
+const chapter24Archived = readFileSync("public/story/compiled/boyan-chapter-24.json", "utf8");
 const chapter23Archived = readFileSync("public/story/compiled/boyan-chapter-23.json", "utf8");
 const chapter22Archived = readFileSync("public/story/compiled/boyan-chapter-22.json", "utf8");
 const chapter21Archived = readFileSync("public/story/compiled/boyan-chapter-21.json", "utf8");
@@ -88,6 +89,17 @@ function complete(
 }
 
 describe("Boyan second night", () => {
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-twenty-four %s route", (target) => {
+    expect(complete(target, chapter24Archived).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("remembers more overlooked choices in the %s afterword", (target) => {
+    const texts = complete(target, compiled, { extra: ["先問報告做到哪裡"] }).texts.join(" ");
+    expect(texts).toContain("最先記得的總是進度");
+  });
+  it("leaves the newer overlooked-choice lines out of the first-choice route", () => {
+    const texts = complete("boyan-rest").texts.join(" ");
+    expect(texts).not.toContain("最先記得的總是進度");
+  });
   it.each(Object.keys(choicesByEnding) as (keyof typeof choicesByEnding)[])("restores the chapter-twenty-three %s route", (target) => {
     expect(complete(target, chapter23Archived).story.frame.endingId).toBe(target);
   });

@@ -7,9 +7,10 @@ import { scoreLetter } from "../../src/services/letterScoring";
 import { cupMotif, matchesCupMotif } from "../../src/services/melodyScoring";
 
 const compiled = readFileSync(
-  "public/story/compiled/ruoyin-chapter-24.json",
+  "public/story/compiled/ruoyin-chapter-25.json",
   "utf8",
 );
+const chapter24Archived = readFileSync("public/story/compiled/ruoyin-chapter-24.json", "utf8");
 const chapter23Archived = readFileSync("public/story/compiled/ruoyin-chapter-23.json", "utf8");
 const chapter22Archived = readFileSync("public/story/compiled/ruoyin-chapter-22.json", "utf8");
 const chapter21Archived = readFileSync("public/story/compiled/ruoyin-chapter-21.json", "utf8");
@@ -113,6 +114,19 @@ function play(
 }
 
 describe("Ruoyin third night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-four %s route readable", (target) => {
+    expect(play(target, true, chapter24Archived).story.frame.endingId).toBe(target);
+  });
+  it.each(["ruoyin-stage", "ruoyin-score", "ruoyin-echo"] as const)("remembers more overlooked choices in the %s afterword", (target) => {
+    const texts = play(target, true, compiled, { chooseTexts: ["為何不把這段曲子寫完", "後來為何不願再聽這段開頭"] }).texts.join(" ");
+    expect(texts).toContain("第一個音她沒有再改");
+    expect(texts).toContain("不再把它當成不拉的理由");
+  });
+  it("leaves the newer overlooked-choice lines out of the first-choice route", () => {
+    const texts = play("ruoyin-one").texts.join(" ");
+    expect(texts).not.toContain("第一個音她沒有再改");
+    expect(texts).not.toContain("不再把它當成不拉的理由");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-three %s route readable", (target) => {
     expect(play(target, true, chapter23Archived).story.frame.endingId).toBe(target);
   });

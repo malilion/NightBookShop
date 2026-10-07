@@ -181,6 +181,7 @@ VAR saw_canvas_bag = false
     她數了數碟子裡的碎片。「妳替我看著就好。等一下，我再決定。」 # speaker:旁白
     -> first_listening
 * [勸她別再想這些往事]
+    ~ urged_to_forget = true
     ~ intervention += 1
     靜蘭將信封收攏。「是啊，大家都說，過得好好的，何必。」 # speaker:旁白
     她把「好好的」說得很輕，妳聽出那不是她第一次說這句話。桌上的杯子還熱，她卻已經想把包拿回來。
@@ -456,6 +457,7 @@ VAR saw_canvas_bag = false
     她摸著戒指上的磨痕，眼神柔和下來。「他知道我這個毛病。帶學生出去，我比學生還晚回家。」
     -> before_letter
 * [問她，當初是不是嫁錯了人]
+    ~ asked_wrong_marriage = true
     ~ intervention += 1
     不是。她回答得很快，連自己也像被這個聲音嚇了一跳。 # speaker:旁白
     我只是在說一件還沒說完的事。不要因為這件，就替我把後來都擦掉。 # speaker:周靜蘭
@@ -747,4 +749,6 @@ VAR saw_canvas_bag = false
 === choice_afterword ===
 {asked_if_again:有人問過她，重來一次會不會走。她後來想起這個問題時，會先問那時的自己想要什麼，再問誰需要照顧；順序換了，答案仍沒有一定。 # speaker:旁白}
 {looked_back_bench:月台那張空長椅，她後來沒有再夢見。偶爾想起時，她記得有個店員替她多看了一眼，確認上面沒有留下任何東西。 # speaker:旁白}
+{asked_wrong_marriage:有個店員問過她，當初是不是嫁錯了人。她答得很快：不是。那句話她後來也沒有改口。 # speaker:旁白}
+{urged_to_forget:那晚有人勸她別再想那些往事，她回了一句「過得好好的，何必」。後來她才發現，這句話她說了太多年。 # speaker:旁白}
 ->->

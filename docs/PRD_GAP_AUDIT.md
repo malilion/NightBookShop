@@ -1,5 +1,7 @@
 # PRD 完成度與待驗收項目
 
+第二批中段選擇回響：新版 `jinglan-chapter-19`、`boyan-chapter-25`、`ruoyin-chapter-25`、`yenuan-chapter-23`、`yuhang-chapter-25`、`haiming-chapter-29` 再讓 9 個原本選了也不會被記得的非第一項選項（例如問靜蘭是不是嫁錯了人、開門時問雨航要不要進來躲雨）在四種後記各留一句。首選路線不變。舊編譯檔保留。
+
 若音後台、葉暖老烤箱、雨航書店門外、海明白色房間也在進場時回應兩種非首選的茶（新版 `ruoyin-chapter-24`、`yenuan-chapter-22`、`yuhang-chapter-24`、`haiming-chapter-28`，8 句）。至此六位訪客的每一段記憶都會回應當晚不是推薦的那杯茶；首選路線不變。舊編譯檔保留。
 
 非首選的茶也在第一段記憶留下回響：新版 `jinglan-chapter-18`、`boyan-chapter-24`、`ruoyin-chapter-23`、`yenuan-chapter-21`、`yuhang-chapter-23`、`haiming-chapter-27` 在第一段記憶進場時，依當晚的茶多一句，只寫兩種非首選的茶（共 12 句）。靜蘭與柏言的三段記憶至此都有非首選茶的回響；其餘四章尚缺一段。首選路線不變。舊編譯檔保留。

@@ -97,6 +97,7 @@ export default defineConfig({
   test: {
     include: ["tests/unit/**/*.test.ts"],
     setupFiles: ["tests/unit/setup.ts"],
-    testTimeout: 15000,
+    // 各章完整路線測試每一步都還原比對，章節加長後在機器忙碌時會超過 15 秒；60 秒只影響真正卡住的測試多久才判失敗。
+    testTimeout: 60000,
   },
 });

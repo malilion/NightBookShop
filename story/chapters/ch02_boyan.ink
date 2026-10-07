@@ -42,6 +42,7 @@ VAR lincheng_shift = ""
 VAR ending_close = ""
 VAR asked_who_sees = false
 VAR left_cup_phone = false
+VAR asked_report_first = false
 -> arrival
 
 === arrival ===
@@ -68,6 +69,7 @@ VAR left_cup_phone = false
     他坐下了，背卻還沒有靠上椅背，像隨時準備被叫起來發言。 # speaker:旁白
     -> observe
 * [先問報告做到哪裡]
+    ~ asked_report_first = true
     「剩三頁。」他回答得太快，才發現妳並不認識他的公司。 # speaker:許柏言
     -> observe
 === observe ===
@@ -734,4 +736,5 @@ VAR left_cup_phone = false
 === choice_afterword ===
 {asked_who_sees:那張把自己排在主管、母親和團隊後面的名單，他後來偶爾會想起。有幾次寫重要的信以前，他先把自己的名字寫在最上面，再決定要不要寄。 # speaker:旁白}
 {left_cup_phone:那晚他先問的是身體撐不撐得住，不是明天的工作。這個順序他沒有每次都記得；記得的時候，手機會先翻到背面。 # speaker:旁白}
+{asked_report_first:那晚書店問他的第一件事，是報告做到哪裡。他答得太快：「剩三頁。」後來他常想，為什麼自己最先記得的總是進度。 # speaker:旁白}
 ->->

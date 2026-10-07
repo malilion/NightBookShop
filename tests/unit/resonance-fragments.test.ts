@@ -6,11 +6,11 @@ import { resonanceFragments } from "../../src/data/resonanceFragments";
 
 const chapters = [
   { id: "jinglan", file: "main", teaId: "osmanthus" },
-  { id: "boyan", file: "boyan-chapter-24", teaId: "chamomile" },
-  { id: "ruoyin", file: "ruoyin-chapter-24", teaId: "lavender" },
-  { id: "yenuan", file: "yenuan-chapter-22", teaId: "hojicha" },
-  { id: "yuhang", file: "yuhang-chapter-24", teaId: "mint" },
-  { id: "haiming", file: "haiming-chapter-28", teaId: "hojicha" },
+  { id: "boyan", file: "boyan-chapter-25", teaId: "chamomile" },
+  { id: "ruoyin", file: "ruoyin-chapter-25", teaId: "lavender" },
+  { id: "yenuan", file: "yenuan-chapter-23", teaId: "hojicha" },
+  { id: "yuhang", file: "yuhang-chapter-25", teaId: "mint" },
+  { id: "haiming", file: "haiming-chapter-29", teaId: "hojicha" },
 ] as const;
 
 function atTea(file: string) {

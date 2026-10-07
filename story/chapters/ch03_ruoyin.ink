@@ -53,6 +53,8 @@ VAR echo_reply = ""
 VAR ending_kind = ""
 VAR heard_hurtful_line = false
 VAR asked_big_stage = false
+VAR asked_unfinished_tune = false
+VAR asked_why_not_listen = false
 -> arrival
 
 === arrival ===
@@ -221,6 +223,7 @@ VAR asked_big_stage = false
     若音想了很久，說不是第一次上台，也不是第一次得獎，是一個下雨的下午。 # speaker:旁白
     -> childhood
 * [問她為何不把這段曲子寫完]
+    ~ asked_unfinished_tune = true
     她望向書架間的黑暗。「因為後來的我，總想替十歲的我改掉第一個音。」 # speaker:沈若音
     -> childhood
 === childhood ===
@@ -288,6 +291,7 @@ VAR asked_big_stage = false
     妳問她第二遍有沒有不一樣。「有。雨停了一下，我就跟著停。那是我第一次覺得，曲子可以等別的東西。」 # speaker:沈若音
     -> childhood_depart
 * [問她後來為何不願再聽這段開頭]
+    ~ asked_why_not_listen = true
     她摸到樂譜上的雲。「後來只要我拉這四個音，就有人說：那個拿獎的小孩回來了。我開始害怕下一個音不像她。」 # speaker:沈若音
     妳沒有說那個小孩應該回來，只問她是否還想繼續看下去。她點頭，把信紙翻到背面收好。 # speaker:旁白
     -> childhood_depart
@@ -828,4 +832,6 @@ VAR asked_big_stage = false
 === choice_afterword ===
 {heard_hurtful_line:季晴那句「有沒有吃飯」，她後來在心裡讓它說完了，不再截在一半。 # speaker:旁白}
 {asked_big_stage:她說過有時仍想站上大舞台，這句話她沒有收回。想上台的自己，她不再說成錯的。 # speaker:旁白}
+{asked_unfinished_tune:她說過，後來的自己總想替十歲的她改掉第一個音。如今再拉那四個音，第一個音她沒有再改。 # speaker:旁白}
+{asked_why_not_listen:她怕過拉那四個音時，下一個音不像那個拿獎的小孩。那份怕沒有消失，只是她不再把它當成不拉的理由。 # speaker:旁白}
 ->->

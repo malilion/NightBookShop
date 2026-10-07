@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLamp } from "../../src/services/lampScoring";
 import { scoreLetter } from "../../src/services/letterScoring";
 
-const compiled = readFileSync("public/story/compiled/haiming-chapter-28.json", "utf8");
+const compiled = readFileSync("public/story/compiled/haiming-chapter-29.json", "utf8");
+const chapter28Archived = readFileSync("public/story/compiled/haiming-chapter-28.json", "utf8");
 const chapter27Archived = readFileSync("public/story/compiled/haiming-chapter-27.json", "utf8");
 const chapter26Archived = readFileSync("public/story/compiled/haiming-chapter-26.json", "utf8");
 const chapter25Archived = readFileSync("public/story/compiled/haiming-chapter-25.json", "utf8");
@@ -40,7 +41,7 @@ const targets = {
   "haiming-hero": "只寄流暢的英雄故事",
 } as const;
 
-function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none"; orderDates?: boolean; reunionChoice?: "flex"; prefer?: string; teaId?: "hojicha" | "puer" | "mint"; extra?: string[]; priorEndings?: PriorChapterEndings } = {}) {
+function play(target: keyof typeof targets, polished = false, storyJson = compiled, options: { skipObjects?: boolean; previousEnding?: string; garnish?: "caramel" | "none"; orderDates?: boolean; reunionChoice?: "flex"; prefer?: string; teaId?: "hojicha" | "puer" | "mint"; quality?: number; extra?: string[]; priorEndings?: PriorChapterEndings } = {}) {
   const story = new StoryBridge(storyJson, options.previousEnding, options.priorEndings);
   story.next();
   const extra = [...(options.extra ?? [])];
@@ -54,7 +55,7 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
     texts.push(story.frame.text);
     portraits.push(story.frame.portrait);
     if (story.frame.mode === "tea")
-      story.finishTea({ teaId: options.teaId ?? "hojicha", garnish: options.garnish ?? (options.teaId && options.teaId !== "hojicha" ? "none" : "caramel"), quality: 100, emotionalMatch: 100 });
+      story.finishTea({ teaId: options.teaId ?? "hojicha", garnish: options.garnish ?? (options.teaId && options.teaId !== "hojicha" ? "none" : "caramel"), quality: options.quality ?? 100, emotionalMatch: 100 });
     else if (story.frame.mode === "lamp")
       story.finishLamp(scoreLamp({ turns: ["steady", "steady", "steady"] }));
     else if (story.frame.mode === "letter") {
@@ -87,6 +88,17 @@ function play(target: keyof typeof targets, polished = false, storyJson = compil
 }
 
 describe("Haiming sixth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-eight %s route readable", (target) => {
+    expect(play(target, target === "haiming-hero", chapter28Archived).story.frame.endingId).toBe(target);
+  });
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("remembers more overlooked choices in the %s afterword", (target) => {
+    const texts = play(target, target === "haiming-hero", compiled, { quality: 60, extra: ["先等他選好頁碼"] }).texts.join(" ");
+    expect(texts).toContain("讓他停在認得的字上");
+  });
+  it("leaves the newer overlooked-choice lines out of the first-choice route", () => {
+    const texts = play("haiming-light").texts.join(" ");
+    expect(texts).not.toContain("讓他停在認得的字上");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-seven %s route readable", (target) => {
     expect(play(target, target === "haiming-hero", chapter27Archived).story.frame.endingId).toBe(target);
   });
@@ -375,7 +387,8 @@ describe("Haiming sixth night", () => {
     expect(play("haiming-hero").texts.join(" ")).toContain("被當作筆誤刪掉了");
     const skipped = play("haiming-light", false, compiled, { skipObjects: true }).texts.join(" ");
     expect(skipped).not.toContain("跟我煎的一樣");
-  });
+    // 一項測試走五條完整路線、每一步都還原比對；章節加長後超過預設的 15 秒。
+  }, 120_000);
   it("remembers how Lin Cheng answered when Haiming lost his place", () => {
     const gentle = play("haiming-light");
     const gentleText = gentle.texts.join(" ");

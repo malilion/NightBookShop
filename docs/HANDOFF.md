@@ -98,7 +98,7 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 - **篇幅守門**：`tests/unit/chapter-length.test.ts` 以首選路線（每次選第一項）估算各章時間，必須在快讀 40 分鐘以上、慢讀 60 分鐘以內。新增內容若讓某章超過上限，或刪減讓某章低於 40 分鐘，這個測試會失敗。編譯單章可用 `node scripts/compile-ink.mjs --only=ch04`。
 - **表情立繪**：台詞尾端加 `# portrait:<cue>`（可用值見 `portraitCueSchema`，圖片對照在 `src/data/portraits.ts`）。cue 只影響該行；沒有 cue 時顯示場景訪客的預設立繪。`tests/unit/portraits.test.ts` 會走到每個 cue 的台詞確認顯示正確。
 - **終章書籤的茶**：`gameStore` 開終章時除了 `lincheng_*` 回答，也把各夜章節存檔的 `tea_type` 傳成 `tea_<訪客>`（含海明）；終章翻書籤時依此各給一句。章節存檔沒有茶時不出現，所以不影響篇幅測試。
-- **後記的中段選擇**：各訪客章檔尾有 `=== choice_afterword ===`，四種後記在 `-> tea_afterword ->` 前呼叫；每章兩個非第一項選項各設一個變數，各一句、四種結局都成立。新增時沿用，句子不要假設特定結局。
+- **後記的中段選擇**：各訪客章檔尾有 `=== choice_afterword ===`，四種後記在 `-> tea_afterword ->` 前呼叫；每章已有三到四個非第一項選項各設一個變數（2026-10-08 第二批再加 9 個），各一句、四種結局都成立。新增時沿用，句子不要假設特定結局。
 - **後記的茶**：各訪客章檔尾有 `=== tea_afterword ===` 隧道，四種後記在設定 `ending_kind`／`afterword_kind`（柏言是 `-> coda_*`）前呼叫 `-> tea_afterword ->`。新增茶種或結局時記得補上，句子要對四種結局都成立。
 - **結局收尾的二選一**：24 種訪客結局與終章四種結局的收尾場景都以林澄的一個二選一收束，格式為 `* [選項] ~ 變數 = "值" 內容` 兩項，再以 `- -> xxx_afterword` 匯合，後記用 `{變數 == "值":一句話}` 回應。替訪客決定的結局裡，其中一項會再 `intervention += 1`。新加結局時沿用此格式。
 - **可略過的追問**模式：在結局選單或段落選單中放 `* {條件 && not 已問} [選項]`，內容結束後 `-> xxx_return`（一行過場）再回到選單。結局選項放在同一選單裡，玩家隨時能直接選結局。
@@ -130,12 +130,12 @@ npx playwright install chromium   # Playwright 升版後若找不到瀏覽器
 
 | 章節 | Ink 原稿 | 目前版本 |
 | --- | --- | --- |
-| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-18`（`main.json`） |
-| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-24` |
-| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-24` |
-| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-22` |
-| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-24` |
-| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-28` |
+| 第一夜 靜蘭 | `story/main.ink` + `ch01_jinglan.ink` | `jinglan-chapter-19`（`main.json`） |
+| 第二夜 柏言 | `ch02_boyan.ink` | `boyan-chapter-25` |
+| 第三夜 若音 | `ch03_ruoyin.ink` | `ruoyin-chapter-25` |
+| 第四夜 葉暖 | `ch04_yenuan.ink` | `yenuan-chapter-23` |
+| 第五夜 雨航 | `ch05_yuhang.ink` | `yuhang-chapter-25` |
+| 第六夜 海明 | `ch06_haiming.ink` | `haiming-chapter-29` |
 | 終章 林澄 | `finale_lincheng.ink` | `lincheng-chapter-20` |
 
 升版後請更新此表。
@@ -180,6 +180,7 @@ AI 可直接做：
 
 | 提交 | 內容 |
 | --- | --- |
+| （本次） | 第二批中段選擇回響：再 9 個非第一項選項在四種後記各留一句；海明一項連跑五條路線的測試時限放寬為 120 秒 |
 | `4ebdcb6` | 若音、葉暖、雨航、海明最後一段沒有茶回響的記憶也補上（8 句）；六位訪客每段記憶都會回應非首選的茶 |
 | `08a2c62` | 六夜第一段記憶進場時，兩種非首選的茶各多一句（共 12 句）；首選路線篇幅不變 |
 | `d141dc2` | 六夜下一段記憶進場時，兩種非首選的茶再各多一句（共 12 句）；首選路線篇幅不變 |

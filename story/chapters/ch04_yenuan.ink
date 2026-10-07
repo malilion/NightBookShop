@@ -51,6 +51,8 @@ VAR lincheng_mother = ""
 VAR ending_kind = ""
 VAR named_helpers = false
 VAR asked_if_burnt = false
+VAR asked_why_not_eat = false
+VAR admitted_still_sad = false
 -> arrival
 
 === arrival ===
@@ -296,6 +298,7 @@ VAR asked_if_burnt = false
     「後來媽媽真的這樣跟客人介紹。」葉暖說。「我十幾歲的時候覺得好丟臉，叫她不要再講。她就改成站在旁邊笑，讓客人自己猜。」 # speaker:葉暖
     -> dawn_depart
 * [問她如今為何連一口麵包也不肯吃]
+    ~ asked_why_not_eat = true
     「好像我一吃，就承認日子還能照常過。」她放下紙片。「可是我每天替別人切，店也一直開著。原來我早就讓日子往前走了，只是不肯讓自己跟上。」 # speaker:葉暖
     -> dawn_depart
 === dawn_depart ===
@@ -471,6 +474,7 @@ VAR asked_if_burnt = false
     「還有，她揉麵的時候會哼歌，永遠只哼前兩句，因為後面的歌詞她記不住。」葉暖說著，自己也輕輕哼了兩句，停在同一個地方。「我以前笑她。現在換我只記得前兩句。」 # speaker:葉暖
     -> hospital_depart
 * [陪她先承認今晚仍然難過]
+    ~ admitted_still_sad = true
     妳陪她坐回長椅。葉暖說自己現在還不能說不怪自己，也不想再每天只用「我太晚到」介紹母親。 # speaker:葉暖
     她把卡片翻回有麵粉痕的一面，決定先去看完食譜。 # speaker:旁白
     -> hospital_depart
@@ -821,4 +825,6 @@ VAR asked_if_burnt = false
 === choice_afterword ===
 {named_helpers:那晚她說出熟客、隔壁店主和學徒的名字。後來忙不過來時，她不一定每次都開口，但那三個名字一直排在她心裡。 # speaker:旁白}
 {asked_if_burnt:她說過，麵包若又烤焦，就先讓它冷下來，再看是哪一步出了錯。這句話她記得，即使有些早上仍做不到。 # speaker:旁白}
+{asked_why_not_eat:她說過，一吃麵包，就像承認日子還能照常過。後來她發現日子早就往前走了，不吃麵包，也沒有讓它停下來。 # speaker:旁白}
+{admitted_still_sad:那晚她先承認自己仍然難過，沒有急著說不怪自己。這兩件事，她後來也沒有急著分出先後。 # speaker:旁白}
 ->->

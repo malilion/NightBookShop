@@ -6,11 +6,11 @@ import { smallTargets } from "./touch-target-helpers";
 import { appReady } from "./app-ready";
 
 const cases = [
-  { name: "通知", version: "boyan-chapter-24", mode: "notifications", selector: ".notification-panel", action: ".notification-card button" },
-  { name: "旋律", version: "ruoyin-chapter-24", mode: "melody", selector: ".melody-panel", action: ".melody-key" },
-  { name: "爐火", version: "yenuan-chapter-22", mode: "hearth", selector: ".hearth-panel", action: ".hearth-actions button" },
-  { name: "投遞", version: "yuhang-chapter-24", mode: "route", selector: ".route-panel", action: ".route-actions button" },
-  { name: "守燈", version: "haiming-chapter-28", mode: "lamp", selector: ".lamp-panel", action: ".lamp-actions button" },
+  { name: "通知", version: "boyan-chapter-25", mode: "notifications", selector: ".notification-panel", action: ".notification-card button" },
+  { name: "旋律", version: "ruoyin-chapter-25", mode: "melody", selector: ".melody-panel", action: ".melody-key" },
+  { name: "爐火", version: "yenuan-chapter-23", mode: "hearth", selector: ".hearth-panel", action: ".hearth-actions button" },
+  { name: "投遞", version: "yuhang-chapter-25", mode: "route", selector: ".route-panel", action: ".route-actions button" },
+  { name: "守燈", version: "haiming-chapter-29", mode: "lamp", selector: ".lamp-panel", action: ".lamp-actions button" },
   { name: "地圖", version: "lincheng-chapter-20", mode: "archive", selector: ".archive-panel", action: ".archive-record" },
 ] as const;
 

@@ -6,7 +6,8 @@ import { frameSchema, newLetter, type LetterDraft } from "../../src/types/game";
 import { scoreLetter } from "../../src/services/letterScoring";
 import { scoreHearth } from "../../src/services/hearthScoring";
 
-const compiled = readFileSync("public/story/compiled/yenuan-chapter-22.json", "utf8");
+const compiled = readFileSync("public/story/compiled/yenuan-chapter-23.json", "utf8");
+const chapter22Archived = readFileSync("public/story/compiled/yenuan-chapter-22.json", "utf8");
 const chapter21Archived = readFileSync("public/story/compiled/yenuan-chapter-21.json", "utf8");
 const chapter20Archived = readFileSync("public/story/compiled/yenuan-chapter-20.json", "utf8");
 const chapter19Archived = readFileSync("public/story/compiled/yenuan-chapter-19.json", "utf8");
@@ -87,6 +88,19 @@ function play(target: keyof typeof targets, fullLetter = true, storyJson = compi
 }
 
 describe("Yenuan fourth night", () => {
+  it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-two %s route readable", (target) => {
+    expect(play(target, true, chapter22Archived).story.frame.endingId).toBe(target);
+  });
+  it.each(["yenuan-reopen", "yenuan-rest", "yenuan-copy"] as const)("remembers more overlooked choices in the %s afterword", (target) => {
+    const texts = play(target, true, compiled, { chooseTexts: ["如今為何連一口麵包也不肯吃", "陪她先承認今晚仍然難過"] }).texts.join(" ");
+    expect(texts).toContain("不吃麵包，也沒有讓它停下來");
+    expect(texts).toContain("沒有急著分出先後");
+  });
+  it("leaves the newer overlooked-choice lines out of the first-choice route", () => {
+    const texts = play("yenuan-share").texts.join(" ");
+    expect(texts).not.toContain("不吃麵包，也沒有讓它停下來");
+    expect(texts).not.toContain("沒有急著分出先後");
+  });
   it.each(Object.keys(targets) as (keyof typeof targets)[])("keeps the chapter-twenty-one %s route readable", (target) => {
     expect(play(target, true, chapter21Archived).story.frame.endingId).toBe(target);
   });

@@ -278,6 +278,41 @@ describe("complete Jinglan chapter", () => {
     for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
       expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
   });
+  it("continues chapter-eighteen saves against the exact archived compiled story", () => {
+    const previous = readFileSync("public/story/compiled/jinglan-chapter-18.json", "utf8");
+    for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
+      expect(play(2, target, false, previous).story.frame.endingId).toBe(target);
+  });
+  it.each(["recipient", "unfinished", "intervention"])("remembers the questions that pushed Jinglan in the %s afterword", (target) => {
+    const story = new StoryBridge(compiled);
+    story.next();
+    const texts: string[] = [];
+    const desired = { recipient: "問她，是否願意", unfinished: "把信交還給她，今晚", intervention: "替她把信寄出" }[target]!;
+    for (let steps = 0; story.frame.mode !== "ending"; steps++) {
+      expect(steps).toBeLessThan(700);
+      texts.push(story.frame.text);
+      if (story.frame.mode === "tea") story.finishTea({ teaId: "osmanthus", quality: 100, emotionalMatch: 100 });
+      else if (story.frame.mode === "letter") story.finishLetter({ completion: 100, understood: true, alternate: false });
+      else if (story.frame.canContinue) story.next();
+      else {
+        const choices = story.frame.choices;
+        const choice = choices.find((c) => c.text.includes("勸她別再想這些往事") || c.text.includes("當初是不是嫁錯了人"))
+          ?? choices.find((c) => c.text.includes(desired))
+          ?? choices.find((c) => c.text.includes("仍替她封口"))
+          ?? choices[0]!;
+        story.choose(choice.index);
+      }
+    }
+    const text = texts.join(" ");
+    expect(story.frame.endingId).toBe(target);
+    expect(text).toContain("那句話她後來也沒有改口");
+    expect(text).toContain("這句話她說了太多年");
+  });
+  it("leaves the pushing questions out of the first-choice route", () => {
+    const text = play(2, "moonlight").texts.join(" ");
+    expect(text).not.toContain("那句話她後來也沒有改口");
+    expect(text).not.toContain("這句話她說了太多年");
+  });
   it("continues chapter-seventeen saves against the exact archived compiled story", () => {
     const previous = readFileSync("public/story/compiled/jinglan-chapter-17.json", "utf8");
     for (const target of ["moonlight", "recipient", "unfinished", "intervention"])
