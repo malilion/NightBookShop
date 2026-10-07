@@ -1,16 +1,22 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+// Title and game are loaded with the app shell so a mid-story reload does not
+// depend on a second dynamic import (CI has seen that fetch abort and leave an
+// empty RouterView: only the skip link, no letter panel).
+import TitleView from "../views/TitleView.vue";
+import GameView from "../views/GameView.vue";
+
 export const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
       path: "/",
       name: "title",
-      component: () => import("../views/TitleView.vue"),
+      component: TitleView,
     },
     {
       path: "/game",
       name: "game",
-      component: () => import("../views/GameView.vue"),
+      component: GameView,
     },
     {
       path: "/chapters",
