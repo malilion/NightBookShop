@@ -1,5 +1,7 @@
 # PRD 完成度與待驗收項目
 
+宣傳片原始檔（`trailer/`）：80 秒宣傳片的配樂合成（`score.py`）、素材準備（`prep.py`）、逐幀 Canvas 合成（`stage.html`）與 Playwright＋ffmpeg 渲染（`render.mjs`），可重新產生橫式 16:9 與直式 9:16 兩版，用法見 [trailer/README.md](../trailer/README.md)。成品與中間檔在 `trailer/build/`，不進版本控制。不影響遊戲本體、Ink 與存檔。
+
 結局後記依更多中段選擇變化：新版 `jinglan-chapter-16`、`boyan-chapter-22`、`ruoyin-chapter-21`、`yenuan-chapter-19`、`yuhang-chapter-21`、`haiming-chapter-25` 各挑兩個原本選了也不會被記得的非第一項選項（例如問靜蘭重來一次會不會離開、問葉暖麵包仍烤焦會怎麼做、順著海明說燈有人守著），選了之後四種後記各多一句（共 12 句）。這些選項不在首選路線上，篇幅測試量到的時間不變。舊編譯檔保留。
 
 非首選的茶在記憶場景裡也有回響：新版 `jinglan-chapter-15`、`boyan-chapter-21`、`ruoyin-chapter-20`、`yenuan-chapter-18`、`yuhang-chapter-20`、`haiming-chapter-24` 在每夜第二段記憶進場時，依當晚的茶多一句，只寫兩種非首選的茶（共 12 句）。推薦茶的首選路線不變，篇幅測試量到的 40–60 分鐘不受影響；首選路線慢速估計目前約 55–57 分鐘，離 60 分鐘上限只剩 3–5 分鐘，之後的擴寫應放在首選路線不經過的分支。舊編譯檔保留。

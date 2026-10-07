@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>夜行書店 宣傳片</title>
+<style>
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// 夜行書店 宣傳片：逐幀可重現的 Canvas 合成。window.renderAt(t) 畫出第 t 秒的畫面。
+// ?v=1 為 9:16 直式版。所有剪接點對齊配樂小節（72 BPM，一小節 10/3 秒）。
+const params = new URLSearchParams(location.search);
+const VERTICAL = params.get("v") === "1";
+const W = VERTICAL ? 1080 : 1920;
+const H = VERTICAL ? 1920 : 1080;
+const BAR = 10 / 3;
+const DURATION = 80;
+const canvas = document.getElementById("c");
+canvas.width = W;
+canvas.height = H;
+const ctx = canvas.getContext("2d");
+
+// 寬銀幕遮幅（2.2:1）；直式版不加
+const BAND = VERTICAL ? 0 : Math.round((H - W / 2.2) / 2);
+const PIC = { x: 0, y: BAND, w: W, h: H - BAND * 2 };
+
+const SERIF = '"Songti TC", "LiSong Pro", serif';
+const LATIN = '"Baskerville", "Didot", serif';
+const GOLD = "rgba(236, 206, 150, 1)";
+const PAPER = "rgba(244, 236, 220, 1)";
+
+// ---------- 工具 ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, x) => a + (b - a) * x;
+const smooth = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+const easeOut = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const easeInOut = (x) => { x = clamp(x); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const ramp = (t, a, b) => smooth((t - a) / (b - a));
+function window01(t, a, b, fin = 0.6, fout = 0.6) {
+  return ramp(t, a, a + fin) * (1 - ramp(t, b - fout, b));
+}
+function hash(n) { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
+
+const images = {};
+function load(name, src) {
+  return new Promise((res, rej) => {
+    const im = new Image();
+    im.onload = () => { images[name] = im; res(); };
+    im.onerror = () => rej(new Error(src));
+    im.src = src;
+  });
+}
+
+// 依覆蓋方式畫圖；focus 為畫面焦點（0-1），zoom 為額外放大，pan 為像素偏移
+function cover(img, t01, o = {}) {
+  const { zoom0 = 1.08, zoom1 = 1.0, fx = 0.5, fy = 0.5, dx0 = 0, dx1 = 0, dy0 = 0, dy1 = 0, blur = 0, alpha = 1, filter = "" } = o;
+  const e = easeInOut(t01) * 0.6 + t01 * 0.4;
+  const z = lerp(zoom0, zoom1, e);
+  const rect = o.rect || PIC;
+  const base = Math.max(rect.w / img.width, rect.h / img.height);
+  const s = base * z;
+  const dw = img.width * s, dh = img.height * s;
+  let x = rect.x + rect.w / 2 - dw * fx + lerp(dx0, dx1, e);
+  let y = rect.y + rect.h / 2 - dh * fy + lerp(dy0, dy1, e);
+  // 不讓邊緣露出
+  x = Math.min(rect.x, Math.max(rect.x + rect.w - dw, x));
+  y = Math.min(rect.y, Math.max(rect.y + rect.h - dh, y));
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  const f = [blur > 0.05 ? `blur(${blur}px)` : "", filter].join(" ").trim();
+  if (f) ctx.filter = f;
+  ctx.drawImage(img, x, y, dw, dh);
+  ctx.restore();
+}
+
+// 逐字浮現的文字：每個字依序淡入、上浮並由模糊轉清晰
+function textLine(str, x, y, o = {}) {
+  const {
+    size = 40, t, a, b, font = SERIF, weight = 300, spacing = 0.18, color = PAPER,
+    align = "center", stagger = 0.06, fin = 0.7, fout = 0.6, rise = 14, glow = 18, blurIn = 8,
+  } = o;
+  if (t < a - 0.01 || t > b + 0.01) return;
+  ctx.save();
+  ctx.font = `${weight} ${size}px ${font}`;
+  ctx.textBaseline = "alphabetic";
+  const chars = [...str];
+  const widths = chars.map((c) => ctx.measureText(c).width);
+  const gap = size * spacing;
+  const total = widths.reduce((s, w) => s + w, 0) + gap * (chars.length - 1);
+  let cx = align === "center" ? x - total / 2 : align === "right" ? x - total : x;
+  const out = 1 - ramp(t, b - fout, b);
+  chars.forEach((c, i) => {
+    const local = (t - a - i * stagger) / fin;
+    const p = easeOut(local);
+    if (p > 0.001 && out > 0.001) {
+      ctx.globalAlpha = p * out;
+      const bl = (1 - p) * blurIn + (1 - out) * 4;
+      ctx.filter = bl > 0.1 ? `blur(${bl.toFixed(2)}px)` : "none";
+      ctx.shadowColor = "rgba(255, 196, 120, 0.35)";
+      ctx.shadowBlur = glow;
+      ctx.fillStyle = color;
+      ctx.fillText(c, cx, y + (1 - p) * rise);
+    }
+    cx += widths[i] + gap;
+  });
+  ctx.restore();
+}
+
+function rule(x, y, len, t, a, b, color = "rgba(236, 206, 150, 0.7)") {
+  const p = easeOut((t - a) / 0.9) * (1 - ramp(t, b - 0.5, b));
+  if (p <= 0) return;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = p;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x - (len / 2) * p, y);
+  ctx.lineTo(x + (len / 2) * p, y);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function moonGlyph(cx, cy, r, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = GOLD;
+  ctx.shadowColor = "rgba(255, 210, 140, 0.8)";
+  ctx.shadowBlur = r * 1.6;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.arc(cx + r * 0.42, cy - r * 0.22, r * 0.86, 0, Math.PI * 2, true);
+  ctx.fill("evenodd");
+  ctx.restore();
+}
+
+// ---------- 氛圍層 ----------
+const RAIN = Array.from({ length: 700 }, (_, i) => ({
+  x: hash(i + 1), y: hash(i + 1000), len: 20 + hash(i + 2000) * 46, sp: 0.9 + hash(i + 3000) * 0.9,
+  a: 0.05 + hash(i + 4000) * 0.16, z: hash(i + 5000),
+}));
+function rain(t, strength) {
+  if (strength <= 0) return;
+  ctx.save();
+  ctx.lineCap = "round";
+  for (const d of RAIN) {
+    const travel = (d.y + t * d.sp * 1.7) % 1.2 - 0.1;
+    const y = PIC.y + travel * PIC.h;
+    const x = PIC.x + ((d.x + travel * 0.06) % 1) * PIC.w;
+    ctx.strokeStyle = `rgba(200, 215, 235, ${d.a * strength})`;
+    ctx.lineWidth = 0.6 + d.z * 1.4;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - d.len * 0.12, y + d.len * (0.6 + d.z));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+const MOTES = Array.from({ length: 70 }, (_, i) => ({
+  x: hash(i + 7), y: hash(i + 77), r: 1 + hash(i + 777) * 3.4, s: 0.004 + hash(i + 7777) * 0.012,
+  ph: hash(i + 99) * 6.28, z: hash(i + 999),
+}));
+function motes(t, strength, warm = true) {
+  if (strength <= 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for (const m of MOTES) {
+    const x = PIC.x + ((m.x + Math.sin(t * 0.21 + m.ph) * 0.02 + t * m.s * 0.4) % 1) * PIC.w;
+    const y = PIC.y + ((m.y - t * m.s + 2) % 1) * PIC.h;
+    const tw = 0.55 + 0.45 * Math.sin(t * (1.1 + m.z) + m.ph);
+    const r = m.r * (1 + m.z * 2);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
+    const col = warm ? "255, 205, 140" : "190, 215, 255";
+    g.addColorStop(0, `rgba(${col}, ${0.55 * tw * strength})`);
+    g.addColorStop(1, `rgba(${col}, 0)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r * 3, y - r * 3, r * 6, r * 6);
+  }
+  ctx.restore();
+}
+
+function lightLeak(t, x, y, r, strength, hue = "255, 170, 90") {
+  if (strength <= 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, `rgba(${hue}, ${0.5 * strength})`);
+  g.addColorStop(0.5, `rgba(${hue}, ${0.16 * strength})`);
+  g.addColorStop(1, `rgba(${hue}, 0)`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+function shade(alpha, color = "0, 0, 0") {
+  if (alpha <= 0) return;
+  ctx.save();
+  ctx.fillStyle = `rgba(${color}, ${alpha})`;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+// 由左／下而來的暗角，讓字卡有讀得清楚的底
+function sideShade(side, strength) {
+  ctx.save();
+  let g;
+  if (side === "left") g = ctx.createLinearGradient(PIC.x, 0, PIC.x + PIC.w * 0.62, 0);
+  else if (side === "right") g = ctx.createLinearGradient(PIC.x + PIC.w, 0, PIC.x + PIC.w * 0.38, 0);
+  else g = ctx.createLinearGradient(0, PIC.y + PIC.h, 0, PIC.y + PIC.h * 0.45);
+  g.addColorStop(0, `rgba(4, 6, 12, ${0.82 * strength})`);
+  g.addColorStop(1, "rgba(4, 6, 12, 0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(PIC.x, PIC.y, PIC.w, PIC.h);
+  ctx.restore();
+}
+
+// 字卡後方的柔和暗區
+function backing(cx, cy, rw, rh, strength) {
+  if (strength <= 0) return;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(1, rh / rw);
+  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rw);
+  g.addColorStop(0, `rgba(3, 5, 10, ${0.62 * strength})`);
+  g.addColorStop(0.55, `rgba(3, 5, 10, ${0.3 * strength})`);
+  g.addColorStop(1, "rgba(3, 5, 10, 0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(-rw, -rw, rw * 2, rw * 2);
+  ctx.restore();
+}
+
+let grainTiles = [];
+function makeGrain() {
+  for (let k = 0; k < 6; k++) {
+    const c = document.createElement("canvas");
+    c.width = c.height = 384;
+    const g = c.getContext("2d");
+    const img = g.createImageData(384, 384);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = 128 + (hash(i * 0.37 + k * 913) - 0.5) * 255;
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+      img.data[i + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    grainTiles.push(c);
+  }
+}
+
+function finish(t, frame) {
+  // 暗角
+  ctx.save();
+  const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+  vg.addColorStop(0, "rgba(0,0,0,0)");
+  vg.addColorStop(1, "rgba(0,0,0,0.55)");
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, W, H);
+  // 底片顆粒
+  ctx.globalCompositeOperation = "overlay";
+  ctx.globalAlpha = 0.085;
+  const tile = grainTiles[frame % grainTiles.length];
+  const ox = Math.floor(hash(frame) * 384), oy = Math.floor(hash(frame + 0.5) * 384);
+  for (let x = -ox; x < W; x += 384) for (let y = -oy; y < H; y += 384) ctx.drawImage(tile, x, y);
+  ctx.restore();
+  // 遮幅
+  if (BAND) {
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, BAND);
+    ctx.fillRect(0, H - BAND, W, BAND);
+  }
+}
+
+// ---------- 鏡頭 ----------
+const B = (n) => n * BAR;
+const V = VERTICAL;
+// 文字尺寸：直式版畫面窄，字略小但仍清楚
+const S = (n) => (V ? n * 1.22 : n);
+const CX = W / 2;
+const CY = PIC.y + PIC.h / 2;
+
+const VISITORS = [
+  { night: "第一夜", name: "靜蘭", title: "月下未寄出的信", hook: "五十年前，她錯過了一班列車。", bg: "memory-platform", ch: "jinglan", side: "right", fx: 0.42 },
+  { night: "第二夜", name: "柏言", title: "明日之前，請讓我停一下", hook: "手錶，停在十一點四十七分。", bg: "memory-office", ch: "boyan", side: "left", fx: 0.6 },
+  { night: "第三夜", name: "若音", title: "在最後一個音符之後", hook: "最後一小節，她始終沒有落筆。", bg: "memory-grandstage", ch: "ruoyin", side: "right", fx: 0.4 },
+  { night: "第四夜", name: "葉暖", title: "沒有送到的生日麵包", hook: "每年天亮以前，她都丟掉同一個麵包。", bg: "memory-old-oven", ch: "yenuan", side: "left", fx: 0.62 },
+  { night: "第五夜", name: "程雨航", title: "收件人是我自己", hook: "郵袋裡唯一淋濕的，是寫給自己的信。", bg: "memory-last-bus", ch: "yuhang", side: "right", fx: 0.45 },
+  { night: "第六夜", name: "顧海明", title: "熄燈以前，請記得海", hook: "他記錯了年份，卻沒有忘記海。", bg: "memory-lighthouse", ch: "haiming", side: "left", fx: 0.55 },
+];
+
+function visitorShot(v, idx) {
+  const a = B(6 + idx), b = B(7 + idx);
+  return {
+    a, b, xin: 0.5,
+    draw(t) {
+      const u = (t - a) / (b - a);
+      cover(images[v.bg], u, { zoom0: 1.16, zoom1: 1.06, fx: v.fx, dx0: v.side === "right" ? 30 : -30, dx1: v.side === "right" ? -30 : 30, filter: "brightness(0.78) saturate(0.92)" });
+      motes(t, 0.6);
+      sideShade(V ? "bottom" : v.side === "right" ? "left" : "right", 1);
+      // 人物立繪：由景深處滑入
+      const img = images[`char-${v.ch}`];
+      const p = easeOut((t - a + 0.15) / 1.4);
+      const ph = V ? PIC.h * 0.56 : PIC.h * 1.02;
+      const pw = (img.width / img.height) * ph;
+      const px = V ? CX - pw / 2 + lerp(60, 0, p) * (idx % 2 ? -1 : 1)
+        : v.side === "right" ? PIC.x + PIC.w * 0.72 - pw / 2 + lerp(70, -10, u) : PIC.x + PIC.w * 0.28 - pw / 2 + lerp(-70, 10, u);
+      const py = V ? PIC.y + PIC.h * 0.08 + lerp(30, 0, p) : PIC.y + PIC.h * 0.06 + lerp(40, 0, p);
+      ctx.save();
+      ctx.globalAlpha = p;
+      ctx.shadowColor = "rgba(255, 190, 120, 0.25)";
+      ctx.shadowBlur = 40;
+      ctx.filter = `blur(${((1 - p) * 6).toFixed(2)}px) brightness(0.95)`;
+      ctx.drawImage(img, px, py, pw, ph);
+      ctx.restore();
+      // 立繪腳下融入暗部
+      const fg = ctx.createLinearGradient(0, PIC.y + PIC.h * 0.78, 0, PIC.y + PIC.h);
+      fg.addColorStop(0, "rgba(4,6,12,0)");
+      fg.addColorStop(1, "rgba(4,6,12,0.75)");
+      ctx.fillStyle = fg;
+      ctx.fillRect(PIC.x, PIC.y, PIC.w, PIC.h);
+      // 字卡
+      const tx = V ? CX : v.side === "right" ? PIC.x + PIC.w * 0.2 : PIC.x + PIC.w * 0.8;
+      const align = V ? "center" : v.side === "right" ? "left" : "right";
+      const ty = V ? PIC.y + PIC.h * 0.71 : CY - 40;
+      const ta = a + 0.25, tb = b + 0.1;
+      textLine(v.night, tx, ty - S(88), { t, a: ta, b: tb, size: S(22), spacing: 0.6, color: GOLD, align, glow: 10 });
+      textLine(v.name, tx, ty, { t, a: ta + 0.25, b: tb, size: S(78), weight: 400, spacing: 0.22, align, stagger: 0.12 });
+      textLine(`〈${v.title}〉`, tx, ty + S(58), { t, a: ta + 0.55, b: tb, size: S(26), spacing: 0.16, color: "rgba(236, 222, 196, 0.85)", align, stagger: 0.025 });
+      textLine(v.hook, tx, ty + S(124), { t, a: ta + 1.0, b: tb, size: S(30), spacing: 0.12, align, stagger: 0.04, color: PAPER });
+    },
+  };
+}
+
+// 遊戲畫面：浮在暗色書店前的面板
+function uiPanel(name, t, a, b, o = {}) {
+  const img = images[name];
+  const pin = easeOut((t - a) / 0.9);
+  const pout = 1 - ramp(t, b - 0.45, b);
+  if (pin <= 0 || pout <= 0) return;
+  const u = clamp((t - a) / (b - a));
+  const pw = V ? W * 0.96 : W * 0.56;
+  const ph = (img.height / img.width) * pw;
+  const cx = CX + (o.dx || 0);
+  const cy = (V ? PIC.y + PIC.h * 0.42 : CY - 20) + lerp(30, -12, u) + (1 - pin) * 40;
+  const z = lerp(0.985, 1.03, u);
+  ctx.save();
+  ctx.globalAlpha = pin * pout;
+  ctx.translate(cx, cy);
+  ctx.scale(z, z);
+  ctx.shadowColor = "rgba(0,0,0,0.7)";
+  ctx.shadowBlur = 60;
+  ctx.shadowOffsetY = 24;
+  ctx.fillStyle = "#0b0f18";
+  ctx.fillRect(-pw / 2, -ph / 2, pw, ph);
+  ctx.shadowColor = "transparent";
+  ctx.drawImage(img, -pw / 2, -ph / 2, pw, ph);
+  ctx.strokeStyle = "rgba(236, 206, 150, 0.45)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(-pw / 2 + 0.5, -ph / 2 + 0.5, pw - 1, ph - 1);
+  // 玻璃反光
+  const sh = ctx.createLinearGradient(-pw / 2, -ph / 2, pw / 2, ph / 2);
+  const sx = lerp(-0.4, 1.2, u);
+  sh.addColorStop(clamp(sx - 0.15), "rgba(255,255,255,0)");
+  sh.addColorStop(clamp(sx), "rgba(255,240,220,0.07)");
+  sh.addColorStop(clamp(sx + 0.15), "rgba(255,255,255,0)");
+  ctx.fillStyle = sh;
+  ctx.fillRect(-pw / 2, -ph / 2, pw, ph);
+  ctx.restore();
+}
+
+const CLIMAX = [
+  { bg: "memory-train", fx: 0.5 },
+  { bg: "memory-banquet", fx: 0.5 },
+  { bg: "memory-hospital", fx: 0.5 },
+  { bg: "memory-backstage", fx: 0.55 },
+  { bg: "memory-summer-visit", fx: 0.6 },
+  { bg: "memory-post-office", fx: 0.5 },
+  { bg: "memory-child-home", fx: 0.45, ch: "lincheng-child", chx: 0.82 },
+  { bg: "bookshop-lincheng", fx: 0.5 },
+];
+
+const SHOTS = [
+  // 0 雨夜
+  { a: 0, b: B(2), draw(t) {
+    const u = t / B(2);
+    cover(images["rain-street"], u, { zoom0: 1.22, zoom1: 1.07, fx: 0.62, fy: 0.5, blur: lerp(7, 0, smooth(t / 4)), filter: "brightness(0.9)" });
+    rain(t, 1);
+    lightLeak(t, PIC.x + PIC.w * 0.7, PIC.y + PIC.h * 0.45, PIC.w * 0.35, 0.35 + 0.1 * Math.sin(t * 1.3));
+    backing(CX, CY - 16, S(420), 110, ramp(t, 1.0, 2.0));
+    shade(1 - ramp(t, 0.5, 3.2));
+    textLine("午夜十二點", CX, CY + (V ? 0 : -6), { t, a: 1.3, b: 4.0, size: S(34), spacing: 0.5, color: PAPER });
+    textLine("城裡多了一盞燈", CX, CY + (V ? 0 : -6), { t, a: 4.1, b: B(2) + 0.2, size: S(34), spacing: 0.5, color: PAPER });
+  } },
+  // 1 書店的門
+  { a: B(2), b: B(3), xin: 0.8, draw(t) {
+    const u = (t - B(2)) / BAR;
+    cover(images["memory-bookshop-door"], u, { zoom0: 1.04, zoom1: 1.16, fx: 0.55, fy: 0.42 });
+    rain(t, 0.55);
+    lightLeak(t, PIC.x + PIC.w * 0.55, PIC.y + PIC.h * 0.4, PIC.w * 0.3, 0.25 + 0.25 * ramp(t, B(2) + 0.3, B(2) + 1.2));
+    sideShade("bottom", 0.9);
+    textLine("一間書店，只在午夜與黎明之間開門", CX, PIC.y + PIC.h * (V ? 0.68 : 0.86), { t, a: B(2) + 0.45, b: B(3) + 0.25, size: S(34), spacing: 0.2, stagger: 0.045 });
+  } },
+  // 2 櫃台後的林澄
+  { a: B(3), b: B(4), xin: 0.6, draw(t) {
+    const u = (t - B(3)) / BAR;
+    cover(images["counter"], u, { zoom0: 1.12, zoom1: 1.04, fx: V ? 0.24 : 0.4, dx0: -40, dx1: 40 });
+    motes(t, 0.8);
+    sideShade(V ? "bottom" : "right", 0.9);
+    const tx = V ? CX : PIC.x + PIC.w * 0.8;
+    const al = V ? "center" : "right";
+    const ty = V ? PIC.y + PIC.h * 0.68 : CY + 10;
+    textLine("暫代店員　林澄", tx, ty - S(50), { t, a: B(3) + 0.35, b: B(4) + 0.2, size: S(24), spacing: 0.45, color: GOLD, align: al });
+    textLine("天亮以前，她不能離開。", tx, ty + S(14), { t, a: B(3) + 0.8, b: B(4) + 0.2, size: S(40), spacing: 0.16, align: al, stagger: 0.06 });
+  } },
+  // 3 靜蘭與信
+  { a: B(4), b: B(5), xin: 0.6, draw(t) {
+    const u = (t - B(4)) / BAR;
+    cover(images["jinglan"], u, { zoom0: 1.06, zoom1: 1.16, fx: V ? 0.68 : 0.62, fy: 0.42, dx0: 20, dx1: -20 });
+    motes(t, 0.7);
+    sideShade("bottom", 0.95);
+    textLine("每一位深夜來客", CX, PIC.y + PIC.h * (V ? 0.68 : 0.86), { t, a: B(4) + 0.4, b: B(5) + 0.25, size: S(36), spacing: 0.3 });
+  } },
+  // 4 桌上的信
+  { a: B(5), b: B(6), xin: 0.6, draw(t) {
+    const u = (t - B(5)) / BAR;
+    cover(images["memory-school"], u, { zoom0: 1.0, zoom1: 1.14, fx: 0.46, fy: 0.62, blur: lerp(3, 0, smooth((t - B(5)) / 1.5)) });
+    motes(t, 0.9);
+    sideShade("bottom", 0.95);
+    textLine("都帶著一封，沒有寄出的信", CX, PIC.y + PIC.h * (V ? 0.68 : 0.86), { t, a: B(5) + 0.3, b: B(6) - 0.05, size: S(36), spacing: 0.24, stagger: 0.055, fout: 0.4 });
+  } },
+  ...VISITORS.map(visitorShot),
+  // 玩法
+  { a: B(12), b: B(14), xin: 0.6, draw(t) {
+    const u = (t - B(12)) / (2 * BAR);
+    cover(images["bookshop-lincheng"], u, { zoom0: 1.1, zoom1: 1.02, blur: 10, filter: "brightness(0.42) saturate(0.8)" });
+    motes(t, 0.7);
+    const s1 = B(12), s2 = B(12) + 2.2, s3 = B(12) + 4.4, e = B(14);
+    uiPanel("ui-tea-infusion", t, s1 + 0.1, s2 + 0.2);
+    uiPanel("ui-dialogue", t, s2, s3 + 0.2);
+    uiPanel("ui-letter", t, s3, e + 0.1);
+    const ty = V ? PIC.y + PIC.h * 0.68 : PIC.y + PIC.h * 0.92;
+    textLine("為他泡一杯茶", CX, ty, { t, a: s1 + 0.35, b: s2 + 0.1, size: S(32), spacing: 0.4, fout: 0.35 });
+    textLine("聽完一個沒說完的故事", CX, ty, { t, a: s2 + 0.3, b: s3 + 0.1, size: S(32), spacing: 0.3, fout: 0.35 });
+    textLine("把散落的字句，拼回信裡", CX, ty, { t, a: s3 + 0.3, b: e - 0.05, size: S(32), spacing: 0.3, fout: 0.35 });
+  } },
+  // 轉折：員工手冊第一頁
+  { a: B(14), b: B(15) + 0.3, xin: 0.9, draw(t) {
+    const u = (t - B(14)) / BAR;
+    cover(images["memory"], u, { zoom0: 1.2, zoom1: 1.1, fx: V ? 0.73 : 0.68, fy: 0.42, filter: `brightness(${lerp(0.35, 0.7, smooth(u))}) saturate(${lerp(0.4, 0.95, smooth(u))})` });
+    motes(t, 0.9);
+    shade(0.35);
+    textLine("員工手冊　第一頁", CX, CY - S(70), { t, a: B(14) + 0.5, b: B(15) + 0.3, size: S(22), spacing: 0.6, color: GOLD, glow: 8 });
+    rule(CX, CY - S(44), S(120), t, B(14) + 0.7, B(15) + 0.3);
+    textLine("店員也必須留下自己的故事", CX, CY + S(12), { t, a: B(14) + 1.0, b: B(15) + 0.3, size: S(40), spacing: 0.2, stagger: 0.07 });
+    textLine("才能在黎明以前離開。", CX, CY + S(76), { t, a: B(14) + 2.0, b: B(15) + 0.3, size: S(40), spacing: 0.2, stagger: 0.07 });
+  } },
+  // 轉折：店主
+  { a: B(15) + 0.3, b: B(16), xin: 0.5, draw(t) {
+    const a = B(15) + 0.3;
+    const u = (t - a) / (B(16) - a);
+    cover(images["memory-hidden-room"], u, { zoom0: 1.08, zoom1: 1.14, filter: "brightness(0.5)" });
+    const img = images["char-owner"];
+    const ph = V ? PIC.h * 0.62 : PIC.h * 0.98;
+    const pw = (img.width / img.height) * ph;
+    const px = V ? CX - pw / 2 : PIC.x + PIC.w * 0.68 - pw / 2;
+    const py = V ? PIC.y + PIC.h * 0.1 : PIC.y + PIC.h * 0.08;
+    // 先是剪影，再被燈點亮
+    const lit = ramp(t, a + 0.6, a + 2.4);
+    ctx.save();
+    ctx.filter = `brightness(${lerp(0.06, 0.82, lit)}) contrast(1.05)`;
+    ctx.shadowColor = "rgba(255, 190, 110, 0.35)";
+    ctx.shadowBlur = 50;
+    ctx.globalAlpha = ramp(t, a - 0.2, a + 0.6);
+    ctx.drawImage(img, px + lerp(20, 0, u), py, pw, ph);
+    ctx.restore();
+    lightLeak(t, px + pw * 0.8, py + ph * 0.7, PIC.w * 0.2, lit * 0.6);
+    sideShade(V ? "bottom" : "left", 0.9);
+    const tx = V ? CX : PIC.x + PIC.w * 0.22;
+    const ty = V ? PIC.y + PIC.h * 0.68 : CY;
+    textLine("而這間書店，", tx, ty - S(30), { t, a: a + 0.3, b: B(16) + 0.05, size: S(38), spacing: 0.2, align: V ? "center" : "left", fout: 0.3 });
+    textLine("一直在等她回來。", tx, ty + S(36), { t, a: a + 1.1, b: B(16) + 0.05, size: S(38), spacing: 0.2, align: V ? "center" : "left", fout: 0.3 });
+  } },
+  // 高潮快剪
+  ...CLIMAX.map((c, i) => {
+    const a = B(16) + i * (BAR / 2), b = a + BAR / 2;
+    return { a, b, xin: i === 0 ? 0.12 : 0.18, draw(t) {
+      const u = (t - a) / (b - a);
+      const punch = 1 + 0.05 * (1 - easeOut(u * 2.5));
+      cover(images[c.bg], u, { zoom0: 1.12 * punch, zoom1: 1.04, fx: c.fx, dx0: i % 2 ? 40 : -40, dx1: i % 2 ? -40 : 40, filter: "brightness(0.85)" });
+      if (c.ch) {
+        const img = images[`char-${c.ch}`];
+        const ph = V ? PIC.h * 0.55 : PIC.h * 0.95;
+        const pw = (img.width / img.height) * ph;
+        ctx.save();
+        ctx.filter = "brightness(0.95)";
+        ctx.drawImage(img, (V ? CX : PIC.x + PIC.w * (c.chx || 0.66)) - pw / 2 + lerp(20, -10, u), PIC.y + PIC.h * (V ? 0.3 : 0.08), pw, ph);
+        ctx.restore();
+      }
+      motes(t, 0.8);
+      // 剪接瞬間的光
+      lightLeak(t, PIC.x + PIC.w * (i % 2 ? 0.85 : 0.15), PIC.y + PIC.h * 0.3, PIC.w * 0.5, 0.8 * (1 - easeOut(u * 3)));
+    } };
+  }),
+  // 片名
+  { a: B(20), b: DURATION, xin: 0.01, draw(t) {
+    const a = B(20);
+    const u = (t - a) / (DURATION - a);
+    cover(images["moon-sea"], u, { zoom0: 1.54, zoom1: 1.43, fx: V ? 0.55 : 0.47, fy: 0.64, blur: lerp(16, 3.2, easeOut((t - a) / 2.4)), filter: `brightness(${lerp(1.6, 0.62, easeOut((t - a) / 1.8))})` });
+    motes(t, 1);
+    shade(0.22);
+    backing(CX, V ? CY - 40 : CY + 10, S(760), S(260), 1);
+    // 重擊瞬間的閃白
+    shade(0.85 * (1 - easeOut((t - a) / 0.9)), "255, 236, 205");
+    const titleOut = 1 - ramp(t, 73.0, 74.2);
+    const tA = a + 0.6;
+    const ty = V ? CY - 60 : CY - 18;
+    moonGlyph(CX, ty - S(150), S(15), easeOut((t - tA) / 1.2) * titleOut);
+    textLine("夜行書店", CX, ty, { t, a: tA, b: 74.2, size: S(V ? 130 : 128), weight: 400, spacing: 0.42, stagger: 0.16, fin: 1.4, rise: 0, glow: 34, blurIn: 18, fout: 1.2 });
+    rule(CX, ty + S(52), S(260), t, tA + 1.0, 74.2);
+    textLine("THE MIDNIGHT BOOKSHOP", CX, ty + S(102), { t, a: tA + 1.3, b: 74.2, font: LATIN, weight: 400, size: S(26), spacing: 0.5, stagger: 0.03, color: GOLD, glow: 10, fout: 1.2 });
+    // 標語與上市字卡
+    textLine("有些話，只能在午夜說完。", CX, CY + S(10), { t, a: 74.4, b: 77.3, size: S(42), spacing: 0.22, stagger: 0.08 });
+    shade(ramp(t, 77.0, 78.0) * 0.9);
+    const endA = 77.6;
+    moonGlyph(CX, CY - S(70), S(11), easeOut((t - endA) / 1.0) * (1 - ramp(t, 79.2, 79.9)));
+    textLine("夜行書店", CX, CY + S(4), { t, a: endA, b: 79.9, size: S(46), weight: 400, spacing: 0.4, stagger: 0.06, fout: 0.7 });
+    textLine("即將開門　·　COMING SOON", CX, CY + S(64), { t, a: endA + 0.5, b: 79.9, font: SERIF, size: S(20), spacing: 0.5, stagger: 0.02, color: GOLD, glow: 8, fout: 0.7 });
+  } },
+];
+
+// 高潮段的大字：橫跨數個鏡頭
+function climaxText(t) {
+  const ty = V ? PIC.y + PIC.h * 0.68 : CY + 10;
+  backing(CX, ty - S(18), S(560), S(150), ramp(t, B(16), B(16) + 0.4) * (1 - ramp(t, B(20) - 0.6, B(20) - 0.3)));
+  textLine("七個夜晚", CX, ty, { t, a: B(16) + 0.2, b: B(17) + 1.5, size: S(56), weight: 400, spacing: 0.5, stagger: 0.12, fout: 0.3 });
+  textLine("二十八種結局", CX, ty, { t, a: B(17) + 1.7, b: B(18) + 1.6, size: S(56), weight: 400, spacing: 0.4, stagger: 0.1, fout: 0.3 });
+  textLine("每一個回應，都會被記得。", CX, ty, { t, a: B(18) + 1.8, b: B(20) - 0.32, size: S(46), weight: 400, spacing: 0.22, stagger: 0.07, fout: 0.25 });
+}
+
+function renderAt(t, frame = Math.round(t * 30)) {
+  ctx.save();
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, W, H);
+  ctx.beginPath();
+  ctx.rect(PIC.x, PIC.y, PIC.w, PIC.h);
+  ctx.clip();
+  for (let i = 0; i < SHOTS.length; i++) {
+    const s = SHOTS[i];
+    const next = SHOTS[i + 1];
+    const xin = s.xin ?? 0.5;
+    const tailEnd = next ? s.b + (next.xin ?? 0.5) / 2 : s.b;
+    if (t < s.a - xin / 2 || t > tailEnd) continue;
+    ctx.save();
+    ctx.globalAlpha = i === 0 ? 1 : ramp(t, s.a - xin / 2, s.a + xin / 2);
+    s.draw(t);
+    ctx.restore();
+  }
+  if (t > B(16) && t < B(20)) climaxText(t);
+  // 片名重擊前的黑
+  shade(ramp(t, B(20) - 0.36, B(20) - 0.3) * (1 - ramp(t, B(20) - 0.02, B(20))));
+  ctx.restore();
+  finish(t, frame);
+}
+
+window.renderAt = renderAt;
+window.ready = (async () => {
+  const sceneNames = [...new Set([
+    "rain-street", "memory-bookshop-door", "counter", "jinglan", "memory-school", "bookshop-lincheng", "memory",
+    "memory-hidden-room", "moon-sea", ...VISITORS.map((v) => v.bg), ...CLIMAX.map((c) => c.bg),
+  ])];
+  const jobs = sceneNames.map((n) => load(n, `build/img/${n}.jpg`));
+  for (const c of [...VISITORS.map((v) => v.ch), "owner", "lincheng-child"]) jobs.push(load(`char-${c}`, `build/img/char-${c}.png`));
+  for (const u of ["tea-infusion", "dialogue", "letter"]) jobs.push(load(`ui-${u}`, `build/img/ui-${u}.jpg`));
+  await Promise.all(jobs);
+  await document.fonts.load(`300 40px ${SERIF}`, "夜行書店");
+  await document.fonts.load(`400 40px ${SERIF}`, "夜行書店");
+  makeGrain();
+  const t0 = params.get("t");
+  renderAt(t0 ? Number(t0) : 0);
+  return true;
+})();
+</script>
+</body>
+</html>
